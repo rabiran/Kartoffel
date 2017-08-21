@@ -5,13 +5,20 @@ import * as dotenv        from 'dotenv';
 import * as errorHandler  from 'errorhandler';
 import * as logger        from 'morgan';
 import * as path          from 'path';
-import * as mongo         from 'connect-mongo';
+import * as mongo         from 'connect-mongo'; // ToUse?
 import * as mongoose      from 'mongoose';
 import * as passport      from 'passport';
 import * as _             from 'lodash';
-
 import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
+
+import * as userRouter from './user/user.route';
+
+const app = express();
+
+/**
+ *  Swagger configuration
+ */
 
 const swaggerDoc = YAML.load('openapi.yaml');
 
@@ -20,19 +27,16 @@ swaggerTools.initializeMiddleware(swaggerDoc, (middleware: any) => {
     app.use(middleware.swaggerUi());
 });
 
-const MongoStore = mongo(session);
-
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
 dotenv.config({ path: '.env' });
 
-const app = express();
-
 /**
  * Connect to MongoDB.
  */
-mongoose.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI);
+(<any>mongoose).Promise = Promise;
+mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on('error', () => {
   console.log('MongoDB connection error. Please make sure MongoDB is running.');
@@ -43,10 +47,15 @@ mongoose.connection.on('error', () => {
  * Express configuration
  */
 app.set('port', process.env.PORT || 3000);
-app.use('/api', logger('dev')); // Morgan
+
+// Don't log while testing
+if (process.env.NODE_ENV != 'test') {
+  app.use('/api', logger('dev')); // Morgan
+}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use('/api/user', userRouter);
 
 /**
  * Error Handler. Provides full stack - remove for production
