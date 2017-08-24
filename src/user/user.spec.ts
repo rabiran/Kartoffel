@@ -12,15 +12,15 @@ chai.use(require('chai-http'));
 
 const userExamples: Array<IUser> = [
     <IUser>{
-        _id : '123456',
-        firstName: 'Mazal',
-        lastName: 'Tov'
-    },
-    <IUser>{
-        _id : '234567',
+        _id : '1234567',
         firstName: 'Avi',
         lastName: 'Ron',
         mail: 'avi.ron@gmail.com'
+    },
+    <IUser>{
+        _id : '234567',
+        firstName: 'Mazal',
+        lastName: 'Tov'
     },
     <IUser>{
         _id : '345678',
@@ -144,6 +144,23 @@ describe('Users', () => {
             user.should.exist;
             user.should.have.property('_id', '1234567');
             user.should.have.property('firstName', 'Avi');
+        });
+    });
+    describe('#removeUser', () => {
+        it('Should throw an error when there is no user to remove', async () => {
+            const res = await User.removeUser('1234567');
+            res.should.exist;
+            res.should.have.property('ok', 1);
+            res.should.have.property('n', 0);
+        });
+        it('Should remove a user successfully if existed', async () => {
+            await User.createUser(userExamples[0]);
+            const res = await User.removeUser('1234567');
+            res.should.exist;
+            res.should.have.property('ok', 1);
+            res.should.have.property('n', 1);
+            const user = await User.getUser('1234567');
+            should.not.exist(user);
         });
     });
 });

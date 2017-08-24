@@ -21,3 +21,4 @@
 | GET    	| /api/user/getAll     	            | Returns all the users            	| None                  	| /api/user/getAll     	|
 | POST    	| /api/user          	            | Create new user                	| None (yet)              	| /api/user          	|
 | GET           | /api/user/:id                     | Get user by his ID                | None                          | /api/user/1234567     |
+| DELETE        | /api/user/:id                     | Remove a user by his ID           | None (yet)                    | /api/user/1234567     |

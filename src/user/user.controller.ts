@@ -17,14 +17,6 @@ export class User {
         return <IUser[]>users;
     }
 
-    // id: string, firstName: string,  lastName: string,
-    // hierarchy: Array<string> = [],  directGroup: string = undefined,
-    // weakGroups: Array<string> = [], adminGroups: Array<string> = [],
-    // job: string = undefined,        mail: string = undefined,
-    // phone: string = undefined,      isSecurityOfficer: boolean = false,
-    // rank: Rank = 'Newbie',          securityOfficerLocation: string = undefined,
-    // address: string = undefined,    clearance: number = 0
-
     public static async createUser( user: IUser ): Promise<IUser> {
         const newUser = await User._userRepository.create(user);
         return <IUser>newUser;
@@ -35,8 +27,8 @@ export class User {
         return <IUser>user;
     }
 
-    // public createUser = async ( user: IUser ): Promise<IUser> => {
-    //     const newUser = await this._userService.create(user);
-    //     return <IUser>newUser;
-    // }
+    public static async removeUser(userID: string): Promise<any> {
+        const res = await User._userRepository.delete(userID);
+        return res.result;
+    }
 }

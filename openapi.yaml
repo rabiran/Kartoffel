@@ -48,20 +48,19 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/User"
-  /user/{username}:
+  /user/{userID}:
     get:
       tags:
       - "user"
-      summary: "Get user by user name"
+      summary: "Get user by ID"
       description: ""
-      operationId: "getUserByName"
+      operationId: "getUserByID"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
-      - name: "username"
+      - name: "userID"
         in: "path"
-        description: "The name that needs to be fetched. Use user1 for testing. "
+        description: "The ID of the user. Use '1234567' for testing. "
         required: true
         type: "string"
       responses:
@@ -80,10 +79,9 @@ paths:
       description: "This can only be done by the logged in user."
       operationId: "updateUser"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
-      - name: "username"
+      - name: "userID"
         in: "path"
         description: "name that need to be updated"
         required: true
@@ -103,20 +101,21 @@ paths:
       tags:
       - "user"
       summary: "Delete user"
-      description: "This can only be done by the logged in user."
+      description: ""
       operationId: "deleteUser"
       produces:
-      - "application/xml"
       - "application/json"
       parameters:
-      - name: "username"
+      - name: "userID"
         in: "path"
-        description: "The name that needs to be deleted"
+        description: "The ID that needs to be deleted"
         required: true
         type: "string"
       responses:
+        200:
+          description: "successful operation"
         400:
-          description: "Invalid username supplied"
+          description: "Invalid ID supplied"
         404:
           description: "User not found"
 # securityDefinitions:
@@ -135,12 +134,12 @@ definitions:
   User:
     type: "object"
     required:
-    - "id"
+    - "_id"
     - "firstName"
     - "lastName"
     properties:
-      id:
-        type: "integer"
+      _id:
+        type: "string"
         example: "1234567"
       firstName:
         type: "string"

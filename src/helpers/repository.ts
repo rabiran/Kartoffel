@@ -47,7 +47,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
         return updateQuery.exec();
     }
 
-    delete(_id: any): Promise<void> {
+    delete(_id: any): Promise<any> {
         return this._model.remove({ _id: _id }).exec();
     }
 
