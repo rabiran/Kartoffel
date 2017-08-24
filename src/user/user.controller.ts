@@ -30,6 +30,11 @@ export class User {
         return <IUser>newUser;
     }
 
+    public static async getUser(userID: string): Promise<IUser> {
+        const user = await User._userRepository.findById(userID);
+        return <IUser>user;
+    }
+
     // public createUser = async ( user: IUser ): Promise<IUser> => {
     //     const newUser = await this._userService.create(user);
     //     return <IUser>newUser;

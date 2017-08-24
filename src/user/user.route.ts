@@ -18,6 +18,19 @@ users.get('/getAll', async (req: Request, res: Response, next: NextFunction) => 
     }
 });
 
+users.get('/:userID', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userID  = req.params.userID;
+        const user = await User.getUser(userID);
+        if (!user) {
+            return res.status(404).send('There is no user with ID' + userID);
+        }
+        return res.json(user || { message: 'OK' });
+    } catch (error) {
+        return res.status(500).json(error);
+    }
+});
+
 users.post('/', async (req: Request, res: Response, next: NextFunction) => {
     const user: IUser = req.body;
     try {
@@ -25,9 +38,11 @@ users.post('/', async (req: Request, res: Response, next: NextFunction) => {
         return res.json(result || { message: 'OK' });
     } catch (error) {
         console.log('Error creating a new User: ' + error);
-        return res.status(500).json(error);
+        return res.status(400).json(error);
     }
 });
+
+
 
 
 export = users;

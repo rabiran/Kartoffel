@@ -133,4 +133,17 @@ describe('Users', () => {
             });
         });
     });
+    describe('#getUser', () => {
+        it('Should throw an error when there is no matching user', async () => {
+            const user = await User.getUser('1234567');
+            should.not.exist(user);
+        });
+        it('Should find user when one exists', async () => {
+            await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+            const user = await User.getUser('1234567');
+            user.should.exist;
+            user.should.have.property('_id', '1234567');
+            user.should.have.property('firstName', 'Avi');
+        });
+    });
 });
