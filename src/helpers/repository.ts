@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose';
-import { IPaginationOptions } from '../pagination/pagination.class';
 
 interface IRead {
     find: (cond: Object, populate: Object | string) => Promise<mongoose.Document[]>;
@@ -86,5 +85,4 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
         return findPromise.exec();
     }
 
-//   abstract search(searchTerm?: string, paginationOptions?: IPaginationOptions, additionalFilter?: Object, ): Promise<ICollection<T>>;
 }
