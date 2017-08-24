@@ -17,8 +17,30 @@ const mochaAsync = (func: Function) => {
     };
 };
 
+export const expectError = async (func: Function, params: Array<any>) => {
+    let isError = false;
+    try {
+        await func(...params);
+    } catch (err) {
+        err.should.exist;
+        isError = true;
+    }
+    isError.should.be.true;
+};
+
 before(async () => {
     mongoose.connect(process.env.MONGODB_TEST_URI);
+});
+
+beforeEach(async () => {
+
+    const removeCollectionPromises = [];
+
+    for (const i in mongoose.connection.collections) {
+        removeCollectionPromises.push(mongoose.connection.collections[i].remove({}));
+    }
+
+    await Promise.all(removeCollectionPromises);
 });
 
 after(done => {

@@ -1,60 +1,173 @@
 swagger: "2.0"
 info:
-  version: "0.0.1"
-  title: Hello World App
-# during dev, should point to your local machine
-host: localhost:10010
-# basePath prefixes all resource paths 
-basePath: /
-# 
+  description: "This is a sample server Kartoffel server."
+  version: "0.0.2"
+  title: "Kartoffel"
+host: "localhost:3000"
+basePath: "/api"
+tags:
+- name: "user"
+  description: "Operations about user"
+- name: "groups"
+  description: "Group stuff"
 schemes:
-  # tip: remove http to make production-grade
-  - http
-  - https
-# format of bodies a client can send (Content-Type)
-consumes:
-  - application/json
-# format of the responses to the client (Accepts)
-produces:
-  - application/json
+- "http"
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
-    get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
+  /user:
+    post:
+      tags:
+      - "user"
+      summary: "Create a new user"
+      description: "This could be done with permissions only"
+      operationId: "createUser"
+      produces:
+      - "application/json"
       parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
+      - in: "body"
+        name: "body"
+        description: "Created user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
       responses:
-        "200":
-          description: Success
+        200:
+          description: "successful operation"
+        405:
+          description: "Invalid Input"
+  /user/getAll:
+    get:
+      tags: 
+      - "user"
+      summary: "Get all the Users "
+      description: ""
+      operationId: "getAllUsers"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
           schema:
-            # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
-        # responses may fall through to errors
-        default:
-          description: Error
+            $ref: "#/definitions/User"
+  /user/{username}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by user name"
+      description: ""
+      operationId: "getUserByName"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be fetched. Use user1 for testing. "
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
           schema:
-            $ref: "#/definitions/ErrorResponse"
-  /swagger:
-    x-swagger-pipe: swagger_raw
-# complex objects have schema definitions
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+    put:
+      tags:
+      - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "Invalid user supplied"
+        404:
+          description: "User not found"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user"
+      description: "This can only be done by the logged in user."
+      operationId: "deleteUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+# securityDefinitions:
+#   petstore_auth:
+#     type: "oauth2"
+#     authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
+#     flow: "implicit"
+#     scopes:
+#       write:pets: "modify pets in your account"
+#       read:pets: "read your pets"
+#   api_key:
+#     type: "apiKey"
+#     name: "api_key"
+#     in: "header"
 definitions:
-  HelloWorldResponse:
+  User:
+    type: "object"
     required:
-      - message
+    - "id"
+    - "firstName"
+    - "lastName"
     properties:
-      message:
-        type: string
-  ErrorResponse:
-    required:
-      - message
-    properties:
-      message:
-        type: string
+      id:
+        type: "integer"
+        example: "1234567"
+      firstName:
+        type: "string"
+        example: "Avi"
+      lastName:
+        type: "string"
+        example: "Ron"
+      email:
+        type: "string"
+        example: "iam@work.com"
+      phone:
+        type: "string"
+        example: "056-874-2563"
+      job:
+        type: "string"
+        example: "Programmer"
+      rank:
+        type: "string"
+        example: "Experienced"
+      adress:
+        type: "string"
+        example: "10 Downing Street, England"
+      isSecurityOfficer:
+        type: "boolean"
+        default: false
+      clearance:
+        type: "number"
+        example: 0
+    xml:
+      name: "User"

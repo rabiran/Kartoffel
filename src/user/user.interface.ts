@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { Rank } from '../utils';
 
 export interface IUser extends Document {
     _id: string;
@@ -13,7 +14,7 @@ export interface IUser extends Document {
 
     mail: string;
     phone: string;
-    rank: string;
+    rank: Rank;
     address: string;
 
     isSecurityOfficer: boolean;
