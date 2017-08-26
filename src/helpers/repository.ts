@@ -40,7 +40,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     }
 
     update(item: T, populateOptions?: string | Object): Promise<mongoose.Document> {
-        let updateQuery = this._model.findByIdAndUpdate({ _id: item._id }, item, { new: true });
+        let updateQuery = this._model.findByIdAndUpdate({ _id: item._id }, item, { new: true, runValidators: true });
         if (populateOptions) {
             updateQuery = updateQuery.populate(populateOptions);
         }

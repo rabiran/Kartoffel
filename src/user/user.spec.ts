@@ -163,4 +163,60 @@ describe('Users', () => {
             should.not.exist(user);
         });
     });
+    describe('#updateUser', () => {
+        it('Should throw an error when the user does not exist', async () => {
+           await expectError(User.updateUser, [userExamples[0]]);
+        });
+        it('Should throw an error when updated data is\'t valid', async () => {
+            const user = userExamples[0];
+            await User.createUser(user);
+
+            user.firstName = '';
+
+            await expectError(User.updateUser, [user]);
+        });
+        it('Should return the updated user', async () => {
+            const user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+
+            user.job = 'Programmer';
+            user.rank = 'Skilled';
+            user.isSecurityOfficer = true;
+
+            const updatedUser = await User.updateUser(user);
+            updatedUser.should.exist;
+
+            // Why can't I loop over the user's keys and values?? stupid typescript...
+
+            updatedUser.should.have.property('_id', user._id);
+            updatedUser.should.have.property('firstName', user.firstName);
+            updatedUser.should.have.property('rank', user.rank);
+            updatedUser.should.have.property('job', user.job);
+            updatedUser.should.have.property('isSecurityOfficer', user.isSecurityOfficer);
+        });
+        it('Should not delete the unchanged props', async () => {
+            await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+            const updatedUser = await User.updateUser(<IUser>{_id: '1234567', firstName: 'Danny'});
+            updatedUser.should.have.property('lastName', 'Ron');
+        });
+        it('Should save the updated user correctly', async () => {
+            const user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+
+            user.job = 'Programmer';
+            user.rank = 'Skilled';
+            user.isSecurityOfficer = true;
+
+            await User.updateUser(user);
+            const updatedUser = await User.getUser(user._id);
+
+            updatedUser.should.exist;
+
+            // Why can't I loop over the user's keys and values?? stupid typescript...
+
+            updatedUser.should.have.property('_id', user._id);
+            updatedUser.should.have.property('firstName', user.firstName);
+            updatedUser.should.have.property('rank', user.rank);
+            updatedUser.should.have.property('job', user.job);
+            updatedUser.should.have.property('isSecurityOfficer', user.isSecurityOfficer);
+        });
+    });
 });

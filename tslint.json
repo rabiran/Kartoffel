@@ -1,6 +1,6 @@
 {
     "rules": {
-        "array-callback-return": true,
+        // "array-callback-return": true,
         "class-name": true,
         "comment-format": [
             true,
@@ -16,7 +16,7 @@
             "check-whitespace"
         ],
         "no-var-keyword": true,
-        "prefer-template template-curly-spacing": true,
+        // "prefer-template template-curly-spacing": true,
         "quotemark": [
             true,
             "single",
@@ -56,10 +56,10 @@
         "no-internal-module": true,
         "no-trailing-whitespace": true,
         "no-null-keyword": true,
-        "no-var": true,
-        "object-shorthand": true,
+        // "no-var": true,
+        // "object-shorthand": true,
         "prefer-const": true,
-        "quote-props": true,
+        // "quote-props": true,
         "jsdoc-format": true
     }
 }

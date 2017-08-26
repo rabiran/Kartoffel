@@ -2,22 +2,25 @@ import { Document } from 'mongoose';
 import { Rank } from '../utils';
 
 export interface IUser extends Document {
+// User's Basic information
     _id: string;
     firstName: string;
     lastName: string;
     hierarchy: string[];
     directGroup: string;
-    job: string;
-
+    rank: Rank;
+// Weak groups props
     weakGroups: string[];
     adminGroups: string[];
-
+// Editable by the User
+    job: string;
     mail: string;
     phone: string;
-    rank: Rank;
     address: string;
-
+// Editable with strong permissions
     isSecurityOfficer: boolean;
     securityOfficerLocation: string;
     clearance: number;
 }
+
+export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address'];

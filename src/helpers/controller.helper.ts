@@ -7,12 +7,12 @@ import { Request, Response, NextFunction, Router } from 'express';
  * @param params A function (req, res, next), all of which are optional
  * that maps our desired controller parameters. I.e. (req) => [req.params.username, ...].
  */
-export const controllerHandler = (promise: Function, params: Function) => async (req: Request, res: Response, next: NextFunction) => {
+export const controllerHandler = (promise: Function, params: Function, errorCode: number = 500) => async (req: Request, res: Response, next: NextFunction) => {
     const boundParams = params ? params(req, res, next) : [];
     try {
         const result = await promise(...boundParams);
         return res.json(result || { message: 'OK' });
     } catch (error) {
-        return res.status(500).json(error);
+        return res.status(errorCode).json(error);
     }
 };

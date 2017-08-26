@@ -12,23 +12,29 @@ export class User {
         this._userService = new UserRepository();
     }
 
-    public static async getUsers(): Promise<IUser[]> {
+    static async getUsers(): Promise<IUser[]> {
         const users = await User._userRepository.getAll();
         return <IUser[]>users;
     }
 
-    public static async createUser( user: IUser ): Promise<IUser> {
+    static async createUser( user: IUser ): Promise<IUser> {
         const newUser = await User._userRepository.create(user);
         return <IUser>newUser;
     }
 
-    public static async getUser(userID: string): Promise<IUser> {
+    static async getUser(userID: string): Promise<IUser> {
         const user = await User._userRepository.findById(userID);
         return <IUser>user;
     }
 
-    public static async removeUser(userID: string): Promise<any> {
+    static async removeUser(userID: string): Promise<any> {
         const res = await User._userRepository.delete(userID);
         return res.result;
+    }
+
+    static async updateUser(user: IUser): Promise<IUser> {
+        const updatedUser = await User._userRepository.update(user);
+        if (!updatedUser) throw new Error('Cannot find user with ID: ' + user._id);
+        return <IUser>updatedUser;
     }
 }
