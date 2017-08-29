@@ -9,7 +9,7 @@ import { IUser, PERSONAL_FIELDS } from './user.interface';
 // const user = new User();
 const users = Router();
 
-users.all('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
+users.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
 users.get('/getAll', ch(User.getUsers, (): Array<any> => []));
 
