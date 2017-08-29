@@ -8,7 +8,7 @@
     "build": "npm run build-ts && npm run tslint && npm run copy-static-assets",
     "serve": "NODE_ENV=dev nodemon dist/server.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve\"",
-    "test": " npm run build && mocha dist/**/spec.helper.js dist/**/*.spec.js --timeout 10000",
+    "test": " npm run build && mocha dist/**/spec.helper.js dist/**/*.spec.js dist/**/**/*.spec.js --timeout 10000",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "build-sass": "node-sass src/public/css/main.scss dist/public/css/main.css",

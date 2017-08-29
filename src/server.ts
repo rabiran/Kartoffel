@@ -13,6 +13,7 @@ import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
 
 import * as userRouter from './user/user.route';
+import * as kartoffelRouter from './group/kartoffel/kartoffel.route';
 
 const app = express();
 
@@ -52,10 +53,12 @@ app.set('port', process.env.PORT || 3000);
 if (process.env.NODE_ENV != 'test') {
   app.use('/api', logger('dev')); // Morgan
 }
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api/user', userRouter);
+app.use('/api/kartoffel', kartoffelRouter);
 
 /**
  * Error Handler. Provides full stack - remove for production
