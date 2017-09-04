@@ -37,4 +37,10 @@ export class User {
         if (!updatedUser) throw new Error('Cannot find user with ID: ' + user._id);
         return <IUser>updatedUser;
     }
+
+    static async updateTeam(userID: string, newTeamID: string): Promise<IUser> {
+        const user = await User.getUser(userID);
+        user.directGroup = newTeamID;
+        return await User.updateUser(user);
+    }
 }

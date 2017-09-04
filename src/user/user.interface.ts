@@ -6,7 +6,6 @@ export interface IUser extends Document {
     _id: string;
     firstName: string;
     lastName: string;
-    hierarchy: string[];
     directGroup: string;
     rank: Rank;
 // Weak groups props

@@ -28,11 +28,6 @@ export const UserSchema = new mongoose.Schema({
         required: true,
         validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid Last Name' }
     },
-    hierarchy: {
-        type: [String],
-        required: false,
-        default: []
-    },
     directGroup: {
         type: String,
         required: false,

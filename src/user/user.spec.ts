@@ -79,7 +79,7 @@ describe('Users', () => {
             user.should.have.property('rank', 'Newbie');
             user.should.have.property('isSecurityOfficer', false);
             user.should.have.property('clearance', 0);
-            user.hierarchy.should.be.an('array').with.length(0);
+            user.weakGroups.should.be.an('array').with.length(0);
         });
         it('Should create a user with more info', async () => {
             const newUser = <IUser>{
