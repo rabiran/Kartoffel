@@ -2,10 +2,9 @@ import { Document } from 'mongoose';
 import { IUser } from '../user/user.interface';
 
 export interface IGroup extends Document {
-    _id: string;
     name: string;
-    admins: Array<IUser>;
-    members: Array<IUser>;
+    admins: Array<IUser | string>;
+    members: Array<IUser | string>;
     clearance: number;
 }
 

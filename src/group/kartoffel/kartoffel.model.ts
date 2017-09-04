@@ -9,12 +9,12 @@ export const KartoffelSchema = new mongoose.Schema({
         required: true
     },
     admins: {
-        type: [ObjectId],
+        type: [String],
         ref: 'User',
         default: []
     },
     members: {
-        type: [ObjectId],
+        type: [String],
         ref: 'User',
         default: []
     },
@@ -30,6 +30,10 @@ export const KartoffelSchema = new mongoose.Schema({
     ancestors: {
         type: [ObjectId],
         ref: 'Kartoffel',
+        default: []
+    },
+    hierarchy: {
+        type: [String],
         default: []
     },
     type: String

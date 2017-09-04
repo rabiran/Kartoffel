@@ -180,18 +180,26 @@ definitions:
       admins:
         type: "array"
         example: []
+        items:
+          type: "string"
       members:
         type: "array"
         example: []
+        items:
+          type: "string"
       children:
         type: "array"
         example: []
+        items:
+          type: "string"
       clearance:
         type: "number"
         example: 0
       ancestors:
         type: "array"
         example: []
+        items:
+          type: "string"
       type:
         type: "string"
         example: "Team"

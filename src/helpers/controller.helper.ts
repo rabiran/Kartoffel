@@ -13,6 +13,6 @@ export const controllerHandler = (promise: Function, params: Function, errorCode
         const result = await promise(...boundParams);
         return res.json(result || { message: 'OK' });
     } catch (error) {
-        return res.status(errorCode).json(error);
+        return res.status(errorCode).send({ error: error + '' });
     }
 };

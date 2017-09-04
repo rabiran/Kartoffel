@@ -29,6 +29,14 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
         return this._model.find({}).exec();
     }
 
+    getSome(ids: Array<string>): Promise<mongoose.Document[]> {
+        return this._model.find({ '_id': { $in: ids}}).exec();
+    }
+
+    findAndUpdateSome(ids: Array<string>, set: Object): Promise<mongoose.Document[]> {
+        return this._model.update({ _id: { $in: ids}}, { $set: set }).exec();
+    }
+
     // TODO: Check why it doesn't work with throw (It doesn't get caught).
     create(item: T): Promise<mongoose.Document> {
         return new Promise((resolve, reject) => {

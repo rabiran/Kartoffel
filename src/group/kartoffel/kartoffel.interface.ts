@@ -3,8 +3,9 @@ import { IGroup } from '../group.interface';
 
 
 export interface IKartoffel extends IGroup {
-    ancestors: Array<IKartoffel | string>;
-    children: Array<IKartoffel>;
+    ancestors: Array<string>;
+    children: Array<IKartoffel | string>;
+    hierarchy: Array<string>;
     type: string;
 }
 
