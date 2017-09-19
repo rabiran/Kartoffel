@@ -46,13 +46,13 @@ export class Kartoffel {
         return;
     }
 
-    static async addAdmin(kartoffelID: string, userID: string, isAdmin: boolean = false): Promise<IKartoffel> {
+    static async addAdmin(kartoffelID: string, userID: string): Promise<IKartoffel> {
         const isMember = await Kartoffel.isMember(kartoffelID, userID);
         if (!isMember) {
             throw new Error('This user is not a member in this group, hence can not be appointed as a leaf');
         } else {
             const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
-            kartoffel.admins = _.union(kartoffel.admins, userID);
+            kartoffel.admins = _.union(kartoffel.admins, [userID]);
             return await Kartoffel.updateKartoffel(kartoffel);
         }
     }
@@ -64,19 +64,22 @@ export class Kartoffel {
         return await Kartoffel.updateKartoffel(kartoffel);
     }
 
-    static async removeUsers(kartoffelID: string, users: Array<string>, areAdmins: boolean = false): Promise<IKartoffel> {
-        const type = areAdmins ? 'admins' : 'members';
+    static async dismissMember(kartoffelID: string, member: string): Promise<void> {
         const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
-        _.pull(kartoffel[type], ...users);
-        return Kartoffel.updateKartoffel(kartoffel);
+        _.pull(kartoffel.members, member);
+        // If the member is an admin as well, remove him from the admins list
+        if (kartoffel.admins.indexOf(member) != -1) {
+            _.pull(kartoffel.admins, member);
+        }
+        await Kartoffel.updateKartoffel(kartoffel);
+        return;
     }
 
-    static async transferUsers(from: string, to: string, users: Array<string>, areAdmins: boolean = false): Promise<void> {
-        if (areAdmins) {
-            Kartoffel.transferUsers(from, to, users);
-        }
-        await Kartoffel.removeUsers(from, users, areAdmins);
-        await Kartoffel.addUsers(to, users, areAdmins);
+    static async fireAdmin(kartoffelID: string, manager: string): Promise<void> {
+        const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
+        _.pull(kartoffel.members, manager);
+        await Kartoffel.updateKartoffel(kartoffel);
+        return;
     }
 
     static async childrenAdoption(parentID: string, childrenIDs: Array<string>): Promise<void> {

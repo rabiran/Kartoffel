@@ -38,8 +38,6 @@ dotenv.config({ path: '.env' });
  */
 (<any>mongoose).Promise = Promise;
 
-console.log('process.env.NODE_ENV:    '  + process.env.NODE_ENV);
-
 if (process.env.NODE_ENV != 'test') {
   mongoose.connect(process.env.MONGODB_URI, (err: any, db: any) => {
     if (err) {

@@ -4,11 +4,16 @@ import * as userRouter from './user.route';
 import { User } from './user.controller';
 import { UserModel } from './user.model';
 import { IUser } from './user.interface';
+import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
+import { Kartoffel } from '../group/kartoffel/kartoffel.controller';
 import { expectError } from '../helpers/spec.helper';
 
 
 const should = chai.should();
+const expect = chai.expect;
 chai.use(require('chai-http'));
+
+const DB_ID_EXAMPLE = '59a56d577bedba18504298df';
 
 const userExamples: Array<IUser> = [
     <IUser>{
@@ -162,12 +167,21 @@ describe('Users', () => {
             const user = await User.getUser('1234567');
             should.not.exist(user);
         });
+        it('Should update the user\'s group after that the user is removed', async () => {
+            const user = await User.createUser(userExamples[0]);
+            let group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group'});
+            await User.assign(user._id, group._id);
+            await User.removeUser(user._id);
+
+            group = await Kartoffel.getKartoffel(group._id);
+            group.members.should.have.lengthOf(0);
+        });
     });
     describe('#updateUser', () => {
         it('Should throw an error when the user does not exist', async () => {
            await expectError(User.updateUser, [userExamples[0]]);
         });
-        it('Should throw an error when updated data is\'t valid', async () => {
+        it('Should throw an error when updated data isn\'t valid', async () => {
             const user = userExamples[0];
             await User.createUser(user);
 
@@ -217,6 +231,108 @@ describe('Users', () => {
             updatedUser.should.have.property('rank', user.rank);
             updatedUser.should.have.property('job', user.job);
             updatedUser.should.have.property('isSecurityOfficer', user.isSecurityOfficer);
+        });
+        describe('User Staffing', () => {
+            it('Should throw an error if the user does not exist', async () => {
+                await expectError(User.assign, ['1234567', DB_ID_EXAMPLE]);
+                const group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group'});
+                await expectError(User.assign, ['1234567', group._id]);
+            });
+            it('Should throw an error if the group does not exist', async () => {
+                const user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+                await expectError(User.assign, [user._id, DB_ID_EXAMPLE]);
+            });
+            it('Should assign user to group', async () => {
+                let user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+                let group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group'});
+                await User.assign(user._id, group._id);
+
+                // Check in the user and group after the update
+                user = await User.getUser(user._id);
+                group = await Kartoffel.getKartoffel(group._id);
+                user.should.exist;
+                group.should.exist;
+                expect(user.directGroup.toString() == group._id.toString());
+                group.members.should.have.lengthOf(1);
+                expect(group.members[0].toString() == user._id.toString());
+                group.admins.should.have.lengthOf(0);
+            });
+            it('Should transfer a user from another group if he was assigned to one before', async() => {
+                let user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+                let group1 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group1'});
+                let group2 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group2'});
+                await User.assign(user._id, group1._id);
+                await User.assign(user._id, group2._id);
+
+                user = await User.getUser(user._id);
+                group1 = await Kartoffel.getKartoffel(group1._id);
+                group2 = await Kartoffel.getKartoffel(group2._id);
+
+                group1.members.should.have.lengthOf(0);
+                group2.members.should.have.lengthOf(1);
+                expect(group2.members[0].toString() == user._id.toString());
+                expect(user.directGroup.toString() == group2._id.toString());
+            });
+        });
+        describe('Appoint as a leaf', () => {
+            it('Should throw an error if the user does not exist', async () => {
+                await expectError(User.manage, ['1234567', DB_ID_EXAMPLE]);
+                const group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group'});
+                await expectError(User.manage, ['1234567', group._id]);
+            });
+            it('Should throw an error if the group does not exist', async () => {
+                const user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+                await expectError(User.manage, [user._id, DB_ID_EXAMPLE]);
+            });
+            it('Should appoint as a manager', async () => {
+                let user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+                let group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group'});
+                await User.manage(user._id, group._id);
+
+                // Check in the user and group after the update
+                user = await User.getUser(user._id);
+                group = await Kartoffel.getKartoffel(group._id);
+                user.should.exist;
+                group.should.exist;
+                expect(user.directGroup.toString() == group._id.toString());
+                group.members.should.have.lengthOf(1);
+                expect(group.members[0].toString() == user._id.toString());
+                group.admins.should.have.lengthOf(1);
+                expect(group.admins[0].toString() == user._id.toString());
+            });
+            it('Should transfer if was assign before', async() => {
+                let user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+                let group1 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group1'});
+                let group2 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group2'});
+                let group3 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group3'});
+                await User.assign(user._id, group1._id);
+                await User.manage(user._id, group2._id);
+
+                user = await User.getUser(user._id);
+                group1 = await Kartoffel.getKartoffel(group1._id);
+                group2 = await Kartoffel.getKartoffel(group2._id);
+
+                group1.members.should.have.lengthOf(0);
+                group1.admins.should.have.lengthOf(0);
+                group2.members.should.have.lengthOf(1);
+                group2.admins.should.have.lengthOf(1);
+                expect(group2.members[0].toString() == user._id.toString());
+                expect(group2.admins[0].toString() == user._id.toString());
+                expect(user.directGroup.toString() == group2._id.toString());
+
+                await User.manage(user._id, group3._id);
+                user = await User.getUser(user._id);
+                group2 = await Kartoffel.getKartoffel(group2._id);
+                group3 = await Kartoffel.getKartoffel(group3._id);
+
+                group2.members.should.have.lengthOf(0);
+                group2.admins.should.have.lengthOf(0);
+                group3.members.should.have.lengthOf(1);
+                group3.admins.should.have.lengthOf(1);
+                expect(group3.members[0].toString() == user._id.toString());
+                expect(group3.admins[0].toString() == user._id.toString());
+                expect(user.directGroup.toString() == group2._id.toString());
+            });
         });
     });
 });

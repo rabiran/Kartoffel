@@ -29,48 +29,6 @@ kartoffeln.get('/:id', validatorMiddleware(Vld.toDo, ['id'], 'params'),
     return [req.params.id];
 }, 404));
 
-// ---------------------------------------------------------------------------------------------------------------------------------------
-//      Members and Admins - TODO: remember to validate their existence!!!
-// ---------------------------------------------------------------------------------------------------------------------------------------
-
-kartoffeln.put('/:id/addMembers', PermissionMiddleware.hasAdvancedPermission, ch(Kartoffel.addUsers, (req: Request, res: Response) => {
-    const kartoffelId = req.params.id;
-    const memberIDs = req.body.membersIDs;
-    return [kartoffelId, memberIDs];
-}));
-
-kartoffeln.put('/:id/removeMembers', PermissionMiddleware.hasAdvancedPermission, ch(Kartoffel.removeUsers, (req: Request, res: Response) => {
-    const kartoffelId = req.params.id;
-    const memberIDs = req.body.membersIDs;
-    return [kartoffelId, memberIDs];
-}));
-
-kartoffeln.put('/transferMembers', PermissionMiddleware.hasAdvancedPermission, ch(Kartoffel.transferUsers, (req: Request, res: Response) => {
-    const from = req.body.from;
-    const to = req.body.to;
-    const adminIDs = req.body.adminIDs;
-    return [from, to, adminIDs];
-}));
-
-kartoffeln.put('/:id/addAdmins', PermissionMiddleware.hasAdvancedPermission, ch(Kartoffel.addUsers, (req: Request, res: Response) => {
-    const kartoffelId = req.params.id;
-    const memberIDs = req.body.membersIDs;
-    return [kartoffelId, memberIDs, true];
-}));
-
-kartoffeln.put('/:id/removeAdmins', PermissionMiddleware.hasAdvancedPermission, ch(Kartoffel.removeUsers, (req: Request, res: Response) => {
-    const kartoffelId = req.params.id;
-    const adminIDs = req.body.adminIDs;
-    return [kartoffelId, adminIDs, true];
-}));
-
-kartoffeln.put('/transferAdmins', PermissionMiddleware.hasAdvancedPermission, ch(Kartoffel.transferUsers, (req: Request, res: Response) => {
-    const from = req.body.from;
-    const to = req.body.to;
-    const adminIDs = req.body.adminIDs;
-    return [from, to, adminIDs, true];
-}));
-
 kartoffeln.put('/adoption',
     PermissionMiddleware.hasAdvancedPermission,
     validatorMiddleware(Vld.differentParams, ['parentID', 'childID']),
