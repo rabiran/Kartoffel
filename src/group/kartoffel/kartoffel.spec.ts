@@ -15,7 +15,7 @@ before(async () => {
 });
 
 const ID_EXAMPLE = '59a56d577bedba18504298df';
-const idXmpls = ['59a6aa1f5caa4e4d2ac39797'];
+const idXmpls = ['59a6aa1f5caa4e4d2ac39797', '59a56d577bedba18504298df'];
 
 
 describe('Strong Groups', () => {
@@ -54,6 +54,7 @@ describe('Strong Groups', () => {
             group.should.have.property('ancestors');
             group.ancestors.should.be.an('array');
             group.ancestors.should.have.lengthOf(0);
+            group.hierarchy.should.have.lengthOf(0);
         });
         it('Should throw an error when parent doesn\'t exist', async () => {
             await expectError(Kartoffel.createKartoffel, [<IKartoffel>{name: 'Biran'}, '597053012c3b60031211a063'] );
@@ -69,6 +70,23 @@ describe('Strong Groups', () => {
             child.ancestors.should.have.lengthOf(1);
             const hisParent = child.ancestors[0].toString();
             hisParent.should.equal(parent.id);
+            child.hierarchy.should.have.lengthOf(1);
+            child.hierarchy[0].should.be.equal(parent.name);
+        });
+        it('Should create a group correctly with two ancestors', async () => {
+            const grandparent = await Kartoffel.createKartoffel(<IKartoffel>{name: 'grandparent'});
+            const parent = await Kartoffel.createKartoffel(<IKartoffel>{name: 'parent'}, grandparent.id);
+            const child = await Kartoffel.createKartoffel(<IKartoffel>{name: 'child'}, parent.id);
+            child.should.exist;
+            child.should.have.property('ancestors');
+            child.ancestors.should.have.lengthOf(2);
+            const hisParent = child.ancestors[0].toString();
+            const hisGrandparent = child.ancestors[1].toString();
+            hisParent.should.equal(parent.id);
+            hisGrandparent.should.equal(grandparent.id);
+            child.hierarchy.should.have.lengthOf(2);
+            child.hierarchy[0].should.be.equal(grandparent.name);
+            child.hierarchy[1].should.be.equal(parent.name);
         });
     });
     describe('#getKartoffelByID', () => {
@@ -100,7 +118,7 @@ describe('Strong Groups', () => {
 
 
         });
-        describe('#updateUsers (Members w.l.o.g)', () => {
+        describe('#updateMembers', () => {
             it('Should throw an error when group doesn\'t exist', async () => {
                 expectError(Kartoffel.addUsers, [ID_EXAMPLE, ['1234567', '7654321']]);
             });
@@ -135,6 +153,63 @@ describe('Strong Groups', () => {
                 res.members[0].should.be.equal('1234567');
                 res.members[1].should.be.equal('7654321');
             });
+            it('Should not have duplicates', async () => {
+                const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{name: 'MyGroup'});
+                await Kartoffel.addUsers(kartoffel._id, ['1234567', '2345678']);
+                const res = await Kartoffel.addUsers(kartoffel._id, ['1234567', '7654321']);
+
+                res.should.have.property('name', 'MyGroup');
+                res.members.should.have.lengthOf(3);
+                res.members[0].should.be.equal('1234567');
+                res.members[1].should.be.equal('2345678');
+                res.members[2].should.be.equal('7654321');
+            });
+        });
+        describe('#updateAdmin', () => {
+            it('Should throw an error when group doesn\'t exist', async () => {
+                expectError(Kartoffel.addAdmin, [ID_EXAMPLE, '1234567']);
+            });
+            it('Should throw an error when admin is undefined', async () => {
+                expectError(Kartoffel.addAdmin, [ID_EXAMPLE]);
+            });
+            it('Should throw an error when user is not a member of the group', async () => {
+                const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{name: 'MyGroup'});
+                expectError(Kartoffel.addAdmin, ['1234567']);
+            });
+            it('Should update the admins of the group if there is none before', async () => {
+                const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{name: 'MyGroup'});
+                await Kartoffel.addUsers(kartoffel._id, ['1234567']);
+                const res = await Kartoffel.addAdmin(kartoffel._id, '1234567');
+
+                res.should.exist;
+                res.should.have.property('name', 'MyGroup');
+                res.should.have.property('admins');
+                res.members.should.be.an('array');
+                res.members.should.have.lengthOf(1);
+                res.members[0].should.be.equal('1234567');
+            });
+            it('Should update the admins of the group and don\'t delete the previous admins', async () => {
+                const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{name: 'MyGroup'});
+                await Kartoffel.addUsers(kartoffel._id, ['1234567']);
+                await Kartoffel.addAdmin(kartoffel._id, '1234567');
+                await Kartoffel.addUsers(kartoffel._id, ['7654321']);
+                const res = await Kartoffel.addAdmin(kartoffel._id, '7654321');
+
+                res.should.have.property('name', 'MyGroup');
+                res.members.should.have.lengthOf(2);
+                res.members[0].should.be.equal('1234567');
+                res.members[1].should.be.equal('7654321');
+            });
+            it('Should not make duplicates', async () => {
+                const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{name: 'MyGroup'});
+                await Kartoffel.addUsers(kartoffel._id, ['1234567']);
+                await Kartoffel.addAdmin(kartoffel._id, '1234567');
+                const res = await Kartoffel.addAdmin(kartoffel._id, '1234567');
+
+                res.should.have.property('name', 'MyGroup');
+                res.members.should.have.lengthOf(1);
+                res.members[0].should.be.equal('1234567');
+            });
         });
         describe('#removeUsers (Members w.l.o.g)', () => {
             it('Should throw an error when group doesn\'t exist', async () => {
@@ -163,6 +238,14 @@ describe('Strong Groups', () => {
                 res.members[0].should.be.equal('1234567');
             });
         });
+        describe('#transferUsers', () => {
+            it('Should throw an error if one of the groups doesn\'t exist', async () => {
+                expectError(Kartoffel.transferUsers, [idXmpls[0], idXmpls[1], ['1234567']]);
+                const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{name: 'MyGroup'});
+                expectError(Kartoffel.transferUsers, [kartoffel._id, ID_EXAMPLE, ['1234567']]);
+                expectError(Kartoffel.transferUsers, [ID_EXAMPLE, kartoffel._id, ['1234567']]);
+            });
+        });
         describe('#childrenAdoption', () => {
             it('Should throw an error if parent does not exist', async () => {
                 await expectError(Kartoffel.childrenAdoption, [ID_EXAMPLE]);
@@ -179,6 +262,9 @@ describe('Strong Groups', () => {
                 child.should.have.property('ancestors');
                 child.ancestors.should.have.lengthOf(1);
                 expect(child.ancestors[0].toString() == parent._id.toString()).to.be.ok;
+                child.should.have.property('hierarchy');
+                child.hierarchy.should.have.lengthOf(1);
+                child.hierarchy[0].should.be.equal(parent.name);
             });
             it('Should update the child\'s previous parent', async () => {
                 const parent_old = await Kartoffel.createKartoffel(<IKartoffel>{name: 'parent_old'});
@@ -228,6 +314,25 @@ describe('Strong Groups', () => {
                 expect(child.ancestors[0].toString() == parent._id.toString()).to.be.ok;
                 expect(child.ancestors[1].toString() == grandparent_2._id.toString()).to.be.ok;
             });
+        });
+    });
+    describe('#deleteKartoffel', () => {
+        it('Should throw an error if the group does not exist', async () => {
+            expectError(Kartoffel.deleteGroup, [ID_EXAMPLE]);
+        });
+        it('Should delete the group', async () => {
+            const group = await Kartoffel.createKartoffel(<IKartoffel>{_id: ID_EXAMPLE, name: 'group'});
+            const res = await Kartoffel.deleteGroup(group._id);
+            res.should.exist;
+            res.should.have.property('ok', 1);
+            res.should.have.property('n', 1);
+            expectError(Kartoffel.getKartoffel, [group._id]);
+        });
+        it('Should not remove a group with children', async () => {
+            const group = await Kartoffel.createKartoffel(<IKartoffel>{_id: ID_EXAMPLE, name: 'group'});
+            const child = await Kartoffel.createKartoffel(<IKartoffel>{_id: idXmpls[0], name: 'child'});
+            await Kartoffel.childrenAdoption(group._id, [child._id]);
+            expectError(Kartoffel.deleteGroup, [group._id]);
         });
     });
 });

@@ -6,6 +6,8 @@ import { AuthMiddleware } from '../../middlewares/auth.middleware';
 import { Kartoffel } from './kartoffel.controller';
 import { User } from '../../user/user.controller';
 import { IKartoffel, KARTOFFEL_BASIC_FIELDS } from './kartoffel.interface';
+import { GroupRouteParamsValidate as Vld, validatorMiddleware } from './kartoffel.route.validator';
+// import { body, param, check, validationResult } from 'express-validator/check';
 
 const kartoffeln = Router();
 
@@ -22,9 +24,14 @@ kartoffeln.post('/',
     }, 400)
 );
 
-kartoffeln.get('/:id', ch(Kartoffel.getKartoffel, (req: Request, res: Response) => {
+kartoffeln.get('/:id', validatorMiddleware(Vld.toDo, ['id'], 'params'),
+    ch(Kartoffel.getKartoffel, (req: Request, res: Response) => {
     return [req.params.id];
-}));
+}, 404));
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+//      Members and Admins - TODO: remember to validate their existence!!!
+// ---------------------------------------------------------------------------------------------------------------------------------------
 
 kartoffeln.put('/:id/addMembers', PermissionMiddleware.hasAdvancedPermission, ch(Kartoffel.addUsers, (req: Request, res: Response) => {
     const kartoffelId = req.params.id;
@@ -66,11 +73,17 @@ kartoffeln.put('/transferAdmins', PermissionMiddleware.hasAdvancedPermission, ch
 
 kartoffeln.put('/adoption',
     PermissionMiddleware.hasAdvancedPermission,
-    ch(Kartoffel.adoptionWrapper, (req: Request, res: Response) => {
+    validatorMiddleware(Vld.differentParams, ['parentID', 'childID']),
+    ch(Kartoffel.childrenAdoption, (req: Request, res: Response) => {
         const parentID = req.body.parentID;
-        const childrenIDs = req.body.childrenIDs;
-        return [parentID, childrenIDs];
+        const childID = req.body.childID;
+        return [parentID, [childID]];
     }, 400));
 
+kartoffeln.delete('/:id',
+    PermissionMiddleware.hasAdvancedPermission,
+    ch(Kartoffel.deleteGroup, (req: Request) => {
+        return [req.params.id];
+    }, 400));
 
 export = kartoffeln;

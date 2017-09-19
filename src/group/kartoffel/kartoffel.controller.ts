@@ -16,9 +16,10 @@ export class Kartoffel {
     static async createKartoffel( kartoffel: IKartoffel, parentID: string = undefined ): Promise<IKartoffel> {
         if (parentID) {
             // Create group hierarchy
-            const parentsHierarchy = await Kartoffel.getHierarchy(parentID);
-            parentsHierarchy.push(parentID);
+            const parentsHierarchy = await Kartoffel.getAncestors(parentID);
+            parentsHierarchy.unshift(parentID);
             kartoffel.ancestors = parentsHierarchy;
+            await Kartoffel.getHierarchyFromAncestors(kartoffel._id, kartoffel);
         }
         // Create the Group
         const newKartoffel = await Kartoffel._kartoffelRepository.create(kartoffel);
@@ -41,15 +42,25 @@ export class Kartoffel {
         return <IKartoffel>updated;
     }
 
-    static async addUsers(kartoffelID: string, users: Array<string>, areAdmins: boolean = false): Promise<IKartoffel> {
-        if (areAdmins) {
-            if (!(await Kartoffel.isMember)) {
-                throw new Error('This user is not a member in this group, hence can not be appointed as a leaf');
-            }
+    static async changeName(groupID: string, name: string): Promise<IKartoffel> {
+        return;
+    }
+
+    static async addAdmin(kartoffelID: string, userID: string, isAdmin: boolean = false): Promise<IKartoffel> {
+        const isMember = await Kartoffel.isMember(kartoffelID, userID);
+        if (!isMember) {
+            throw new Error('This user is not a member in this group, hence can not be appointed as a leaf');
+        } else {
+            const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
+            kartoffel.admins = _.union(kartoffel.admins, userID);
+            return await Kartoffel.updateKartoffel(kartoffel);
         }
+    }
+
+    static async addUsers(kartoffelID: string, users: Array<string>, areAdmins: boolean = false): Promise<IKartoffel> {
         const type = areAdmins ? 'admins' : 'members';
         const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
-        kartoffel[type].push(...users);
+        kartoffel[type] = _.union(kartoffel[type], users);
         return await Kartoffel.updateKartoffel(kartoffel);
     }
 
@@ -80,23 +91,39 @@ export class Kartoffel {
         return;
     }
 
-    static async adoptionWrapper(parentID: string, childrenIDs: Array<string>): Promise<void> {
-        // Update Group Members
-        const parent = await Kartoffel.getKartoffel(parentID);
-        const members = parent.members;
-        await Promise.all(members.map(member => User.updateTeam(<string>member, parentID)));
-        // Update the Groups
-        return await Kartoffel.childrenAdoption(parentID, childrenIDs);
+    static async deleteGroup(groupID: string): Promise<any> {
+        const group = await Kartoffel.getKartoffel(groupID);
+        // Check that the group has no members or children
+        if (group.children.length > 0) {
+            throw new Error('Can not delete a group with sub groups!');
+        }
+        if (group.members.length > 0) {
+            throw new Error('Can not delete a group with members!');
+        }
+        // Find the parent, if there is one
+        let parentID = undefined;
+        if (group.ancestors.length > 0) {
+            parentID = group.ancestors[0];
+        }
+        // Delete the group
+        const res = await Kartoffel._kartoffelRepository.delete(groupID);
+        // Inform the parent about his child's death
+        if (parentID) {
+            await Kartoffel.disownChild(parentID, groupID);
+        }
+        return res.result;
     }
 
     private static async updateChildrenHierarchy(parentID: string, childrenIDs: Array<string> = []): Promise<void> {
+        const parent = await Kartoffel.getKartoffel(parentID);
         if (childrenIDs.length == 0) {
-            const parent = await Kartoffel.getKartoffel(parentID);
             childrenIDs = <string[]>(parent.children);
         }
-        const hierarchy = await Kartoffel.getHierarchy(parentID);
-        hierarchy.unshift(parentID);
-        const updated = await Kartoffel._kartoffelRepository.findAndUpdateSome(childrenIDs, { ancestors: hierarchy});
+        const ancestors = await Kartoffel.getAncestors(parentID);
+        ancestors.unshift(parentID);
+        const hierarchy = await Kartoffel.getHierarchyFromAncestors(parentID);
+        hierarchy.unshift(parent.name);
+        const updated = await Kartoffel._kartoffelRepository.findAndUpdateSome(childrenIDs, { ancestors, hierarchy });
         await Promise.all(childrenIDs.map((childID => Kartoffel.updateChildrenHierarchy(childID))));
         return;
     }
@@ -115,7 +142,7 @@ export class Kartoffel {
         return await Kartoffel.updateKartoffel(parent);
     }
 
-    private static async getHierarchy(kartoffelID: string): Promise<Array<string>> {
+    private static async getAncestors(kartoffelID: string): Promise<Array<string>> {
         const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
         if (!kartoffel.ancestors) return [];
         return <string[]>kartoffel.ancestors;
@@ -125,5 +152,16 @@ export class Kartoffel {
         const group = await Kartoffel.getKartoffel(groupID);
         const members = group.members;
         return _.includes(members, userID);
+    }
+    private static async getHierarchyFromAncestors(groupID: string, group?: IKartoffel): Promise<Array<string>> {
+        if (!group) {
+            group = await Kartoffel.getKartoffel(groupID);
+        }
+        const parentID = group.ancestors[0];
+        if (!parentID) return [];
+        const parent = await Kartoffel.getKartoffel(parentID);
+        const newHierarchy = parent.hierarchy.concat(parent.name);
+        group.hierarchy = newHierarchy;
+        return newHierarchy;
     }
 }

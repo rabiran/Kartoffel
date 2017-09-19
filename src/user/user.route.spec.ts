@@ -45,7 +45,7 @@ describe('User', () => {
                     res.body.should.be.an('array');
                     res.body.length.should.be.eql(2);
                     const users = res.body;
-                });
+                }).catch( err => { throw err; } );
         });
     });
     describe('/GET user', () => {
@@ -70,7 +70,7 @@ describe('User', () => {
                     res.body.should.have.property('_id', USER_XMPL._id);
                     res.body.should.have.property('firstName', USER_XMPL.firstName);
                     res.body.should.have.property('lastName', USER_XMPL.lastName);
-                });
+                }).catch( err => { throw err; } );
         });
     });
     describe('/POST user', () => {
@@ -171,9 +171,7 @@ describe('User', () => {
                     res.should.have.status(200);
                     res.body.should.have.property('ok', 1);
                     res.body.should.have.property('n', 1);
-                }).catch(function (err) {
-                throw err;
-                });
+                }).catch( err => { throw err; } );
         });
     });
 });

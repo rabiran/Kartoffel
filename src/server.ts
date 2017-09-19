@@ -37,8 +37,19 @@ dotenv.config({ path: '.env' });
  * Connect to MongoDB.
  */
 (<any>mongoose).Promise = Promise;
-mongoose.connect(process.env.MONGODB_URI);
 
+console.log('process.env.NODE_ENV:    '  + process.env.NODE_ENV);
+
+if (process.env.NODE_ENV != 'test') {
+  mongoose.connect(process.env.MONGODB_URI, (err: any, db: any) => {
+    if (err) {
+      console.log(err);
+        throw err;
+    } else {
+        console.log('successfully connected to the database');
+    }
+  });
+}
 mongoose.connection.on('error', () => {
   console.log('MongoDB connection error. Please make sure MongoDB is running.');
   process.exit();
@@ -68,9 +79,11 @@ app.use(errorHandler());
 /**
  * Start Express server.
  */
-app.listen(app.get('port'), () => {
-  console.log(('  App is running at http://localhost:%d in %s mode'), app.get('port'), app.get('env'));
-  console.log('  Press CTRL-C to stop\n');
-});
+if (!module.parent) {
+  app.listen(app.get('port'), () => {
+    console.log(('  App is running at http://localhost:%d in %s mode'), app.get('port'), app.get('env'));
+    console.log('  Press CTRL-C to stop\n');
+  });
+}
 
 module.exports = app;
