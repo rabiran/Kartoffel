@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 process.env.PORT = '8080';
 
 import * as chai from 'chai';
+import * as sinon from 'sinon';
 import * as server from '../../server';
 import * as kartoffelRouter from './kartoffel.route';
 import { Kartoffel } from './kartoffel.controller';
@@ -72,6 +73,7 @@ describe('Kartoffel API', () => {
         });
     });
     describe('/GET updated groups', () => {
+        const clock = sinon.useFakeTimers();
         it('Should return an 400 when given a wrong param', (done) => {
             chai.request(server)
                 .get(BASE_URL + '/getUpdated/' + 'abc')
@@ -85,7 +87,9 @@ describe('Kartoffel API', () => {
         });
         it('Should return the updated groups from a certain date', async () => {
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_1'});
+            clock.tick(1000);
             const from = Date.now();
+            clock.tick(1000);
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_2'});
 
             await chai.request(server)
@@ -97,6 +101,7 @@ describe('Kartoffel API', () => {
                         groups[0].should.have.property('name', 'group_2');
                       }).catch( err => { throw err; } );
         });
+        clock.restore();
     });
     describe('/POST group', () => {
         it('Should return 400 when group is null', (done) => {

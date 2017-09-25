@@ -1,4 +1,5 @@
 import * as chai from 'chai';
+import * as sinon from 'sinon';
 import * as server from '../server';
 import * as userRouter from './user.route';
 import { User } from './user.controller';
@@ -75,24 +76,30 @@ describe('Users', () => {
         });
     });
     describe('#get updated users a from given date', () => {
+        const clock = sinon.useFakeTimers();
         it('Should throw an error when date is undefined', async() => {
             expectError(User.getUpdatedFrom, []);
         });
         it('Should get the current users', async () => {
             await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+            clock.tick(1000);
             const from = new Date();
+            clock.tick(1000);
             await User.createUser(<IUser>{_id : '2345678', firstName: 'Eli', lastName: 'Kopter'});
             await User.createUser(<IUser>{_id : '3456789', firstName: 'Tiki', lastName: 'Poor'});
+            clock.tick(1000);
             const to = new Date();
+            clock.tick(1000);
             await User.createUser(<IUser>{_id : '4567890', firstName: 'Yafa', lastName: 'Lula'});
             const users = await User.getUpdatedFrom(from, to);
 
             users.should.exist;
-            // users.should.have.lengthOf(2);
+            users.should.have.lengthOf(2);
             users[0].should.have.property('_id', '2345678');
             users[1].should.have.property('_id', '3456789');
 
         });
+        clock.restore();
     });
     describe('#createUser', () => {
         it('Should create a user with basic info', async () => {
