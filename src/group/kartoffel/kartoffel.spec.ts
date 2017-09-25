@@ -48,11 +48,11 @@ describe('Strong Groups', () => {
         });
     });
     describe('#get updated groups from a given date', () => {
-        const clock = sinon.useFakeTimers();
         it('Should throw an error when date is undefined', async() => {
             expectError(Kartoffel.getUpdatedFrom, []);
         });
         it('Should get the current groups', async () => {
+            const clock = sinon.useFakeTimers();
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_-2'});
             const update_1 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_-1'});
             clock.tick(1000);
@@ -68,6 +68,7 @@ describe('Strong Groups', () => {
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_4'});
             await Kartoffel.updateKartoffel(update_2);
             const groups = await Kartoffel.getUpdatedFrom(from, to);
+            clock.restore();
 
             groups.should.exist;
             groups.should.have.lengthOf(3);
@@ -75,7 +76,6 @@ describe('Strong Groups', () => {
             groups[1].should.have.property('name', 'group_1');
             groups[2].should.have.property('name', 'group_2');
         });
-        clock.restore();
     });
     describe('#createKartoffel', () => {
         it('Should create a simple group', async () => {

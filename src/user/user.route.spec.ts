@@ -15,12 +15,15 @@ chai.use(require('chai-http'));
 const expect = chai.expect;
 // let clock: any;
 
+let clock: any;
 before(async () => {
     UserModel.remove({}, (err) => {});
-    // clock = sinon.useFakeTimers();
+    clock = sinon.useFakeTimers();
 });
 
-// after( () => clock.restore() );
+after(() => {
+    clock.restore();
+});
 
 const USER_XMPL = <IUser>{_id : '1234567', firstName: 'Yonatan', lastName: 'Tal'};
 
@@ -106,8 +109,8 @@ describe('User', () => {
                         const users = res.body;
                         users.should.have.lengthOf(1);
                         users[0].should.have.property('_id', '2345678');
-                        clock.restore();
-                      }).catch( err => { throw err; } );
+                    }).catch( err => { throw err; } );
+            clock.restore();
         });
     });
     describe('/POST user', () => {

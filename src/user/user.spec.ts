@@ -76,11 +76,11 @@ describe('Users', () => {
         });
     });
     describe('#get updated users a from given date', () => {
-        const clock = sinon.useFakeTimers();
         it('Should throw an error when date is undefined', async() => {
             expectError(User.getUpdatedFrom, []);
         });
         it('Should get the current users', async () => {
+            const clock = sinon.useFakeTimers();
             await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
             clock.tick(1000);
             const from = new Date();
@@ -92,6 +92,8 @@ describe('Users', () => {
             clock.tick(1000);
             await User.createUser(<IUser>{_id : '4567890', firstName: 'Yafa', lastName: 'Lula'});
             const users = await User.getUpdatedFrom(from, to);
+            console.log(users, from, to);
+            clock.restore();
 
             users.should.exist;
             users.should.have.lengthOf(2);
@@ -99,7 +101,6 @@ describe('Users', () => {
             users[1].should.have.property('_id', '3456789');
 
         });
-        clock.restore();
     });
     describe('#createUser', () => {
         it('Should create a user with basic info', async () => {

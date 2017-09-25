@@ -73,19 +73,19 @@ describe('Kartoffel API', () => {
         });
     });
     describe('/GET updated groups', () => {
-        const clock = sinon.useFakeTimers();
         it('Should return an 400 when given a wrong param', (done) => {
             chai.request(server)
-                .get(BASE_URL + '/getUpdated/' + 'abc')
-                .end((err, res) => {
-                    err.should.exist;
-                    res.should.have.status(400);
-                    const errMsg = res.text;
-                    errMsg.should.be.equal('Did not receive a valid date ;)');
-                    done();
-                });
+            .get(BASE_URL + '/getUpdated/' + 'abc')
+            .end((err, res) => {
+                err.should.exist;
+                res.should.have.status(400);
+                const errMsg = res.text;
+                errMsg.should.be.equal('Did not receive a valid date ;)');
+                done();
+            });
         });
         it('Should return the updated groups from a certain date', async () => {
+            const clock = sinon.useFakeTimers();
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_1'});
             clock.tick(1000);
             const from = Date.now();
@@ -93,15 +93,15 @@ describe('Kartoffel API', () => {
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_2'});
 
             await chai.request(server)
-                      .get(BASE_URL + '/getUpdated/' + from)
-                      .then(res => {
-                        res.should.have.status(200);
-                        const groups = res.body;
-                        groups.should.have.lengthOf(1);
-                        groups[0].should.have.property('name', 'group_2');
-                      }).catch( err => { throw err; } );
+                        .get(BASE_URL + '/getUpdated/' + from)
+                        .then(res => {
+                            res.should.have.status(200);
+                            const groups = res.body;
+                            groups.should.have.lengthOf(1);
+                            groups[0].should.have.property('name', 'group_2');
+                        }).catch( err => { throw err; } );
+            clock.restore();
         });
-        clock.restore();
     });
     describe('/POST group', () => {
         it('Should return 400 when group is null', (done) => {
