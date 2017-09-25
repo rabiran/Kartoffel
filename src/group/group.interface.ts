@@ -6,6 +6,7 @@ export interface IGroup extends Document {
     admins: Array<IUser | string>;
     members: Array<IUser | string>;
     clearance: number;
+    updatedAt: Date;
 }
 
 export interface IKartoffel extends IGroup {

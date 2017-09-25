@@ -5,6 +5,7 @@ import { PermissionMiddleware } from '../middlewares/permission.middleware';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { User } from './user.controller';
 import { IUser, PERSONAL_FIELDS } from './user.interface';
+import { UserRouteParamsValidate as Vld, validatorMiddleware } from './user.route.validator';
 
 // const user = new User();
 const users = Router();
@@ -12,6 +13,12 @@ const users = Router();
 users.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
 users.get('/getAll', ch(User.getUsers, (): Array<any> => []));
+
+users.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params') , ch(User.getUpdatedFrom, (req: Request) => {
+    let from = req.params.from;
+    if (typeof(from) == 'number') from = new Date(from);
+    return [from, new Date()];
+}));
 
 users.post('/',
     PermissionMiddleware.hasAdvancedPermission,

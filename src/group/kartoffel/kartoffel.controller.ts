@@ -36,6 +36,11 @@ export class Kartoffel {
         return <IKartoffel>kartoffel;
     }
 
+    static async getUpdatedFrom(from: Date, to: Date) {
+        const users = await Kartoffel._kartoffelRepository.getUpdatedFrom(from, to);
+        return <IKartoffel[]>users;
+    }
+
     static async updateKartoffel(updateTo: IKartoffel): Promise<IKartoffel> {
         const updated = await Kartoffel._kartoffelRepository.update(updateTo);
         if (!updated) throw new Error('Cannot find group with ID: ' + updateTo._id);

@@ -33,6 +33,10 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
         return this._model.find({ '_id': { $in: ids}}).exec();
     }
 
+    getUpdatedFrom(from: Date, to: Date): Promise<mongoose.Document[]> {
+        return this._model.find({'updatedAt': {'$gte': from, '$lte': to}}).exec();
+    }
+
     findAndUpdateSome(ids: Array<string>, set: Object): Promise<mongoose.Document[]> {
         return this._model.update({ _id: { $in: ids}}, { $set: set }).exec();
     }
@@ -48,6 +52,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     }
 
     update(item: T, populateOptions?: string | Object): Promise<mongoose.Document> {
+        item['updatedAt'] = new Date();
         let updateQuery = this._model.findByIdAndUpdate({ _id: item._id }, item, { new: true, runValidators: true });
         if (populateOptions) {
             updateQuery = updateQuery.populate(populateOptions);

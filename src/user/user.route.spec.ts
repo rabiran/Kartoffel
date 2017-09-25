@@ -73,6 +73,33 @@ describe('User', () => {
                 }).catch( err => { throw err; } );
         });
     });
+    describe('/GET updated users', () => {
+        it('Should return an 400 when given a wrong param', (done) => {
+            chai.request(server)
+                .get(BASE_URL + '/getUpdated/' + 'abc')
+                .end((err, res) => {
+                    err.should.exist;
+                    res.should.have.status(400);
+                    const errMsg = res.text;
+                    errMsg.should.be.equal('Did not receive a valid date ;)');
+                    done();
+                });
+        });
+        it('Should return the updated users from a certain date', async () => {
+            await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+            const from = Date.now();
+            await User.createUser(<IUser>{_id : '2345678', firstName: 'Eli', lastName: 'Kopter'});
+
+            await chai.request(server)
+                      .get(BASE_URL + '/getUpdated/' + from)
+                      .then(res => {
+                        res.should.have.status(200);
+                        const users = res.body;
+                        users.should.have.lengthOf(1);
+                        users[0].should.have.property('_id', '2345678');
+                      }).catch( err => { throw err; } );
+        });
+    });
     describe('/POST user', () => {
         it('Should return 400 when user is null', (done) => {
             chai.request(server)

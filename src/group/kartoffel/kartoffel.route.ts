@@ -15,6 +15,12 @@ kartoffeln.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPer
 
 kartoffeln.get('/getAll', ch(Kartoffel.getAllKartoffeln, (): Array<any> => []));
 
+kartoffeln.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params') , ch(Kartoffel.getUpdatedFrom, (req: Request) => {
+    let from = req.params.from;
+    if (typeof(from) == 'number') from = new Date(from);
+    return [from, new Date()];
+}));
+
 kartoffeln.post('/',
     PermissionMiddleware.hasAdvancedPermission,
     ch(Kartoffel.createKartoffel, (req: Request, res: Response) => {

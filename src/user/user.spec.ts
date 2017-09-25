@@ -74,6 +74,26 @@ describe('Users', () => {
             users[2].should.have.property('lastName', 'Nir');
         });
     });
+    describe('#get updated users a from given date', () => {
+        it('Should throw an error when date is undefined', async() => {
+            expectError(User.getUpdatedFrom, []);
+        });
+        it('Should get the current users', async () => {
+            await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
+            const from = new Date();
+            await User.createUser(<IUser>{_id : '2345678', firstName: 'Eli', lastName: 'Kopter'});
+            await User.createUser(<IUser>{_id : '3456789', firstName: 'Tiki', lastName: 'Poor'});
+            const to = new Date();
+            await User.createUser(<IUser>{_id : '4567890', firstName: 'Yafa', lastName: 'Lula'});
+            const users = await User.getUpdatedFrom(from, to);
+
+            users.should.exist;
+            // users.should.have.lengthOf(2);
+            users[0].should.have.property('_id', '2345678');
+            users[1].should.have.property('_id', '3456789');
+
+        });
+    });
     describe('#createUser', () => {
         it('Should create a user with basic info', async () => {
             const user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Yonatan', lastName: 'Tal'});

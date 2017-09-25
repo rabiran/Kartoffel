@@ -46,6 +46,31 @@ describe('Strong Groups', () => {
             groups[2].should.have.property('name', 'hisGroup');
         });
     });
+    describe('#get updated groups from a given date', () => {
+        it('Should throw an error when date is undefined', async() => {
+            expectError(Kartoffel.getUpdatedFrom, []);
+        });
+        it('Should get the current users', async () => {
+            await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_-2'});
+            const update_1 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_-1'});
+            const from = new Date();
+            await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_1'});
+            await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_2'});
+            const update_2 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_3'});
+            await Kartoffel.updateKartoffel(update_1);
+            const to = new Date();
+            await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_4'});
+            await Kartoffel.updateKartoffel(update_2);
+            const groups = await Kartoffel.getUpdatedFrom(from, to);
+
+            groups.should.exist;
+            // groups.should.have.lengthOf(3);
+            groups[0].should.have.property('name', 'group_-1');
+            groups[1].should.have.property('name', 'group_1');
+            groups[2].should.have.property('name', 'group_2');
+
+        });
+    });
     describe('#createKartoffel', () => {
         it('Should create a simple group', async () => {
             const group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'Biran'});

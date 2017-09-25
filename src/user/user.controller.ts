@@ -19,15 +19,21 @@ export class User {
         return <IUser[]>users;
     }
 
+    static async getUser(userID: string): Promise<IUser> {
+        const user = await User._userRepository.findById(userID);
+        return <IUser>user;
+    }
+
+    static async getUpdatedFrom(from: Date, to: Date) {
+        const users = await User._userRepository.getUpdatedFrom(from, to);
+        return <IUser[]>users;
+    }
+
     static async createUser( user: IUser ): Promise<IUser> {
         const newUser = await User._userRepository.create(user);
         return <IUser>newUser;
     }
 
-    static async getUser(userID: string): Promise<IUser> {
-        const user = await User._userRepository.findById(userID);
-        return <IUser>user;
-    }
 
     static async removeUser(userID: string): Promise<any> {
         const user = await User.getUser(userID);

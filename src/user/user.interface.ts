@@ -20,6 +20,7 @@ export interface IUser extends Document {
     isSecurityOfficer: boolean;
     securityOfficerLocation: string;
     clearance: number;
+    updatedAt: Date;
 }
 
 export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address'];

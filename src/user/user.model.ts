@@ -65,11 +65,21 @@ export const UserSchema = new mongoose.Schema({
     clearance: {
         type: Number,
         default: 0
-    }
+    },
+    updatedAt: Date
 });
 
 UserSchema.methods.fullName = () => {
     return (this.firstName.trim() + ' ' + this.lastName.trim());
 };
+
+UserSchema.pre('save', function (next) {
+    if (!this.updatedAt) this.updatedAt = new Date;
+    next();
+  });
+
+UserSchema.pre('update', function() {
+    this.update({}, { $set: { updatedAt: new Date() } });
+  });
 
 export const UserModel = mongoose.model<IUser>('User', UserSchema);

@@ -36,7 +36,17 @@ export const KartoffelSchema = new mongoose.Schema({
         type: [String],
         default: []
     },
-    type: String
+    type: String,
+    updatedAt: Date
 });
+
+KartoffelSchema.pre('save', function (next) {
+    if (!this.updatedAt) this.updatedAt = new Date;
+    next();
+  });
+
+  KartoffelSchema.pre('update', function() {
+    this.update({}, { $set: { updatedAt: new Date() } });
+  });
 
 export const KartoffelModel = mongoose.model<IKartoffel>('Kartoffel', KartoffelSchema);
