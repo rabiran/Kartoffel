@@ -50,7 +50,7 @@ describe('Strong Groups', () => {
         it('Should throw an error when date is undefined', async() => {
             expectError(Kartoffel.getUpdatedFrom, []);
         });
-        it('Should get the current users', async () => {
+        it('Should get the current groups', async () => {
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_-2'});
             const update_1 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_-1'});
             const from = new Date();
