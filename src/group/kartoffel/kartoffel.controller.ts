@@ -25,14 +25,14 @@ export class Kartoffel {
         const newKartoffel = await Kartoffel._kartoffelRepository.create(kartoffel);
         if (parentID) {
             // Update the parent
-            Kartoffel.adoptChildren(parentID, [newKartoffel._id]);
+            await Kartoffel.adoptChildren(parentID, [newKartoffel._id]);
         }
         return <IKartoffel>newKartoffel;
     }
 
     static async getKartoffel(kartoffelID: string): Promise<IKartoffel> {
         const kartoffel = await Kartoffel._kartoffelRepository.findById(kartoffelID);
-        if (!kartoffel) throw new Error('Cannot find group with ID: ' + kartoffelID);
+        if (!kartoffel) return Promise.reject(new Error('Cannot find group with ID: ' + kartoffelID));
         return <IKartoffel>kartoffel;
     }
 
@@ -43,7 +43,7 @@ export class Kartoffel {
 
     static async updateKartoffel(updateTo: IKartoffel): Promise<IKartoffel> {
         const updated = await Kartoffel._kartoffelRepository.update(updateTo);
-        if (!updated) throw new Error('Cannot find group with ID: ' + updateTo._id);
+        if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + updateTo._id));
         return <IKartoffel>updated;
     }
 
@@ -54,7 +54,7 @@ export class Kartoffel {
     static async addAdmin(kartoffelID: string, userID: string): Promise<IKartoffel> {
         const isMember = await Kartoffel.isMember(kartoffelID, userID);
         if (!isMember) {
-            throw new Error('This user is not a member in this group, hence can not be appointed as a leaf');
+            return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
         } else {
             const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
             kartoffel.admins = _.union(kartoffel.admins, [userID]);
@@ -103,10 +103,10 @@ export class Kartoffel {
         const group = await Kartoffel.getKartoffel(groupID);
         // Check that the group has no members or children
         if (group.children.length > 0) {
-            throw new Error('Can not delete a group with sub groups!');
+            return Promise.reject(new Error('Can not delete a group with sub groups!'));
         }
         if (group.members.length > 0) {
-            throw new Error('Can not delete a group with members!');
+            return Promise.reject(new Error('Can not delete a group with members!'));
         }
         // Find the parent, if there is one
         let parentID = undefined;

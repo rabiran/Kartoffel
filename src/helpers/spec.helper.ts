@@ -6,6 +6,11 @@ dotenv.config({ path: '.env' });
 
 (<any>mongoose).Promise = Promise;
 
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    // application specific logging, throwing an error, or other logic here
+  });
+
 const mochaAsync = (func: Function) => {
     return async (done: Function) => {
         try {

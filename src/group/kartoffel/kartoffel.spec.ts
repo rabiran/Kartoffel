@@ -42,15 +42,9 @@ describe('Strong Groups', () => {
             groups = await Kartoffel.getAllKartoffeln();
             groups.should.be.a('array');
             groups.should.have.lengthOf(3);
-            groups[0].should.have.property('name', 'myGroup');
-            groups[1].should.exist;
-            groups[2].should.have.property('name', 'hisGroup');
         });
     });
     describe('#get updated groups from a given date', () => {
-        it('Should throw an error when date is undefined', async() => {
-            expectError(Kartoffel.getUpdatedFrom, []);
-        });
         it('Should get the current groups', async () => {
             const clock = sinon.useFakeTimers();
             await Kartoffel.createKartoffel(<IKartoffel>{name: 'group_-2'});
@@ -95,26 +89,26 @@ describe('Strong Groups', () => {
         });
         it('Should create a group correctly with one parent', async () => {
             const parent = await Kartoffel.createKartoffel(<IKartoffel>{name: 'Ido'});
-            const child = await Kartoffel.createKartoffel(<IKartoffel>{name: 'Elad'}, parent.id);
+            const child = await Kartoffel.createKartoffel(<IKartoffel>{name: 'Elad'}, parent._id);
             child.should.exist;
             child.should.have.property('ancestors');
             child.ancestors.should.have.lengthOf(1);
             const hisParent = child.ancestors[0].toString();
-            hisParent.should.equal(parent.id);
+            hisParent.should.equal(parent._id.toString());
             child.hierarchy.should.have.lengthOf(1);
             child.hierarchy[0].should.be.equal(parent.name);
         });
         it('Should create a group correctly with two ancestors', async () => {
             const grandparent = await Kartoffel.createKartoffel(<IKartoffel>{name: 'grandparent'});
-            const parent = await Kartoffel.createKartoffel(<IKartoffel>{name: 'parent'}, grandparent.id);
-            const child = await Kartoffel.createKartoffel(<IKartoffel>{name: 'child'}, parent.id);
+            const parent = await Kartoffel.createKartoffel(<IKartoffel>{name: 'parent'}, grandparent._id);
+            const child = await Kartoffel.createKartoffel(<IKartoffel>{name: 'child'}, parent._id);
             child.should.exist;
             child.should.have.property('ancestors');
             child.ancestors.should.have.lengthOf(2);
             const hisParent = child.ancestors[0].toString();
             const hisGrandparent = child.ancestors[1].toString();
-            hisParent.should.equal(parent.id);
-            hisGrandparent.should.equal(grandparent.id);
+            hisParent.should.equal(parent._id.toString());
+            hisGrandparent.should.equal(grandparent._id.toString());
             child.hierarchy.should.have.lengthOf(2);
             child.hierarchy[0].should.be.equal(grandparent.name);
             child.hierarchy[1].should.be.equal(parent.name);
@@ -221,7 +215,7 @@ describe('Strong Groups', () => {
     });
     describe('#deleteKartoffel', () => {
         it('Should throw an error if the group does not exist', async () => {
-            expectError(Kartoffel.deleteGroup, [ID_EXAMPLE]);
+            await expectError(Kartoffel.deleteGroup, [ID_EXAMPLE]);
         });
         it('Should delete the group', async () => {
             const group = await Kartoffel.createKartoffel(<IKartoffel>{_id: ID_EXAMPLE, name: 'group'});
@@ -229,13 +223,13 @@ describe('Strong Groups', () => {
             res.should.exist;
             res.should.have.property('ok', 1);
             res.should.have.property('n', 1);
-            expectError(Kartoffel.getKartoffel, [group._id]);
+            await expectError(Kartoffel.getKartoffel, [group._id]);
         });
         it('Should not remove a group with children', async () => {
             const group = await Kartoffel.createKartoffel(<IKartoffel>{_id: ID_EXAMPLE, name: 'group'});
             const child = await Kartoffel.createKartoffel(<IKartoffel>{_id: idXmpls[0], name: 'child'});
             await Kartoffel.childrenAdoption(group._id, [child._id]);
-            expectError(Kartoffel.deleteGroup, [group._id]);
+            await expectError(Kartoffel.deleteGroup, [group._id]);
         });
     });
 });

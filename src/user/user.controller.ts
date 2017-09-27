@@ -3,12 +3,14 @@ import { UserRepository } from './user.repository';
 import { IUser } from './user.interface';
 import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
 import { Kartoffel } from '../group/kartoffel/kartoffel.controller';
+import { KartoffelRepository } from '../group/kartoffel/kartoffel.repository';
 import { Rank } from '../utils';
 import { Document } from 'mongoose';
 
 export class User {
     static _userRepository: UserRepository = new UserRepository();
     _userService: UserRepository;
+    static _kartoffelRepository: KartoffelRepository = new KartoffelRepository();
 
     constructor() {
         this._userService = new UserRepository();
@@ -29,6 +31,16 @@ export class User {
         return <IUser[]>users;
     }
 
+    static async getKartoffelMembers(groupID: string): Promise<IUser[]> {
+        // check that this group exists
+        const group = await Kartoffel.getKartoffel(groupID);
+
+        const offsprings = <IKartoffel[]>(await this._kartoffelRepository.getOffsprings(groupID));
+        const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => a.concat(b));
+        const members = <IUser[]>await this._userRepository.getSome(membersIDs);
+        return members;
+    }
+
     static async createUser( user: IUser ): Promise<IUser> {
         const newUser = await User._userRepository.create(user);
         return <IUser>newUser;
@@ -45,7 +57,7 @@ export class User {
 
     static async updateUser(user: IUser): Promise<IUser> {
         const updatedUser = await User._userRepository.update(user);
-        if (!updatedUser) throw new Error('Cannot find user with ID: ' + user._id);
+        if (!updatedUser) return Promise.reject(new Error('Cannot find user with ID: ' + user._id));
         return <IUser>updatedUser;
     }
 
