@@ -4,7 +4,7 @@ import { controllerHandler as ch } from '../helpers/controller.helper';
 import { PermissionMiddleware } from '../middlewares/permission.middleware';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { User } from './user.controller';
-import { IUser, PERSONAL_FIELDS } from './user.interface';
+import { IUser, PERSONAL_FIELDS, USER_FIELDS } from './user.interface';
 import { UserRouteParamsValidate as Vld, validatorMiddleware } from './user.route.validator';
 
 // const user = new User();
@@ -46,6 +46,44 @@ users.put('/:id/personal',
         if (req.params.id != req.body._id) return res.status(400).send('User ID doesn\'t match');
         const toUpdate = filterObjectByKeys(req.body, PERSONAL_FIELDS.concat('_id'));
         return [toUpdate];
+    }, 404));
+
+users.put('/:id',
+    PermissionMiddleware.hasAdvancedPermission,
+    ch(User.updateUser, (req: Request, res: Response) => {
+        const toUpdate = filterObjectByKeys(req.body, USER_FIELDS.concat('_id'));
+        return [toUpdate];
+    }, 404));
+
+users.put('/:assign',
+    PermissionMiddleware.hasAdvancedPermission,
+    ch(User.assign, (req: Request, res: Response) => {
+        const userID  = req.params.user;
+        const groupID  = req.params.group;
+        return [userID, groupID];
+    }, 404));
+
+users.put('/:dismiss',
+    PermissionMiddleware.hasAdvancedPermission,
+    ch(User.dismiss, (req: Request, res: Response) => {
+        const userID  = req.params.user;
+        return [userID];
+    }, 404));
+
+users.put('/:manage',
+    PermissionMiddleware.hasAdvancedPermission,
+    ch(User.manage, (req: Request, res: Response) => {
+        const userID  = req.params.user;
+        const groupID  = req.params.group;
+        return [userID, groupID];
+    }, 404));
+
+users.put('/:resign',
+    PermissionMiddleware.hasAdvancedPermission,
+    ch(User.resign, (req: Request, res: Response) => {
+        const userID  = req.params.user;
+        const groupID  = req.params.group;
+        return [userID, groupID];
     }, 404));
 
 export = users;

@@ -8,6 +8,7 @@ export interface IUser extends Document {
     lastName: string;
     directGroup: string;
     rank: Rank;
+    alive: boolean;
 // Weak groups props
     weakGroups: string[];
     adminGroups: string[];
@@ -24,3 +25,4 @@ export interface IUser extends Document {
 }
 
 export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address'];
+export const USER_FIELDS = PERSONAL_FIELDS.concat(['firstName', 'lastName', 'directGroup', 'rank', 'isSecurityOfficer', 'securityOfficerLocation']);

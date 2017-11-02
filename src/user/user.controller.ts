@@ -16,8 +16,10 @@ export class User {
         this._userService = new UserRepository();
     }
 
-    static async getUsers(): Promise<IUser[]> {
-        const users = await User._userRepository.getAll();
+    static async getUsers(query = {}): Promise<IUser[]> {
+        const cond = {};
+        if (!('dead' in query)) cond['alive'] = 'true';
+        const users = await User._userRepository.find(cond);
         return <IUser[]>users;
     }
 
@@ -41,11 +43,21 @@ export class User {
         return members;
     }
 
-    static async createUser( user: IUser ): Promise<IUser> {
+    static async createUser(user: IUser): Promise<IUser> {
         const newUser = await User._userRepository.create(user);
         return <IUser>newUser;
     }
 
+    static async discharge(userID: string): Promise<any> {
+        const user = await User.getUser(userID);
+
+        // If the user was in a group, notify it
+        if (user && user.directGroup) await User.dismiss(userID);
+
+        user.alive = false;
+        const res = await User._userRepository.update(user);
+        return { ok: 1 };
+    }
 
     static async removeUser(userID: string): Promise<any> {
         const user = await User.getUser(userID);
@@ -93,22 +105,11 @@ export class User {
         const user = await User.getUser(userID);
         const group = await Kartoffel.getKartoffel(groupID);
 
-        // if the user is a member/admin of another group
-        if (user.directGroup && user.directGroup.toString() != groupID) {
-            // remove him from that group
-            await User.dismiss(userID);
-            user.directGroup = undefined;
-        }
-        // if the user is not a member now
-        if (!user.directGroup) {
-            // Maketh him a member
-            await User.assign(userID, groupID);
-        }
         await Kartoffel.addAdmin(groupID, userID);
         return;
     }
 
-    static async mismanage(userID: string) {
+    static async resign(userID: string) {
         const user = await User.getUser(userID);
         if (!user.directGroup) return;
         await Kartoffel.fireAdmin(user.directGroup, userID);

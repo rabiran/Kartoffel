@@ -66,7 +66,11 @@ export const UserSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    updatedAt: Date
+    alive: {
+        type: Boolean,
+        default: true
+    },
+    updatedAt: Date,
 });
 
 UserSchema.methods.fullName = () => {

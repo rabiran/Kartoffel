@@ -211,6 +211,33 @@ describe('Users', () => {
             group.members.should.have.lengthOf(0);
         });
     });
+    describe('#discharge', () => {
+        it('Should throw an error when there is no user to discharge', async () => {
+            await expectError(User.discharge, [userExamples[0]]);
+        });
+        it('Should discharge a user successfully if existed', async () => {
+            await User.createUser(userExamples[0]);
+            const res = await User.discharge('1234567');
+            res.should.exist;
+            res.should.have.property('ok', 1);
+        });
+        it('Should update the user\'s group after that the user is discharged', async () => {
+            const user = await User.createUser(userExamples[0]);
+            let group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group'});
+            await User.assign(user._id, group._id);
+            await User.discharge(user._id);
+
+            group = await Kartoffel.getKartoffel(group._id);
+            group.members.should.have.lengthOf(0);
+        });
+        it('Should not get a "dead" user with the regular get', async () => {
+            const user = await User.createUser(userExamples[0]);
+            await User.discharge(user._id);
+
+            const users = await User.getUsers();
+            users.should.have.lengthOf(0);
+        });
+    });
     describe('#updateUser', () => {
         it('Should throw an error when the user does not exist', async () => {
            await expectError(User.updateUser, [userExamples[0]]);
@@ -321,6 +348,7 @@ describe('Users', () => {
             it('Should appoint as a manager', async () => {
                 let user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
                 let group = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group'});
+                await User.assign(user._id, group._id);
                 await User.manage(user._id, group._id);
 
                 // Check in the user and group after the update
@@ -334,38 +362,36 @@ describe('Users', () => {
                 group.admins.should.have.lengthOf(1);
                 expect(group.admins[0].toString() == user._id.toString());
             });
-            it('Should transfer if was assign before', async() => {
+            it('Should not transfer if in another group', async() => {
                 let user = await User.createUser(<IUser>{_id : '1234567', firstName: 'Avi', lastName: 'Ron'});
                 let group1 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group1'});
                 let group2 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group2'});
-                let group3 = await Kartoffel.createKartoffel(<IKartoffel>{name: 'group3'});
+                await expectError(User.manage, [user._id, group2._id]);
                 await User.assign(user._id, group1._id);
-                await User.manage(user._id, group2._id);
+                await expectError(User.manage, [user._id, group2._id]);
 
                 user = await User.getUser(user._id);
                 group1 = await Kartoffel.getKartoffel(group1._id);
                 group2 = await Kartoffel.getKartoffel(group2._id);
 
-                group1.members.should.have.lengthOf(0);
+                group1.members.should.have.lengthOf(1);
                 group1.admins.should.have.lengthOf(0);
-                group2.members.should.have.lengthOf(1);
-                group2.admins.should.have.lengthOf(1);
-                expect(group2.members[0].toString() == user._id.toString());
-                expect(group2.admins[0].toString() == user._id.toString());
-                expect(user.directGroup.toString() == group2._id.toString());
-
-                await User.manage(user._id, group3._id);
-                user = await User.getUser(user._id);
-                group2 = await Kartoffel.getKartoffel(group2._id);
-                group3 = await Kartoffel.getKartoffel(group3._id);
-
                 group2.members.should.have.lengthOf(0);
                 group2.admins.should.have.lengthOf(0);
-                group3.members.should.have.lengthOf(1);
-                group3.admins.should.have.lengthOf(1);
-                expect(group3.members[0].toString() == user._id.toString());
-                expect(group3.admins[0].toString() == user._id.toString());
-                expect(user.directGroup.toString() == group2._id.toString());
+                expect(group1.members[0].toString() == user._id.toString());
+                expect(user.directGroup.toString() == group1._id.toString());
+
+
+                await User.manage(user._id, group1._id);
+                await expectError(User.manage, [user._id, group2._id]);
+
+                user = await User.getUser(user._id);
+                group1 = await Kartoffel.getKartoffel(group1._id);
+                group2 = await Kartoffel.getKartoffel(group2._id);
+                group1.members.should.have.lengthOf(1);
+                group1.admins.should.have.lengthOf(1);
+                group2.members.should.have.lengthOf(0);
+                group2.admins.should.have.lengthOf(0);
             });
         });
     });

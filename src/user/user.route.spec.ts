@@ -209,5 +209,8 @@ describe('User', () => {
                 }).catch( err => { throw err; } );
         });
     });
+    // describe('/PUT user in/out group', () => {
+    //     it('Should return ')
+    // });
 });
 
