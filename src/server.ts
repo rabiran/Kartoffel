@@ -15,6 +15,7 @@ import * as YAML from 'yamljs';
 import * as jwt from 'jsonwebtoken';
 import * as passport from 'passport';
 import * as passportJWT from 'passport-jwt';
+import * as facebookStrategy from 'passport-facebook';
 
 import * as userRouter from './user/user.route';
 import * as kartoffelRouter from './group/kartoffel/kartoffel.route';
@@ -31,12 +32,14 @@ var users = [
   {
     id: 1,
     name: 'test1',
-    password: 'test1p'
+    password: 'test1p',
+    role: 'boss'
   },
   {
     id: 2,
     name: 'test2',
-    password: 'test2p'
+    password: 'test2p',
+    role : 'worker'
   }
 ];
 
@@ -66,6 +69,24 @@ var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
 });
 
 passport.use(strategy);
+
+
+passport.use(new facebookStrategy.Strategy({
+    clientID: '<fbClientId>',
+    clientSecret: '<fbClientSecret>',
+    callbackURL: "kartoffle.com/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+
+    console.log(profile)
+    // User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+    //   return cb(err, user);
+    // });
+  }
+));
+
+
+
 /**
  *  Swagger configuration
  */
@@ -125,7 +146,25 @@ app.use(bodyParser.urlencoded({
 // Passport sample routes
 app.use(passport.initialize());
 
-app.post("/login", function(req, res) {
+
+/////////
+
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+ 
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home. 
+    res.redirect('/');
+  });
+////////////
+
+
+
+
+app.post("/auth/login", function(req, res) {
   if(req.body.name && req.body.password){
     var name = req.body.name;
     var password = req.body.password;
@@ -147,24 +186,11 @@ app.post("/login", function(req, res) {
 });
 
 
-app.get("/secret", passport.authenticate('jwt', { session: false }), function(req, res){
+app.get("/secret", function(req, res){
   res.json("Success! You can not see this without a token");
 });
 
-app.get("/secretDebug",
-  function(req, res, next){
-    console.log(req.get('Authorization'));
-    next();
-  }, function(req, res){
-    res.json("debugging");
-});
-
-
-app.use('/', function(req, res) {
-  res.status(200).json({
-    version: 1
-  })
-})
+// passport.authenticate('jwt', { session: false })
 
 app.use('/api/user', userRouter);
 app.use('/api/kartoffel', kartoffelRouter);
