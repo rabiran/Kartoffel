@@ -82,7 +82,7 @@ export class Kartoffel {
 
   static async fireAdmin(kartoffelID: string, manager: string): Promise<void> {
     const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
-    _.pull(kartoffel.members, manager);
+    _.pull(<string[]>kartoffel.admins, manager);
     await Kartoffel.updateKartoffel(kartoffel);
     return;
   }

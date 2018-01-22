@@ -97,7 +97,7 @@ export class User {
     if (!user.directGroup) return;
     await Kartoffel.dismissMember(user.directGroup, userID);
 
-    user.directGroup = undefined;
+    user.directGroup = null;
     await User.updateUser(user);
   }
 

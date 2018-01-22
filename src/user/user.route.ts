@@ -50,7 +50,7 @@ users.put('/:id/personal',
             return [toUpdate];
           }, 404));
 
-users.put('/:id',
+users.put('/',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.updateUser, (req: Request, res: Response) => {
             const toUpdate = filterObjectByKeys(req.body, USER_FIELDS.concat('_id'));
@@ -60,31 +60,31 @@ users.put('/:id',
 users.put('/assign',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.assign, (req: Request, res: Response) => {
-            const userID  = req.params.user;
-            const groupID  = req.params.group;
+            const userID  = req.body.user;
+            const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
 
 users.put('/dismiss',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.dismiss, (req: Request, res: Response) => {
-            const userID  = req.params.user;
+            const userID  = req.body.user;
             return [userID];
           }, 404));
 
 users.put('/manage',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.manage, (req: Request, res: Response) => {
-            const userID  = req.params.user;
-            const groupID  = req.params.group;
+            const userID  = req.body.user;
+            const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
 
 users.put('/resign',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.resign, (req: Request, res: Response) => {
-            const userID  = req.params.user;
-            const groupID  = req.params.group;
+            const userID  = req.body.user;
+            const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
 

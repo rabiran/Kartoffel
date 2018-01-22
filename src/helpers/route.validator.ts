@@ -20,7 +20,6 @@ export class RouteParamsValidate {
 
   static dateOrInt(param: any) {
     if (!(RouteParamsValidate.isValidDate(param) || RouteParamsValidate.isInt(param))) {
-      console.log(param);
       throw new Error('Did not receive a valid date ;)');
     }
   }
