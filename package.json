@@ -40,6 +40,7 @@
     "sinon": "^3.3.0",
     "swagger-tools": "^0.10.1",
     "swagger-ui": "^3.1.5",
+    "tslint-config-airbnb": "^5.3.1",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
