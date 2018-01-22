@@ -1,4 +1,4 @@
-# Kartoffel - 0.1.4
+# Kartoffel - 0.2
 
 ## CI Information
 ### Build Status
