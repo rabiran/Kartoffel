@@ -16,38 +16,38 @@ kartoffeln.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPer
 kartoffeln.get('/getAll', ch(Kartoffel.getAllKartoffeln, (): Array<any> => []));
 
 kartoffeln.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params') , ch(Kartoffel.getUpdatedFrom, (req: Request) => {
-    let from = req.params.from;
-    if (typeof(from) == 'number') from = new Date(from);
-    return [from, new Date()];
+  let from = req.params.from;
+  if (typeof(from) === 'number') from = new Date(from);
+  return [from, new Date()];
 }));
 
 kartoffeln.post('/',
-    PermissionMiddleware.hasAdvancedPermission,
-    ch(Kartoffel.createKartoffel, (req: Request, res: Response) => {
-        const kartoffel = filterObjectByKeys(req.body, KARTOFFEL_BASIC_FIELDS);
-        const parentID = req.body.parentID;
-        return [kartoffel, parentID];
-    }, 400)
+  PermissionMiddleware.hasAdvancedPermission,
+  ch(Kartoffel.createKartoffel, (req: Request, res: Response) => {
+    const kartoffel = filterObjectByKeys(req.body, KARTOFFEL_BASIC_FIELDS);
+    const parentID = req.body.parentID;
+    return [kartoffel, parentID];
+  }, 400)
 );
 
 kartoffeln.get('/:id', validatorMiddleware(Vld.toDo, ['id'], 'params'),
-    ch(Kartoffel.getKartoffel, (req: Request, res: Response) => {
-    return [req.params.id];
+  ch(Kartoffel.getKartoffel, (req: Request, res: Response) => {
+  return [req.params.id];
 }, 404));
 
 kartoffeln.put('/adoption',
-    PermissionMiddleware.hasAdvancedPermission,
-    validatorMiddleware(Vld.differentParams, ['parentID', 'childID']),
-    ch(Kartoffel.childrenAdoption, (req: Request, res: Response) => {
-        const parentID = req.body.parentID;
-        const childID = req.body.childID;
-        return [parentID, [childID]];
-    }, 400));
+  PermissionMiddleware.hasAdvancedPermission,
+  validatorMiddleware(Vld.differentParams, ['parentID', 'childID']),
+  ch(Kartoffel.childrenAdoption, (req: Request, res: Response) => {
+    const parentID = req.body.parentID;
+    const childID = req.body.childID;
+    return [parentID, [childID]];
+  }, 400));
 
 kartoffeln.delete('/:id',
-    PermissionMiddleware.hasAdvancedPermission,
-    ch(Kartoffel.deleteGroup, (req: Request) => {
-        return [req.params.id];
-    }, 400));
+  PermissionMiddleware.hasAdvancedPermission,
+  ch(Kartoffel.deleteGroup, (req: Request) => {
+    return [req.params.id];
+  }, 400));
 
 export = kartoffeln;

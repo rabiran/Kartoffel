@@ -32,11 +32,13 @@ export enum RANK {
 }
 
 export function filterObjectByKeys(object: Object, allowedKeys: Array<string>): Object {
-    const filtered = Object.keys(object)
-    .filter(key => allowedKeys.includes(key))
-    .reduce((obj, key) => {
+  const filtered = Object.keys(object)
+  .filter(key => allowedKeys.includes(key))
+  .reduce(
+    (obj, key) => {
       obj[key] = object[key];
       return obj;
-    }, {});
-    return filtered;
+    }, 
+    {});
+  return filtered;
 }
