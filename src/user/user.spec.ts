@@ -16,7 +16,7 @@ chai.use(require('chai-http'));
 
 const DB_ID_EXAMPLE = '59a56d577bedba18504298df';
 
-const userExamples: Array<IUser> = [
+const userExamples: IUser[] = [
   <IUser>{
     _id : '1234567',
     firstName: 'Avi',
@@ -131,7 +131,7 @@ describe('Users', () => {
         rank: 'Skillful',
         address: 'I live here',
         isSecurityOfficer: true,
-        clearance: 5
+        clearance: 5,
       };
 
       const user = await User.createUser(newUser);

@@ -28,10 +28,10 @@ export enum RANK {
     'Experienced',
     'Advanced',
     'Senior',
-    'Expert'
+    'Expert',
 }
 
-export function filterObjectByKeys(object: Object, allowedKeys: Array<string>): Object {
+export function filterObjectByKeys(object: Object, allowedKeys: string[]): Object {
   const filtered = Object.keys(object)
   .filter(key => allowedKeys.includes(key))
   .reduce(
