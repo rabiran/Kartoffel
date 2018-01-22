@@ -8,15 +8,15 @@ import { Request, Response, NextFunction, Router } from 'express';
  * that maps our desired controller parameters. I.e. (req) => [req.params.username, ...].
  */
 export const controllerHandler = (promise: Function, params: Function, errorCode: number = 500) => async (req: Request, res: Response, next: NextFunction) => {
-    const boundParams = params ? params(req, res, next) : [];
-    try {
-        const result = await promise(...boundParams);
-        return res.json(result || { message: 'OK' });
-    } catch (error) {
-        if (error.message) {
-            error = error.message;
-        }
-        error += '';
-        return res.status(errorCode).send(error);
+  const boundParams = params ? params(req, res, next) : [];
+  try {
+    const result = await promise(...boundParams);
+    return res.json(result || { message: 'OK' });
+  } catch (error) {
+    if (error.message) {
+      error = error.message;
     }
+    error += '';
+    return res.status(errorCode).send(error);
+  }
 };

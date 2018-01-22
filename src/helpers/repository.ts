@@ -30,15 +30,15 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
   }
 
   getSome(ids: string[]): Promise<mongoose.Document[]> {
-    return this._model.find({ '_id': { $in: ids}}).exec();
+    return this._model.find({ _id: { $in: ids } }).exec();
   }
 
   getUpdatedFrom(from: Date, to: Date): Promise<mongoose.Document[]> {
-    return this._model.find({'updatedAt': {'$gte': from, '$lte': to}}).exec();
+    return this._model.find({ updatedAt: { $gte: from, $lte: to } }).exec();
   }
 
   findAndUpdateSome(ids: string[], set: Object): Promise<mongoose.Document[]> {
-    return this._model.update({ _id: { $in: ids}}, { $set: set }, {multi: true}).exec();
+    return this._model.update({ _id: { $in: ids } }, { $set: set }, { multi: true }).exec();
   }
 
   // TODO: Check why it doesn't work with throw (It doesn't get caught).
@@ -61,7 +61,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
   }
 
   delete(_id: any): Promise<any> {
-    return this._model.remove({ _id: _id }).exec();
+    return this._model.remove({ _id }).exec();
   }
 
   findById(_id: any, populateOptions?: string | Object): Promise<mongoose.Document> {

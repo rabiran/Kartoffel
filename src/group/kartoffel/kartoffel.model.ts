@@ -6,38 +6,38 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 export const KartoffelSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   admins: {
     type: [String],
     ref: 'User',
-    default: []
+    default: [],
   },
   members: {
     type: [String],
     ref: 'User',
-    default: []
+    default: [],
   },
   children: {
     type: [ObjectId],
     ref: 'Kartoffel',
-    default: []
+    default: [],
   },
   clearance: {
     type: Number,
-    default: 0
+    default: 0,
   },
   ancestors: {
     type: [ObjectId],
     ref: 'Kartoffel',
-    default: []
+    default: [],
   },
   hierarchy: {
     type: [String],
-    default: []
+    default: [],
   },
   type: String,
-  updatedAt: Date
+  updatedAt: Date,
 });
 
 KartoffelSchema.pre('save', function (next) {

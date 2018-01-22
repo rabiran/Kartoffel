@@ -57,7 +57,7 @@ export class Kartoffel {
       return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
     } else {
       const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
-      kartoffel.admins = _.union(kartoffel.admins, [userID]);
+      kartoffel.admins = _.union(<string[]>kartoffel.admins, [userID]);
       return await Kartoffel.updateKartoffel(kartoffel);
     }
   }
@@ -65,7 +65,7 @@ export class Kartoffel {
   static async addUsers(kartoffelID: string, users: string[], areAdmins: boolean = false): Promise<IKartoffel> {
     const type = areAdmins ? 'admins' : 'members';
     const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
-    kartoffel[type] = _.union(kartoffel[type], users);
+    kartoffel[type] = _.union(<string[]>kartoffel[type], users);
     return await Kartoffel.updateKartoffel(kartoffel);
   }
 
@@ -73,8 +73,8 @@ export class Kartoffel {
     const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
     _.pull(kartoffel.members, member);
     // If the member is an admin as well, remove him from the admins list
-    if (kartoffel.admins.indexOf(member) !== -1) {
-      _.pull(kartoffel.admins, member);
+    if ((<string[]>kartoffel.admins).indexOf(member) !== -1) {
+      _.pull(<string[]>kartoffel.admins, member);
     }
     await Kartoffel.updateKartoffel(kartoffel);
     return;
@@ -82,7 +82,7 @@ export class Kartoffel {
 
   static async fireAdmin(kartoffelID: string, manager: string): Promise<void> {
     const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
-    _.pull(kartoffel.members, manager);
+    _.pull(<string[]>kartoffel.admins, manager);
     await Kartoffel.updateKartoffel(kartoffel);
     return;
   }
@@ -139,14 +139,14 @@ export class Kartoffel {
   // Update the father about his child
   private static async adoptChildren(kartoffelID: string, childrenIDs: string[]): Promise<IKartoffel> {
     const parent = await Kartoffel.getKartoffel(kartoffelID);
-    parent.children.push(...childrenIDs);
+    (<string[]>parent.children).push(...childrenIDs);
     return await Kartoffel.updateKartoffel(parent);
   }
 
   private static async disownChild(parentID: string, childID: string): Promise<IKartoffel> {
     if (!parentID) return;
     const parent = await Kartoffel.getKartoffel(parentID);
-    _.pull(parent.children, childID);
+    _.pull(<string[]>parent.children, childID);
     return await Kartoffel.updateKartoffel(parent);
   }
 

@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "This is a sample server Kartoffel server."
-  version: "0.0.2"
+  version: "0.2.0"
   title: "Kartoffel"
 host: "localhost:3000"
 basePath: "/api"
@@ -34,6 +34,26 @@ paths:
           description: "successful operation"
         405:
           description: "Invalid Input"
+    put:
+      tags:
+      - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "Invalid user supplied"
+        404:
+          description: "User not found"
   /user/getAll:
     get:
       tags: 
@@ -48,6 +68,28 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/User"
+  /user/getUpdated/{from}:
+    get:
+      tags: 
+      - "user"
+      summary: "Returns users updated from a given date"
+      description: ""
+      operationId: "getUpdatedUsers"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "from"
+        in: "path"
+        description: "The date from which you want to get the updated objects"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Did not recive a valid date ;)"
   /user/{userID}:
     get:
       tags:
@@ -72,31 +114,6 @@ paths:
           description: "Invalid username supplied"
         404:
           description: "User not found"
-    put:
-      tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
     delete:
       tags:
       - "user"
@@ -118,6 +135,130 @@ paths:
           description: "Invalid ID supplied"
         404:
           description: "User not found"
+  /user/{userID}/personal:
+    put:
+      tags:
+      - "user"
+      summary: "Update user's personal info by his ID"
+      description: "Updates only the folowing fields: job, mail, phone, address"
+      operationId: "updateUserPersonal"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userID"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "Invalid user supplied"
+        404:
+          description: "User not found"
+  /user/assign:
+    put:
+      tags:
+      - "user"
+      summary: "Assign user to a group"
+      description: "Advanced permissions needed"
+      operationId: "assignUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            user:
+              type: "string"
+            group:
+              type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        404:
+          description: "request error"
+  /user/dismiss:
+    put:
+      tags:
+      - "user"
+      summary: "Dissmis a user from his current group"
+      description: "Advanced permissions needed"
+      operationId: "dismissUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            user:
+              type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        404:
+          description: "request error"
+  /user/manage:
+    put:
+      tags:
+      - "user"
+      summary: "Appoint a user to manage a group"
+      description: "Advanced permissions needed. A user can be a manager of only one Kartoffel, and he should be a member of that one as well."
+      operationId: "promoteUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            user:
+              type: "string"
+            group:
+              type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        404:
+          description: "request error"
+  /user/resign:
+    put:
+      tags:
+      - "user"
+      summary: "Discharge a user from management of a group"
+      description: "Advanced permissions needed"
+      operationId: "resignUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            user:
+              type: "string"
+            group:
+              type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        404:
+          description: "request error"
   /kartoffel:
     post:
       tags:
@@ -153,6 +294,98 @@ paths:
           description: "successful operation"
           schema:
             $ref: "#/definitions/Kartoffel"
+  /kartoffel/getUpdated/{from}:
+    get:
+      tags: 
+      - "kartoffel"
+      summary: "Returns kartoffels updated from a given date"
+      description: ""
+      operationId: "getUpdatedKartoffel"
+      parameters:
+      - name: "from"
+        in: "path"
+        description: "The date from which you want to get the updated objects"
+        required: true
+        type: "string"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Did not recive a valid date ;)"
+  /kartoffel/{id}:
+    get:
+      tags:
+      - "kartoffel"
+      summary: "Get kartoffel by ID"
+      description: ""
+      operationId: "getKartoffelByID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The ID of the user."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "User not found"
+    delete:
+      tags:
+      - "kartoffel"
+      summary: "Delete kartoffel"
+      description: "Advanced permissions needed"
+      operationId: "deleteKartoffel"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "The ID that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "User not found"
+  /kartoffel/adoption:
+    put:
+      tags:
+      - "kartoffel"
+      summary: "Move group A under group B"
+      description: "Advanced permissions needed. Changes the hierarchy tree"
+      operationId: "adoptKartoffel"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            childID:
+              type: "string"
+            paretnID:
+              type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "request error"
 # securityDefinitions:
 #   petstore_auth:
 #     type: "oauth2"
@@ -166,6 +399,14 @@ paths:
 #     name: "api_key"
 #     in: "header"
 definitions:
+  # userID:
+  #   type: "string"
+  #   required: "true"
+  #   example: "1234567"
+  # groupID:
+  #   type: "string"
+  #   required: "true"
+  #   example: "59a56d577bedba18504298df"
   Kartoffel:
     type: "object"
     required:

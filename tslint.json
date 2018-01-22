@@ -1,72 +1,22 @@
 {
-    "extends": "tslint-config-airbnb"
+    "extends": "tslint-config-airbnb",
     // "variable-name": false,
     // 'prefer-array-literal': false, // 4.1
     // 'trailing-comma' // 19.2
     // 'max-line-length'  // 18.12
     // 'no-increment-decrement': false, // 13.6
+    // radix: false, // 21.3 22.3
 
-    // "rules": {
-    //     // "array-callback-return": true,
-    //     "class-name": true,
-    //     "comment-format": [
-    //         true,
-    //         "check-space"
-    //     ],
-    //     "indent": [
-    //         true,
-    //         "spaces"
-    //     ],
-    //     "one-line": [
-    //         true,
-    //         "check-open-brace",
-    //         "check-whitespace"
-    //     ],
-    //     "no-var-keyword": true,
-    //     // "prefer-template template-curly-spacing": true,
-    //     "quotemark": [
-    //         true,
-    //         "single",
-    //         "avoid-escape"
-    //     ],
-    //     "semicolon": [
-    //         true,
-    //         "always",
-    //         "ignore-bound-class-methods"
-    //     ],
-    //     "whitespace": [
-    //         true,
-    //         "check-branch",
-    //         "check-decl",
-    //         "check-operator",
-    //         "check-module",
-    //         "check-separator",
-    //         "check-type"
-    //     ],
-    //     "typedef-whitespace": [
-    //         true,
-    //         {
-    //             "call-signature": "nospace",
-    //             "index-signature": "nospace",
-    //             "parameter": "nospace",
-    //             "property-declaration": "nospace",
-    //             "variable-declaration": "nospace"
-    //         },
-    //         {
-    //             "call-signature": "onespace",
-    //             "index-signature": "onespace",
-    //             "parameter": "onespace",
-    //             "property-declaration": "onespace",
-    //             "variable-declaration": "onespace"
-    //         }
-    //     ],
-    //     "no-internal-module": true,
-    //     "no-trailing-whitespace": true,
-    //     "no-null-keyword": true,
-    //     // "no-var": true,
-    //     // "object-shorthand": true,
-    //     "prefer-const": true,
-    //     // "quote-props": true,
-    //     "jsdoc-format": true
-    // }
+    "rules": {
+      "strict-boolean-expressions": false,
+      "no-parameter-reassignment": false,
+      "no-else-after-return": false,
+
+      "variable-name": [true, "ban-keywords", "check-format", "allow-snake-case", "allow-leading-underscore", "allow-pascal-case"],
+      "prefer-array-literal": true, // 4.1
+      "trailing-comma": [true, {"multiline": "always", "singleline": "never"}], // 19.2
+      "max-line-length": false,  // 18.12
+      "no-increment-decrement": false, // 13.6
+        "radix": false // 21.3 22.3
+    }
 }

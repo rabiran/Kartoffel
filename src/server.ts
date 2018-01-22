@@ -25,7 +25,7 @@ const swaggerDoc = YAML.load('openapi.yaml');
 
 swaggerTools.initializeMiddleware(swaggerDoc, (middleware: any) => {
     //  Serve the Swagger document and Swagger UI
-    app.use(middleware.swaggerUi());
+  app.use(middleware.swaggerUi());
 });
 
 /**
@@ -38,13 +38,13 @@ dotenv.config({ path: '.env' });
  */
 (<any>mongoose).Promise = Promise;
 
-if (process.env.NODE_ENV != 'test') {
+if (process.env.NODE_ENV !== 'test') {
   mongoose.connect(process.env.MONGODB_URI, (err: any) => {
     if (err) {
       console.log(err);
-        throw err;
+      throw err;
     } else {
-        console.log('successfully connected to the database');
+      console.log('successfully connected to the database');
     }
   });
 }
@@ -59,7 +59,7 @@ mongoose.connection.on('error', () => {
 app.set('port', process.env.PORT || 3000);
 
 // Don't log while testing
-if (process.env.NODE_ENV != 'test') {
+if (process.env.NODE_ENV !== 'test') {
   app.use('/api', logger('dev')); // Morgan
 }
 

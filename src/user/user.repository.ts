@@ -3,7 +3,7 @@ import { IUser } from './user.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
 
 export class UserRepository extends RepositoryBase<IUser> {
-    constructor() {
-        super(User);
-    }
+  constructor() {
+    super(User);
+  }
 }
