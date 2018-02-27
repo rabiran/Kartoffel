@@ -379,7 +379,7 @@ paths:
           properties:
             childID:
               type: "string"
-            paretnID:
+            parentID:
               type: "string"
       responses:
         200:

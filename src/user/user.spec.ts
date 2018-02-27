@@ -207,7 +207,7 @@ describe('Users', () => {
       await User.assign(user._id, group._id);
       await User.removeUser(user._id);
 
-      group = await Kartoffel.getKartoffel(group._id);
+      group = await Kartoffel.getKartoffelOld(group._id);
       group.members.should.have.lengthOf(0);
     });
   });
@@ -227,7 +227,7 @@ describe('Users', () => {
       await User.assign(user._id, group._id);
       await User.discharge(user._id);
 
-      group = await Kartoffel.getKartoffel(group._id);
+      group = await Kartoffel.getKartoffelOld(group._id);
       group.members.should.have.lengthOf(0);
     });
     it('Should not get a "dead" user with the regular get', async () => {
@@ -310,7 +310,7 @@ describe('Users', () => {
 
         // Check in the user and group after the update
         user = await User.getUser(user._id);
-        group = await Kartoffel.getKartoffel(group._id);
+        group = await Kartoffel.getKartoffelOld(group._id);
         user.should.exist;
         group.should.exist;
         expect(user.directGroup.toString() === group._id.toString());
@@ -326,8 +326,8 @@ describe('Users', () => {
         await User.assign(user._id, group2._id);
 
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffel(group1._id);
-        group2 = await Kartoffel.getKartoffel(group2._id);
+        group1 = await Kartoffel.getKartoffelOld(group1._id);
+        group2 = await Kartoffel.getKartoffelOld(group2._id);
 
         group1.members.should.have.lengthOf(0);
         group2.members.should.have.lengthOf(1);
@@ -353,7 +353,7 @@ describe('Users', () => {
 
         // Check in the user and group after the update
         user = await User.getUser(user._id);
-        group = await Kartoffel.getKartoffel(group._id);
+        group = await Kartoffel.getKartoffelOld(group._id);
         user.should.exist;
         group.should.exist;
         expect(user.directGroup.toString() === group._id.toString());
@@ -371,8 +371,8 @@ describe('Users', () => {
         await expectError(User.manage, [user._id, group2._id]);
 
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffel(group1._id);
-        group2 = await Kartoffel.getKartoffel(group2._id);
+        group1 = await Kartoffel.getKartoffelOld(group1._id);
+        group2 = await Kartoffel.getKartoffelOld(group2._id);
 
         group1.members.should.have.lengthOf(1);
         group1.admins.should.have.lengthOf(0);
@@ -386,8 +386,8 @@ describe('Users', () => {
         await expectError(User.manage, [user._id, group2._id]);
 
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffel(group1._id);
-        group2 = await Kartoffel.getKartoffel(group2._id);
+        group1 = await Kartoffel.getKartoffelOld(group1._id);
+        group2 = await Kartoffel.getKartoffelOld(group2._id);
         group1.members.should.have.lengthOf(1);
         group1.admins.should.have.lengthOf(1);
         group2.members.should.have.lengthOf(0);
@@ -445,7 +445,7 @@ async function bigTree() {
 }
 
 async function printTreeHeavy(sourceID: string, deep = 0) {
-  const source = await Kartoffel.getKartoffel(sourceID);
+  const source = await Kartoffel.getKartoffelOld(sourceID);
   let pre = '';
   for (let i = 0; i < deep; i++) {
     pre += '  ';

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { KartoffelRepository } from './kartoffel.repository';
-import { IKartoffel } from './kartoffel.interface';
+import { IKartoffel, KARTOFFEL_OBJECT_FIELDS, KARTOFFEL_KEYS } from './kartoffel.interface';
 import { User } from '../../user/user.controller';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
@@ -11,6 +11,12 @@ export class Kartoffel {
   static async getAllKartoffeln(): Promise<IKartoffel[]> {
     const kartoffeln = await Kartoffel. kartoffelRepository.getAll();
     return <IKartoffel[]>kartoffeln;
+  }
+
+  static async getKartoffeln(): Promise<IKartoffel[]> {
+    const kartoffeln = await Kartoffel. kartoffelRepository.getAll();
+    const fieldsToSend = <(keyof IKartoffel)[]> _.difference(KARTOFFEL_KEYS, KARTOFFEL_OBJECT_FIELDS);
+    return _.flatMap(<IKartoffel[]>kartoffeln, k => pick(k, ...fieldsToSend));
   }
 
   static async createKartoffel(kartoffel: IKartoffel, parentID: string = undefined): Promise<IKartoffel> {
@@ -30,10 +36,28 @@ export class Kartoffel {
     return <IKartoffel>newKartoffel;
   }
 
-  static async getKartoffel(kartoffelID: string): Promise<IKartoffel> {
+  static async getKartoffelOld(kartoffelID: string): Promise<IKartoffel> {
     const kartoffel = await Kartoffel. kartoffelRepository.findById(kartoffelID);
     if (!kartoffel) return Promise.reject(new Error('Cannot find group with ID: ' + kartoffelID));
     return <IKartoffel>kartoffel;
+  }
+
+  static async getKartoffelPopulated(kartoffelID: string): Promise<IKartoffel> {
+    const kartoffel = await Kartoffel. kartoffelRepository.findById(kartoffelID, 'children');
+    if (!kartoffel) return Promise.reject(new Error('Cannot find group with ID: ' + kartoffelID));
+    return <IKartoffel>kartoffel;
+  }
+
+  static async getKartoffel(kartoffelID: string, toPopulate?: String[]): Promise<IKartoffel> {
+    toPopulate = _.intersection(toPopulate, KARTOFFEL_OBJECT_FIELDS);
+    const select = ['name', 'isALeaf'];
+    const populateOptions = _.flatMap(toPopulate, (path) => {
+      return { path, select };
+    });
+    const result = await Kartoffel.kartoffelRepository.findById(kartoffelID, populateOptions);
+    if (!result) return Promise.reject(new Error('Cannot find group with ID: ' + kartoffelID));
+    const kartoffel = <IKartoffel>result;
+    return <IKartoffel>modifyKartoffelBeforeSend(kartoffel, toPopulate);
   }
 
   static async getUpdatedFrom(from: Date, to: Date) {
@@ -56,7 +80,7 @@ export class Kartoffel {
     if (!isMember) {
       return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
     } else {
-      const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
+      const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
       kartoffel.admins = _.union(<string[]>kartoffel.admins, [userID]);
       return await Kartoffel.updateKartoffel(kartoffel);
     }
@@ -64,13 +88,13 @@ export class Kartoffel {
 
   static async addUsers(kartoffelID: string, users: string[], areAdmins: boolean = false): Promise<IKartoffel> {
     const type = areAdmins ? 'admins' : 'members';
-    const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
+    const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
     kartoffel[type] = _.union(<string[]>kartoffel[type], users);
     return await Kartoffel.updateKartoffel(kartoffel);
   }
 
   static async dismissMember(kartoffelID: string, member: string): Promise<void> {
-    const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
+    const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
     _.pull(kartoffel.members, member);
     // If the member is an admin as well, remove him from the admins list
     if ((<string[]>kartoffel.admins).indexOf(member) !== -1) {
@@ -81,7 +105,7 @@ export class Kartoffel {
   }
 
   static async fireAdmin(kartoffelID: string, manager: string): Promise<void> {
-    const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
+    const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
     _.pull(<string[]>kartoffel.admins, manager);
     await Kartoffel.updateKartoffel(kartoffel);
     return;
@@ -100,7 +124,7 @@ export class Kartoffel {
   }
 
   static async deleteGroup(groupID: string): Promise<any> {
-    const group = await Kartoffel.getKartoffel(groupID);
+    const group = await Kartoffel.getKartoffelOld(groupID);
     // Check that the group has no members or children
     if (group.children.length > 0) {
       return Promise.reject(new Error('Can not delete a group with sub groups!'));
@@ -123,53 +147,83 @@ export class Kartoffel {
   }
 
   private static async updateChildrenHierarchy(parentID: string, childrenIDs: string[] = []): Promise<void> {
-    const parent = await Kartoffel.getKartoffel(parentID);
+    const parent = await Kartoffel.getKartoffelOld(parentID);
     if (childrenIDs.length === 0) {
       childrenIDs = <string[]>(parent.children);
-    }
+    } 
     const ancestors = await Kartoffel.getAncestors(parentID);
     ancestors.unshift(parentID);
     const hierarchy = await Kartoffel.getHierarchyFromAncestors(parentID);
     hierarchy.unshift(parent.name);
-    const updated = await Kartoffel. kartoffelRepository.findAndUpdateSome(childrenIDs, { ancestors, hierarchy });
+    const updated = await Kartoffel.kartoffelRepository.findAndUpdateSome(childrenIDs, { ancestors, hierarchy });
     await Promise.all(childrenIDs.map((childID => Kartoffel.updateChildrenHierarchy(childID))));
     return;
   }
 
   // Update the father about his child
   private static async adoptChildren(kartoffelID: string, childrenIDs: string[]): Promise<IKartoffel> {
-    const parent = await Kartoffel.getKartoffel(kartoffelID);
-    (<string[]>parent.children).push(...childrenIDs);
+    const parent = await Kartoffel.getKartoffelOld(kartoffelID);
+    // Add the new children if they dont exist yet
+    // All of this below is because a stupid bug...
+    const children:string[] = [];
+    _.flatMap(parent.children, c => children.push(c.toString()));
+    children.push(...childrenIDs);
+    parent.children = _.uniq(children);
+    // 'Is a leaf' check:
+    if (parent.children.length !== 0) {
+      parent.isALeaf = false;
+    } else parent.isALeaf = true;
     return await Kartoffel.updateKartoffel(parent);
   }
 
   private static async disownChild(parentID: string, childID: string): Promise<IKartoffel> {
     if (!parentID) return;
-    const parent = await Kartoffel.getKartoffel(parentID);
+    const parent = await Kartoffel.getKartoffelOld(parentID);
     _.pull(<string[]>parent.children, childID);
+    if (parent.children.length === 0) {
+      parent.isALeaf = true;
+    } else parent.isALeaf = false;
     return await Kartoffel.updateKartoffel(parent);
   }
 
   private static async getAncestors(kartoffelID: string): Promise<string[]> {
-    const kartoffel = await Kartoffel.getKartoffel(kartoffelID);
+    const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
     if (!kartoffel.ancestors) return [];
     return <string[]>kartoffel.ancestors;
   }
 
   private static async isMember(groupID: string, userID: string): Promise<boolean> {
-    const group = await Kartoffel.getKartoffel(groupID);
+    const group = await Kartoffel.getKartoffelOld(groupID);
     const members = group.members;
     return _.includes(members, userID);
   }
+
   private static async getHierarchyFromAncestors(groupID: string, group?: IKartoffel): Promise<string[]> {
     if (!group) {
-      group = await Kartoffel.getKartoffel(groupID);
+      group = await Kartoffel.getKartoffelOld(groupID);
     }
     const parentID = group.ancestors[0];
     if (!parentID) return [];
-    const parent = await Kartoffel.getKartoffel(parentID);
+    const parent = await Kartoffel.getKartoffelOld(parentID);
     const newHierarchy = parent.hierarchy.concat(parent.name);
     group.hierarchy = newHierarchy;
     return newHierarchy;
   }
+}
+
+function modifyKartoffelBeforeSend(kartoffel: IKartoffel, toPopulate:String[]): IKartoffel {
+  if (kartoffel.isALeaf === undefined) {
+    kartoffel.isALeaf = (kartoffel.children.length === 0);
+  }
+
+  const fieldsToIgnore = _.difference(KARTOFFEL_OBJECT_FIELDS, toPopulate);
+  const fieldsToSend = <(keyof IKartoffel)[]> _.difference(KARTOFFEL_KEYS, fieldsToIgnore);
+  return pick(kartoffel, ...fieldsToSend);
+  // return kartoffel;
+}
+
+function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
+  const copy = {} as Pick<T, K>;
+  keys.forEach(key => copy[key] = obj[key]);
+  return copy;
 }

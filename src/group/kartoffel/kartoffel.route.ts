@@ -13,6 +13,8 @@ const kartoffeln = Router();
 
 kartoffeln.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
+kartoffeln.get('/', ch(Kartoffel.getKartoffeln, (): any[] => []));
+
 kartoffeln.get('/getAll', ch(Kartoffel.getAllKartoffeln, (): any[] => []));
 
 kartoffeln.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params') , ch(Kartoffel.getUpdatedFrom, (req: Request) => {
@@ -29,10 +31,20 @@ kartoffeln.post('/',
                   return [kartoffel, parentID];
                 }, 400));
 
-kartoffeln.get('/:id', validatorMiddleware(Vld.toDo, ['id'], 'params'),
-               ch(Kartoffel.getKartoffel, (req: Request, res: Response) => {
-                 return [req.params.id];
-               }, 404));
+kartoffeln.get('/:id/old', validatorMiddleware(Vld.toDo, ['id'], 'params'), (req: Request, res: Response) => {
+  const getFunction = (req.query.populated === 'true') ? Kartoffel.getKartoffelPopulated : Kartoffel.getKartoffelOld;
+  ch(getFunction, (req: Request, res: Response) => {
+    return [req.params.id];
+  }, 404)(req, res, null);
+
+});
+
+kartoffeln.get('/:id', (req: Request, res: Response) => {
+  ch(Kartoffel.getKartoffel, (req: Request, res: Response) => {
+    const toPopulate = req.query.populate ? req.query.populate.split(',') : null; 
+    return [req.params.id, toPopulate]; 
+  }, 404)(req, res, null);
+});
 
 kartoffeln.put('/adoption',
                PermissionMiddleware.hasAdvancedPermission,

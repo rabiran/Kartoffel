@@ -184,8 +184,8 @@ describe('Kartoffel API', () => {
             }).catch((err) => {
               expect.fail(undefined, undefined, err.message);
             });
-      parent = await Kartoffel.getKartoffel(parent._id);
-      child = await Kartoffel.getKartoffel(child._id);
+      parent = await Kartoffel.getKartoffelOld(parent._id);
+      child = await Kartoffel.getKartoffelOld(child._id);
 
       parent.should.exist;
       parent.children.should.exist;

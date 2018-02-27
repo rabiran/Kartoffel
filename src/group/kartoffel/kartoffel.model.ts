@@ -37,11 +37,13 @@ export const KartoffelSchema = new mongoose.Schema({
     default: [],
   },
   type: String,
+  isALeaf: Boolean,
   updatedAt: Date,
 });
 
 KartoffelSchema.pre('save', function (next) {
   if (!this.updatedAt) this.updatedAt = new Date;
+  this.isALeaf = (this.children.length === 0);
   next();
 });
 

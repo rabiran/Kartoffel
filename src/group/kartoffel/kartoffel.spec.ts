@@ -22,14 +22,14 @@ const idXmpls = ['59a6aa1f5caa4e4d2ac39797', '59a56d577bedba18504298df'];
 describe('Strong Groups', () => { 
   describe('#getKartoffeln', () => { 
     it('Should be empty if there are no groups', async () => { 
-      const groups = await Kartoffel.getAllKartoffeln();
+      const groups = await Kartoffel.getKartoffeln();
       groups.should.be.a('array');
       groups.should.have.lengthOf(0);
     });
     it('Should get all the groups', async () => { 
       await Kartoffel.createKartoffel(<IKartoffel>{  name: 'myGroup'  });
 
-      let groups = await Kartoffel.getAllKartoffeln();
+      let groups = await Kartoffel.getKartoffeln();
       groups.should.be.a('array');
       groups.should.have.lengthOf(1);
       should.exist(groups[0]);
@@ -39,7 +39,7 @@ describe('Strong Groups', () => {
       await Kartoffel.createKartoffel(<IKartoffel>{  name: 'yourGroup'  });
       await Kartoffel.createKartoffel(<IKartoffel>{  name: 'hisGroup'  });
 
-      groups = await Kartoffel.getAllKartoffeln();
+      groups = await Kartoffel.getKartoffeln();
       groups.should.be.a('array');
       groups.should.have.lengthOf(3);
     });
@@ -126,6 +126,22 @@ describe('Strong Groups', () => {
       res.should.have.property('id', kartoffel.id);
       res.should.have.property('name', kartoffel.name);
     });
+    it('should return the group populated', async() => {
+      const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'myGroup' });
+      const child1 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 1' }, kartoffel._id);
+      const child2 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 2' }, kartoffel._id);
+
+      const res = await Kartoffel.getKartoffelPopulated(kartoffel.id);
+
+      res.should.exist;
+      res.should.have.property('id', kartoffel.id);
+      res.should.have.property('name', kartoffel.name);
+      const children = <IKartoffel[]>res.children;
+      children.should.exist;
+      children.should.have.lengthOf(2);
+      children[0].name.should.be.equal(child1.name);
+      children[1].name.should.be.equal(child2.name);
+    });
   });
   describe('Update Kartoffel', () => {
     describe('#updateKartoffel', () => { 
@@ -153,7 +169,7 @@ describe('Strong Groups', () => {
 
         await Kartoffel.childrenAdoption(parent._id, [child._id]);
 
-        child = await Kartoffel.getKartoffel(child._id);
+        child = await Kartoffel.getKartoffelOld(child._id);
 
         child.should.exist;
         child.should.have.property('ancestors');
@@ -170,7 +186,7 @@ describe('Strong Groups', () => {
 
         await Kartoffel.childrenAdoption(parent_old._id, [child._id]);
         await Kartoffel.childrenAdoption(parent._id, [child._id]);
-        child = await Kartoffel.getKartoffel(child._id);
+        child = await Kartoffel.getKartoffelOld(child._id);
 
         child.should.exist;
         child.should.have.property('ancestors');
@@ -185,7 +201,7 @@ describe('Strong Groups', () => {
         await Kartoffel.childrenAdoption(grandparent._id, [parent._id]);
         await Kartoffel.childrenAdoption(parent._id, [child._id]);
 
-        child = await Kartoffel.getKartoffel(child._id);
+        child = await Kartoffel.getKartoffelOld(child._id);
 
         child.should.exist;
         child.should.have.property('ancestors');
@@ -203,7 +219,7 @@ describe('Strong Groups', () => {
         await Kartoffel.childrenAdoption(parent._id, [child._id]);
         await Kartoffel.childrenAdoption(grandparent_2._id, [parent._id]);
 
-        child = await Kartoffel.getKartoffel(child._id);
+        child = await Kartoffel.getKartoffelOld(child._id);
 
         child.should.exist;
         child.should.have.property('ancestors');

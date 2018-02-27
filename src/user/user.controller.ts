@@ -35,7 +35,7 @@ export class User {
 
   static async getKartoffelMembers(groupID: string): Promise<IUser[]> {
     // check that this group exists
-    const group = await Kartoffel.getKartoffel(groupID);
+    const group = await Kartoffel.getKartoffelOld(groupID);
 
     const offsprings = <IKartoffel[]>(await this._kartoffelRepository.getOffsprings(groupID));
     const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => a.concat(b));
