@@ -74,6 +74,14 @@ app.use('/api/kartoffel', kartoffelRouter);
  */
 app.use(errorHandler());
 
+app.get('/status', (req, res, next) => {
+  res.json({ name: 'App Name' });
+});
+
+app.get('/ruok', (req, res, next) => {
+  res.status(204).send();
+});
+
 /**
  * Start Express server.
  */
