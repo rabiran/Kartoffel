@@ -12,4 +12,8 @@ export class KartoffelRepository extends RepositoryBase<IKartoffel> {
   getOffsprings(ancestor_id: string): Promise<mongoose.Document[]> {
     return Kartoffel.find({ ancestors: ObjectId(ancestor_id) }).exec();
   }
+
+  getOffspringsIds(ancestor_id: string): Promise<mongoose.Document[]> {
+    return Kartoffel.find({ ancestors: ObjectId(ancestor_id) }, 'id').exec();
+  }
 }

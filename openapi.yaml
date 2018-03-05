@@ -1,9 +1,8 @@
 swagger: "2.0"
 info:
   description: "This is a sample server Kartoffel server."
-  version: "0.2.0"
+  version: "0.2.1"
   title: "Kartoffel"
-host: "localhost:3000"
 basePath: "/api"
 tags:
 - name: "user"
@@ -11,6 +10,7 @@ tags:
 - name: "groups"
   description: "Group stuff"
 schemes:
+- "https"
 - "http"
 paths:
   /user:
@@ -260,6 +260,28 @@ paths:
         404:
           description: "request error"
   /kartoffel:
+    get:
+      tags: 
+      - "kartoffel"
+      summary: "Get all the Strong Groups "
+      description: ""
+      operationId: "getAllKartoffeln"
+      parameters:
+        - in: query
+          name: name
+          type: string
+          description: The name of the group
+        - in: query
+          name: type
+          type: string
+          description: The type of the group
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Kartoffel"
     post:
       tags:
       - "kartoffel"
@@ -280,44 +302,8 @@ paths:
           description: "successful operation"
         405:
           description: "Invalid Input"
-  /kartoffel/getAll:
-    get:
-      tags: 
-      - "kartoffel"
-      summary: "Get all the Strong Groups "
-      description: ""
-      operationId: "getAllKartoffeln"
-      produces:
-      - "application/json"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/Kartoffel"
-  /kartoffel/getUpdated/{from}:
-    get:
-      tags: 
-      - "kartoffel"
-      summary: "Returns kartoffels updated from a given date"
-      description: ""
-      operationId: "getUpdatedKartoffel"
-      parameters:
-      - name: "from"
-        in: "path"
-        description: "The date from which you want to get the updated objects"
-        required: true
-        type: "string"
-      produces:
-      - "application/json"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Did not recive a valid date ;)"
   /kartoffel/{id}:
-    get:
+    get:      
       tags:
       - "kartoffel"
       summary: "Get kartoffel by ID"
@@ -326,11 +312,15 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "id"
-        in: "path"
+      - in: "path"
+        name: "id"
         description: "The ID of the user."
         required: true
         type: "string"
+      - in: query
+        name: populate
+        type: string
+        description: A list of fields to populate
       responses:
         200:
           description: "successful operation"

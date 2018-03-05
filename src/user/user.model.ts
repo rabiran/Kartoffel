@@ -11,71 +11,82 @@ function validateEmail(email: string): boolean {
   return true;
 }
 
-export const UserSchema = new mongoose.Schema({
-  _id: {
-    type: String,
-    required: true,
-    unique: true,
-    validate: { validator: UserValidate.id, msg: '{VALUE} is an invalid ID' },
-  },
-  firstName: {
-    type: String,
-    required: true,
-    validate: { validator: UserValidate.namePart, msg: 'Invalid First Name' },
-  },
-  lastName: {
-    type: String,
-    required: true,
-    validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid Last Name' },
-  },
-  directGroup: {
-    type: String,
-    required: false,
-    default: undefined,
-  },
-  job: String,
+export const UserSchema = new mongoose.Schema(
+  {
+    _id: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: { validator: UserValidate.id, msg: '{VALUE} is an invalid ID' },
+    },
+    firstName: {
+      type: String,
+      required: true,
+      validate: { validator: UserValidate.namePart, msg: 'Invalid First Name' },
+    },
+    lastName: {
+      type: String,
+      required: true,
+      validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid Last Name' },
+    },
+    directGroup: {
+      type: String,
+      required: false,
+      default: undefined,
+    },
+    job: String,
 
-  weakGroups: {
-    type: [String],
-    default: [],
-  },
-  adminGroups: {
-    type: [String],
-    default: [],
-  },
+    // weakGroups: {
+    //   type: [String],
+    //   default: [],
+    // },
+    // adminGroups: {
+    //   type: [String],
+    //   default: [],
+    // },
 
-  mail: {
-    type: String,
-    validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email adress!' },
-  },
-  phone: String,
-  rank: {
-    type: String,
-    default: 'Newbie',
+    mail: {
+      type: String,
+      validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email adress!' },
+    },
+    phone: String,
+    rank: {
+      type: String,
+      default: 'Newbie',
 
-    validate: { validator: UserValidate.rank, message: '{VALUE} is an invalid rank!' },
-  },
-  address: String,
+      validate: { validator: UserValidate.rank, message: '{VALUE} is an invalid rank!' },
+    },
+    address: String,
 
-  isSecurityOfficer: {
-    type: Boolean,
-    default: false,
+    isSecurityOfficer: {
+      type: Boolean,
+      default: false,
+    },
+    securityOfficerLocation: String,
+    clearance: {
+      type: Number,
+      default: 0,
+    },
+    alive: {
+      type: Boolean,
+      default: true,
+    },
+    updatedAt: Date,
   },
-  securityOfficerLocation: String,
-  clearance: {
-    type: Number,
-    default: 0,
-  },
-  alive: {
-    type: Boolean,
-    default: true,
-  },
-  updatedAt: Date,
+  {
+    toJSON: {
+      virtuals: true,
+      versionKey:false,
+    },
+  });
+
+UserSchema.virtual('fullName').get(function () {
+  return this.firstName + ' ' + this.lastName;
 });
 
-UserSchema.methods.fullName = () => {
-  return (this.firstName.trim() + ' ' + this.lastName.trim());
-};
+// UserSchema.virtual('id').get(function () {
+//   return this._id;
+// });
 
 UserSchema.pre('save', function (next) {
   if (!this.updatedAt) this.updatedAt = new Date;

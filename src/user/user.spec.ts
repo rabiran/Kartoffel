@@ -111,14 +111,13 @@ describe('Users', () => {
   describe('#createUser', () => {
     it('Should create a user with basic info', async () => {
       const user = await User.createUser(<IUser>{ _id : '1234567', firstName: 'Yonatan', lastName: 'Tal' });
-      user.should.exist;
+      should.exist(user);
       user.should.have.property('_id', '1234567');
       user.should.have.property('firstName', 'Yonatan');
       user.should.have.property('lastName', 'Tal');
       user.should.have.property('rank', 'Newbie');
       user.should.have.property('isSecurityOfficer', false);
       user.should.have.property('clearance', 0);
-      user.weakGroups.should.be.an('array').with.length(0);
     });
     it('Should create a user with more info', async () => {
       const newUser = <IUser>{

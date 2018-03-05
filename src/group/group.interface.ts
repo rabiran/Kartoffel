@@ -4,7 +4,7 @@ import { IUser } from '../user/user.interface';
 export interface IGroup extends Document {
   name: string;
   admins: IUser[] | string[];
-  members: string[];
+  members: IUser[] | string[];
   clearance: number;
   updatedAt: Date;
 }
