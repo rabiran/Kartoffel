@@ -26,7 +26,7 @@ describe('Kartoffel API', () => {
   describe('/GET all groups', () => {
     it('Should get all the groups', (done) => {
       chai.request(server)
-        .get(BASE_URL + '/getAll')
+        .get(BASE_URL)
         .end((err, res) => {
           expect(err).to.be.null;
           res.should.have.status(200);
@@ -40,7 +40,7 @@ describe('Kartoffel API', () => {
       await Kartoffel.createKartoffel(<IKartoffel>{ name: 'hisGroup' });
 
       await chai.request(server)
-        .get(BASE_URL + '/getAll')
+        .get(BASE_URL)
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');

@@ -1,4 +1,4 @@
-# Kartoffel - 0.2
+# Kartoffel - 0.2.1
 
 ## CI Information
 ### Build Status
@@ -37,9 +37,9 @@
 ### 2. Strong Groups
 | Method        | Endpoint          	        | Description                                   | Required Permissions  | Example           	        |
 |--------	|-------------------------------|---------------------------------------------  |----------------------	|----------------------------   |
-| GET    	| /api/kartoffel/getAll         | Returns all the kartoffeln      	        | Basic                 | /api/kartoffel/getAll     	|
-| GET    	| /api/kartoffel/getUpdated/:fromDate      | Returns kartoffeln updated from a given date  | Basic                 | /api/kartoffel/getUpdated/1500000000000	|
-| GET    	| /api/kartoffel/:id            | Returns kartoffel by ID      	                | Basic                 | /api/kartoffel/1234567     	|
+| GET    	| /api/kartoffel         | Returns all the kartoffeln. You can add querystring for search      	        | Basic                 | /api/kartoffel    	|
+| GET    	| /api/kartoffel/:id            | Returns kartoffel by ID. By default comes unpopulated. To populate use querystring: populate=fields_to_populate     	                | Basic                 | /api/kartoffel/1234567?populate=children     	|
+| GET     | /api/kartoffel/:id/members    | Return all the members under the givven kartoffel    | Basic                 | /api/kartoffel/1234567/members
 | POST    	| /api/kartoffel                | Create a Kartoffel                            | Advanced              | /api/kartoffel/adoption     	|
 | PUT    	| /api/kartoffel/adoption       | Move Kartoffeln to another Kartoffel          | Advanced              | /api/kartoffel/adoption     	|
 | DELETE        | /api/kartoffel/:id            | Remove a user by ID                           | Advanced              | /api/kartoffel/1234567        |

@@ -3,6 +3,8 @@ import * as sinon from 'sinon';
 import {  Kartoffel  } from './kartoffel.controller';
 import {  KartoffelModel  } from './kartoffel.model';
 import {  IKartoffel  } from './kartoffel.interface';
+import { User } from '../../user/user.controller';
+import { IUser } from '../../user/user.interface';
 import {  expectError  } from '../../helpers/spec.helper';
 
 
@@ -123,7 +125,6 @@ describe('Strong Groups', () => {
       const res = await Kartoffel.getKartoffel(kartoffel.id);
 
       res.should.exist;
-      res.should.have.property('id', kartoffel.id);
       res.should.have.property('name', kartoffel.name);
     });
     it('should return the group populated', async() => {
@@ -248,4 +249,61 @@ describe('Strong Groups', () => {
       await expectError(Kartoffel.deleteGroup, [group._id]);
     });
   });
+  describe('#getGroupMembers', () => {
+    it('Should throw an error when group does not exist', async() => {
+      await expectError(Kartoffel.getAllMembers, [ID_EXAMPLE]);
+    });
+    it('Should be returning the matching members', async() => {
+      const ancestor = await bigTree();
+      const treeMembers = await Kartoffel.getAllMembers(ancestor._id);
+      treeMembers.should.have.lengthOf(8);
+    });
+  });
 });
+
+async function bigTree() {
+  const seldag = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Seldag' });
+  const ariandel = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Ariandel' });
+
+  const parent_1 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Sheep' });
+  const parent_2 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'A sheep' });
+  const parent_3 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'And a sheep' });
+
+  const child_11 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 1.1' });
+  const child_21 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 2.1' });
+  const child_22 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 2.2' });
+  const child_31 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 3.1' });
+  const child_32 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 3.2' });
+  const child_33 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 3.3' });
+
+  await Kartoffel.childrenAdoption(seldag._id, [parent_1._id, parent_2._id, parent_3._id]);
+  await Kartoffel.childrenAdoption(parent_1._id, [child_11._id]);
+  await Kartoffel.childrenAdoption(parent_2._id, [child_21._id, child_22._id]);
+  await Kartoffel.childrenAdoption(parent_3._id, [child_31._id, child_32._id, child_33._id]);
+
+  const user_11 =  await  User.createUser(<IUser>{ _id : '0000011', firstName: 'A', lastName: 'A' });
+  const user_12 =  await  User.createUser(<IUser>{ _id : '0000012', firstName: 'B', lastName: 'A' });
+  const user_21 =  await  User.createUser(<IUser>{ _id : '0000021', firstName: 'A', lastName: 'B' });
+  const user_111 = await  User.createUser(<IUser>{ _id : '0000111', firstName: 'A', lastName: 'AA' });
+  const user_221 = await  User.createUser(<IUser>{ _id : '0000221', firstName: 'A', lastName: 'BB' });
+  const user_311 = await  User.createUser(<IUser>{ _id : '0000311', firstName: 'A', lastName: 'CA' });
+  const user_312 = await  User.createUser(<IUser>{ _id : '0000312', firstName: 'B', lastName: 'CA' });
+  const user_331 = await  User.createUser(<IUser>{ _id : '0000331', firstName: 'A', lastName: 'CC' });
+
+  const friede = await  User.createUser(<IUser>{ _id : '1000001', firstName: 'Sister', lastName: 'Friede' });
+  const gale = await  User.createUser(<IUser>{ _id : '1000002', firstName: 'Uncle', lastName: 'Gale' });
+
+  await User.assign(user_11._id,  parent_1._id);
+  await User.assign(user_12._id,  parent_1._id);
+  await User.assign(user_21._id,  parent_2._id);
+  await User.assign(user_111._id, child_11._id);
+  await User.assign(user_221._id, child_22._id);
+  await User.assign(user_311._id, child_31._id);
+  await User.assign(user_312._id, child_31._id);
+  await User.assign(user_331._id, child_33._id);
+
+  await User.assign(friede._id, ariandel._id);
+  await User.assign(gale._id, ariandel._id);
+
+  return seldag;
+}

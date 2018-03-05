@@ -38,8 +38,8 @@ export class User {
     const group = await Kartoffel.getKartoffelOld(groupID);
 
     const offsprings = <IKartoffel[]>(await this._kartoffelRepository.getOffsprings(groupID));
-    const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => a.concat(b));
-    const members = <IUser[]>await this._userRepository.getSome(membersIDs);
+    const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => (<string[]>a).concat(<string[]>b));
+    const members = <IUser[]>await this._userRepository.getSome(<string[]>membersIDs);
     return members;
   }
 

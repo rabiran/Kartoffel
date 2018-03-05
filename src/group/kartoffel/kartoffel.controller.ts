@@ -2,19 +2,22 @@ import { Request, Response, NextFunction } from 'express';
 import { KartoffelRepository } from './kartoffel.repository';
 import { IKartoffel, KARTOFFEL_OBJECT_FIELDS, KARTOFFEL_KEYS } from './kartoffel.interface';
 import { User } from '../../user/user.controller';
+import { IUser } from '../../user/user.interface';
+import { UserRepository } from '../../user/user.repository';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
 
 export class Kartoffel {
-  static  kartoffelRepository: KartoffelRepository = new KartoffelRepository;
+  static _kartoffelRepository: KartoffelRepository = new KartoffelRepository();
+  static _userRepository: UserRepository = new UserRepository();
 
   static async getAllKartoffeln(): Promise<IKartoffel[]> {
-    const kartoffeln = await Kartoffel. kartoffelRepository.getAll();
+    const kartoffeln = await Kartoffel._kartoffelRepository.getAll();
     return <IKartoffel[]>kartoffeln;
   }
 
-  static async getKartoffeln(): Promise<IKartoffel[]> {
-    const kartoffeln = await Kartoffel. kartoffelRepository.getAll();
+  static async getKartoffeln(cond?: Object): Promise<IKartoffel[]> {
+    const kartoffeln = await Kartoffel._kartoffelRepository.find(cond);
     const fieldsToSend = <(keyof IKartoffel)[]> _.difference(KARTOFFEL_KEYS, KARTOFFEL_OBJECT_FIELDS);
     return _.flatMap(<IKartoffel[]>kartoffeln, k => pick(k, ...fieldsToSend));
   }
@@ -28,7 +31,7 @@ export class Kartoffel {
       await Kartoffel.getHierarchyFromAncestors(kartoffel._id, kartoffel);
     }
     // Create the Group
-    const newKartoffel = await Kartoffel. kartoffelRepository.create(kartoffel);
+    const newKartoffel = await Kartoffel._kartoffelRepository.create(kartoffel);
     if (parentID) {
       // Update the parent
       await Kartoffel.adoptChildren(parentID, [newKartoffel._id]);
@@ -37,36 +40,36 @@ export class Kartoffel {
   }
 
   static async getKartoffelOld(kartoffelID: string): Promise<IKartoffel> {
-    const kartoffel = await Kartoffel. kartoffelRepository.findById(kartoffelID);
+    const kartoffel = await Kartoffel._kartoffelRepository.findById(kartoffelID);
     if (!kartoffel) return Promise.reject(new Error('Cannot find group with ID: ' + kartoffelID));
     return <IKartoffel>kartoffel;
   }
 
   static async getKartoffelPopulated(kartoffelID: string): Promise<IKartoffel> {
-    const kartoffel = await Kartoffel. kartoffelRepository.findById(kartoffelID, 'children');
+    const kartoffel = await Kartoffel._kartoffelRepository.findById(kartoffelID, 'children');
     if (!kartoffel) return Promise.reject(new Error('Cannot find group with ID: ' + kartoffelID));
     return <IKartoffel>kartoffel;
   }
 
   static async getKartoffel(kartoffelID: string, toPopulate?: String[]): Promise<IKartoffel> {
     toPopulate = _.intersection(toPopulate, KARTOFFEL_OBJECT_FIELDS);
-    const select = ['name', 'isALeaf'];
+    const select = ['id', 'name', 'childless', 'type', 'rank', 'firstName', 'lastName'];
     const populateOptions = _.flatMap(toPopulate, (path) => {
       return { path, select };
     });
-    const result = await Kartoffel.kartoffelRepository.findById(kartoffelID, populateOptions);
+    const result = await Kartoffel._kartoffelRepository.findById(kartoffelID, populateOptions);
     if (!result) return Promise.reject(new Error('Cannot find group with ID: ' + kartoffelID));
     const kartoffel = <IKartoffel>result;
     return <IKartoffel>modifyKartoffelBeforeSend(kartoffel, toPopulate);
   }
 
   static async getUpdatedFrom(from: Date, to: Date) {
-    const users = await Kartoffel. kartoffelRepository.getUpdatedFrom(from, to);
+    const users = await Kartoffel._kartoffelRepository.getUpdatedFrom(from, to);
     return <IKartoffel[]>users;
   }
 
   static async updateKartoffel(updateTo: IKartoffel): Promise<IKartoffel> {
-    const updated = await Kartoffel. kartoffelRepository.update(updateTo);
+    const updated = await Kartoffel._kartoffelRepository.update(updateTo);
     if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + updateTo._id));
     return <IKartoffel>updated;
   }
@@ -95,7 +98,7 @@ export class Kartoffel {
 
   static async dismissMember(kartoffelID: string, member: string): Promise<void> {
     const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
-    _.pull(kartoffel.members, member);
+    _.pull(<string[]>kartoffel.members, member);
     // If the member is an admin as well, remove him from the admins list
     if ((<string[]>kartoffel.admins).indexOf(member) !== -1) {
       _.pull(<string[]>kartoffel.admins, member);
@@ -113,7 +116,7 @@ export class Kartoffel {
 
   static async childrenAdoption(parentID: string, childrenIDs: string[]): Promise<void> {
     // Update the children's previous parents
-    const children = <IKartoffel[]>(await Kartoffel. kartoffelRepository.getSome(childrenIDs));
+    const children = <IKartoffel[]>(await Kartoffel._kartoffelRepository.getSome(childrenIDs));
     await Promise.all(children.map(child => Kartoffel.disownChild(child.ancestors[0], child._id)));
     // Update the parent and the children
     await Promise.all([
@@ -138,7 +141,7 @@ export class Kartoffel {
       parentID = group.ancestors[0];
     }
     // Delete the group
-    const res = await Kartoffel. kartoffelRepository.delete(groupID);
+    const res = await Kartoffel._kartoffelRepository.delete(groupID);
     // Inform the parent about his child's death
     if (parentID) {
       await Kartoffel.disownChild(parentID, groupID);
@@ -155,7 +158,7 @@ export class Kartoffel {
     ancestors.unshift(parentID);
     const hierarchy = await Kartoffel.getHierarchyFromAncestors(parentID);
     hierarchy.unshift(parent.name);
-    const updated = await Kartoffel.kartoffelRepository.findAndUpdateSome(childrenIDs, { ancestors, hierarchy });
+    const updated = await Kartoffel._kartoffelRepository.findAndUpdateSome(childrenIDs, { ancestors, hierarchy });
     await Promise.all(childrenIDs.map((childID => Kartoffel.updateChildrenHierarchy(childID))));
     return;
   }
@@ -195,7 +198,7 @@ export class Kartoffel {
   private static async isMember(groupID: string, userID: string): Promise<boolean> {
     const group = await Kartoffel.getKartoffelOld(groupID);
     const members = group.members;
-    return _.includes(members, userID);
+    return _.includes(<string[]>members, userID);
   }
 
   private static async getHierarchyFromAncestors(groupID: string, group?: IKartoffel): Promise<string[]> {
@@ -208,6 +211,22 @@ export class Kartoffel {
     const newHierarchy = parent.hierarchy.concat(parent.name);
     group.hierarchy = newHierarchy;
     return newHierarchy;
+  }
+
+  static async getAllMembers(groupID: string): Promise<IUser[]> {
+    // check that this group exists
+    const group = await Kartoffel.getKartoffelOld(groupID);
+
+    // const offsprings = <IKartoffel[]>(await Kartoffel._kartoffelRepository.getOffsprings(groupID));
+    // const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => (<string[]>a).concat(<string[]>b));
+    // const members = <IUser[]>await Kartoffel._userRepository.getSome(<string[]>membersIDs);
+    // return members;
+
+    const offsprings = await Kartoffel._kartoffelRepository.getOffspringsIds(groupID);
+    const offspringIDs = offsprings.map(offspring => offspring._id);
+    offspringIDs.push(groupID);
+    const members = <IUser[]> await Kartoffel._userRepository.getMembersOfGroups(offspringIDs);
+    return members;
   }
 }
 

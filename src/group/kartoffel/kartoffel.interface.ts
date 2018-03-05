@@ -10,6 +10,6 @@ export interface IKartoffel extends IGroup {
   isALeaf: boolean;
 }
 
-export const KARTOFFEL_BASIC_FIELDS = ['name', 'clearance', 'type'];
-export const KARTOFFEL_OBJECT_FIELDS = ['ancestors', 'children', 'members', 'admins'];
-export const KARTOFFEL_KEYS = ['id', 'updatedAt', 'name', 'clearance', 'type', 'isALeaf', 'hierarchy', 'ancestors', 'children', 'members', 'admins'];
+export const KARTOFFEL_BASIC_FIELDS = ['name', 'clearance', 'type', 'childless'];
+export const KARTOFFEL_OBJECT_FIELDS = ['ancestors', 'children', 'members', 'admins', 'directMembers'];
+export const KARTOFFEL_KEYS = ['_id', 'updatedAt', 'name', 'clearance', 'type', 'hierarchy', 'ancestors', 'children', 'members', 'admins', 'directMembers', 'childless'];
