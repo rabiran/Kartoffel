@@ -1,6 +1,7 @@
 import * as express       from 'express';
 import * as session       from 'express-session';
 import * as bodyParser    from 'body-parser';
+import * as cors          from 'cors';
 import * as dotenv        from 'dotenv';
 import * as errorHandler  from 'errorhandler';
 import * as logger        from 'morgan';
@@ -63,6 +64,7 @@ if (process.env.NODE_ENV !== 'test') {
   app.use('/api', logger('dev')); // Morgan
 }
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
