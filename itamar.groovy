@@ -1,7 +1,7 @@
 pipeline {
     agent none
     stages {
-        stage ('unit-test')
+        stage ('unit-testing') {
             agent {
                 label 'backend-dev'
             }
@@ -11,5 +11,6 @@ pipeline {
                 sh 'npm install'
                 sh 'npm test'
             }
+        }
     }
 }
