@@ -25,6 +25,7 @@ export class User {
 
   static async getUser(userID: string): Promise<IUser> {
     const user = await User._userRepository.findById(userID);
+    if (!user) return Promise.reject(new Error('Cannot find user with ID: ' + userID));
     return <IUser>user;
   }
 
@@ -55,16 +56,14 @@ export class User {
     if (user && user.directGroup) await User.dismiss(userID);
 
     user.alive = false;
+    user.directGroup = null;
     const res = await User._userRepository.update(user);
     return { ok: 1 };
   }
 
   static async removeUser(userID: string): Promise<any> {
-    const user = await User.getUser(userID);
-    // If the user had a group notify it...
-    if (user && user.directGroup) await User.dismiss(userID);
     const res = await User._userRepository.delete(userID);
-    return res.result;
+    return res.result.n > 0 ? res.result : Promise.reject(new Error('Cannot find user with ID: ' + userID));
   }
 
   static async updateUser(user: IUser): Promise<IUser> {
@@ -79,42 +78,43 @@ export class User {
     return await User.updateUser(user);
   }
 
+  // Will transfer user between groups automatically. Is that what we want?
   static async assign(userID: string, groupID: string): Promise<void> {
     const user = await User.getUser(userID);
     const group = await Kartoffel.getKartoffel(groupID);
 
-    if (user.directGroup) await User.dismiss(userID);
-
-    user.directGroup = groupID;
+    user.directGroup = group._id;
     await User.updateUser(user);
-    await Kartoffel.addUsers(groupID, [userID]);
-
     return;
   }
 
+  // Will delete managedGroup too
   static async dismiss(userID: string) {
     const user = await User.getUser(userID);
     if (!user.directGroup) return;
-    await Kartoffel.dismissMember(user.directGroup, userID);
 
     user.directGroup = null;
+    user.managedGroup = null;
     await User.updateUser(user);
+    return;
   }
 
   static async manage(userID: string, groupID: string) {
     const user = await User.getUser(userID);
     const group = await Kartoffel.getKartoffel(groupID);
-
-    await Kartoffel.addAdmin(groupID, userID);
+    
+    if (String(user.directGroup) !== String(groupID)) {
+      return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
+    }
+    // else
+    user.managedGroup = group._id;
+    await User.updateUser(user);
     return;
   }
 
   static async resign(userID: string) {
     const user = await User.getUser(userID);
-    if (!user.directGroup) return;
-    await Kartoffel.fireAdmin(user.directGroup, userID);
-
-    user.directGroup = undefined;
+    user.managedGroup = undefined;
     await User.updateUser(user);
   }
 }

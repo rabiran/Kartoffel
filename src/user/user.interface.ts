@@ -1,12 +1,14 @@
 import { Document } from 'mongoose';
 import { Rank } from '../utils';
+import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
 
 export interface IUser extends Document {
 // User's Basic information
   _id: string;
   firstName: string;
   lastName: string;
-  directGroup: string;
+  directGroup: IKartoffel | string;
+  managedGroup: IKartoffel | string;
   rank: Rank;
   alive: boolean;
 // Weak groups props
@@ -26,4 +28,4 @@ export interface IUser extends Document {
 
 export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address'];
 export const USER_FIELDS = PERSONAL_FIELDS.concat(
-  ['firstName', 'lastName', 'directGroup', 'rank', 'isSecurityOfficer', 'securityOfficerLocation']);
+  ['firstName', 'lastName', 'directGroup', 'managedGroup', 'rank', 'isSecurityOfficer', 'securityOfficerLocation']);

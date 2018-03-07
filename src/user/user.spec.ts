@@ -91,21 +91,11 @@ describe('Users', () => {
       const users = await User.getUpdatedFrom(from, to);
       clock.restore();
 
-      users.should.exist;
+      should.exist(users);
       users.should.have.lengthOf(2);
       users[0].should.have.property('_id', '2345678');
       users[1].should.have.property('_id', '3456789');
 
-    });
-  });
-  describe('#getGroupMembers', () => {
-    it('Should throw an error when group does not exist', async() => {
-      await expectError(User.getKartoffelMembers, [DB_ID_EXAMPLE]);
-    });
-    it('Should be returning the matching members', async() => {
-      const ancestor = await bigTree();
-      const treeMembers = await User.getKartoffelMembers(ancestor._id);
-      treeMembers.should.have.lengthOf(8);
     });
   });
   describe('#createUser', () => {
@@ -134,7 +124,7 @@ describe('Users', () => {
       };
 
       const user = await User.createUser(newUser);
-      user.should.exist;
+      should.exist(user);
       user.should.have.property('_id', newUser._id);
       user.should.have.property('firstName', newUser.firstName);
       user.should.have.property('lastName', newUser.lastName);
@@ -173,32 +163,31 @@ describe('Users', () => {
   });
   describe('#getUser', () => {
     it('Should throw an error when there is no matching user', async () => {
-      const user = await User.getUser('1234567');
-      should.not.exist(user);
+      await expectError(User.getUser, ['1234567']);
     });
     it('Should find user when one exists', async () => {
       await User.createUser(<IUser>{ _id : '1234567', firstName: 'Avi', lastName: 'Ron' });
       const user = await User.getUser('1234567');
-      user.should.exist;
+      should.exist(user);
       user.should.have.property('_id', '1234567');
       user.should.have.property('firstName', 'Avi');
     });
   });
   describe('#removeUser', () => {
     it('Should throw an error when there is no user to remove', async () => {
-      const res = await User.removeUser('1234567');
-      res.should.exist;
-      res.should.have.property('ok', 1);
-      res.should.have.property('n', 0);
+      await expectError(User.removeUser, ['1234567']);
+      // const res = await User.removeUser('1234567');
+      // res.should.exist;
+      // res.should.have.property('ok', 1);
+      // res.should.have.property('n', 0);
     });
     it('Should remove a user successfully if existed', async () => {
       await User.createUser(userExamples[0]);
       const res = await User.removeUser('1234567');
-      res.should.exist;
+      should.exist(res);
       res.should.have.property('ok', 1);
       res.should.have.property('n', 1);
-      const user = await User.getUser('1234567');
-      should.not.exist(user);
+      await expectError(User.getUser, ['1234567']);      
     });
     it('Should update the user\'s group after that the user is removed', async () => {
       const user = await User.createUser(userExamples[0]);
@@ -206,8 +195,8 @@ describe('Users', () => {
       await User.assign(user._id, group._id);
       await User.removeUser(user._id);
 
-      group = await Kartoffel.getKartoffelOld(group._id);
-      group.members.should.have.lengthOf(0);
+      group = await Kartoffel.getKartoffel(group._id, ['directMembers']);
+      group.directMembers.should.have.lengthOf(0);
     });
   });
   describe('#discharge', () => {
@@ -217,7 +206,7 @@ describe('Users', () => {
     it('Should discharge a user successfully if existed', async () => {
       await User.createUser(userExamples[0]);
       const res = await User.discharge('1234567');
-      res.should.exist;
+      should.exist(res);
       res.should.have.property('ok', 1);
     });
     it('Should update the user\'s group after that the user is discharged', async () => {
@@ -226,8 +215,8 @@ describe('Users', () => {
       await User.assign(user._id, group._id);
       await User.discharge(user._id);
 
-      group = await Kartoffel.getKartoffelOld(group._id);
-      group.members.should.have.lengthOf(0);
+      group = await Kartoffel.getKartoffel(group._id, ['directMembers']);
+      group.directMembers.should.have.lengthOf(0);
     });
     it('Should not get a "dead" user with the regular get', async () => {
       const user = await User.createUser(userExamples[0]);
@@ -257,7 +246,7 @@ describe('Users', () => {
       user.isSecurityOfficer = true;
 
       const updatedUser = await User.updateUser(user);
-      updatedUser.should.exist;
+      should.exist(updatedUser);
 
       // Why can't I loop over the user's keys and values?? stupid typescript...
 
@@ -282,7 +271,7 @@ describe('Users', () => {
       await User.updateUser(user);
       const updatedUser = await User.getUser(user._id);
 
-      updatedUser.should.exist;
+      should.exist(updatedUser);
 
       // Why can't I loop over the user's keys and values?? stupid typescript...
 
@@ -309,13 +298,13 @@ describe('Users', () => {
 
         // Check in the user and group after the update
         user = await User.getUser(user._id);
-        group = await Kartoffel.getKartoffelOld(group._id);
-        user.should.exist;
-        group.should.exist;
+        group = await Kartoffel.getKartoffel(group._id, ['directMembers']);
+        should.exist(user);
+        should.exist(group);
         expect(user.directGroup.toString() === group._id.toString());
-        group.members.should.have.lengthOf(1);
-        expect(group.members[0].toString() === user._id.toString());
-        group.admins.should.have.lengthOf(0);
+        group.directMembers.should.have.lengthOf(1);
+        expect(group.directMembers[0].toString() === user._id.toString());
+        (group.admins == null).should.be.true;
       });
       it('Should transfer a user from another group if he was assigned to one before', async() => {
         let user = await User.createUser(<IUser>{ _id : '1234567', firstName: 'Avi', lastName: 'Ron' });
@@ -325,12 +314,12 @@ describe('Users', () => {
         await User.assign(user._id, group2._id);
 
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffelOld(group1._id);
-        group2 = await Kartoffel.getKartoffelOld(group2._id);
+        group1 = await Kartoffel.getKartoffel(group1._id, ['directMembers']);
+        group2 = await Kartoffel.getKartoffel(group2._id, ['directMembers']);
 
-        group1.members.should.have.lengthOf(0);
-        group2.members.should.have.lengthOf(1);
-        expect(group2.members[0].toString() === user._id.toString());
+        group1.directMembers.should.have.lengthOf(0);
+        group2.directMembers.should.have.lengthOf(1);
+        expect(group2.directMembers[0].toString() === user._id.toString());
         expect(user.directGroup.toString() === group2._id.toString());
       });
     });
@@ -352,14 +341,16 @@ describe('Users', () => {
 
         // Check in the user and group after the update
         user = await User.getUser(user._id);
-        group = await Kartoffel.getKartoffelOld(group._id);
-        user.should.exist;
-        group.should.exist;
+        group = await Kartoffel.getKartoffel(group._id, ['directMembers', 'directManagers']);
+
+        should.exist(user);
+        should.exist(group);
         expect(user.directGroup.toString() === group._id.toString());
-        group.members.should.have.lengthOf(1);
-        expect(group.members[0].toString() === user._id.toString());
-        group.admins.should.have.lengthOf(1);
-        expect(group.admins[0].toString() === user._id.toString());
+        group.directMembers.should.have.lengthOf(1);
+        expect(group.directMembers[0].toString() === user._id.toString());
+        console.log(group);
+        group.directManagers.should.have.lengthOf(1);
+        expect(group.directManagers[0].toString() === user._id.toString());
       });
       it('Should not transfer if in another group', async() => {
         let user = await User.createUser(<IUser>{ _id : '1234567', firstName: 'Avi', lastName: 'Ron' });
@@ -368,29 +359,29 @@ describe('Users', () => {
         await expectError(User.manage, [user._id, group2._id]);
         await User.assign(user._id, group1._id);
         await expectError(User.manage, [user._id, group2._id]);
-
+        
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffelOld(group1._id);
-        group2 = await Kartoffel.getKartoffelOld(group2._id);
+        group1 = await Kartoffel.getKartoffel(group1._id, ['directMembers', 'directManagers']);
+        group2 = await Kartoffel.getKartoffel(group2._id, ['directMembers', 'directManagers']);
 
-        group1.members.should.have.lengthOf(1);
-        group1.admins.should.have.lengthOf(0);
-        group2.members.should.have.lengthOf(0);
-        group2.admins.should.have.lengthOf(0);
-        expect(group1.members[0].toString() === user._id.toString());
+        group1.directMembers.should.have.lengthOf(1);
+        group1.directManagers.should.have.lengthOf(0);
+        group2.directMembers.should.have.lengthOf(0);
+        group2.directManagers.should.have.lengthOf(0);
+        expect(group1.directMembers[0].toString() === user._id.toString());
         expect(user.directGroup.toString() === group1._id.toString());
 
 
         await User.manage(user._id, group1._id);
         await expectError(User.manage, [user._id, group2._id]);
-
+        
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffelOld(group1._id);
-        group2 = await Kartoffel.getKartoffelOld(group2._id);
-        group1.members.should.have.lengthOf(1);
-        group1.admins.should.have.lengthOf(1);
-        group2.members.should.have.lengthOf(0);
-        group2.admins.should.have.lengthOf(0);
+        group1 = await Kartoffel.getKartoffel(group1._id, ['directMembers', 'directManagers']);
+        group2 = await Kartoffel.getKartoffel(group2._id, ['directMembers', 'directManagers']);
+        group1.directMembers.should.have.lengthOf(1);
+        group1.directManagers.should.have.lengthOf(1);
+        group2.directMembers.should.have.lengthOf(0);
+        group2.directManagers.should.have.lengthOf(0);
       });
     });
   });

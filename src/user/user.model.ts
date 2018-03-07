@@ -3,7 +3,7 @@ import { IUser } from './user.interface';
 import { UserValidate } from './user.validate';
 
 (<any>mongoose).Promise = Promise;
-const ObjectId = mongoose.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const userValidator = new UserValidate();
 
@@ -30,9 +30,12 @@ export const UserSchema = new mongoose.Schema(
       validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid Last Name' },
     },
     directGroup: {
-      type: String,
-      required: false,
-      default: undefined,
+      type: ObjectId,
+      index: true,
+    },
+    managedGroup: {
+      type: ObjectId,
+      index: true,
     },
     job: String,
 
@@ -47,7 +50,7 @@ export const UserSchema = new mongoose.Schema(
 
     mail: {
       type: String,
-      validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email adress!' },
+      validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email address!' },
     },
     phone: String,
     rank: {

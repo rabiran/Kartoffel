@@ -79,38 +79,40 @@ export class Kartoffel {
   }
 
   static async addAdmin(kartoffelID: string, userID: string): Promise<IKartoffel> {
-    const isMember = await Kartoffel.isMember(kartoffelID, userID);
-    if (!isMember) {
-      return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
-    } else {
-      const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
-      kartoffel.admins = _.union(<string[]>kartoffel.admins, [userID]);
-      return await Kartoffel.updateKartoffel(kartoffel);
-    }
+    // const isMember = await Kartoffel.isMember(kartoffelID, userID);
+    // if (!isMember) {
+    //   return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
+    // } else {
+    //   const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
+    //   kartoffel.admins = _.union(<string[]>kartoffel.admins, [userID]);
+    //   return await Kartoffel.updateKartoffel(kartoffel);
+    // }
+    return;
   }
 
   static async addUsers(kartoffelID: string, users: string[], areAdmins: boolean = false): Promise<IKartoffel> {
-    const type = areAdmins ? 'admins' : 'members';
-    const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
-    kartoffel[type] = _.union(<string[]>kartoffel[type], users);
-    return await Kartoffel.updateKartoffel(kartoffel);
+    // const type = areAdmins ? 'admins' : 'members';
+    // const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
+    // kartoffel[type] = _.union(<string[]>kartoffel[type], users);
+    // return await Kartoffel.updateKartoffel(kartoffel);
+    return;
   }
 
   static async dismissMember(kartoffelID: string, member: string): Promise<void> {
-    const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
-    _.pull(<string[]>kartoffel.members, member);
-    // If the member is an admin as well, remove him from the admins list
-    if ((<string[]>kartoffel.admins).indexOf(member) !== -1) {
-      _.pull(<string[]>kartoffel.admins, member);
-    }
-    await Kartoffel.updateKartoffel(kartoffel);
+    // const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
+    // _.pull(<string[]>kartoffel.members, member);
+    // // If the member is an admin as well, remove him from the admins list
+    // if ((<string[]>kartoffel.admins).indexOf(member) !== -1) {
+    //   _.pull(<string[]>kartoffel.admins, member);
+    // }
+    // await Kartoffel.updateKartoffel(kartoffel);
     return;
   }
 
   static async fireAdmin(kartoffelID: string, manager: string): Promise<void> {
-    const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
-    _.pull(<string[]>kartoffel.admins, manager);
-    await Kartoffel.updateKartoffel(kartoffel);
+    // const kartoffel = await Kartoffel.getKartoffelOld(kartoffelID);
+    // _.pull(<string[]>kartoffel.admins, manager);
+    // await Kartoffel.updateKartoffel(kartoffel);
     return;
   }
 

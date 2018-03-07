@@ -40,19 +40,10 @@ dotenv.config({ path: '.env' });
 (<any>mongoose).Promise = Promise;
 
 if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.MONGODB_URI, (err: any) => {
-    if (err) {
-      console.log(err);
-      throw err;
-    } else {
-      console.log('successfully connected to the database');
-    }
-  });
+  mongoose.connect(process.env.MONGODB_URI, { useMongoClient: true })
+  .then(() => console.log('successfully connected to the database'))
+  .catch(err => console.error(err));
 }
-mongoose.connection.on('error', () => {
-  console.log('MongoDB connection error. Please make sure MongoDB is running.');
-  process.exit();
-});
 
 /**
  * Express configuration
