@@ -6,6 +6,7 @@ pipeline {
                 label 'backend-dev'
             }
             steps {
+                sh 'sudo service mongod start'
                 sh 'npm install'
                 sh 'npm test'
             }
