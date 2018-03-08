@@ -1,8 +1,9 @@
-# Kartoffel - 0.2.1
+# Kartoffel - 0.2.2
 
 ## CI Information
 ### Build Status
-[![Build Status](https://travis-ci.org/AllKinds/Kartoffel.svg?branch=master)](https://travis-ci.org/AllKinds/Kartoffel)
+[![Build Status](https://travis-ci.org/rabiran/Kartoffel.svg?branch=master)](https://travis-ci.org/rabiran/Kartoffel)
+[![Coverage Status](https://coveralls.io/repos/github/rabiran/Kartoffel/badge.svg?branch=master)](https://coveralls.io/github/rabiran/Kartoffel?branch=master)
 
 ## Getting Started
 ### Installation
@@ -29,10 +30,10 @@
 | DELETE        | /api/user/:id                 | Remove a user by ID                           | Advanced              | /api/user/1234567             |
 | PUT           | /api/user/                    | Update user's info                            | Advanced              | /api/user                     |
 | PUT           | /api/user/:id/personal        | Update user's personal info by his ID         | User                  | /api/user/1234567/personal    |
-| PUT           | /api/user/assign              | Assign user to a Kartoffel                    | Advanced              | /api/user/assign              |
-| PUT           | /api/user/dismiss             | Dismiss a user from his current Kartoffel     | Advanced              | /api/user/dismiss             |
-| PUT           | /api/user/manage              | Appoint a user to manage a Kartoffel          | Advanced              | /api/user/manage              |
-| PUT           | /api/user/resign              | Discharge user from management                | Advanced              | /api/user/resign              |
+| PUT           | /api/user/:id/assign              | Assign user to a Kartoffel                    | Advanced              | /api/user/1234567/assign              |
+| PUT           | /api/user/:id/dismiss             | Dismiss a user from his current Kartoffel     | Advanced              | /api/user/1234567/dismiss             |
+| PUT           | /api/user/:id/manage              | Appoint a user to manage a Kartoffel          | Advanced              | /api/user/1234567/manage              |
+| PUT           | /api/user/:id/resign              | Discharge user from management                | Advanced              | /api/user/1234567/resign              |
 
 ### 2. Strong Groups
 | Method        | Endpoint          	        | Description                                   | Required Permissions  | Example           	        |
