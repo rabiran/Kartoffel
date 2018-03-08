@@ -4,7 +4,7 @@
 ### Build Status
 [![Build Status](https://travis-ci.org/rabiran/Kartoffel.svg?branch=master)](https://travis-ci.org/rabiran/Kartoffel)
 [![Coverage Status](https://coveralls.io/repos/github/rabiran/Kartoffel/badge.svg?branch=master)](https://coveralls.io/github/rabiran/Kartoffel?branch=master)
-[!http://jenkins-ci.centralus.cloudapp.azure.com/buildStatus/icon?job=NewLand/Kartoffel/master!|http://jenkins-ci.centralus.cloudapp.azure.com/job/NewLand/job/Kartoffel/job/master/]
+[![Build Status](http://jenkins-ci.centralus.cloudapp.azure.com/buildStatus/icon?job=NewLand/Kartoffel/master)](http://jenkins-ci.centralus.cloudapp.azure.com/job/NewLand/job/Kartoffel/job/master/)
 
 ## Getting Started
 ### Installation
