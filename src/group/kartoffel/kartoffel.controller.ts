@@ -78,7 +78,6 @@ export class Kartoffel {
     return;
   }
 
-<<<<<<< Updated upstream
   static async addAdmin(kartoffelID: string, userID: string): Promise<IKartoffel> {
     const isMember = await Kartoffel.isMember(kartoffelID, userID);
     if (!isMember) {
@@ -115,8 +114,6 @@ export class Kartoffel {
     return;
   }
 
-=======
->>>>>>> Stashed changes
   static async childrenAdoption(parentID: string, childrenIDs: string[]): Promise<void> {
     // Update the children's previous parents
     const children = <IKartoffel[]>(await Kartoffel._kartoffelRepository.getSome(childrenIDs));
