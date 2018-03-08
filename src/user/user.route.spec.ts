@@ -57,7 +57,7 @@ describe('User', () => {
         err.should.exist;
         res.should.have.status(404);
         const errMsg = res.text;
-        errMsg.should.be.equal('There is no user with ID: 1234567');
+        errMsg.should.be.equal('Cannot find user with ID: 1234567');
         done();
       });
     });
@@ -191,7 +191,7 @@ describe('User', () => {
           err.should.exist;
           err.should.have.status(404);
           const errMsg = res.text;
-          errMsg.should.be.equal('There is no user with ID: 1234567');
+          errMsg.should.be.equal('Cannot find user with ID: 1234567');
           done();
         });
     });

@@ -1,6 +1,6 @@
 {
   "name": "kartoffel",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "dependencies": {
     "body-parser": "^1.17.2",
     "connect-mongo": "^1.3.2",
+    "cors": "^2.8.4",
     "dotenv": "^4.0.0",
     "errorhandler": "^1.5.0",
     "express": "^4.15.4",
@@ -48,6 +49,7 @@
     "@types/chai": "^4.0.3",
     "@types/chai-http": "^3.0.2",
     "@types/connect-mongo": "0.0.33",
+    "@types/cors": "^2.8.3",
     "@types/dotenv": "^4.0.0",
     "@types/errorhandler": "0.0.30",
     "@types/express": "^4.0.36",

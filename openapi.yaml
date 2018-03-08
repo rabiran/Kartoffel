@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "This is a sample server Kartoffel server."
-  version: "0.2.1"
+  version: "0.2.2"
   title: "Kartoffel"
 basePath: "/api"
 tags:
@@ -161,7 +161,7 @@ paths:
           description: "Invalid user supplied"
         404:
           description: "User not found"
-  /user/assign:
+  /user/{userID}/assign:
     put:
       tags:
       - "user"
@@ -171,14 +171,17 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - name: "userID"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
       - name: body
         in: body
         required: true
         schema:
           type: object
           properties:
-            user:
-              type: "string"
             group:
               type: "string"
       responses:
@@ -186,7 +189,7 @@ paths:
           description: "successful operation"
         404:
           description: "request error"
-  /user/dismiss:
+  /user/{userID}/dismiss:
     put:
       tags:
       - "user"
@@ -196,20 +199,17 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: body
-        in: body
+      - name: "userID"
+        in: "path"
+        description: "name that need to be updated"
         required: true
-        schema:
-          type: object
-          properties:
-            user:
-              type: "string"
+        type: "string"
       responses:
         200:
           description: "successful operation"
         404:
           description: "request error"
-  /user/manage:
+  /user/{userID}/manage:
     put:
       tags:
       - "user"
@@ -219,14 +219,17 @@ paths:
       produces:
       - "application/json"
       parameters:
+      - name: "userID"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
       - name: body
         in: body
         required: true
         schema:
           type: object
           properties:
-            user:
-              type: "string"
             group:
               type: "string"
       responses:
@@ -234,7 +237,7 @@ paths:
           description: "successful operation"
         404:
           description: "request error"
-  /user/resign:
+  /user/{userID}/resign:
     put:
       tags:
       - "user"
@@ -244,16 +247,11 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: body
-        in: body
+      - name: "userID"
+        in: "path"
+        description: "name that need to be updated"
         required: true
-        schema:
-          type: object
-          properties:
-            user:
-              type: "string"
-            group:
-              type: "string"
+        type: "string"
       responses:
         200:
           description: "successful operation"

@@ -10,13 +10,13 @@ export const KartoffelSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    admins: {
-      type: [String],
-      ref: 'User',
-      default: [],
-    },
+    // admins: {
+    //   type: [ObjectId],
+    //   ref: 'User',
+    //   default: [],
+    // },
     members: {
-      type: [String],
+      type: [ObjectId],
       ref: 'User',
       default: [],
     },
@@ -51,6 +51,13 @@ export const KartoffelSchema = new mongoose.Schema(
       versionKey:false,
     },
   });
+
+KartoffelSchema.virtual('directManagers', {
+  ref: 'User',
+  localField: '_id',
+  foreignField: 'managedGroup',
+  justOne: false,
+});
 
 KartoffelSchema.virtual('directMembers', {
   ref: 'User',

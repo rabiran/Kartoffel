@@ -1,6 +1,7 @@
 import * as express       from 'express';
 import * as session       from 'express-session';
 import * as bodyParser    from 'body-parser';
+import * as cors          from 'cors';
 import * as dotenv        from 'dotenv';
 import * as errorHandler  from 'errorhandler';
 import * as logger        from 'morgan';
@@ -39,19 +40,10 @@ dotenv.config({ path: '.env' });
 (<any>mongoose).Promise = Promise;
 
 if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.MONGODB_URI, (err: any) => {
-    if (err) {
-      console.log(err);
-      throw err;
-    } else {
-      console.log('successfully connected to the database');
-    }
-  });
+  mongoose.connect(process.env.MONGODB_URI, { useMongoClient: true })
+  .then(() => console.log('successfully connected to the database'))
+  .catch(err => console.error(err));
 }
-mongoose.connection.on('error', () => {
-  console.log('MongoDB connection error. Please make sure MongoDB is running.');
-  process.exit();
-});
 
 /**
  * Express configuration
@@ -63,6 +55,7 @@ if (process.env.NODE_ENV !== 'test') {
   app.use('/api', logger('dev')); // Morgan
 }
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
