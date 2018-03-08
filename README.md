@@ -3,6 +3,7 @@
 ## CI Information
 ### Build Status
 [![Build Status](https://travis-ci.org/rabiran/Kartoffel.svg?branch=master)](https://travis-ci.org/rabiran/Kartoffel)
+[![Coverage Status](https://coveralls.io/repos/github/rabiran/Kartoffel/badge.svg?branch=master)](https://coveralls.io/github/rabiran/Kartoffel?branch=master)
 
 ## Getting Started
 ### Installation
