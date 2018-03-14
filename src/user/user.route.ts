@@ -56,7 +56,7 @@ users.put('/',
 users.put('/:id/assign',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.assign, (req: Request, res: Response) => {
-            const userID  = req.params.user;
+            const userID  = req.params.id;
             const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
@@ -64,14 +64,14 @@ users.put('/:id/assign',
 users.put('/:id/dismiss',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.dismiss, (req: Request, res: Response) => {
-            const userID  = req.params.user;
+            const userID  = req.params.id;
             return [userID];
           }, 404));
 
 users.put('/:id/manage',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.manage, (req: Request, res: Response) => {
-            const userID  = req.params.user;
+            const userID  = req.params.id;
             const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
@@ -79,7 +79,7 @@ users.put('/:id/manage',
 users.put('/:id/resign',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.resign, (req: Request, res: Response) => {
-            const userID  = req.params.user;
+            const userID  = req.params.id;
             const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
