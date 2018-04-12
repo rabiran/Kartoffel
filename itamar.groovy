@@ -11,15 +11,5 @@ pipeline {
                 sh 'npm test'
             }
         }
-        stage ('deploy') {
-            agent {
-               label 'backend-prod' 
-            }
-            steps {
-                sh 'sudo service mongod start'
-                sh 'npm install'
-                sh 'npm test'
-                sh 'npm start'            
-        }
     }
 }
