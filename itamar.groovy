@@ -11,13 +11,13 @@ pipeline {
                 sh 'npm test'
             }
         }
-
         stage ('deploy') {
-            when {
-                branch 'master'
-            }
             agent {
                label 'backend-prod' 
+            }            
+            
+            when {
+                branch 'master'
             }
             steps {
                 sh 'sudo service mongod start'
