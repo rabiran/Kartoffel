@@ -15,9 +15,6 @@ pipeline {
             agent {
                label 'backend-prod' 
             }
-            when {
-                branch 'master'
-            }
             steps {
                 sh 'sudo service mongod start'
                 sh 'npm install'
