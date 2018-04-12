@@ -11,11 +11,11 @@ pipeline {
                 sh 'npm test'
             }
         }
+
         stage ('deploy') {
             agent {
                label 'backend-prod' 
-            }            
-            
+            }
             when {
                 branch 'master'
             }
