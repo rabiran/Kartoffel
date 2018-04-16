@@ -5,6 +5,9 @@ pipeline {
             agent {
                 label 'backend-dev'
             }
+            when {
+            expression { BRANCH_NAME !==~ /master/ }
+            }            
             steps {
                 sh 'sudo service mongod start'
                 sh 'npm install'
