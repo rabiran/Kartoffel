@@ -16,7 +16,6 @@ export const UserSchema = new mongoose.Schema(
     _id: {
       type: String,
       required: true,
-      unique: true,
       validate: { validator: UserValidate.id, msg: '{VALUE} is an invalid ID' },
     },
     firstName: {
