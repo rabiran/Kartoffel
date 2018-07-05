@@ -13,31 +13,101 @@ function validateEmail(email: string): boolean {
 
 export const UserSchema = new mongoose.Schema(
   {
-    _id: {
+    identityCard: {
+      type: String,
+      required: [true, "You must enter an identity card!"],
+      index: true,
+      unique: true,
+      validate: { validator: UserValidate.identityCard, message: '{VALUE} is an invalid identity card!' }
+    },    
+    personalNumber: {
+      type: String,
+      required: [true, "You must enter a personal number!"],
+      index: true,
+      unique: true,
+      validate: { validator: UserValidate.personalNumber, message: '{VALUE} is an invalid personal number!' }
+    },
+    primaryUser: {
       type: String,
       required: true,
-      validate: { validator: UserValidate.id, msg: '{VALUE} is an invalid ID' },
+      index: true,
+      unique: true,
+      validate: { validator: UserValidate.email, msg: '{VALUE} is an invalid User' }
     },
+    secondaryUser: [{
+      type: String,   
+      validate: { validator: UserValidate.email, msg: '{VALUE} is an invalid User' }
+    }],
+    serviceType: String,
     firstName: {
       type: String,
       required: true,
-      validate: { validator: UserValidate.namePart, msg: 'Invalid First Name' },
+      validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid First Name' }
     },
     lastName: {
       type: String,
       required: true,
-      validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid Last Name' },
+      validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid Last Name' }
+    },
+    currentUnit: String,
+    dischargeDay: {
+      type: Date,
+      required: true
+    },
+    hierarchy: [{
+      type: String,
+      required: true
+    }],           
+    job: {
+      type: String,
+      required: true
     },
     directGroup: {
       type: ObjectId,
-      index: true,
+      index: true
     },
     managedGroup: {
       type: ObjectId,
-      index: true,
+      index: true
     },
-    job: String,
-
+    responsibility: {
+      type: String,
+      default: 'None',
+      validate: { validator: UserValidate.responsibility, message: '{VALUE} is an invalid responsibility!'}
+    },
+    securityOfficerLocation: ObjectId,
+        
+    mail: {
+      type: String,
+      validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email address!' }
+    },
+    phone: [{
+      type: String,
+      validate: { validator: UserValidate.phone, message: '{VALUE} is not a valid phone number!' }
+    }],
+      
+    mobilePhone: {
+      type: String,
+      validate: {validator: UserValidate.mobilePhone, message: '{VALUE} is not a valid mobile phone number!'}
+    },
+    rank: {
+      type: String,
+      default: 'Newbie',
+      validate: { validator: UserValidate.rank, message: '{VALUE} is an invalid rank!' }
+    },
+    address: String,    
+    
+    clearance: {
+      type: Number,
+      default: 0,
+      validate: {validator: UserValidate.clearance, message: '{VALUE} is an invalid clearance!'}
+    },
+    alive: {
+      type: Boolean,
+      default: true
+    },
+    updatedAt: Date,
+    createdAt: Date
     // weakGroups: {
     //   type: [String],
     //   default: [],
@@ -47,33 +117,6 @@ export const UserSchema = new mongoose.Schema(
     //   default: [],
     // },
 
-    mail: {
-      type: String,
-      validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email address!' },
-    },
-    phone: String,
-    rank: {
-      type: String,
-      default: 'Newbie',
-
-      validate: { validator: UserValidate.rank, message: '{VALUE} is an invalid rank!' },
-    },
-    address: String,
-
-    isSecurityOfficer: {
-      type: Boolean,
-      default: false,
-    },
-    securityOfficerLocation: String,
-    clearance: {
-      type: Number,
-      default: 0,
-    },
-    alive: {
-      type: Boolean,
-      default: true,
-    },
-    updatedAt: Date,
   },
   {
     toJSON: {
@@ -91,7 +134,8 @@ UserSchema.virtual('fullName').get(function () {
 // });
 
 UserSchema.pre('save', function (next) {
-  if (!this.updatedAt) this.updatedAt = new Date;
+  if (!this.updatedAt) this.updatedAt = new Date();
+  if (!this.createdAt) this.createdAt = new Date();
   next();
 });
 

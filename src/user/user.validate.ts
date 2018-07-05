@@ -1,4 +1,4 @@
-import { Rank, RANK } from '../utils';
+import { Rank, RANK, RESPONSIBILITY, Responsibility } from '../utils';
 
 export class ModelValidate {
   static stringNotEmpty(str: string) {
@@ -30,4 +30,29 @@ export class UserValidate extends ModelValidate {
   public static rank(rank: Rank) {
     return rank in RANK;
   }
+
+  public static mobilePhone(mobilePhone: string) {
+    return /^05\d-?\d{7}$/.test(mobilePhone);
+  }
+
+  public static phone(phone: string) {
+    return /^0\d-?\d{6,7}$/.test(phone);
+  }
+
+  public static personalNumber(personalNumber: string) {
+    return /^\d{7}$/.test(personalNumber);
+  }
+
+  public static identityCard(identityCard: string) {
+    return /^\d{6,9}$/.test(identityCard);
+  }
+
+  public static clearance(clearance: string) {
+    return /^([1-9]|10)$/.test(clearance);
+  }
+
+  public static responsibility(responsibility: Responsibility) {
+    return responsibility in RESPONSIBILITY;
+  }
+  
 }

@@ -31,6 +31,17 @@ export enum RANK {
     'Expert',
 }
 
+export type Responsibility = 
+    'None'
+    | 'SecuritOfficer'
+    | 'HR';
+
+export enum RESPONSIBILITY {
+  'None',
+  'SecuritOfficer',
+  'HR',
+}
+
 export function filterObjectByKeys(object: Object, allowedKeys: string[]): Object {
   const filtered = Object.keys(object)
   .filter(key => allowedKeys.includes(key))
