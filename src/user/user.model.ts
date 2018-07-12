@@ -22,32 +22,30 @@ export const UserSchema = new mongoose.Schema(
     },    
     personalNumber: {
       type: String,
-      required: [true, "You must enter a personal number!"],
-      index: true,
       unique: true,
+      sparse: true,
       validate: { validator: UserValidate.personalNumber, message: '{VALUE} is an invalid personal number!' }
     },
     primaryUser: {
       type: String,
       required: true,
-      index: true,
       unique: true,
-      validate: { validator: UserValidate.email, msg: '{VALUE} is an invalid User' }
+      validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' }
     },
     secondaryUser: [{
       type: String,   
-      validate: { validator: UserValidate.email, msg: '{VALUE} is an invalid User' }
+      validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' }
     }],
     serviceType: String,
     firstName: {
       type: String,
       required: true,
-      validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid First Name' }
+      validate: { validator: UserValidate.namePart, message: '{VALUE} is an invalid First Name' }
     },
     lastName: {
       type: String,
       required: true,
-      validate: { validator: UserValidate.namePart, msg: '{VALUE} is an invalid Last Name' }
+      validate: { validator: UserValidate.namePart, message: '{VALUE} is an invalid Last Name' }
     },
     currentUnit: String,
     dischargeDay: {
@@ -75,7 +73,10 @@ export const UserSchema = new mongoose.Schema(
       default: 'None',
       validate: { validator: UserValidate.responsibility, message: '{VALUE} is an invalid responsibility!'}
     },
-    securityOfficerLocation: ObjectId,
+    responsibilityLocation: {
+      type: ObjectId,
+      required: () =>{this.responsibility !== 'None'}
+    },
         
     mail: {
       type: String,
@@ -86,10 +87,10 @@ export const UserSchema = new mongoose.Schema(
       validate: { validator: UserValidate.phone, message: '{VALUE} is not a valid phone number!' }
     }],
       
-    mobilePhone: {
+    mobilePhone: [{
       type: String,
       validate: {validator: UserValidate.mobilePhone, message: '{VALUE} is not a valid mobile phone number!'}
-    },
+    }],
     rank: {
       type: String,
       default: 'Newbie',
@@ -105,9 +106,7 @@ export const UserSchema = new mongoose.Schema(
     alive: {
       type: Boolean,
       default: true
-    },
-    updatedAt: Date,
-    createdAt: Date
+    }
     // weakGroups: {
     //   type: [String],
     //   default: [],
@@ -122,8 +121,12 @@ export const UserSchema = new mongoose.Schema(
     toJSON: {
       virtuals: true,
       versionKey:false,
-    },
-  });
+    }
+  },
+  { 
+    timestamps: true
+  }
+);
 
 UserSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;
@@ -133,7 +136,7 @@ UserSchema.virtual('fullName').get(function () {
 //   return this._id;
 // });
 
-UserSchema.pre('save', function (next) {
+/* UserSchema.pre('save', function (next) {
   if (!this.updatedAt) this.updatedAt = new Date();
   if (!this.createdAt) this.createdAt = new Date();
   next();
@@ -141,6 +144,6 @@ UserSchema.pre('save', function (next) {
 
 UserSchema.pre('update', function () {
   this.update({}, { $set: { updatedAt: new Date() } });
-});
+}); */
 
 export const UserModel = mongoose.model<IUser>('User', UserSchema);
