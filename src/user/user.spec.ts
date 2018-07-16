@@ -348,7 +348,6 @@ describe('Users', () => {
         expect(user.directGroup.toString() === group._id.toString());
         group.directMembers.should.have.lengthOf(1);
         expect(group.directMembers[0].toString() === user._id.toString());
-        console.log(group);
         group.directManagers.should.have.lengthOf(1);
         expect(group.directManagers[0].toString() === user._id.toString());
       });

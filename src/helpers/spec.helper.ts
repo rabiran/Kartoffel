@@ -38,14 +38,7 @@ before(async () => {
 });
 
 beforeEach(async () => {
-
-  const removeCollectionPromises = [];
-
-  for (const i in mongoose.connection.collections) {
-    removeCollectionPromises.push(mongoose.connection.collections[i].remove({}));
-  }
-
-  await Promise.all(removeCollectionPromises);
+  await mongoose.connection.dropDatabase();
 });
 
 after((done) => {
