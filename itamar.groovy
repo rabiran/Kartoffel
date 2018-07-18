@@ -1,3 +1,4 @@
+
 pipeline {
     agent none
     stages {
@@ -13,6 +14,17 @@ pipeline {
                 sh 'npm install'
                 sh 'npm test'
             }
-        }   
+        }
+        stage ('deploy') {
+            agent {
+                label 'kartoffel-prod'
+            }
+            when { branch 'master' }
+            steps {
+                sh 'sudo service mongod start'
+                sh 'npm install'
+                sh 'npm start &'
+            }
+        }    
     }
 }
