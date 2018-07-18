@@ -1,16 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserRepository } from './user.repository';
 import { IUser } from './user.interface';
-import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
-import { Kartoffel } from '../group/kartoffel/kartoffel.controller';
-import { KartoffelRepository } from '../group/kartoffel/kartoffel.repository';
+import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
+import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
+import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
 import { Rank } from '../utils';
 import { Document } from 'mongoose';
 
 export class User {
   static _userRepository: UserRepository = new UserRepository();
   _userService: UserRepository;
-  static _kartoffelRepository: KartoffelRepository = new KartoffelRepository();
+  static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
 
   constructor() {
     this._userService = new UserRepository();
@@ -34,11 +34,11 @@ export class User {
     return <IUser[]>users;
   }
 
-  static async getKartoffelMembers(groupID: string): Promise<IUser[]> {
+  static async getOrganizationGroupMembers(groupID: string): Promise<IUser[]> {
     // check that this group exists
-    const group = await Kartoffel.getKartoffelOld(groupID);
+    const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
 
-    const offsprings = <IKartoffel[]>(await this._kartoffelRepository.getOffsprings(groupID));
+    const offsprings = <IOrganizationGroup[]>(await this._organizationGroupRepository.getOffsprings(groupID));
     const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => (<string[]>a).concat(<string[]>b));
     const members = <IUser[]>await this._userRepository.getSome(<string[]>membersIDs);
     return members;
@@ -81,7 +81,7 @@ export class User {
   // Will transfer user between groups automatically. Is that what we want?
   static async assign(userID: string, groupID: string): Promise<void> {
     const user = await User.getUser(userID);
-    const group = await Kartoffel.getKartoffel(groupID);
+    const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
     user.directGroup = group._id;
     await User.updateUser(user);
@@ -101,7 +101,7 @@ export class User {
 
   static async manage(userID: string, groupID: string) {
     const user = await User.getUser(userID);
-    const group = await Kartoffel.getKartoffel(groupID);
+    const group = await OrganizationGroup.getOrganizationGroup(groupID);
     
     if (String(user.directGroup) !== String(groupID)) {
       return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
