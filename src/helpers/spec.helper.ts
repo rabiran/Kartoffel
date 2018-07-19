@@ -34,7 +34,7 @@ export const expectError = async (func: Function, params: any[]) => {
 };
 
 before(async () => {
-  mongoose.connect(process.env.MONGODB_TEST_URI);
+  mongoose.connect(process.env.MONGODB_TEST_URI, { useMongoClient: true });
 });
 
 beforeEach(async () => {

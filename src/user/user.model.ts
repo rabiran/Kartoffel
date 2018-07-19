@@ -15,98 +15,108 @@ export const UserSchema = new mongoose.Schema(
   {
     identityCard: {
       type: String,
-      required: [true, "You must enter an identity card!"],
-      index: true,
+      required: [true, 'You must enter an identity card!'],
       unique: true,
-      validate: { validator: UserValidate.identityCard, message: '{VALUE} is an invalid identity card!' }
+      validate: { validator: UserValidate.identityCard, message: '{VALUE} is an invalid identity card!' },
     },    
     personalNumber: {
       type: String,
       unique: true,
       sparse: true,
-      validate: { validator: UserValidate.personalNumber, message: '{VALUE} is an invalid personal number!' }
+      validate: { validator: UserValidate.personalNumber, message: '{VALUE} is an invalid personal number!' },
     },
     primaryUser: {
       type: String,
-      required: true,
+      required: [true, 'You must enter a primary user!'],
       unique: true,
-      validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' }
+      validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' },
     },
-    secondaryUser: [{
+    secondaryUsers: [{
       type: String,   
-      validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' }
+      validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' },
     }],
     serviceType: String,
     firstName: {
       type: String,
-      required: true,
-      validate: { validator: UserValidate.namePart, message: '{VALUE} is an invalid First Name' }
+      required: [true, 'You must enter a first name!'],
+      validate: { validator: UserValidate.namePart, message: '{VALUE} is an invalid First Name' },
     },
     lastName: {
       type: String,
-      required: true,
-      validate: { validator: UserValidate.namePart, message: '{VALUE} is an invalid Last Name' }
+      required: [true, 'You must enter a last name!'],
+      validate: { validator: UserValidate.namePart, message: '{VALUE} is an invalid Last Name' },
     },
     currentUnit: String,
+    alive: {
+      type: Boolean,
+      default: true,
+    },
     dischargeDay: {
       type: Date,
-      required: true
+      required: [true, 'You must enter a discharge day!'],
     },
-    hierarchy: [{
-      type: String,
-      required: true
-    }],           
+    hierarchy: {
+      type: [String],
+      required: [function () {return this.alive === true;}, 'You must enter a hierarchy!'],
+      default: undefined,
+    },           
     job: {
       type: String,
-      required: true
+      required: [function () {
+        return this.alive === true;
+      }, 'You must enter a job!'],
+      validate: { validator: UserValidate.job, message: '{VALUE} is an invalid job' },
     },
     directGroup: {
       type: ObjectId,
-      index: true
+      index: true,
     },
     managedGroup: {
       type: ObjectId,
-      index: true
+      index: true,
     },
     responsibility: {
       type: String,
       default: 'None',
-      validate: { validator: UserValidate.responsibility, message: '{VALUE} is an invalid responsibility!'}
+      validate: { validator: UserValidate.responsibility, message: '{VALUE} is an invalid responsibility!' },
     },
     responsibilityLocation: {
-      type: ObjectId,
-      required: () =>{this.responsibility !== 'None'}
+      type: String,
+      required: [function () {return this.responsibility !== 'None';}, 'You must enter a responsibility location!'],
+      validate: { 
+        validator(v: string) {
+          return UserValidate.responsibilityLocation(v, this.responsibility);
+        },
+        message: '{VALUE} is not consumed or invalid responsibility location', 
+      },
     },
         
     mail: {
       type: String,
-      validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email address!' }
+      validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email address!' },
     },
     phone: [{
       type: String,
-      validate: { validator: UserValidate.phone, message: '{VALUE} is not a valid phone number!' }
+      validate: { validator: UserValidate.phone, message: '{VALUE} is not a valid phone number!' },
     }],
       
     mobilePhone: [{
       type: String,
-      validate: {validator: UserValidate.mobilePhone, message: '{VALUE} is not a valid mobile phone number!'}
+      validate: { validator: UserValidate.mobilePhone, message: '{VALUE} is not a valid mobile phone number!' },
     }],
     rank: {
       type: String,
       default: 'Newbie',
-      validate: { validator: UserValidate.rank, message: '{VALUE} is an invalid rank!' }
+      validate: { validator: UserValidate.rank, message: '{VALUE} is an invalid rank!' },
     },
     address: String,    
     
     clearance: {
       type: Number,
       default: 0,
-      validate: {validator: UserValidate.clearance, message: '{VALUE} is an invalid clearance!'}
+      validate: { validator: UserValidate.clearance, message: '{VALUE} is an invalid clearance!' },
     },
-    alive: {
-      type: Boolean,
-      default: true
-    }
+  
     // weakGroups: {
     //   type: [String],
     //   default: [],
@@ -117,16 +127,14 @@ export const UserSchema = new mongoose.Schema(
     // },
 
   },
-  {
-    toJSON: {
-      virtuals: true,
-      versionKey:false,
-    }
-  },
-  { 
-    timestamps: true
-  }
 );
+
+UserSchema.set('toJSON', {
+  virtuals: true,
+  versionKey:false,
+});
+  
+UserSchema.set('timestamps', true);
 
 UserSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;

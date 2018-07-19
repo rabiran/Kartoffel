@@ -33,12 +33,12 @@ export enum RANK {
 
 export type Responsibility = 
     'None'
-    | 'SecuritOfficer'
+    | 'SecurityOfficer'
     | 'HR';
 
 export enum RESPONSIBILITY {
   'None',
-  'SecuritOfficer',
+  'SecurityOfficer',
   'HR',
 }
 

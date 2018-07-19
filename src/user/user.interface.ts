@@ -8,17 +8,17 @@ export interface IUser extends Document {
   identityCard: string;
   personalNumber: string;
   primaryUser: string;
-  secondaryUser: string[];
+  secondaryUsers: string[];
   serviceType: string;
   firstName: string;
   lastName: string;
-  currentUnit: string,
-  dischargeDay: Date,
+  currentUnit: string;
+  alive: boolean;
+  dischargeDay: Date;
   hierarchy: string[];
   directGroup: IKartoffel | string;
   managedGroup: IKartoffel | string;
   rank: Rank;
-  alive: boolean;
   updatedAt: Date;
   createdAt: Date;
 // Weak groups props
@@ -38,5 +38,5 @@ export interface IUser extends Document {
 
 export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
 export const USER_FIELDS = PERSONAL_FIELDS.concat(
-  ['primaryUser', 'secondaryUser', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
+  ['primaryUser', 'secondaryUsers', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
     'dischargeDay', 'hierarchy', 'directGroup', 'managedGroup', 'rank', 'alive', 'responsibility', 'responsibilityLocation', 'clearance']);

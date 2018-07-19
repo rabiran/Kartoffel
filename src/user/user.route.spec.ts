@@ -22,7 +22,7 @@ const USER_XMPL = <IUser>{ _id : '1234567', firstName: 'Yonatan', lastName: 'Tal
 
 const BASE_URL = '/api/user';
 
-describe('User', () => {
+describe.skip('User', () => {
   describe('/GET getAll', () => {
     it('Should get all the users', (done) => {
       chai.request(server)

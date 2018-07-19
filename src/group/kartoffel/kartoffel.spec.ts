@@ -21,7 +21,7 @@ const ID_EXAMPLE = '59a56d577bedba18504298df';
 const idXmpls = ['59a6aa1f5caa4e4d2ac39797', '59a56d577bedba18504298df'];
 
 
-describe('Strong Groups', () => { 
+describe.skip('Strong Groups', () => { 
   describe('#getKartoffeln', () => { 
     it('Should be empty if there are no groups', async () => { 
       const groups = await Kartoffel.getKartoffeln();

@@ -20,7 +20,11 @@ export class UserValidate extends ModelValidate {
 
   // Ensure the name isn't empty (In the meantime...)
   public static namePart(name: string) {
-    return UserValidate.stringNotEmpty;
+    return UserValidate.stringNotEmpty(name);
+  }
+
+  public static job(job: string) {
+    return UserValidate.stringNotEmpty(job);
   }
 
   public static email(mail: string) {
@@ -48,11 +52,15 @@ export class UserValidate extends ModelValidate {
   }
 
   public static clearance(clearance: string) {
-    return /^([1-9]|10)$/.test(clearance);
+    return /^([0-9]|10)$/.test(clearance);
   }
 
   public static responsibility(responsibility: Responsibility) {
     return responsibility in RESPONSIBILITY;
   }
-  
+
+  public static responsibilityLocation(responsibilityLocation: string, responsibility: Responsibility) {
+    return (responsibility !== RESPONSIBILITY[0] && UserValidate.stringNotEmpty(responsibilityLocation));
+  }
+
 }
