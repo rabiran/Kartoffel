@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { Rank } from '../utils';
+import { Rank, Responsibility } from '../utils';
 import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
 
 export interface IUser extends Document {
@@ -31,7 +31,7 @@ export interface IUser extends Document {
   mobilePhone: string[];
   address: string;
 // Editable with strong permissions
-  responsibility: string;
+  responsibility: Responsibility;
   responsibilityLocation: string;
   clearance: number;
 }

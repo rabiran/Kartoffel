@@ -82,7 +82,7 @@ export const UserSchema = new mongoose.Schema(
     },
     responsibilityLocation: {
       type: String,
-      required: [function () {return this.responsibility !== 'None';}, 'You must enter a responsibility location!'],
+      required: [function () {return this.responsibility && this.responsibility !== 'None';}, 'You must enter a responsibility location!'],
       validate: { 
         validator(v: string) {
           return UserValidate.responsibilityLocation(v, this.responsibility);
@@ -107,7 +107,7 @@ export const UserSchema = new mongoose.Schema(
     rank: {
       type: String,
       default: 'Newbie',
-      validate: { validator: UserValidate.rank, message: '{VALUE} is an invalid rank!' },
+      validate: { validator: UserValidate.rank, message: '"{VALUE}" is an invalid rank!' },
     },
     address: String,    
     

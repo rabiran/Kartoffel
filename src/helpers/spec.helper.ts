@@ -37,10 +37,10 @@ before(async () => {
   mongoose.connect(process.env.MONGODB_TEST_URI, { useMongoClient: true });
 });
 
-beforeEach(async () => {
+/* beforeEach(async () => {
   await mongoose.connection.dropDatabase();
 });
-
+ */
 after((done) => {
   mongoose.disconnect();
   done();

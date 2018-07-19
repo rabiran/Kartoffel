@@ -28,7 +28,7 @@ export class UserValidate extends ModelValidate {
   }
 
   public static email(mail: string) {
-    return /.+@.+\..+/.test(mail);
+    return /.+@.+\..+/.test(mail) || !mail;
   }
 
   public static rank(rank: Rank) {

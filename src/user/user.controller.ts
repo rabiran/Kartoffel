@@ -50,15 +50,16 @@ export class User {
   }
 
   static async discharge(userID: string): Promise<any> {
-    const user = await User.getUser(userID);
+    let user = await User.getUser(userID);
 
     // If the user was in a group, notify it
-    if (user && user.directGroup) await User.dismiss(userID);
+    if (user && user.directGroup) {
+      user = await User.dismiss(userID);
+    }
 
     user.alive = false;
-    user.directGroup = null;
     const res = await User._userRepository.update(user);
-    return { ok: 1 };
+    return res;
   }
 
   static async removeUser(userID: string): Promise<any> {
@@ -79,24 +80,24 @@ export class User {
   }
 
   // Will transfer user between groups automatically. Is that what we want?
-  static async assign(userID: string, groupID: string): Promise<void> {
-    const user = await User.getUser(userID);
+  static async assign(userID: string, groupID: string): Promise<IUser> {
+    let user = await User.getUser(userID);
     const group = await Kartoffel.getKartoffel(groupID);
 
     user.directGroup = group._id;
-    await User.updateUser(user);
-    return;
+    user = await User.updateUser(user);
+    return <IUser>user;
   }
 
   // Will delete managedGroup too
   static async dismiss(userID: string) {
-    const user = await User.getUser(userID);
+    let user = await User.getUser(userID);
     if (!user.directGroup) return;
 
     user.directGroup = null;
-    user.managedGroup = null;
-    await User.updateUser(user);
-    return;
+    if (user.managedGroup) user.managedGroup = null;
+    user = await User.updateUser(user);
+    return user;
   }
 
   static async manage(userID: string, groupID: string) {
