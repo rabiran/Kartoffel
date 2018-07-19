@@ -1,12 +1,13 @@
+
 pipeline {
     agent none
     stages {
         stage ('unit-testing') {
             agent {
-                label 'backend-dev'
+                label 'kartoffel-dev'
             }
             when {
-            expression { BRANCH_NAME !==~ /master/ }
+            not { branch 'master' }
             }            
             steps {
                 sh 'sudo service mongod start'
@@ -16,15 +17,12 @@ pipeline {
         }
         stage ('deploy') {
             agent {
-                label 'backend-prod'
+                label 'kartoffel-prod'
             }
-            when {
-            expression { BRANCH_NAME ==~ /master/ }
-            }
+            when { branch 'master' }
             steps {
                 sh 'sudo service mongod start'
                 sh 'npm install'
-                sh 'npm test'
                 sh 'npm start &'
             }
         }    
