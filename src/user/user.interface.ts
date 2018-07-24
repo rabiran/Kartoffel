@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 import { Rank, Responsibility } from '../utils';
 import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
+import { ObjectId } from 'bson';
 
 export interface IUser extends Document {
 // User's Basic information
@@ -32,8 +33,8 @@ export interface IUser extends Document {
   address: string;
 // Editable with strong permissions
   responsibility: Responsibility;
-  responsibilityLocation: string;
-  clearance: number;
+  responsibilityLocation: ObjectId;
+  clearance: string;
 }
 
 export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];

@@ -22,7 +22,7 @@ const ID_EXAMPLE = '59a56d577bedba18504298df';
 const ID_EXAMPLE_2 = '59a56d577bedba18504298de';
 const BASE_URL = '/api/kartoffel';
 
-describe.skip('Kartoffel API', () => {
+describe('Kartoffel API', () => {
   describe('/GET all groups', () => {
     it('Should get all the groups', (done) => {
       chai.request(server)

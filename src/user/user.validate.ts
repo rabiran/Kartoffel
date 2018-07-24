@@ -60,7 +60,7 @@ export class UserValidate extends ModelValidate {
   }
 
   public static responsibilityLocation(responsibilityLocation: string, responsibility: Responsibility) {
-    return (responsibility !== RESPONSIBILITY[0] && UserValidate.stringNotEmpty(responsibilityLocation));
+    return (responsibility !== RESPONSIBILITY[0]);
   }
 
 }

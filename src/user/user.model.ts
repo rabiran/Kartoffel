@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { IUser } from './user.interface';
 import { UserValidate } from './user.validate';
+import { RESPONSIBILITY } from '../utils';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -18,7 +19,7 @@ export const UserSchema = new mongoose.Schema(
       required: [true, 'You must enter an identity card!'],
       unique: true,
       validate: { validator: UserValidate.identityCard, message: '{VALUE} is an invalid identity card!' },
-    },    
+    },
     personalNumber: {
       type: String,
       unique: true,
@@ -32,7 +33,7 @@ export const UserSchema = new mongoose.Schema(
       validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' },
     },
     secondaryUsers: [{
-      type: String,   
+      type: String,
       validate: { validator: UserValidate.email, message: '{VALUE} is an invalid User' },
     }],
     serviceType: String,
@@ -57,9 +58,9 @@ export const UserSchema = new mongoose.Schema(
     },
     hierarchy: {
       type: [String],
-      required: [function () {return this.alive === true;}, 'You must enter a hierarchy!'],
+      required: [function () { return this.alive === true; }, 'You must enter a hierarchy!'],
       default: undefined,
-    },           
+    },
     job: {
       type: String,
       required: [function () {
@@ -81,16 +82,27 @@ export const UserSchema = new mongoose.Schema(
       validate: { validator: UserValidate.responsibility, message: '{VALUE} is an invalid responsibility!' },
     },
     responsibilityLocation: {
-      type: String,
-      required: [function () {return this.responsibility && this.responsibility !== 'None';}, 'You must enter a responsibility location!'],
-      validate: { 
+      type: ObjectId,
+      required: [function () {
+        let res = this.responsibility;
+        if (typeof this.getUpdate === 'function') {
+          res = this.getUpdate().$set.responsibility;
+        }
+        return res && res !== RESPONSIBILITY[0];
+      },
+        'You must enter a responsibility location!'],
+      validate: {
         validator(v: string) {
-          return UserValidate.responsibilityLocation(v, this.responsibility);
+          let res = this.responsibility;
+          if (typeof this.getUpdate === 'function') {
+            res = this.getUpdate().$set.responsibility;
+          }
+          return UserValidate.responsibilityLocation(v, res);
         },
-        message: '{VALUE} is not consumed or invalid responsibility location', 
+        message: '{VALUE} is not consumed or invalid responsibility location',
       },
     },
-        
+
     mail: {
       type: String,
       validate: { validator: UserValidate.email, message: '{VALUE} is not a valid email address!' },
@@ -99,7 +111,7 @@ export const UserSchema = new mongoose.Schema(
       type: String,
       validate: { validator: UserValidate.phone, message: '{VALUE} is not a valid phone number!' },
     }],
-      
+
     mobilePhone: [{
       type: String,
       validate: { validator: UserValidate.mobilePhone, message: '{VALUE} is not a valid mobile phone number!' },
@@ -109,14 +121,14 @@ export const UserSchema = new mongoose.Schema(
       default: 'Newbie',
       validate: { validator: UserValidate.rank, message: '"{VALUE}" is an invalid rank!' },
     },
-    address: String,    
-    
+    address: String,
+
     clearance: {
-      type: Number,
-      default: 0,
+      type: String,
+      default: '0',
       validate: { validator: UserValidate.clearance, message: '{VALUE} is an invalid clearance!' },
     },
-  
+
     // weakGroups: {
     //   type: [String],
     //   default: [],
@@ -131,9 +143,9 @@ export const UserSchema = new mongoose.Schema(
 
 UserSchema.set('toJSON', {
   virtuals: true,
-  versionKey:false,
+  versionKey: false,
 });
-  
+
 UserSchema.set('timestamps', true);
 
 UserSchema.virtual('fullName').get(function () {
