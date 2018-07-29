@@ -84,19 +84,15 @@ export const UserSchema = new mongoose.Schema(
     responsibilityLocation: {
       type: ObjectId,
       required: [function () {
-        let res = this.responsibility;
-        if (typeof this.getUpdate === 'function') {
-          res = this.getUpdate().$set.responsibility;
-        }
+        // In update the mongo does not keep the document in "this" 
+        const res = typeof this.getUpdate !== 'function' ? this.responsibility : this.getUpdate().$set.responsibility;        
         return res && res !== RESPONSIBILITY[0];
       },
         'You must enter a responsibility location!'],
       validate: {
         validator(v: string) {
-          let res = this.responsibility;
-          if (typeof this.getUpdate === 'function') {
-            res = this.getUpdate().$set.responsibility;
-          }
+          // In update the mongo does not keep the document in "this"
+          const res = typeof this.getUpdate !== 'function' ? this.responsibility : this.getUpdate().$set.responsibility;        
           return UserValidate.responsibilityLocation(v, res);
         },
         message: '{VALUE} is not consumed or invalid responsibility location',

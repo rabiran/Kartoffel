@@ -6,6 +6,7 @@ import { Kartoffel } from '../group/kartoffel/kartoffel.controller';
 import { KartoffelRepository } from '../group/kartoffel/kartoffel.repository';
 import { Rank } from '../utils';
 import { Document } from 'mongoose';
+import { ObjectId } from 'bson';
 
 export class User {
   static _userRepository: UserRepository = new UserRepository();
@@ -73,7 +74,7 @@ export class User {
     return <IUser>updatedUser;
   }
 
-  static async updateTeam(userID: string, newTeamID: string): Promise<IUser> {
+  static async updateTeam(userID: string, newTeamID: ObjectId): Promise<IUser> {
     const user = await User.getUser(userID);
     user.directGroup = newTeamID;
     return await User.updateUser(user);

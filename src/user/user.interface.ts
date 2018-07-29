@@ -17,8 +17,8 @@ export interface IUser extends Document {
   alive: boolean;
   dischargeDay: Date;
   hierarchy: string[];
-  directGroup: IKartoffel | string;
-  managedGroup: IKartoffel | string;
+  directGroup: IKartoffel | ObjectId;
+  managedGroup: IKartoffel | ObjectId;
   rank: Rank;
   updatedAt: Date;
   createdAt: Date;
