@@ -16,11 +16,6 @@ const should = chai.should();
 chai.use(require('chai-http'));
 const expect = chai.expect;
 
-before(async () => {
-  UserModel.remove({}, (err) => {});
-  KartoffelModel.remove({}, (err) => {});
-});
-
 const userExamples: IUser[] = [  
   <IUser>{
     identityCard: '234567891',

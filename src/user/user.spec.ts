@@ -76,11 +76,6 @@ const userExamples: IUser[] = [
   },
 ];
 
-beforeEach(async () => {
-  UserModel.remove({}, (err) => { });
-  KartoffelModel.remove({}, (err) => { });
-});
-
 describe('Users', () => {
   describe('#getUsers', () => {
     it('Should be empty if there are no users', async () => {

@@ -12,11 +12,6 @@ const should = chai.should();
 const expect = chai.expect;
 chai.use(require('chai-http'));
 
-
-before(async () => {
-  KartoffelModel.remove({}, (err) => { });
-});
-
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const idXmpls = ['59a6aa1f5caa4e4d2ac39797', '59a56d577bedba18504298df'];
 
