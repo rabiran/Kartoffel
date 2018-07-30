@@ -4,3 +4,5 @@
 /src/models
 /src/pagination
 npm-debug.log
+.env
+!example.env
