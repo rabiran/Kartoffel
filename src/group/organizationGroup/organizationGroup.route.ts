@@ -30,19 +30,14 @@ organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, [
   return [from, new Date()];
 }));
 
-organizationGroups.post(
-  '/',
+organizationGroups.post('/',
   PermissionMiddleware.hasAdvancedPermission,
-  ch(
-    OrganizationGroup.createOrganizationGroup,
-    (req: Request, res: Response) => {
-      const organizationGroup = filterObjectByKeys(req.body, ORGANIZATION_GROUP_BASIC_FIELDS);
-      const parentID = req.body.parentID;
-      return [organizationGroup, parentID];
-    },
-    400,
-  ),
-);
+  ch(OrganizationGroup.createOrganizationGroup, (req: Request, res: Response) => {
+    const organizationGroup = filterObjectByKeys(req.body, ORGANIZATION_GROUP_BASIC_FIELDS);
+    const parentID = req.body.parentID;
+    return [organizationGroup, parentID];
+  }, 400
+  ));
 
 organizationGroups.get('/:id/old', validatorMiddleware(Vld.toDo, ['id'], 'params'), (req: Request, res: Response) => {
   const getFunction = (req.query.populated === 'true') ? OrganizationGroup.getOrganizationGroupPopulated : OrganizationGroup.getOrganizationGroupOld;
@@ -54,34 +49,20 @@ organizationGroups.get('/:id/old', validatorMiddleware(Vld.toDo, ['id'], 'params
 
 organizationGroups.get('/:id/members', ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
 
-organizationGroups.put(
-  '/adoption',
-  PermissionMiddleware.hasAdvancedPermission,
-  validatorMiddleware(
-    Vld.differentParams,
-    ['parentID', 'childID'],
-  ),
-  ch(
-    OrganizationGroup.childrenAdoption,
-    (req: Request, res: Response) => {
-      const parentID = req.body.parentID;
-      const childID = req.body.childID;
-      return [parentID, [childID]];
-    },
-    400,
-  ),
-);
+organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
+  validatorMiddleware(Vld.differentParams, ['parentID', 'childID']),
+  ch(OrganizationGroup.childrenAdoption, (req: Request, res: Response) => {
+    const parentID = req.body.parentID;
+    const childID = req.body.childID;
+    return [parentID, [childID]];
+  }, 400
+  ));
 
-organizationGroups.delete(
-  '/:id',
-  PermissionMiddleware.hasAdvancedPermission,
-  ch(
-    OrganizationGroup.deleteGroup,
-    (req: Request) => {
-      return [req.params.id];
-    },
-    400,
-  ),
+organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission,
+  ch(OrganizationGroup.deleteGroup, (req: Request) => {
+    return [req.params.id];
+  }, 400
+  )
 );
 
 export = organizationGroups;

@@ -148,7 +148,7 @@ describe('OrganizationGroup API', () => {
         .send({ parentID: group._id })
         .then(
           () => expect.fail(undefined, undefined, 'Should not succeed!'),
-          err => err.should.have.status(400),
+          err => err.should.have.status(400)
         );
     });
     it('Should return 400 if group is not found', (done) => {
@@ -160,7 +160,7 @@ describe('OrganizationGroup API', () => {
           (err) => {
             err.should.have.status(400);
             done();
-          },
+          }
         );
     });
     it('Should fail if parent and child are the same', async () => {
@@ -170,7 +170,7 @@ describe('OrganizationGroup API', () => {
         .send({ parentID: group._id, childID: group._id })
         .then(
           () => expect.fail(undefined, undefined, 'Should not succeed!'),
-          err => err.should.have.status(400),
+          err => err.should.have.status(400)
         );
     });
     it('Should adopt (simple)', async() => {
