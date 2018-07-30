@@ -1,35 +1,30 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
-import {  OrganizationGroup  } from './organizationGroup.controller';
-import {  OrganizationGroupModel  } from './organizationGroup.model';
-import {  IOrganizationGroup  } from './organizationGroup.interface';
+import { OrganizationGroup } from './organizationGroup.controller';
+import { OrganizationGroupModel } from './organizationGroup.model';
+import { IOrganizationGroup } from './organizationGroup.interface';
 import { User } from '../../user/user.controller';
 import { IUser } from '../../user/user.interface';
-import {  expectError  } from '../../helpers/spec.helper';
+import { expectError } from '../../helpers/spec.helper';
 
 
 const should = chai.should();
 const expect = chai.expect;
 chai.use(require('chai-http'));
 
-
-before(async () => { 
-  OrganizationGroupModel.remove({  }, (err) => {  });
-});
-
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const idXmpls = ['59a6aa1f5caa4e4d2ac39797', '59a56d577bedba18504298df'];
 
 
-describe('Strong Groups', () => { 
-  describe('#getOrganizationGroups', () => { 
-    it('Should be empty if there are no groups', async () => { 
+describe('Strong Groups', () => {
+  describe('#getOrganizationGroups', () => {
+    it('Should be empty if there are no groups', async () => {
       const groups = await OrganizationGroup.getOrganizationGroups();
       groups.should.be.a('array');
       groups.should.have.lengthOf(0);
     });
-    it('Should get all the groups', async () => { 
-      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{  name: 'myGroup'  });
+    it('Should get all the groups', async () => {
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
 
       let groups = await OrganizationGroup.getOrganizationGroups();
       groups.should.be.a('array');
@@ -38,16 +33,16 @@ describe('Strong Groups', () => {
       groups[0].should.have.property('name', 'myGroup');
 
 
-      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{  name: 'yourGroup'  });
-      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{  name: 'hisGroup'  });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'yourGroup' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'hisGroup' });
 
       groups = await OrganizationGroup.getOrganizationGroups();
       groups.should.be.a('array');
       groups.should.have.lengthOf(3);
     });
   });
-  describe('#get updated groups from a given date', () => { 
-    it('Should get the current groups', async () => { 
+  describe('#get updated groups from a given date', () => {
+    it('Should get the current groups', async () => {
       const clock = sinon.useFakeTimers();
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_-2' });
       const update1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_-1' });
@@ -73,8 +68,8 @@ describe('Strong Groups', () => {
       groups[2].should.have.property('name', 'group_2');
     });
   });
-  describe('#createOrganizationGroup', () => { 
-    it('Should create a simple group', async () => { 
+  describe('#createOrganizationGroup', () => {
+    it('Should create a simple group', async () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Biran' });
       group.should.exist;
       group.should.have.property('name', 'Biran');
@@ -83,13 +78,13 @@ describe('Strong Groups', () => {
       group.ancestors.should.have.lengthOf(0);
       group.hierarchy.should.have.lengthOf(0);
     });
-    it('Should throw an error when parent doesn\'t exist', async () => { 
+    it('Should throw an error when parent doesn\'t exist', async () => {
       await expectError(OrganizationGroup.createOrganizationGroup, [<IOrganizationGroup>{ name: 'Biran' }, '597053012c3b60031211a063']);
     });
-    it('Should throw an error when group is undefined', async () => { 
+    it('Should throw an error when group is undefined', async () => {
       await expectError(OrganizationGroup.createOrganizationGroup, [undefined]);
     });
-    it('Should create a group correctly with one parent', async () => { 
+    it('Should create a group correctly with one parent', async () => {
       const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Ido' });
       const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Elad' }, parent._id);
       child.should.exist;
@@ -100,7 +95,7 @@ describe('Strong Groups', () => {
       child.hierarchy.should.have.lengthOf(1);
       child.hierarchy[0].should.be.equal(parent.name);
     });
-    it('Should create a group correctly with two ancestors', async () => { 
+    it('Should create a group correctly with two ancestors', async () => {
       const grandparent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandparent' });
       const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' }, grandparent._id);
       const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent._id);
@@ -117,17 +112,17 @@ describe('Strong Groups', () => {
     });
   });
   describe('#getOrganizationGroupByID', () => {
-    it('Should throw an error when there is no matching group', async () => { 
+    it('Should throw an error when there is no matching group', async () => {
       await expectError(OrganizationGroup.getOrganizationGroup, [ID_EXAMPLE]);
     });
-    it('Should return the group if existed', async () => { 
+    it('Should return the group if existed', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
       const res = await OrganizationGroup.getOrganizationGroup(organizationGroup.id);
 
       res.should.exist;
       res.should.have.property('name', organizationGroup.name);
     });
-    it('should return the group populated', async() => {
+    it('should return the group populated', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
       const child1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 1' }, organizationGroup._id);
       const child2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2' }, organizationGroup._id);
@@ -145,12 +140,12 @@ describe('Strong Groups', () => {
     });
   });
   describe('Update OrganizationGroup', () => {
-    describe('#updateOrganizationGroup', () => { 
-      it('Should throw an error if the group doesn\'t exist', async () => { 
+    describe('#updateOrganizationGroup', () => {
+      it('Should throw an error if the group doesn\'t exist', async () => {
         // OrganizationGroup.updateOrganizationGroupDry(ID_EXAMPLE, <IOrganizationGroup>{ name: 'newName' });
         await expectError(OrganizationGroup.updateOrganizationGroup, [<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'newName' }]);
       });
-      it('Should update the group', async() => { 
+      it('Should update the group', async () => {
         const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myTeam' });
         const updated = await OrganizationGroup.updateOrganizationGroup(<IOrganizationGroup>{ _id: organizationGroup.id, name: 'newName' });
 
@@ -160,11 +155,11 @@ describe('Strong Groups', () => {
 
 
     });
-    describe('#childrenAdoption', () => { 
-      it('Should throw an error if parent does not exist', async () => { 
+    describe('#childrenAdoption', () => {
+      it('Should throw an error if parent does not exist', async () => {
         await expectError(OrganizationGroup.childrenAdoption, [ID_EXAMPLE]);
       });
-      it('Should update a child\'s parent', async () => { 
+      it('Should update a child\'s parent', async () => {
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
         let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
 
@@ -180,7 +175,7 @@ describe('Strong Groups', () => {
         child.hierarchy.should.have.lengthOf(1);
         child.hierarchy[0].should.be.equal(parent.name);
       });
-      it('Should update the child\'s previous parent', async () => { 
+      it('Should update the child\'s previous parent', async () => {
         const parent_old = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent_old' });
         let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
@@ -194,7 +189,7 @@ describe('Strong Groups', () => {
         child.ancestors.should.have.lengthOf(1);
         expect(child.ancestors[0].toString() === parent._id.toString()).to.be.ok;
       });
-      it('Should update a child\'s hierarchy', async () => { 
+      it('Should update a child\'s hierarchy', async () => {
         const grandparent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandparent' });
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
         let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
@@ -210,7 +205,7 @@ describe('Strong Groups', () => {
         expect(child.ancestors[0].toString() === parent._id.toString()).to.be.ok;
         expect(child.ancestors[1].toString() === grandparent._id.toString()).to.be.ok;
       });
-      it('Should update a child\'s hierarchy multiple times', async () => { 
+      it('Should update a child\'s hierarchy multiple times', async () => {
         const grandparent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandparent' });
         const grandparent_2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandparent_2' });
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
@@ -231,10 +226,10 @@ describe('Strong Groups', () => {
     });
   });
   describe('#deleteOrganizationGroup', () => {
-    it('Should throw an error if the group does not exist', async () => { 
+    it('Should throw an error if the group does not exist', async () => {
       await expectError(OrganizationGroup.deleteGroup, [ID_EXAMPLE]);
     });
-    it('Should delete the group', async () => { 
+    it('Should delete the group', async () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
       const res = await OrganizationGroup.deleteGroup(group._id);
       res.should.exist;
@@ -242,7 +237,7 @@ describe('Strong Groups', () => {
       res.should.have.property('n', 1);
       await expectError(OrganizationGroup.getOrganizationGroup, [group._id]);
     });
-    it('Should not remove a group with children', async () => { 
+    it('Should not remove a group with children', async () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
       const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: idXmpls[0], name: 'child' });
       await OrganizationGroup.childrenAdoption(group._id, [child._id]);
@@ -250,10 +245,10 @@ describe('Strong Groups', () => {
     });
   });
   describe('#getGroupMembers', () => {
-    it('Should throw an error when group does not exist', async() => {
+    it('Should throw an error when group does not exist', async () => {
       await expectError(OrganizationGroup.getAllMembers, [ID_EXAMPLE]);
     });
-    it('Should be returning the matching members', async() => {
+    it('Should be returning the matching members', async () => {
       const ancestor = await bigTree();
       const treeMembers = await OrganizationGroup.getAllMembers(ancestor._id);
       treeMembers.should.have.lengthOf(8);
@@ -281,21 +276,111 @@ async function bigTree() {
   await OrganizationGroup.childrenAdoption(parent_2._id, [child_21._id, child_22._id]);
   await OrganizationGroup.childrenAdoption(parent_3._id, [child_31._id, child_32._id, child_33._id]);
 
-  const user_11 =  await  User.createUser(<IUser>{ _id : '0000011', firstName: 'A', lastName: 'A' });
-  const user_12 =  await  User.createUser(<IUser>{ _id : '0000012', firstName: 'B', lastName: 'A' });
-  const user_21 =  await  User.createUser(<IUser>{ _id : '0000021', firstName: 'A', lastName: 'B' });
-  const user_111 = await  User.createUser(<IUser>{ _id : '0000111', firstName: 'A', lastName: 'AA' });
-  const user_221 = await  User.createUser(<IUser>{ _id : '0000221', firstName: 'A', lastName: 'BB' });
-  const user_311 = await  User.createUser(<IUser>{ _id : '0000311', firstName: 'A', lastName: 'CA' });
-  const user_312 = await  User.createUser(<IUser>{ _id : '0000312', firstName: 'B', lastName: 'CA' });
-  const user_331 = await  User.createUser(<IUser>{ _id : '0000331', firstName: 'A', lastName: 'CC' });
+  const user_11 = await User.createUser(<IUser>{
+    identityCard: '000000011',
+    personalNumber: '0000011',
+    primaryUser: 'user_11@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_12 = await User.createUser(<IUser>{
+    identityCard: '000000012',
+    personalNumber: '0000012',
+    primaryUser: 'user_12@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_21 = await User.createUser(<IUser>{
+    identityCard: '000000021',
+    personalNumber: '0000021',
+    primaryUser: 'user_21@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_111 = await User.createUser(<IUser>{
+    identityCard: '000000111',
+    personalNumber: '0000111',
+    primaryUser: 'user_111@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_221 = await User.createUser(<IUser>{
+    identityCard: '000000221',
+    personalNumber: '0000221',
+    primaryUser: 'user_221@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_311 = await User.createUser(<IUser>{
+    identityCard: '000000311',
+    personalNumber: '0000311',
+    primaryUser: 'user_311@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_312 = await User.createUser(<IUser>{
+    identityCard: '000000312',
+    personalNumber: '0000312',
+    primaryUser: 'user_312@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_331 = await User.createUser(<IUser>{
+    identityCard: '000000331',
+    personalNumber: '0000331',
+    primaryUser: 'user_331@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
 
-  const friede = await  User.createUser(<IUser>{ _id : '1000001', firstName: 'Sister', lastName: 'Friede' });
-  const gale = await  User.createUser(<IUser>{ _id : '1000002', firstName: 'Uncle', lastName: 'Gale' });
+  const friede = await User.createUser(<IUser>{ 
+    identityCard: '100000001',
+    personalNumber: '1000001',
+    primaryUser: '100001@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const gale = await User.createUser(<IUser>{ 
+    identityCard: '100000002',
+    personalNumber: '1000002',
+    primaryUser: '1000002@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
 
-  await User.assign(user_11._id,  parent_1._id);
-  await User.assign(user_12._id,  parent_1._id);
-  await User.assign(user_21._id,  parent_2._id);
+  await User.assign(user_11._id, parent_1._id);
+  await User.assign(user_12._id, parent_1._id);
+  await User.assign(user_21._id, parent_2._id);
   await User.assign(user_111._id, child_11._id);
   await User.assign(user_221._id, child_22._id);
   await User.assign(user_311._id, child_31._id);

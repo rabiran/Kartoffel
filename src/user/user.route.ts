@@ -34,7 +34,7 @@ users.get('/:id', (req: Request, res: Response) => {
 
 users.delete('/:id',
              PermissionMiddleware.hasAdvancedPermission, 
-             ch(User.removeUser, (req: Request) => {
+             ch(User.discharge, (req: Request) => {
                return [req.params.id];
              }, 404));
 
@@ -56,7 +56,7 @@ users.put('/',
 users.put('/:id/assign',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.assign, (req: Request, res: Response) => {
-            const userID  = req.params.user;
+            const userID  = req.params.id;
             const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
@@ -71,7 +71,7 @@ users.put('/:id/dismiss',
 users.put('/:id/manage',
           PermissionMiddleware.hasAdvancedPermission,
           ch(User.manage, (req: Request, res: Response) => {
-            const userID  = req.params.user;
+            const userID  = req.params.id;
             const groupID  = req.body.group;
             return [userID, groupID];
           }, 404));
