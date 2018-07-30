@@ -148,18 +148,4 @@ UserSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;
 });
 
-// UserSchema.virtual('id').get(function () {
-//   return this._id;
-// });
-
-/* UserSchema.pre('save', function (next) {
-  if (!this.updatedAt) this.updatedAt = new Date();
-  if (!this.createdAt) this.createdAt = new Date();
-  next();
-});
-
-UserSchema.pre('update', function () {
-  this.update({}, { $set: { updatedAt: new Date() } });
-}); */
-
 export const UserModel = mongoose.model<IUser>('User', UserSchema);

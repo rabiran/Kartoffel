@@ -52,7 +52,6 @@ before(async () => {
 
 beforeEach(async () => {
   const modelNames: string[] = mongoose.modelNames();
-  // await cleanDatabase(modelNames);
   await removeAllDocuments(modelNames);
 });
 

@@ -22,9 +22,6 @@ export interface IUser extends Document {
   rank: Rank;
   updatedAt: Date;
   createdAt: Date;
-// Weak groups props
-  // weakGroups: string[];
-  // adminGroups: string[];
 // Editable by the User
   job: string;
   mail: string;
