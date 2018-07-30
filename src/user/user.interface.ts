@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 import { Rank, Responsibility } from '../utils';
-import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
+import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { ObjectId } from 'bson';
 
 export interface IUser extends Document {
@@ -17,8 +17,8 @@ export interface IUser extends Document {
   alive: boolean;
   dischargeDay: Date;
   hierarchy: string[];
-  directGroup: IKartoffel | ObjectId;
-  managedGroup: IKartoffel | ObjectId;
+  directGroup: IOrganizationGroup | ObjectId;
+  managedGroup: IOrganizationGroup | ObjectId;
   rank: Rank;
   updatedAt: Date;
   createdAt: Date;

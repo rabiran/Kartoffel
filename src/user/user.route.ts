@@ -19,7 +19,7 @@ users.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'par
             let from = req.params.from;
             if (typeof(from) === 'number') from = new Date(from);
             return [from, new Date()];
-          },
+          }
 ));
 
 users.post('/', 

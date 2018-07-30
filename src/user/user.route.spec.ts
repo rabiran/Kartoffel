@@ -7,7 +7,7 @@ import * as server from '../server';
 import * as userRouter from './user.route';
 import { User } from './user.controller';
 import { UserModel } from './user.model';
-import { KartoffelModel } from '../group/kartoffel/kartoffel.model';
+import { OrganizationGroupModel } from '../group/organizationGroup/organizationGroup.model';
 import { IUser } from './user.interface';
 import { expectError } from '../helpers/spec.helper';
 import { ObjectId } from 'mongodb';

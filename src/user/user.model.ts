@@ -134,7 +134,7 @@ export const UserSchema = new mongoose.Schema(
     //   default: [],
     // },
 
-  },
+  }
 );
 
 UserSchema.set('toJSON', {
