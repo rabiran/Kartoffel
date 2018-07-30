@@ -6,17 +6,33 @@
     // 'max-line-length'  // 18.12
     // 'no-increment-decrement': false, // 13.6
     // radix: false, // 21.3 22.3
-
     "rules": {
-      "strict-boolean-expressions": false,
-      "no-parameter-reassignment": false,
-      "no-else-after-return": false,
-
-      "variable-name": [true, "ban-keywords", "check-format", "allow-snake-case", "allow-leading-underscore", "allow-pascal-case"],
-      "prefer-array-literal": true, // 4.1
-      "trailing-comma": [true, {"multiline": "always", "singleline": "never"}], // 19.2
-      "max-line-length": false,  // 18.12
-      "no-increment-decrement": false, // 13.6
-        "radix": false // 21.3 22.3
+        "strict-boolean-expressions": false,
+        "no-parameter-reassignment": false,
+        "no-else-after-return": false,
+        "variable-name": [
+            true,
+            "ban-keywords",
+            "check-format",
+            "allow-snake-case",
+            "allow-leading-underscore",
+            "allow-pascal-case"
+        ],
+        "prefer-array-literal": true, // 4.1
+        "trailing-comma": [
+            true,
+            {
+                "multiline": {
+                    "functions": "never",
+                    "objects":"always",
+                    "arrays": "always"
+                },
+                "singleline": "never"
+            }
+        ], // 19.2
+        "max-line-length": false, // 18.12
+        "no-increment-decrement": false, // 13.6
+        "radix": false, // 21.3 22.3
+        "align":[false, "arguments"]
     }
 }

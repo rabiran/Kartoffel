@@ -9,9 +9,9 @@ export interface IGroup extends Document {
   updatedAt: Date;
 }
 
-export interface IKartoffel extends IGroup {
-  ancestors: IKartoffel[];
-  children: IKartoffel[];
+export interface IOrganizationGroup extends IGroup {
+  ancestors: IOrganizationGroup[];
+  children: IOrganizationGroup[];
   type: string;
 }
 
