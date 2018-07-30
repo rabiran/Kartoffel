@@ -4,10 +4,10 @@ process.env.PORT = '8080';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as server from '../../server';
-import * as kartoffelRouter from './kartoffel.route';
-import { Kartoffel } from './kartoffel.controller';
-import { KartoffelModel } from './kartoffel.model';
-import { IKartoffel } from './kartoffel.interface';
+import * as organizationGroupRouter from './organizationGroup.route';
+import { OrganizationGroup } from './organizationGroup.controller';
+import { OrganizationGroupModel } from './organizationGroup.model';
+import { IOrganizationGroup } from './organizationGroup.interface';
 import { expectError } from '../../helpers/spec.helper';
 
 const should = chai.should();
@@ -15,14 +15,14 @@ chai.use(require('chai-http'));
 const expect = chai.expect;
 
 before(async () => {
-  KartoffelModel.remove({}, (err) => {});
+  OrganizationGroupModel.remove({}, (err) => {});
 });
 
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const ID_EXAMPLE_2 = '59a56d577bedba18504298de';
-const BASE_URL = '/api/kartoffel';
+const BASE_URL = '/api/organizationGroup';
 
-describe('Kartoffel API', () => {
+describe('OrganizationGroup API', () => {
   describe('/GET all groups', () => {
     it('Should get all the groups', (done) => {
       chai.request(server)
@@ -36,8 +36,8 @@ describe('Kartoffel API', () => {
         });
     });
     it('Should get the groups', async () => {
-      await Kartoffel.createKartoffel(<IKartoffel>{ name: 'yourGroup' });
-      await Kartoffel.createKartoffel(<IKartoffel>{ name: 'hisGroup' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'yourGroup' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'hisGroup' });
 
       await chai.request(server)
         .get(BASE_URL)
@@ -62,13 +62,13 @@ describe('Kartoffel API', () => {
         });
     });
     it('Should return a group', async() => {
-      const kartoffel = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'myGroup' });
+      const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
       await chai.request(server)
-        .get(BASE_URL + '/' + kartoffel._id)
+        .get(BASE_URL + '/' + organizationGroup._id)
         .then((res) => {
           res.should.have.status(200);
           res.should.exist;
-          res.body.should.have.property('name', kartoffel.name);
+          res.body.should.have.property('name', organizationGroup.name);
         }).catch((err) => { throw err; });
     });
   });
@@ -86,11 +86,11 @@ describe('Kartoffel API', () => {
     });
     it('Should return the updated groups from a certain date', async () => {
       const clock = sinon.useFakeTimers();
-      await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group_1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_1' });
       clock.tick(1000);
       const from = Date.now();
       clock.tick(1000);
-      await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group_2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2' });
 
       await chai.request(server)
             .get(BASE_URL + '/getUpdated/' + from)
@@ -142,7 +142,7 @@ describe('Kartoffel API', () => {
   });
   describe('/PUT adoption', () => {
     it('Should return 400 if null is sent', async () => {
-      const group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'MyGroup' });
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'MyGroup' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
         .send({ parentID: group._id })
@@ -164,7 +164,7 @@ describe('Kartoffel API', () => {
         );
     });
     it('Should fail if parent and child are the same', async () => {
-      const group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'MyGroup' });
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'MyGroup' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
         .send({ parentID: group._id, childID: group._id })
@@ -174,8 +174,8 @@ describe('Kartoffel API', () => {
         );
     });
     it('Should adopt (simple)', async() => {
-      let parent = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'parent' });
-      let child = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'child' });
+      let parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
       await chai.request(server)
             .put(BASE_URL + '/adoption')
             .send({ parentID: parent._id, childID: child._id })
@@ -184,8 +184,8 @@ describe('Kartoffel API', () => {
             }).catch((err) => {
               expect.fail(undefined, undefined, err.message);
             });
-      parent = await Kartoffel.getKartoffelOld(parent._id);
-      child = await Kartoffel.getKartoffelOld(child._id);
+      parent = await OrganizationGroup.getOrganizationGroupOld(parent._id);
+      child = await OrganizationGroup.getOrganizationGroupOld(child._id);
 
       parent.should.exist;
       parent.children.should.exist;
@@ -208,9 +208,9 @@ describe('Kartoffel API', () => {
         });
     });
     it('Should return 400 if group cannot be removed', async () => {
-      const group = await Kartoffel.createKartoffel(<IKartoffel>{ _id: ID_EXAMPLE, name: 'group' });
-      const child = await Kartoffel.createKartoffel(<IKartoffel>{ _id: ID_EXAMPLE_2, name: 'child' });
-      await Kartoffel.childrenAdoption(group._id, [child._id]);
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE_2, name: 'child' });
+      await OrganizationGroup.childrenAdoption(group._id, [child._id]);
       await chai.request(server)
         .del(BASE_URL + '/' + ID_EXAMPLE)
         .then(() => expect.fail(undefined, undefined, 'Should not succeed!'))
@@ -220,7 +220,7 @@ describe('Kartoffel API', () => {
         });
     });
     it('Should return successful result ', async () => {
-      const group = await Kartoffel.createKartoffel(<IKartoffel>{ _id: ID_EXAMPLE, name: 'group' });
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
       await chai.request(server)
         .del(BASE_URL + '/' + group._id)
         .then((res) => {

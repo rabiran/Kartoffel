@@ -1,10 +1,10 @@
 import * as mongoose from 'mongoose';
-import { IKartoffel } from './kartoffel.interface';
+import { IOrganizationGroup } from './organizationGroup.interface';
 import { UserModel as User } from '../../user/user.model';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-export const KartoffelSchema = new mongoose.Schema(
+export const OrganizationGroupSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -22,7 +22,7 @@ export const KartoffelSchema = new mongoose.Schema(
     },
     children: {
       type: [ObjectId],
-      ref: 'Kartoffel',
+      ref: 'OrganizationGroup',
       default: [],
     },
     clearance: {
@@ -31,7 +31,7 @@ export const KartoffelSchema = new mongoose.Schema(
     },
     ancestors: {
       type: [ObjectId],
-      ref: 'Kartoffel',
+      ref: 'OrganizationGroup',
       default: [],
     },
     hierarchy: {
@@ -52,37 +52,37 @@ export const KartoffelSchema = new mongoose.Schema(
     },
   });
 
-KartoffelSchema.virtual('directManagers', {
+OrganizationGroupSchema.virtual('directManagers', {
   ref: 'User',
   localField: '_id',
   foreignField: 'managedGroup',
   justOne: false,
 });
 
-KartoffelSchema.virtual('directMembers', {
+OrganizationGroupSchema.virtual('directMembers', {
   ref: 'User',
   localField: '_id',
   foreignField: 'directGroup',
   justOne: false,
 });
 
-// KartoffelSchema.virtual('id').get(function () {
+// OrganizationGroupSchema.virtual('id').get(function () {
 //   return this._id;
 // });
 
-// KartoffelSchema.virtual('childless').get(function () {
+// OrganizationGroupSchema.virtual('childless').get(function () {
 //   return this.children.length === 0;
 // });
 
-KartoffelSchema.pre('save', function (next) {
+OrganizationGroupSchema.pre('save', function (next) {
   if (!this.updatedAt) this.updatedAt = new Date;
   this.isALeaf = (this.children.length === 0);
   next();
 });
 
 
-KartoffelSchema.pre('update', function () {
+OrganizationGroupSchema.pre('update', function () {
   this.update({}, { $set: { updatedAt: new Date() } });
 });
 
-export const KartoffelModel = mongoose.model<IKartoffel>('Kartoffel', KartoffelSchema);
+export const OrganizationGroupModel = mongoose.model<IOrganizationGroup>('OrganizationGroup', OrganizationGroupSchema);

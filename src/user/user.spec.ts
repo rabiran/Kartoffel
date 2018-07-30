@@ -5,8 +5,8 @@ import * as userRouter from './user.route';
 import { User } from './user.controller';
 import { UserModel } from './user.model';
 import { IUser } from './user.interface';
-import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
-import { Kartoffel } from '../group/kartoffel/kartoffel.controller';
+import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
+import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError } from '../helpers/spec.helper';
 
 
@@ -191,11 +191,11 @@ describe('Users', () => {
     });
     it('Should update the user\'s group after that the user is removed', async () => {
       const user = await User.createUser(userExamples[0]);
-      let group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group' });
+      let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
       await User.assign(user._id, group._id);
       await User.removeUser(user._id);
 
-      group = await Kartoffel.getKartoffel(group._id, ['directMembers']);
+      group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
       group.directMembers.should.have.lengthOf(0);
     });
   });
@@ -211,11 +211,11 @@ describe('Users', () => {
     });
     it('Should update the user\'s group after that the user is discharged', async () => {
       const user = await User.createUser(userExamples[0]);
-      let group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group' });
+      let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
       await User.assign(user._id, group._id);
       await User.discharge(user._id);
 
-      group = await Kartoffel.getKartoffel(group._id, ['directMembers']);
+      group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
       group.directMembers.should.have.lengthOf(0);
     });
     it('Should not get a "dead" user with the regular get', async () => {
@@ -284,7 +284,7 @@ describe('Users', () => {
     describe('User Staffing', () => {
       it('Should throw an error if the user does not exist', async () => {
         await expectError(User.assign, ['1234567', DB_ID_EXAMPLE]);
-        const group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group' });
+        const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
         await expectError(User.assign, ['1234567', group._id]);
       });
       it('Should throw an error if the group does not exist', async () => {
@@ -293,12 +293,12 @@ describe('Users', () => {
       });
       it('Should assign user to group', async () => {
         let user = await User.createUser(<IUser>{ _id : '1234567', firstName: 'Avi', lastName: 'Ron' });
-        let group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group' });
+        let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
         await User.assign(user._id, group._id);
 
         // Check in the user and group after the update
         user = await User.getUser(user._id);
-        group = await Kartoffel.getKartoffel(group._id, ['directMembers']);
+        group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
         should.exist(user);
         should.exist(group);
         expect(user.directGroup.toString() === group._id.toString());
@@ -308,14 +308,14 @@ describe('Users', () => {
       });
       it('Should transfer a user from another group if he was assigned to one before', async() => {
         let user = await User.createUser(<IUser>{ _id : '1234567', firstName: 'Avi', lastName: 'Ron' });
-        let group1 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group1' });
-        let group2 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group2' });
+        let group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+        let group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
         await User.assign(user._id, group1._id);
         await User.assign(user._id, group2._id);
 
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffel(group1._id, ['directMembers']);
-        group2 = await Kartoffel.getKartoffel(group2._id, ['directMembers']);
+        group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers']);
+        group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers']);
 
         group1.directMembers.should.have.lengthOf(0);
         group2.directMembers.should.have.lengthOf(1);
@@ -326,7 +326,7 @@ describe('Users', () => {
     describe('Appoint as a leaf', () => {
       it('Should throw an error if the user does not exist', async () => {
         await expectError(User.manage, ['1234567', DB_ID_EXAMPLE]);
-        const group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group' });
+        const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
         await expectError(User.manage, ['1234567', group._id]);
       });
       it('Should throw an error if the group does not exist', async () => {
@@ -335,34 +335,33 @@ describe('Users', () => {
       });
       it('Should appoint as a manager', async () => {
         let user = await User.createUser(<IUser>{ _id : '1234567', firstName: 'Avi', lastName: 'Ron' });
-        let group = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group' });
+        let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
         await User.assign(user._id, group._id);
         await User.manage(user._id, group._id);
 
         // Check in the user and group after the update
         user = await User.getUser(user._id);
-        group = await Kartoffel.getKartoffel(group._id, ['directMembers', 'directManagers']);
+        group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers', 'directManagers']);
 
         should.exist(user);
         should.exist(group);
         expect(user.directGroup.toString() === group._id.toString());
         group.directMembers.should.have.lengthOf(1);
         expect(group.directMembers[0].toString() === user._id.toString());
-        console.log(group);
         group.directManagers.should.have.lengthOf(1);
         expect(group.directManagers[0].toString() === user._id.toString());
       });
       it('Should not transfer if in another group', async() => {
         let user = await User.createUser(<IUser>{ _id : '1234567', firstName: 'Avi', lastName: 'Ron' });
-        let group1 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group1' });
-        let group2 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'group2' });
+        let group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+        let group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
         await expectError(User.manage, [user._id, group2._id]);
         await User.assign(user._id, group1._id);
         await expectError(User.manage, [user._id, group2._id]);
         
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffel(group1._id, ['directMembers', 'directManagers']);
-        group2 = await Kartoffel.getKartoffel(group2._id, ['directMembers', 'directManagers']);
+        group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
+        group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
 
         group1.directMembers.should.have.lengthOf(1);
         group1.directManagers.should.have.lengthOf(0);
@@ -376,8 +375,8 @@ describe('Users', () => {
         await expectError(User.manage, [user._id, group2._id]);
         
         user = await User.getUser(user._id);
-        group1 = await Kartoffel.getKartoffel(group1._id, ['directMembers', 'directManagers']);
-        group2 = await Kartoffel.getKartoffel(group2._id, ['directMembers', 'directManagers']);
+        group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
+        group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
         group1.directMembers.should.have.lengthOf(1);
         group1.directManagers.should.have.lengthOf(1);
         group2.directMembers.should.have.lengthOf(0);
@@ -388,24 +387,24 @@ describe('Users', () => {
 });
 
 async function bigTree() {
-  const seldag = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Seldag' });
-  const ariandel = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Ariandel' });
+  const seldag = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Seldag' });
+  const ariandel = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Ariandel' });
 
-  const parent_1 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Sheep' });
-  const parent_2 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'A sheep' });
-  const parent_3 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'And a sheep' });
+  const parent_1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Sheep' });
+  const parent_2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'A sheep' });
+  const parent_3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'And a sheep' });
 
-  const child_11 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 1.1' });
-  const child_21 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 2.1' });
-  const child_22 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 2.2' });
-  const child_31 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 3.1' });
-  const child_32 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 3.2' });
-  const child_33 = await Kartoffel.createKartoffel(<IKartoffel>{ name: 'Child 3.3' });
+  const child_11 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 1.1' });
+  const child_21 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2.1' });
+  const child_22 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2.2' });
+  const child_31 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.1' });
+  const child_32 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.2' });
+  const child_33 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.3' });
 
-  await Kartoffel.childrenAdoption(seldag._id, [parent_1._id, parent_2._id, parent_3._id]);
-  await Kartoffel.childrenAdoption(parent_1._id, [child_11._id]);
-  await Kartoffel.childrenAdoption(parent_2._id, [child_21._id, child_22._id]);
-  await Kartoffel.childrenAdoption(parent_3._id, [child_31._id, child_32._id, child_33._id]);
+  await OrganizationGroup.childrenAdoption(seldag._id, [parent_1._id, parent_2._id, parent_3._id]);
+  await OrganizationGroup.childrenAdoption(parent_1._id, [child_11._id]);
+  await OrganizationGroup.childrenAdoption(parent_2._id, [child_21._id, child_22._id]);
+  await OrganizationGroup.childrenAdoption(parent_3._id, [child_31._id, child_32._id, child_33._id]);
 
   const user_11 =  await  User.createUser(<IUser>{ _id : '0000011', firstName: 'A', lastName: 'A' });
   const user_12 =  await  User.createUser(<IUser>{ _id : '0000012', firstName: 'B', lastName: 'A' });
@@ -435,7 +434,7 @@ async function bigTree() {
 }
 
 async function printTreeHeavy(sourceID: string, deep = 0) {
-  const source = await Kartoffel.getKartoffelOld(sourceID);
+  const source = await OrganizationGroup.getOrganizationGroupOld(sourceID);
   let pre = '';
   for (let i = 0; i < deep; i++) {
     pre += '  ';
