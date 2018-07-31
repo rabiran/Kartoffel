@@ -33,12 +33,26 @@ export const expectError = async (func: Function, params: any[]) => {
   isError.should.be.true;
 };
 
+async function cleanDatabase(modelNames: string[]) {
+  await mongoose.connection.dropDatabase();
+  await Promise.all(modelNames.map(modelName =>
+    mongoose.model(modelName).ensureIndexes()));
+}
+
+async function removeAllDocuments(modelNames: string[]) {
+  await Promise.all(modelNames.map(modelName =>
+    mongoose.model(modelName).remove({}).exec()));
+}
+
 before(async () => {
-  mongoose.connect(process.env.MONGODB_TEST_URI);
+  await mongoose.connect(process.env.MONGODB_TEST_URI, { useMongoClient: true });
+  const modelNames: string[] = mongoose.modelNames();
+  await cleanDatabase(modelNames);
 });
 
 beforeEach(async () => {
-  await mongoose.connection.dropDatabase();
+  const modelNames: string[] = mongoose.modelNames();
+  await removeAllDocuments(modelNames);
 });
 
 after((done) => {
