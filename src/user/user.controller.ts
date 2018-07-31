@@ -24,7 +24,7 @@ export class User {
     return <IUser[]>users;
   }
 
-  static async getUser(userID: string): Promise<IUser> {
+  static async getUser(userID: ObjectId): Promise<IUser> {
     const user = await User._userRepository.findById(userID);
     if (!user) return Promise.reject(new Error('Cannot find user with ID: ' + userID));
     return <IUser>user;
@@ -50,7 +50,7 @@ export class User {
     return <IUser>newUser;
   }
 
-  static async discharge(userID: string): Promise<any> {
+  static async discharge(userID: ObjectId): Promise<any> {
     let user = await User.getUser(userID);
 
     // If the user was in a group, notify it
@@ -63,7 +63,7 @@ export class User {
     return res;
   }
 
-  static async removeUser(userID: string): Promise<any> {
+  static async removeUser(userID: ObjectId): Promise<any> {
     const res = await User._userRepository.delete(userID);
     return res.result.n > 0 ? res.result : Promise.reject(new Error('Cannot find user with ID: ' + userID));
   }
@@ -74,14 +74,14 @@ export class User {
     return <IUser>updatedUser;
   }
 
-  static async updateTeam(userID: string, newTeamID: ObjectId): Promise<IUser> {
+  static async updateTeam(userID: ObjectId, newTeamID: ObjectId): Promise<IUser> {
     const user = await User.getUser(userID);
     user.directGroup = newTeamID;
     return await User.updateUser(user);
   }
 
   // Will transfer user between groups automatically. Is that what we want?
-  static async assign(userID: string, groupID: string): Promise<IUser> {
+  static async assign(userID: ObjectId, groupID: string): Promise<IUser> {
     let user = await User.getUser(userID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
@@ -91,7 +91,7 @@ export class User {
   }
 
   // Will delete managedGroup too
-  static async dismiss(userID: string) {
+  static async dismiss(userID: ObjectId) {
     let user = await User.getUser(userID);
     if (!user.directGroup) return;
 
@@ -101,7 +101,7 @@ export class User {
     return user;
   }
 
-  static async manage(userID: string, groupID: string) {
+  static async manage(userID: ObjectId, groupID: string) {
     const user = await User.getUser(userID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
     
@@ -114,7 +114,7 @@ export class User {
     return;
   }
 
-  static async resign(userID: string) {
+  static async resign(userID: ObjectId) {
     const user = await User.getUser(userID);
     user.managedGroup = undefined;
     await User.updateUser(user);

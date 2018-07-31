@@ -244,7 +244,7 @@ describe('Users', () => {
         await expectError(User.createUser, [user]);
         user.primaryUser = 'aviron@securesod';
         await expectError(User.createUser, [user]);
-        user.primaryUser = '@secure.sod'; 
+        user.primaryUser = '@secure.sod';
         await expectError(User.createUser, [user]);
         user.primaryUser = 'aviron@.sod';
         await expectError(User.createUser, [user]);
@@ -259,7 +259,7 @@ describe('Users', () => {
         await expectError(User.createUser, [user]);
       });
       it('Should throw an error when Name strings are empty', async () => {
-        const user =  { ...userExamples[1] };
+        const user = { ...userExamples[1] };
         user.firstName = '';
         await expectError(User.createUser, [user]);
         user.firstName = 'Avi';
@@ -300,7 +300,7 @@ describe('Users', () => {
         await expectError(User.createUser, [user]);
         user.mail = 'aviron@gmail.';
         await expectError(User.createUser, [user]);
-      }); 
+      });
       it('Should throw an error when Phone is invalid', async () => {
         const user = { ...userExamples[1] };
         user.phone = ['BlaBla'];
@@ -444,7 +444,7 @@ describe('Users', () => {
       user.job = 'Programmer';
       user.rank = 'Skilled';
       user.responsibility = 'HR';
-      user.responsibilityLocation = new ObjectId(dbIdExample[0]); 
+      user.responsibilityLocation = new ObjectId(dbIdExample[0]);
 
       const updatedUser = await User.updateUser(user);
       should.exist(updatedUser);
@@ -467,7 +467,7 @@ describe('Users', () => {
       user.job = 'Programmer';
       user.rank = 'Skilled';
       user.responsibility = 'SecurityOfficer';
-      user.responsibilityLocation = new ObjectId(dbIdExample[0]); 
+      user.responsibilityLocation = new ObjectId(dbIdExample[0]);
 
       await User.updateUser(user);
       const updatedUser = await User.getUser(user._id);
@@ -609,17 +609,107 @@ async function bigTree() {
   await OrganizationGroup.childrenAdoption(parent_2._id, [child_21._id, child_22._id]);
   await OrganizationGroup.childrenAdoption(parent_3._id, [child_31._id, child_32._id, child_33._id]);
 
-  const user_11 = await User.createUser(<IUser>{ _id: '0000011', firstName: 'A', lastName: 'A' });
-  const user_12 = await User.createUser(<IUser>{ _id: '0000012', firstName: 'B', lastName: 'A' });
-  const user_21 = await User.createUser(<IUser>{ _id: '0000021', firstName: 'A', lastName: 'B' });
-  const user_111 = await User.createUser(<IUser>{ _id: '0000111', firstName: 'A', lastName: 'AA' });
-  const user_221 = await User.createUser(<IUser>{ _id: '0000221', firstName: 'A', lastName: 'BB' });
-  const user_311 = await User.createUser(<IUser>{ _id: '0000311', firstName: 'A', lastName: 'CA' });
-  const user_312 = await User.createUser(<IUser>{ _id: '0000312', firstName: 'B', lastName: 'CA' });
-  const user_331 = await User.createUser(<IUser>{ _id: '0000331', firstName: 'A', lastName: 'CC' });
+  const user_11 = await User.createUser(<IUser>{
+    identityCard: '000000011',
+    personalNumber: '0000011',
+    primaryUser: 'user_11@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_12 = await User.createUser(<IUser>{
+    identityCard: '000000012',
+    personalNumber: '0000012',
+    primaryUser: 'user_12@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_21 = await User.createUser(<IUser>{
+    identityCard: '000000021',
+    personalNumber: '0000021',
+    primaryUser: 'user_21@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_111 = await User.createUser(<IUser>{
+    identityCard: '000000111',
+    personalNumber: '0000111',
+    primaryUser: 'user_111@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_221 = await User.createUser(<IUser>{
+    identityCard: '000000221',
+    personalNumber: '0000221',
+    primaryUser: 'user_221@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_311 = await User.createUser(<IUser>{
+    identityCard: '000000311',
+    personalNumber: '0000311',
+    primaryUser: 'user_311@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_312 = await User.createUser(<IUser>{
+    identityCard: '000000312',
+    personalNumber: '0000312',
+    primaryUser: 'user_312@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const user_331 = await User.createUser(<IUser>{
+    identityCard: '000000331',
+    personalNumber: '0000331',
+    primaryUser: 'user_331@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
 
-  const friede = await User.createUser(<IUser>{ _id: '1000001', firstName: 'Sister', lastName: 'Friede' });
-  const gale = await User.createUser(<IUser>{ _id: '1000002', firstName: 'Uncle', lastName: 'Gale' });
+  const friede = await User.createUser(<IUser>{
+    identityCard: '100000001',
+    personalNumber: '1000001',
+    primaryUser: '100001@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
+  const gale = await User.createUser(<IUser>{
+    identityCard: '100000002',
+    personalNumber: '1000002',
+    primaryUser: '1000002@surprise.sod',
+    firstName: 'Mazal',
+    lastName: 'Tov',
+    dischargeDay: new Date(2022, 11),
+    hierarchy: ['birthday', 'anniversary'],
+    job: 'parent',
+  });
 
   await User.assign(user_11._id, parent_1._id);
   await User.assign(user_12._id, parent_1._id);

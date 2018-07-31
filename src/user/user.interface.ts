@@ -5,7 +5,7 @@ import { ObjectId } from 'bson';
 
 export interface IUser extends Document {
 // User's Basic information
-  _id: string;
+  _id: ObjectId;
   identityCard: string;
   personalNumber: string;
   primaryUser: string;
