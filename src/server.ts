@@ -14,7 +14,7 @@ import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
 
 import * as userRouter from './user/user.route';
-import * as kartoffelRouter from './group/kartoffel/kartoffel.route';
+import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 
 const app = express();
 
@@ -60,7 +60,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api/user', userRouter);
-app.use('/api/kartoffel', kartoffelRouter);
+app.use('/api/organizationGroup', organizationGroupRouter);
 
 /**
  * Error Handler. Provides full stack - remove for production

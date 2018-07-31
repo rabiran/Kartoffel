@@ -1,16 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserRepository } from './user.repository';
 import { IUser } from './user.interface';
-import { IKartoffel } from '../group/kartoffel/kartoffel.interface';
-import { Kartoffel } from '../group/kartoffel/kartoffel.controller';
-import { KartoffelRepository } from '../group/kartoffel/kartoffel.repository';
+import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
+import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
+import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
 import { Rank } from '../utils';
 import { Document } from 'mongoose';
+import { ObjectId } from 'bson';
 
 export class User {
   static _userRepository: UserRepository = new UserRepository();
   _userService: UserRepository;
-  static _kartoffelRepository: KartoffelRepository = new KartoffelRepository();
+  static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
 
   constructor() {
     this._userService = new UserRepository();
@@ -23,7 +24,7 @@ export class User {
     return <IUser[]>users;
   }
 
-  static async getUser(userID: string): Promise<IUser> {
+  static async getUser(userID: ObjectId): Promise<IUser> {
     const user = await User._userRepository.findById(userID);
     if (!user) return Promise.reject(new Error('Cannot find user with ID: ' + userID));
     return <IUser>user;
@@ -34,11 +35,11 @@ export class User {
     return <IUser[]>users;
   }
 
-  static async getKartoffelMembers(groupID: string): Promise<IUser[]> {
+  static async getOrganizationGroupMembers(groupID: string): Promise<IUser[]> {
     // check that this group exists
-    const group = await Kartoffel.getKartoffelOld(groupID);
+    const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
 
-    const offsprings = <IKartoffel[]>(await this._kartoffelRepository.getOffsprings(groupID));
+    const offsprings = <IOrganizationGroup[]>(await this._organizationGroupRepository.getOffsprings(groupID));
     const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => (<string[]>a).concat(<string[]>b));
     const members = <IUser[]>await this._userRepository.getSome(<string[]>membersIDs);
     return members;
@@ -49,19 +50,20 @@ export class User {
     return <IUser>newUser;
   }
 
-  static async discharge(userID: string): Promise<any> {
-    const user = await User.getUser(userID);
+  static async discharge(userID: ObjectId): Promise<any> {
+    let user = await User.getUser(userID);
 
     // If the user was in a group, notify it
-    if (user && user.directGroup) await User.dismiss(userID);
+    if (user && user.directGroup) {
+      user = await User.dismiss(userID);
+    }
 
     user.alive = false;
-    user.directGroup = null;
     const res = await User._userRepository.update(user);
-    return { ok: 1 };
+    return res;
   }
 
-  static async removeUser(userID: string): Promise<any> {
+  static async removeUser(userID: ObjectId): Promise<any> {
     const res = await User._userRepository.delete(userID);
     return res.result.n > 0 ? res.result : Promise.reject(new Error('Cannot find user with ID: ' + userID));
   }
@@ -72,36 +74,36 @@ export class User {
     return <IUser>updatedUser;
   }
 
-  static async updateTeam(userID: string, newTeamID: string): Promise<IUser> {
+  static async updateTeam(userID: ObjectId, newTeamID: ObjectId): Promise<IUser> {
     const user = await User.getUser(userID);
     user.directGroup = newTeamID;
     return await User.updateUser(user);
   }
 
   // Will transfer user between groups automatically. Is that what we want?
-  static async assign(userID: string, groupID: string): Promise<void> {
-    const user = await User.getUser(userID);
-    const group = await Kartoffel.getKartoffel(groupID);
+  static async assign(userID: ObjectId, groupID: string): Promise<IUser> {
+    let user = await User.getUser(userID);
+    const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
     user.directGroup = group._id;
-    await User.updateUser(user);
-    return;
+    user = await User.updateUser(user);
+    return <IUser>user;
   }
 
   // Will delete managedGroup too
-  static async dismiss(userID: string) {
-    const user = await User.getUser(userID);
+  static async dismiss(userID: ObjectId) {
+    let user = await User.getUser(userID);
     if (!user.directGroup) return;
 
     user.directGroup = null;
-    user.managedGroup = null;
-    await User.updateUser(user);
-    return;
+    if (user.managedGroup) user.managedGroup = null;
+    user = await User.updateUser(user);
+    return user;
   }
 
-  static async manage(userID: string, groupID: string) {
+  static async manage(userID: ObjectId, groupID: string) {
     const user = await User.getUser(userID);
-    const group = await Kartoffel.getKartoffel(groupID);
+    const group = await OrganizationGroup.getOrganizationGroup(groupID);
     
     if (String(user.directGroup) !== String(groupID)) {
       return Promise.reject(new Error('This user is not a member in this group, hence can not be appointed as a leaf'));
@@ -112,7 +114,7 @@ export class User {
     return;
   }
 
-  static async resign(userID: string) {
+  static async resign(userID: ObjectId) {
     const user = await User.getUser(userID);
     user.managedGroup = undefined;
     await User.updateUser(user);

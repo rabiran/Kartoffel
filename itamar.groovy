@@ -1,3 +1,4 @@
+
 pipeline {
     agent none
     stages {
@@ -11,7 +12,7 @@ pipeline {
             steps {
                 sh 'sudo service mongod start'
                 sh 'npm install'
-                sh 'npm test'
+                sh 'NODE_ENV=dev MONGODB_TEST_URI=mongodb://localhost:27017/organizationGroupTest SESSION_SECRET=just_an_exampl npm test'
             }
         }
         stage ('deploy') {
