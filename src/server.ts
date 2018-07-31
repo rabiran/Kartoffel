@@ -13,7 +13,7 @@ import * as _             from 'lodash';
 import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
 
-import * as userRouter from './user/user.route';
+import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 
 const app = express();
@@ -59,7 +59,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/api/user', userRouter);
+app.use('/api/person', personRouter);
 app.use('/api/organizationGroup', organizationGroupRouter);
 
 /**

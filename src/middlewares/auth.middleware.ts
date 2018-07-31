@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../user/user.controller';
+import { Person } from '../person/person.controller';
 
 // TODO: Implement this!
 export class AuthMiddleware {

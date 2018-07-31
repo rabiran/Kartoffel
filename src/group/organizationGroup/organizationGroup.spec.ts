@@ -3,8 +3,8 @@ import * as sinon from 'sinon';
 import { OrganizationGroup } from './organizationGroup.controller';
 import { OrganizationGroupModel } from './organizationGroup.model';
 import { IOrganizationGroup } from './organizationGroup.interface';
-import { User } from '../../user/user.controller';
-import { IUser } from '../../user/user.interface';
+import { Person } from '../../person/person.controller';
+import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
 
 
@@ -276,80 +276,80 @@ async function bigTree() {
   await OrganizationGroup.childrenAdoption(parent_2._id, [child_21._id, child_22._id]);
   await OrganizationGroup.childrenAdoption(parent_3._id, [child_31._id, child_32._id, child_33._id]);
 
-  const user_11 = await User.createUser(<IUser>{
+  const person_11 = await Person.createPerson(<IPerson>{
     identityCard: '000000011',
     personalNumber: '0000011',
-    primaryUser: 'user_11@surprise.sod',
+    primaryPerson: 'person_11@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const user_12 = await User.createUser(<IUser>{
+  const person_12 = await Person.createPerson(<IPerson>{
     identityCard: '000000012',
     personalNumber: '0000012',
-    primaryUser: 'user_12@surprise.sod',
+    primaryPerson: 'person_12@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const user_21 = await User.createUser(<IUser>{
+  const person_21 = await Person.createPerson(<IPerson>{
     identityCard: '000000021',
     personalNumber: '0000021',
-    primaryUser: 'user_21@surprise.sod',
+    primaryPerson: 'person_21@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const user_111 = await User.createUser(<IUser>{
+  const person_111 = await Person.createPerson(<IPerson>{
     identityCard: '000000111',
     personalNumber: '0000111',
-    primaryUser: 'user_111@surprise.sod',
+    primaryPerson: 'person_111@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const user_221 = await User.createUser(<IUser>{
+  const person_221 = await Person.createPerson(<IPerson>{
     identityCard: '000000221',
     personalNumber: '0000221',
-    primaryUser: 'user_221@surprise.sod',
+    primaryPerson: 'person_221@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const user_311 = await User.createUser(<IUser>{
+  const person_311 = await Person.createPerson(<IPerson>{
     identityCard: '000000311',
     personalNumber: '0000311',
-    primaryUser: 'user_311@surprise.sod',
+    primaryPerson: 'person_311@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const user_312 = await User.createUser(<IUser>{
+  const person_312 = await Person.createPerson(<IPerson>{
     identityCard: '000000312',
     personalNumber: '0000312',
-    primaryUser: 'user_312@surprise.sod',
+    primaryPerson: 'person_312@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const user_331 = await User.createUser(<IUser>{
+  const person_331 = await Person.createPerson(<IPerson>{
     identityCard: '000000331',
     personalNumber: '0000331',
-    primaryUser: 'user_331@surprise.sod',
+    primaryPerson: 'person_331@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -357,20 +357,20 @@ async function bigTree() {
     job: 'parent',
   });
 
-  const friede = await User.createUser(<IUser>{ 
+  const friede = await Person.createPerson(<IPerson>{ 
     identityCard: '100000001',
     personalNumber: '1000001',
-    primaryUser: '100001@surprise.sod',
+    primaryPerson: '100001@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
   });
-  const gale = await User.createUser(<IUser>{ 
+  const gale = await Person.createPerson(<IPerson>{ 
     identityCard: '100000002',
     personalNumber: '1000002',
-    primaryUser: '1000002@surprise.sod',
+    primaryPerson: '1000002@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -378,17 +378,17 @@ async function bigTree() {
     job: 'parent',
   });
 
-  await User.assign(user_11._id, parent_1._id);
-  await User.assign(user_12._id, parent_1._id);
-  await User.assign(user_21._id, parent_2._id);
-  await User.assign(user_111._id, child_11._id);
-  await User.assign(user_221._id, child_22._id);
-  await User.assign(user_311._id, child_31._id);
-  await User.assign(user_312._id, child_31._id);
-  await User.assign(user_331._id, child_33._id);
+  await Person.assign(person_11._id, parent_1._id);
+  await Person.assign(person_12._id, parent_1._id);
+  await Person.assign(person_21._id, parent_2._id);
+  await Person.assign(person_111._id, child_11._id);
+  await Person.assign(person_221._id, child_22._id);
+  await Person.assign(person_311._id, child_31._id);
+  await Person.assign(person_312._id, child_31._id);
+  await Person.assign(person_331._id, child_33._id);
 
-  await User.assign(friede._id, ariandel._id);
-  await User.assign(gale._id, ariandel._id);
+  await Person.assign(friede._id, ariandel._id);
+  await Person.assign(gale._id, ariandel._id);
 
   return seldag;
 }

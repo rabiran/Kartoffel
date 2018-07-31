@@ -4,7 +4,7 @@ import { controllerHandler as ch } from '../../helpers/controller.helper';
 import { PermissionMiddleware } from '../../middlewares/permission.middleware';
 import { AuthMiddleware } from '../../middlewares/auth.middleware';
 import { OrganizationGroup } from './organizationGroup.controller';
-import { User } from '../../user/user.controller';
+import { Person } from '../../person/person.controller';
 import { IOrganizationGroup, ORGANIZATION_GROUP_BASIC_FIELDS } from './organizationGroup.interface';
 import { GroupRouteParamsValidate as Vld, validatorMiddleware } from './organizationGroup.route.validator';
 // import { body, param, check, validationResult } from 'express-validator/check';

@@ -41,7 +41,7 @@ describe('OrganizationGroup API', () => {
           res.should.have.status(200);
           res.body.should.be.an('array');
           res.body.length.should.be.eql(2);
-          const users = res.body;
+          const persons = res.body;
         }).catch((err) => { throw err; });
     });
   });
@@ -128,8 +128,8 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           res.should.exist;
           res.should.have.status(200);
-          const user = res.body;
-          user.should.have.property('name', 'Biran');
+          const person = res.body;
+          person.should.have.property('name', 'Biran');
           done();
         });
     });

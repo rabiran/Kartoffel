@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../user/user.controller';
+import { Person } from '../person/person.controller';
 
 // TODO: Implement this!
 export class PermissionMiddleware {
@@ -7,8 +7,8 @@ export class PermissionMiddleware {
   public static async hasBasicPermission(req: Request, res: Response, next: NextFunction) {
     return next();
   }
-    // Permission to change user custom data
-  public static async hasUsersPermission(req: Request, res: Response, next: NextFunction) {
+    // Permission to change person custom data
+  public static async hasPersonsPermission(req: Request, res: Response, next: NextFunction) {
     return next();
   }
     // Stronger Permissions

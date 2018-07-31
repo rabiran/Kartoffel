@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { OrganizationGroupRepository } from './organizationGroup.repository';
 import { IOrganizationGroup, ORGANIZATION_GROUP_OBJECT_FIELDS, ORGANIZATION_GROUP_KEYS } from './organizationGroup.interface';
-import { User } from '../../user/user.controller';
-import { IUser } from '../../user/user.interface';
-import { UserRepository } from '../../user/user.repository';
+import { Person } from '../../person/person.controller';
+import { IPerson } from '../../person/person.interface';
+import { PersonRepository } from '../../person/person.repository';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
-  static _userRepository: UserRepository = new UserRepository();
+  static _personRepository: PersonRepository = new PersonRepository();
 
   static async getAllOrganizationGroups(): Promise<IOrganizationGroup[]> {
     const organizationGroups = await OrganizationGroup._organizationGroupRepository.getAll();
@@ -64,8 +64,8 @@ export class OrganizationGroup {
   }
 
   static async getUpdatedFrom(from: Date, to: Date) {
-    const users = await OrganizationGroup._organizationGroupRepository.getUpdatedFrom(from, to);
-    return <IOrganizationGroup[]>users;
+    const persons = await OrganizationGroup._organizationGroupRepository.getUpdatedFrom(from, to);
+    return <IOrganizationGroup[]>persons;
   }
 
   static async updateOrganizationGroup(updateTo: IOrganizationGroup): Promise<IOrganizationGroup> {
@@ -159,10 +159,10 @@ export class OrganizationGroup {
     return <string[]>organizationGroup.ancestors;
   }
 
-  private static async isMember(groupID: string, userID: string): Promise<boolean> {
+  private static async isMember(groupID: string, personID: string): Promise<boolean> {
     const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
     const members = group.members;
-    return _.includes(<string[]>members, userID);
+    return _.includes(<string[]>members, personID);
   }
 
   private static async getHierarchyFromAncestors(groupID: string, group?: IOrganizationGroup): Promise<string[]> {
@@ -177,19 +177,19 @@ export class OrganizationGroup {
     return newHierarchy;
   }
 
-  static async getAllMembers(groupID: string): Promise<IUser[]> {
+  static async getAllMembers(groupID: string): Promise<IPerson[]> {
     // check that this group exists
     const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
 
     // const offsprings = <IOrganizationGroup[]>(await OrganizationGroup._organizationGroupRepository.getOffsprings(groupID));
     // const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => (<string[]>a).concat(<string[]>b));
-    // const members = <IUser[]>await OrganizationGroup._userRepository.getSome(<string[]>membersIDs);
+    // const members = <IPerson[]>await OrganizationGroup._personRepository.getSome(<string[]>membersIDs);
     // return members;
 
     const offsprings = await OrganizationGroup._organizationGroupRepository.getOffspringsIds(groupID);
     const offspringIDs = offsprings.map(offspring => offspring._id);
     offspringIDs.push(groupID);
-    const members = <IUser[]> await OrganizationGroup._userRepository.getMembersOfGroups(offspringIDs);
+    const members = <IPerson[]> await OrganizationGroup._personRepository.getMembersOfGroups(offspringIDs);
     return members;
   }
 }
