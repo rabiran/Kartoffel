@@ -4,7 +4,7 @@ import { controllerHandler as ch } from '../helpers/controller.helper';
 import { PermissionMiddleware } from '../middlewares/permission.middleware';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { Person } from './person.controller';
-import { IPerson, PERSONAL_FIELDS, PERSON_FIELDS } from './person.interface';
+import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
 import { PersonRouteParamsValidate as Vld, validatorMiddleware } from './person.route.validator';
 
 // const person = new Person();
@@ -42,7 +42,7 @@ persons.put('/:id/personal',
           PermissionMiddleware.hasPersonsPermission,
           ch(Person.updatePerson, (req: Request, res: Response) => {
             if (req.params.id !== req.body._id) return res.status(400).send('Person ID doesn\'t match');
-            const toUpdate = filterObjectByKeys(req.body, PERSONAL_FIELDS.concat('_id'));
+            const toUpdate = filterObjectByKeys(req.body, EDITABLE_FIELDS.concat('_id'));
             return [toUpdate];
           }, 404));
 

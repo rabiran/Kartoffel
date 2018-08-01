@@ -8,8 +8,8 @@ export interface IPerson extends Document {
   _id: ObjectId;
   identityCard: string;
   personalNumber: string;
-  primaryPerson: string;
-  secondaryPersons: string[];
+  primaryDomainUser: string;
+  secondaryDomainUsers: string[];
   serviceType: string;
   firstName: string;
   lastName: string;
@@ -34,7 +34,7 @@ export interface IPerson extends Document {
   clearance: string;
 }
 
-export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
-export const PERSON_FIELDS = PERSONAL_FIELDS.concat(
-  ['primaryPerson', 'secondaryPersons', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
+export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
+export const PERSON_FIELDS = EDITABLE_FIELDS.concat(
+  ['primaryDomainUser', 'secondaryDomainUsers', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
     'dischargeDay', 'hierarchy', 'directGroup', 'managedGroup', 'rank', 'alive', 'responsibility', 'responsibilityLocation', 'clearance']);

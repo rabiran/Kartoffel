@@ -20,7 +20,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '234567891',
     personalNumber: '3456712',
-    primaryPerson: 'mazaltov@surprise.sod',
+    primaryDomainUser: 'mazaltov@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -30,7 +30,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '567891234',
     personalNumber: '1234567',
-    primaryPerson: 'yonatantal@development.sod',
+    primaryDomainUser: 'yonatantal@development.sod',
     firstName: 'Yonatan',
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
@@ -40,7 +40,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '123456789',
     personalNumber: '2345671',
-    primaryPerson: 'aviron@secure.sod',
+    primaryDomainUser: 'aviron@secure.sod',
     firstName: 'Avi',
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
@@ -51,7 +51,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '345678912',
     personalNumber: '4567123',
-    primaryPerson: 'elikopter@secure.sod',
+    primaryDomainUser: 'elikopter@secure.sod',
     firstName: 'Eli',
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
@@ -65,7 +65,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '456789123',
     personalNumber: '5671234',
-    primaryPerson: 'tikipoor@cosmetician.sod',
+    primaryDomainUser: 'tikipoor@cosmetician.sod',
     firstName: 'Tiki',
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),

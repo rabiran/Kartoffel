@@ -22,7 +22,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '123456789',
     personalNumber: '2345671',
-    primaryPerson: 'aviron@secure.sod',
+    primaryDomainUser: 'aviron@secure.sod',
     firstName: 'Avi',
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
@@ -33,7 +33,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '234567891',
     personalNumber: '3456712',
-    primaryPerson: 'mazaltov@surprise.sod',
+    primaryDomainUser: 'mazaltov@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -43,7 +43,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '345678912',
     personalNumber: '4567123',
-    primaryPerson: 'elikopter@secure.sod',
+    primaryDomainUser: 'elikopter@secure.sod',
     firstName: 'Eli',
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
@@ -57,7 +57,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '456789123',
     personalNumber: '5671234',
-    primaryPerson: 'tikipoor@cosmetician.sod',
+    primaryDomainUser: 'tikipoor@cosmetician.sod',
     firstName: 'Tiki',
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
@@ -67,7 +67,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '567891234',
     personalNumber: '1234567',
-    primaryPerson: 'yonatantal@development.sod',
+    primaryDomainUser: 'yonatantal@development.sod',
     firstName: 'Yonatan',
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
@@ -133,7 +133,7 @@ describe('Persons', () => {
       should.exist(person);
       person.should.have.property('identityCard', '567891234');
       person.should.have.property('personalNumber', '1234567');
-      person.should.have.property('primaryPerson', 'yonatantal@development.sod');
+      person.should.have.property('primaryDomainUser', 'yonatantal@development.sod');
       person.should.have.property('firstName', 'Yonatan');
       person.should.have.property('lastName', 'Tal');
       person.should.have.property('dischargeDay', personExamples[4].dischargeDay);
@@ -148,7 +148,7 @@ describe('Persons', () => {
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
         ...personExamples[4],
-        secondaryPersons: ['yonatantal@programer.sod', 'yonatantal@special.sod'],
+        secondaryDomainUsers: ['yonatantal@programer.sod', 'yonatantal@special.sod'],
         serviceType: 'standing army',
         mail: 'yonatan@work.com',
         phone: ['023456789', '02-3456389'],
@@ -165,9 +165,9 @@ describe('Persons', () => {
       should.exist(person);
       person.should.have.property('identityCard', newPerson.identityCard);
       person.should.have.property('personalNumber', newPerson.personalNumber);
-      person.should.have.property('primaryPerson', newPerson.primaryPerson);
-      person.should.have.property('secondaryPersons');
-      person.secondaryPersons.should.have.members(newPerson.secondaryPersons);
+      person.should.have.property('primaryDomainUser', newPerson.primaryDomainUser);
+      person.should.have.property('secondaryDomainUsers');
+      person.secondaryDomainUsers.should.have.members(newPerson.secondaryDomainUsers);
       person.should.have.property('serviceType', newPerson.serviceType);
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
@@ -200,7 +200,7 @@ describe('Persons', () => {
         person.personalNumber = '';
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
-        delete person.primaryPerson;
+        delete person.primaryDomainUser;
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.firstName;
@@ -238,24 +238,24 @@ describe('Persons', () => {
       });
       it('Should throw an error when primary person is not valid', async () => {
         const person = { ...personExamples[1] };
-        person.primaryPerson = 'aviron@secure.';
+        person.primaryDomainUser = 'aviron@secure.';
         await expectError(Person.createPerson, [person]);
-        person.primaryPerson = 'avironsecure.sod';
+        person.primaryDomainUser = 'avironsecure.sod';
         await expectError(Person.createPerson, [person]);
-        person.primaryPerson = 'aviron@securesod';
+        person.primaryDomainUser = 'aviron@securesod';
         await expectError(Person.createPerson, [person]);
-        person.primaryPerson = '@secure.sod';
+        person.primaryDomainUser = '@secure.sod';
         await expectError(Person.createPerson, [person]);
-        person.primaryPerson = 'aviron@.sod';
+        person.primaryDomainUser = 'aviron@.sod';
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when secondary persons is not valid', async () => {
         const person = { ...personExamples[1] };
-        person.secondaryPersons = ['avi@secure.sod', 'ron@.sod'];
+        person.secondaryDomainUsers = ['avi@secure.sod', 'ron@.sod'];
         await expectError(Person.createPerson, [person]);
-        person.secondaryPersons = ['@secure.sod', 'ron@secure.sod'];
+        person.secondaryDomainUsers = ['@secure.sod', 'ron@secure.sod'];
         await expectError(Person.createPerson, [person]);
-        person.secondaryPersons = ['avi@secure.sod', 'ron@secure'];
+        person.secondaryDomainUsers = ['avi@secure.sod', 'ron@secure'];
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when Name strings are empty', async () => {
@@ -353,7 +353,7 @@ describe('Persons', () => {
       it('Should throw an error when existed primary person is given', async () => {
         await Person.createPerson(<IPerson>{ ...personExamples[1] });
         const person = { ...personExamples[3] };
-        person.primaryPerson = personExamples[1].primaryPerson;
+        person.primaryDomainUser = personExamples[1].primaryDomainUser;
         await expectError(Person.createPerson, [person]);
       });
     });
@@ -612,7 +612,7 @@ async function bigTree() {
   const person_11 = await Person.createPerson(<IPerson>{
     identityCard: '000000011',
     personalNumber: '0000011',
-    primaryPerson: 'person_11@surprise.sod',
+    primaryDomainUser: 'person_11@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -622,7 +622,7 @@ async function bigTree() {
   const person_12 = await Person.createPerson(<IPerson>{
     identityCard: '000000012',
     personalNumber: '0000012',
-    primaryPerson: 'person_12@surprise.sod',
+    primaryDomainUser: 'person_12@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -632,7 +632,7 @@ async function bigTree() {
   const person_21 = await Person.createPerson(<IPerson>{
     identityCard: '000000021',
     personalNumber: '0000021',
-    primaryPerson: 'person_21@surprise.sod',
+    primaryDomainUser: 'person_21@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -642,7 +642,7 @@ async function bigTree() {
   const person_111 = await Person.createPerson(<IPerson>{
     identityCard: '000000111',
     personalNumber: '0000111',
-    primaryPerson: 'person_111@surprise.sod',
+    primaryDomainUser: 'person_111@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -652,7 +652,7 @@ async function bigTree() {
   const person_221 = await Person.createPerson(<IPerson>{
     identityCard: '000000221',
     personalNumber: '0000221',
-    primaryPerson: 'person_221@surprise.sod',
+    primaryDomainUser: 'person_221@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -662,7 +662,7 @@ async function bigTree() {
   const person_311 = await Person.createPerson(<IPerson>{
     identityCard: '000000311',
     personalNumber: '0000311',
-    primaryPerson: 'person_311@surprise.sod',
+    primaryDomainUser: 'person_311@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -672,7 +672,7 @@ async function bigTree() {
   const person_312 = await Person.createPerson(<IPerson>{
     identityCard: '000000312',
     personalNumber: '0000312',
-    primaryPerson: 'person_312@surprise.sod',
+    primaryDomainUser: 'person_312@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -682,7 +682,7 @@ async function bigTree() {
   const person_331 = await Person.createPerson(<IPerson>{
     identityCard: '000000331',
     personalNumber: '0000331',
-    primaryPerson: 'person_331@surprise.sod',
+    primaryDomainUser: 'person_331@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -693,7 +693,7 @@ async function bigTree() {
   const friede = await Person.createPerson(<IPerson>{
     identityCard: '100000001',
     personalNumber: '1000001',
-    primaryPerson: '100001@surprise.sod',
+    primaryDomainUser: '100001@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -703,7 +703,7 @@ async function bigTree() {
   const gale = await Person.createPerson(<IPerson>{
     identityCard: '100000002',
     personalNumber: '1000002',
-    primaryPerson: '1000002@surprise.sod',
+    primaryDomainUser: '1000002@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),

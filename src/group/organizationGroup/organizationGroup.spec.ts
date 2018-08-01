@@ -279,7 +279,7 @@ async function bigTree() {
   const person_11 = await Person.createPerson(<IPerson>{
     identityCard: '000000011',
     personalNumber: '0000011',
-    primaryPerson: 'person_11@surprise.sod',
+    primaryDomainUser: 'person_11@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -289,7 +289,7 @@ async function bigTree() {
   const person_12 = await Person.createPerson(<IPerson>{
     identityCard: '000000012',
     personalNumber: '0000012',
-    primaryPerson: 'person_12@surprise.sod',
+    primaryDomainUser: 'person_12@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -299,7 +299,7 @@ async function bigTree() {
   const person_21 = await Person.createPerson(<IPerson>{
     identityCard: '000000021',
     personalNumber: '0000021',
-    primaryPerson: 'person_21@surprise.sod',
+    primaryDomainUser: 'person_21@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -309,7 +309,7 @@ async function bigTree() {
   const person_111 = await Person.createPerson(<IPerson>{
     identityCard: '000000111',
     personalNumber: '0000111',
-    primaryPerson: 'person_111@surprise.sod',
+    primaryDomainUser: 'person_111@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -319,7 +319,7 @@ async function bigTree() {
   const person_221 = await Person.createPerson(<IPerson>{
     identityCard: '000000221',
     personalNumber: '0000221',
-    primaryPerson: 'person_221@surprise.sod',
+    primaryDomainUser: 'person_221@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -329,7 +329,7 @@ async function bigTree() {
   const person_311 = await Person.createPerson(<IPerson>{
     identityCard: '000000311',
     personalNumber: '0000311',
-    primaryPerson: 'person_311@surprise.sod',
+    primaryDomainUser: 'person_311@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -339,7 +339,7 @@ async function bigTree() {
   const person_312 = await Person.createPerson(<IPerson>{
     identityCard: '000000312',
     personalNumber: '0000312',
-    primaryPerson: 'person_312@surprise.sod',
+    primaryDomainUser: 'person_312@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -349,7 +349,7 @@ async function bigTree() {
   const person_331 = await Person.createPerson(<IPerson>{
     identityCard: '000000331',
     personalNumber: '0000331',
-    primaryPerson: 'person_331@surprise.sod',
+    primaryDomainUser: 'person_331@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -360,7 +360,7 @@ async function bigTree() {
   const friede = await Person.createPerson(<IPerson>{ 
     identityCard: '100000001',
     personalNumber: '1000001',
-    primaryPerson: '100001@surprise.sod',
+    primaryDomainUser: '100001@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -370,7 +370,7 @@ async function bigTree() {
   const gale = await Person.createPerson(<IPerson>{ 
     identityCard: '100000002',
     personalNumber: '1000002',
-    primaryPerson: '1000002@surprise.sod',
+    primaryDomainUser: '1000002@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),

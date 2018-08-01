@@ -26,15 +26,15 @@ export const PersonSchema = new mongoose.Schema(
       sparse: true,
       validate: { validator: PersonValidate.personalNumber, message: '{VALUE} is an invalid personal number!' },
     },
-    primaryPerson: {
+    primaryDomainUser: {
       type: String,
-      required: [true, 'You must enter a primary person!'],
+      required: [true, 'You must enter a primary user!'],
       unique: true,
-      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid Person' },
+      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid user' },
     },
-    secondaryPersons: [{
+    secondaryDomainUsers: [{
       type: String,
-      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid Person' },
+      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid user' },
     }],
     serviceType: String,
     firstName: {
@@ -124,16 +124,6 @@ export const PersonSchema = new mongoose.Schema(
       default: '0',
       validate: { validator: PersonValidate.clearance, message: '{VALUE} is an invalid clearance!' },
     },
-
-    // weakGroups: {
-    //   type: [String],
-    //   default: [],
-    // },
-    // adminGroups: {
-    //   type: [String],
-    //   default: [],
-    // },
-
   }
 );
 
