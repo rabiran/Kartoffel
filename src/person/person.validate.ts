@@ -11,20 +11,20 @@ export class ModelValidate {
   }
 }
 
-export class UserValidate extends ModelValidate {
+export class PersonValidate extends ModelValidate {
 
   // Ensure the ID consist of numbers only and has length of 7
   public static id(id: string) {
-    return (id.length === 7) && UserValidate.isStringedNumber(id);
+    return (id.length === 7) && PersonValidate.isStringedNumber(id);
   }
 
   // Ensure the name isn't empty (In the meantime...)
   public static namePart(name: string) {
-    return UserValidate.stringNotEmpty(name);
+    return PersonValidate.stringNotEmpty(name);
   }
 
   public static job(job: string) {
-    return UserValidate.stringNotEmpty(job);
+    return PersonValidate.stringNotEmpty(job);
   }
 
   public static email(mail: string) {

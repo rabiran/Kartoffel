@@ -3,13 +3,13 @@ import { Rank, Responsibility } from '../utils';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { ObjectId } from 'bson';
 
-export interface IUser extends Document {
-// User's Basic information
+export interface IPerson extends Document {
+// Person's Basic information
   _id: ObjectId;
   identityCard: string;
   personalNumber: string;
-  primaryUser: string;
-  secondaryUsers: string[];
+  primaryDomainUser: string;
+  secondaryDomainUsers: string[];
   serviceType: string;
   firstName: string;
   lastName: string;
@@ -22,7 +22,7 @@ export interface IUser extends Document {
   rank: Rank;
   updatedAt: Date;
   createdAt: Date;
-// Editable by the User
+// Editable by the Person
   job: string;
   mail: string;
   phone: string[];
@@ -34,7 +34,7 @@ export interface IUser extends Document {
   clearance: string;
 }
 
-export const PERSONAL_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
-export const USER_FIELDS = PERSONAL_FIELDS.concat(
-  ['primaryUser', 'secondaryUsers', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
+export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
+export const PERSON_FIELDS = EDITABLE_FIELDS.concat(
+  ['primaryDomainUser', 'secondaryDomainUsers', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
     'dischargeDay', 'hierarchy', 'directGroup', 'managedGroup', 'rank', 'alive', 'responsibility', 'responsibilityLocation', 'clearance']);

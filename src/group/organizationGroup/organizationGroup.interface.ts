@@ -1,13 +1,13 @@
 import { Document } from 'mongoose';
 import { IGroup } from '../group.interface';
-import { IUser } from '../../user/user.interface';
+import { IPerson } from '../../person/person.interface';
 
 
 export interface IOrganizationGroup extends IGroup {
   ancestors: string[];
   children: IOrganizationGroup[] | string[];
-  directMembers: IUser[];
-  directManagers: IUser[];
+  directMembers: IPerson[];
+  directManagers: IPerson[];
   hierarchy: string[];
   type: string;
   isALeaf: boolean;

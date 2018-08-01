@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IOrganizationGroup } from './organizationGroup.interface';
-import { UserModel as User } from '../../user/user.model';
+import { PersonModel as Person } from '../../person/person.model';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -12,12 +12,12 @@ export const OrganizationGroupSchema = new mongoose.Schema(
     },
     // admins: {
     //   type: [ObjectId],
-    //   ref: 'User',
+    //   ref: 'Person',
     //   default: [],
     // },
     members: {
       type: [ObjectId],
-      ref: 'User',
+      ref: 'Person',
       default: [],
     },
     children: {
@@ -53,14 +53,14 @@ export const OrganizationGroupSchema = new mongoose.Schema(
   });
 
 OrganizationGroupSchema.virtual('directManagers', {
-  ref: 'User',
+  ref: 'Person',
   localField: '_id',
   foreignField: 'managedGroup',
   justOne: false,
 });
 
 OrganizationGroupSchema.virtual('directMembers', {
-  ref: 'User',
+  ref: 'Person',
   localField: '_id',
   foreignField: 'directGroup',
   justOne: false,

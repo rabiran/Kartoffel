@@ -1,6 +1,6 @@
 import { RouteParamsValidate as RPV, validatorMiddleware as vm } from '../helpers/route.validator';
 
-export class UserRouteParamsValidate extends RPV {
+export class PersonRouteParamsValidate extends RPV {
   constructor() {
     super();
   }
