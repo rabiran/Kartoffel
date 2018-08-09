@@ -1,15 +1,16 @@
 import { Document } from 'mongoose';
 import { Rank, Responsibility } from '../utils';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
+import { IDomainUser } from '../domainUser/domainUser.interface';
 import { ObjectId } from 'bson';
 
-export interface IPerson extends Document {
+export interface IPerson extends Document{
 // Person's Basic information
   _id: ObjectId;
   identityCard: string;
   personalNumber: string;
-  primaryDomainUser: string;
-  secondaryDomainUsers: string[];
+  primaryDomainUser: ObjectId | IDomainUser;
+  secondaryDomainUsers: ObjectId[] | IDomainUser[];
   serviceType: string;
   firstName: string;
   lastName: string;

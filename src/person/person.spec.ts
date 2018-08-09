@@ -10,19 +10,19 @@ import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError } from '../helpers/spec.helper';
 import { ObjectId } from 'mongodb';
-
+// import { ObjectId } from 'bson';
 
 const should = chai.should();
 const expect = chai.expect;
 chai.use(require('chai-http'));
 
-const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
+const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34','5b50a76713ddf90af494de35','5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
 
 const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '123456789',
     personalNumber: '2345671',
-    primaryDomainUser: 'aviron@secure.sod',
+    primaryDomainUser: new ObjectId(dbIdExample[2]),
     firstName: 'Avi',
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
@@ -33,7 +33,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '234567891',
     personalNumber: '3456712',
-    primaryDomainUser: 'mazaltov@surprise.sod',
+    primaryDomainUser: new ObjectId(dbIdExample[3]),
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -43,7 +43,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '345678912',
     personalNumber: '4567123',
-    primaryDomainUser: 'elikopter@secure.sod',
+    primaryDomainUser: new ObjectId(dbIdExample[4]),
     firstName: 'Eli',
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
@@ -57,7 +57,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '456789123',
     personalNumber: '5671234',
-    primaryDomainUser: 'tikipoor@cosmetician.sod',
+    primaryDomainUser: new ObjectId(dbIdExample[5]),
     firstName: 'Tiki',
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
@@ -67,7 +67,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '567891234',
     personalNumber: '1234567',
-    primaryDomainUser: 'yonatantal@development.sod',
+    primaryDomainUser: new ObjectId(dbIdExample[6]),
     firstName: 'Yonatan',
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),

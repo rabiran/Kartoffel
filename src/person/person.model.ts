@@ -27,15 +27,13 @@ export const PersonSchema = new mongoose.Schema(
       validate: { validator: PersonValidate.personalNumber, message: '{VALUE} is an invalid personal number!' },
     },
     primaryDomainUser: {
-      type: String,
-      required: [true, 'You must enter a primary user!'],
-      unique: true,
-      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid user' },
+      type: ObjectId,
+      ref: 'DomainUser',
     },
-    secondaryDomainUsers: [{
-      type: String,
-      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid user' },
-    }],
+    secondaryDomainUsers: {
+      type: [ObjectId],
+      ref: 'DomainUser',
+    },
     serviceType: String,
     firstName: {
       type: String,
