@@ -12,6 +12,10 @@ function validateEmail(email: string): boolean {
   return true;
 }
 
+export interface IPersonModel extends IPerson, mongoose.Document {
+
+}
+
 export const PersonSchema = new mongoose.Schema(
   {
     identityCard: {
@@ -136,4 +140,4 @@ PersonSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;
 });
 
-export const PersonModel = mongoose.model<IPerson>('Person', PersonSchema);
+export const PersonModel = mongoose.model<IPersonModel>('Person', PersonSchema);

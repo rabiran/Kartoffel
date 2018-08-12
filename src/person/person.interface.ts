@@ -4,35 +4,34 @@ import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup
 import { IDomainUser } from '../domainUser/domainUser.interface';
 import { ObjectId } from 'bson';
 
-export interface IPerson extends Document{
+export interface IPerson {
 // Person's Basic information
-  _id: ObjectId;
   identityCard: string;
-  personalNumber: string;
-  primaryDomainUser: ObjectId | IDomainUser;
-  secondaryDomainUsers: ObjectId[] | IDomainUser[];
+  personalNumber?: string;
+  primaryDomainUser?: ObjectId | IDomainUser;
+  secondaryDomainUsers?: ObjectId[] | IDomainUser[];
   serviceType: string;
   firstName: string;
   lastName: string;
-  currentUnit: string;
+  currentUnit?: string;
   alive: boolean;
   dischargeDay: Date;
   hierarchy: string[];
   directGroup: IOrganizationGroup | ObjectId;
-  managedGroup: IOrganizationGroup | ObjectId;
-  rank: Rank;
+  managedGroup?: IOrganizationGroup | ObjectId;
+  rank?: Rank;
   updatedAt: Date;
   createdAt: Date;
 // Editable by the Person
   job: string;
-  mail: string;
-  phone: string[];
-  mobilePhone: string[];
-  address: string;
+  mail?: string;
+  phone?: string[];
+  mobilePhone?: string[];
+  address?: string;
 // Editable with strong permissions
-  responsibility: Responsibility;
-  responsibilityLocation: ObjectId;
-  clearance: string;
+  responsibility?: Responsibility;
+  responsibilityLocation?: ObjectId;
+  clearance?: string;
 }
 
 export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
