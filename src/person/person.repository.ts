@@ -8,7 +8,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     super(Person);
   }
 
-  getMembersOfGroups(organizationGroupsIDS: string[]): Promise<mongoose.Document[]> {
+  getMembersOfGroups(organizationGroupsIDS: string[]): Promise<IPerson[]> {
     return Person.find({ directGroup: { $in: organizationGroupsIDS } }).exec();
   }
 }

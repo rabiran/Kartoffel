@@ -6,11 +6,12 @@ import { ObjectId } from 'bson';
 
 export interface IPerson {
 // Person's Basic information
+  id?: string;
   identityCard: string;
   personalNumber?: string;
   primaryDomainUser?: ObjectId | IDomainUser;
   secondaryDomainUsers?: ObjectId[] | IDomainUser[];
-  serviceType: string;
+  serviceType?: string;
   firstName: string;
   lastName: string;
   currentUnit?: string;
@@ -20,8 +21,8 @@ export interface IPerson {
   directGroup: IOrganizationGroup | ObjectId;
   managedGroup?: IOrganizationGroup | ObjectId;
   rank?: Rank;
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt?: Date;
+  createdAt?: Date;
 // Editable by the Person
   job: string;
   mail?: string;

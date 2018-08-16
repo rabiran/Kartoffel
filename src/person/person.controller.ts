@@ -7,6 +7,7 @@ import { OrganizationGroupRepository } from '../group/organizationGroup/organiza
 import { Rank } from '../utils';
 import { Document } from 'mongoose';
 import { ObjectId } from 'bson';
+import { IPersonModel } from './person.model';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -27,7 +28,7 @@ export class Person {
   static async getPerson(personID: ObjectId): Promise<IPerson> {
     const person = await Person._personRepository.findById(personID);
     if (!person) return Promise.reject(new Error('Cannot find person with ID: ' + personID));
-    return <IPerson>person;
+    return <IPersonModel>person;
   }
 
   static async getUpdatedFrom(from: Date, to: Date) {
@@ -59,7 +60,7 @@ export class Person {
     }
 
     person.alive = false;
-    const res = await Person._personRepository.update(person);
+    const res = await Person._personRepository.update(personID, person);
     return res;
   }
 
@@ -69,8 +70,8 @@ export class Person {
   }
 
   static async updatePerson(person: IPerson): Promise<IPerson> {
-    const updatedPerson = await Person._personRepository.update(person);
-    if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + person._id));
+    const updatedPerson = await Person._personRepository.update(person.id, person);
+    if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + person.id));
     return <IPerson>updatedPerson;
   }
 
