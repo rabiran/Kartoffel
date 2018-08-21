@@ -10,16 +10,6 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // admins: {
-    //   type: [ObjectId],
-    //   ref: 'Person',
-    //   default: [],
-    // },
-    members: {
-      type: [ObjectId],
-      ref: 'Person',
-      default: [],
-    },
     children: {
       type: [ObjectId],
       ref: 'OrganizationGroup',
@@ -38,8 +28,15 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    isAlive: {
+      type: Boolean,
+      default: true,
+    },
     type: String,
-    isALeaf: Boolean,
+    isALeaf: {
+      type: Boolean,
+      default: true,
+    },
     updatedAt: Date,
   }, 
   {
@@ -68,7 +65,7 @@ OrganizationGroupSchema.virtual('directMembers', {
 
 // OrganizationGroupSchema.virtual('id').get(function () {
 //   return this._id;
-// });
+// });   
 
 // OrganizationGroupSchema.virtual('childless').get(function () {
 //   return this.children.length === 0;

@@ -506,8 +506,7 @@ describe('Persons', () => {
       should.exist(group);
       expect(person.directGroup.toString() === group._id.toString()).to.be.ok;
       group.directMembers.should.have.lengthOf(1);
-      expect(group.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
-      (group.admins == null).should.be.true;
+      expect((<IPerson>group.directMembers[0])._id.toString() === person._id.toString()).to.be.ok;
     });
     it('Should transfer a person from another group if he was assigned to one before', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -522,7 +521,7 @@ describe('Persons', () => {
 
       group1.directMembers.should.have.lengthOf(0);
       group2.directMembers.should.have.lengthOf(1);
-      expect(group2.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect((<IPerson>group2.directMembers[0])._id.toString() === person._id.toString()).to.be.ok;
       expect(person.directGroup.toString() === group2._id.toString()).to.be.ok;
     });
   });
@@ -550,9 +549,9 @@ describe('Persons', () => {
       should.exist(group);
       expect(person.directGroup.toString() === group._id.toString()).to.be.ok;
       group.directMembers.should.have.lengthOf(1);
-      expect(group.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect((<IPerson>group.directMembers[0])._id.toString() === person._id.toString()).to.be.ok;
       group.directManagers.should.have.lengthOf(1);
-      expect(group.directManagers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect((<IPerson>group.directManagers[0])._id.toString() === person._id.toString()).to.be.ok;
     });
     it('Should not transfer if in another group', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -570,7 +569,7 @@ describe('Persons', () => {
       group1.directManagers.should.have.lengthOf(0);
       group2.directMembers.should.have.lengthOf(0);
       group2.directManagers.should.have.lengthOf(0);
-      expect(group1.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect((<IPerson>group1.directMembers[0])._id.toString() === person._id.toString()).to.be.ok;
       expect(person.directGroup.toString() === group1._id.toString()).to.be.ok;
 
 
