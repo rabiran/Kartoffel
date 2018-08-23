@@ -22,57 +22,64 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '123456789',
     personalNumber: '2345671',
-    primaryDomainUser: new ObjectId(dbIdExample[2]),
+    primaryDomainUser: dbIdExample[2],
     firstName: 'Avi',
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
     mail: 'avi.ron@gmail.com',
     hierarchy: ['Airport', 'Pilots guild', 'captain'],
     job: 'Pilot 1',
+    serviceType: 'shit',
+    directGroup: dbIdExample[3],
   },
   <IPerson>{
     identityCard: '234567891',
     personalNumber: '3456712',
-    primaryDomainUser: new ObjectId(dbIdExample[3]),
+    primaryDomainUser: dbIdExample[3],
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'this',
+    directGroup: dbIdExample[3],    
   },
   <IPerson>{
     identityCard: '345678912',
     personalNumber: '4567123',
-    primaryDomainUser: new ObjectId(dbIdExample[4]),
     firstName: 'Eli',
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
     responsibility: 'SecurityOfficer',
-    responsibilityLocation: new ObjectId(),
+    responsibilityLocation: dbIdExample[1],
     clearance: '3',
     rank: 'Skillful',
+    serviceType: 'is',
+    directGroup: dbIdExample[3],
   },
   <IPerson>{
     identityCard: '456789123',
     personalNumber: '5671234',
-    primaryDomainUser: new ObjectId(dbIdExample[5]),
     firstName: 'Tiki',
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['fashion designer', 'cosmetician guild'],
     job: 'cosmetician 1',
+    serviceType: 'fucking',
+    directGroup: dbIdExample[3],
   },
   <IPerson>{
     identityCard: '567891234',
     personalNumber: '1234567',
-    primaryDomainUser: new ObjectId(dbIdExample[6]),
     firstName: 'Yonatan',
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['www', 'microsoft', 'github'],
     job: 'Programmer',
+    serviceType: 'shit',
+    directGroup: dbIdExample[3],
   },
 ];
 
@@ -148,7 +155,8 @@ describe('Persons', () => {
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
         ...personExamples[4],
-        secondaryDomainUsers: ['yonatantal@programer.sod', 'yonatantal@special.sod'],
+        primaryDomainUser: dbIdExample[3],
+        secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
         serviceType: 'standing army',
         mail: 'yonatan@work.com',
         phone: ['023456789', '02-3456389'],
@@ -156,7 +164,7 @@ describe('Persons', () => {
         rank: 'Skillful',
         address: 'I live here',
         responsibility: 'HR',
-        responsibilityLocation: new ObjectId(dbIdExample[0]),
+        responsibilityLocation: dbIdExample[0],
         clearance: '5',
         alive: true,
       };
@@ -217,6 +225,12 @@ describe('Persons', () => {
         person = { ...personExamples[1] };
         delete person.job;
         await expectError(Person.createPerson, [person]);
+        person = { ...personExamples[1] };
+        delete person.directGroup;
+        await expectError(Person.createPerson, [person]);
+        person = { ...personExamples[1] };
+        delete person.serviceType;
+        await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when Identity Card is not valid', async () => {
         const person = { ...personExamples[1] };
@@ -236,28 +250,30 @@ describe('Persons', () => {
         person.personalNumber = '234a567';
         await expectError(Person.createPerson, [person]);
       });
-      it('Should throw an error when primary person is not valid', async () => {
-        const person = { ...personExamples[1] };
-        person.primaryDomainUser = 'aviron@secure.';
-        await expectError(Person.createPerson, [person]);
-        person.primaryDomainUser = 'avironsecure.sod';
-        await expectError(Person.createPerson, [person]);
-        person.primaryDomainUser = 'aviron@securesod';
-        await expectError(Person.createPerson, [person]);
-        person.primaryDomainUser = '@secure.sod';
-        await expectError(Person.createPerson, [person]);
-        person.primaryDomainUser = 'aviron@.sod';
-        await expectError(Person.createPerson, [person]);
-      });
-      it('Should throw an error when secondary persons is not valid', async () => {
-        const person = { ...personExamples[1] };
-        person.secondaryDomainUsers = ['avi@secure.sod', 'ron@.sod'];
-        await expectError(Person.createPerson, [person]);
-        person.secondaryDomainUsers = ['@secure.sod', 'ron@secure.sod'];
-        await expectError(Person.createPerson, [person]);
-        person.secondaryDomainUsers = ['avi@secure.sod', 'ron@secure'];
-        await expectError(Person.createPerson, [person]);
-      });
+      // TODO: move these to the domain user tests
+
+      // it('Should throw an error when primary person is not valid', async () => {
+      //   const person = { ...personExamples[1] };
+      //   person.primaryDomainUser = 'aviron@secure.';
+      //   await expectError(Person.createPerson, [person]);
+      //   person.primaryDomainUser = 'avironsecure.sod';
+      //   await expectError(Person.createPerson, [person]);
+      //   person.primaryDomainUser = 'aviron@securesod';
+      //   await expectError(Person.createPerson, [person]);
+      //   person.primaryDomainUser = '@secure.sod';
+      //   await expectError(Person.createPerson, [person]);
+      //   person.primaryDomainUser = 'aviron@.sod';
+      //   await expectError(Person.createPerson, [person]);
+      // });
+      // it('Should throw an error when secondary persons is not valid', async () => {
+      //   const person = { ...personExamples[1] };
+      //   person.secondaryDomainUsers = ['avi@secure.sod', 'ron@.sod'];
+      //   await expectError(Person.createPerson, [person]);
+      //   person.secondaryDomainUsers = ['@secure.sod', 'ron@secure.sod'];
+      //   await expectError(Person.createPerson, [person]);
+      //   person.secondaryDomainUsers = ['avi@secure.sod', 'ron@secure'];
+      //   await expectError(Person.createPerson, [person]);
+      // });
       it('Should throw an error when Name strings are empty', async () => {
         const person = { ...personExamples[1] };
         person.firstName = '';
@@ -281,7 +297,7 @@ describe('Persons', () => {
         person.responsibility = 'HR';
         await expectError(Person.createPerson, [person]);
         person.responsibility = 'None';
-        person.responsibilityLocation = new ObjectId();
+        person.responsibilityLocation = '';
         await expectError(Person.createPerson, [person]);
         delete person.responsibility;
         await expectError(Person.createPerson, [person]);
@@ -365,7 +381,7 @@ describe('Persons', () => {
     });
     it('Should find person when one exists', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const returnedPerson = await Person.getPerson(person._id);
+      const returnedPerson = await Person.getPerson(person.id);
       should.exist(returnedPerson);
       person.should.have.property('identityCard', '123456789');
       person.should.have.property('firstName', 'Avi');
@@ -377,21 +393,21 @@ describe('Persons', () => {
     });
     it('Should remove a person successfully if existed', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const res = await Person.removePerson(person._id);
+      const res = await Person.removePerson(person.id);
       should.exist(res);
       res.should.have.property('ok', 1);
       res.should.have.property('n', 1);
-      await expectError(Person.getPerson, [person._id]);
+      await expectError(Person.getPerson, [person.id]);
     });
     it('Should update the person\'s group after that the person is removed', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
-      await Person.assign(person._id, group._id);
+      await Person.assign(person.id, group._id);
 
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
       group.directMembers.should.have.lengthOf(1);
 
-      await Person.removePerson(person._id);
+      await Person.removePerson(person.id);
 
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
       group.directMembers.should.have.lengthOf(0);
@@ -403,16 +419,16 @@ describe('Persons', () => {
     });
     it('Should discharge a person successfully if existed', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const res = await Person.discharge(person._id);
+      const res = await Person.discharge(person.id);
       should.exist(res);
       res.should.have.property('alive', false);
     });
     it('Should update the person\'s group and manage group after that the person is discharged', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
-      await Person.assign(person._id, group._id);
-      await Person.manage(person._id, group._id);
-      await Person.discharge(person._id);
+      await Person.assign(person.id, group._id);
+      await Person.manage(person.id, group._id);
+      await Person.discharge(person.id);
 
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers', 'directManagers']);
       group.directMembers.should.have.lengthOf(0);
@@ -420,7 +436,7 @@ describe('Persons', () => {
     });
     it('Should not get a "dead" person with the regular get', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      await Person.discharge(person._id);
+      await Person.discharge(person.id);
 
       const persons = await Person.getPersons();
       persons.should.have.lengthOf(0);
@@ -444,21 +460,21 @@ describe('Persons', () => {
       person.job = 'Programmer';
       person.rank = 'Skilled';
       person.responsibility = 'HR';
-      person.responsibilityLocation = new ObjectId(dbIdExample[0]);
+      person.responsibilityLocation = dbIdExample[0];
 
       const updatedPerson = await Person.updatePerson(person);
       should.exist(updatedPerson);
 
-      expect(updatedPerson._id.toString() === person._id.toString()).to.be.ok;
+      expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
       updatedPerson.should.have.property('rank', person.rank);
       updatedPerson.should.have.property('job', person.job);
       updatedPerson.should.have.property('responsibility', person.responsibility);
-      expect(updatedPerson.responsibilityLocation.toString() === person.responsibilityLocation.toString()).to.be.ok;
+      expect(updatedPerson.responsibilityLocation === person.responsibilityLocation).to.be.true;
     });
     it('Should not delete the unchanged props', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const updatedPerson = await Person.updatePerson(<IPerson>{ _id: person._id, firstName: 'Danny' });
+      const updatedPerson = await Person.updatePerson({ id: person.id, firstName: 'Danny' });
       updatedPerson.should.have.property('lastName', 'Ron');
     });
     it('Should save the updated person correctly', async () => {
@@ -467,21 +483,21 @@ describe('Persons', () => {
       person.job = 'Programmer';
       person.rank = 'Skilled';
       person.responsibility = 'SecurityOfficer';
-      person.responsibilityLocation = new ObjectId(dbIdExample[0]);
+      person.responsibilityLocation = dbIdExample[0];
 
       await Person.updatePerson(person);
-      const updatedPerson = await Person.getPerson(person._id);
+      const updatedPerson = await Person.getPerson(person.id);
 
       should.exist(updatedPerson);
 
       // Why can't I loop over the person's keys and values?? stupid typescript...
 
-      expect(updatedPerson._id.toString() === person._id.toString()).to.be.ok;
+      expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
       updatedPerson.should.have.property('rank', person.rank);
       updatedPerson.should.have.property('job', person.job);
       updatedPerson.should.have.property('responsibility', person.responsibility);
-      expect(updatedPerson.responsibilityLocation.toString() === person.responsibilityLocation.toString()).to.be.ok;
+      expect(updatedPerson.responsibilityLocation === person.responsibilityLocation).to.be.true;
     });
   });
   describe('Person Staffing', () => {
@@ -492,37 +508,37 @@ describe('Persons', () => {
     });
     it('Should throw an error if the group does not exist', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      await expectError(Person.assign, [person._id, dbIdExample[0]]);
+      await expectError(Person.assign, [person.id, dbIdExample[0]]);
     });
     it('Should assign person to group', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
-      await Person.assign(person._id, group._id);
+      await Person.assign(person.id, group._id);
 
       // Check in the person and group after the update
-      person = await Person.getPerson(person._id);
+      person = await Person.getPerson(person.id);
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
       should.exist(person);
       should.exist(group);
       expect(person.directGroup.toString() === group._id.toString()).to.be.ok;
       group.directMembers.should.have.lengthOf(1);
-      expect(group.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect(group.directMembers[0].id === person.id).to.be.true;
       (group.admins == null).should.be.true;
     });
     it('Should transfer a person from another group if he was assigned to one before', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       let group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
       let group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
-      await Person.assign(person._id, group1._id);
-      await Person.assign(person._id, group2._id);
+      await Person.assign(person.id, group1._id);
+      await Person.assign(person.id, group2._id);
 
-      person = await Person.getPerson(person._id);
+      person = await Person.getPerson(person.id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers']);
 
       group1.directMembers.should.have.lengthOf(0);
       group2.directMembers.should.have.lengthOf(1);
-      expect(group2.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect(group2.directMembers[0].id === person.id).to.be.true;
       expect(person.directGroup.toString() === group2._id.toString()).to.be.ok;
     });
   });
@@ -534,35 +550,35 @@ describe('Persons', () => {
     });
     it('Should throw an error if the group does not exist', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      await expectError(Person.manage, [person._id, dbIdExample[0]]);
+      await expectError(Person.manage, [person.id, dbIdExample[0]]);
     });
     it('Should appoint as a manager', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
-      await Person.assign(person._id, group._id);
-      await Person.manage(person._id, group._id);
+      await Person.assign(person.id, group._id);
+      await Person.manage(person.id, group._id);
 
       // Check in the person and group after the update
-      person = await Person.getPerson(person._id);
+      person = await Person.getPerson(person.id);
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers', 'directManagers']);
 
       should.exist(person);
       should.exist(group);
-      expect(person.directGroup.toString() === group._id.toString()).to.be.ok;
+      expect(person.directGroup === group._id.toString()).to.be.true;
       group.directMembers.should.have.lengthOf(1);
-      expect(group.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect(group.directMembers[0].id === person.id).to.be.true;
       group.directManagers.should.have.lengthOf(1);
-      expect(group.directManagers[0]._id.toString() === person._id.toString()).to.be.ok;
+      expect(group.directManagers[0].id === person.id).to.be.true;
     });
     it('Should not transfer if in another group', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       let group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
       let group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
-      await expectError(Person.manage, [person._id, group2._id]);
-      await Person.assign(person._id, group1._id);
-      await expectError(Person.manage, [person._id, group2._id]);
+      await expectError(Person.manage, [person.id, group2._id]);
+      await Person.assign(person.id, group1._id);
+      await expectError(Person.manage, [person.id, group2._id]);
 
-      person = await Person.getPerson(person._id);
+      person = await Person.getPerson(person.id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
 
@@ -570,14 +586,14 @@ describe('Persons', () => {
       group1.directManagers.should.have.lengthOf(0);
       group2.directMembers.should.have.lengthOf(0);
       group2.directManagers.should.have.lengthOf(0);
-      expect(group1.directMembers[0]._id.toString() === person._id.toString()).to.be.ok;
-      expect(person.directGroup.toString() === group1._id.toString()).to.be.ok;
+      expect(group1.directMembers[0].id === person.id).to.be.true;
+      expect(person.directGroup === group1._id.toString()).to.be.true;
 
 
-      await Person.manage(person._id, group1._id);
-      await expectError(Person.manage, [person._id, group2._id]);
+      await Person.manage(person.id, group1._id);
+      await expectError(Person.manage, [person.id, group2._id]);
 
-      person = await Person.getPerson(person._id);
+      person = await Person.getPerson(person.id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
       group1.directMembers.should.have.lengthOf(1);
@@ -711,17 +727,17 @@ async function bigTree() {
     job: 'parent',
   });
 
-  await Person.assign(person_11._id, parent_1._id);
-  await Person.assign(person_12._id, parent_1._id);
-  await Person.assign(person_21._id, parent_2._id);
-  await Person.assign(person_111._id, child_11._id);
-  await Person.assign(person_221._id, child_22._id);
-  await Person.assign(person_311._id, child_31._id);
-  await Person.assign(person_312._id, child_31._id);
-  await Person.assign(person_331._id, child_33._id);
+  await Person.assign(person_11.id, parent_1._id);
+  await Person.assign(person_12.id, parent_1._id);
+  await Person.assign(person_21.id, parent_2._id);
+  await Person.assign(person_111.id, child_11._id);
+  await Person.assign(person_221.id, child_22._id);
+  await Person.assign(person_311.id, child_31._id);
+  await Person.assign(person_312.id, child_31._id);
+  await Person.assign(person_331.id, child_33._id);
 
-  await Person.assign(friede._id, ariandel._id);
-  await Person.assign(gale._id, ariandel._id);
+  await Person.assign(friede.id, ariandel._id);
+  await Person.assign(gale.id, ariandel._id);
 
   return seldag;
 }

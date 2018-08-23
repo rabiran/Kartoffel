@@ -12,10 +12,6 @@ function validateEmail(email: string): boolean {
   return true;
 }
 
-export interface IPersonModel extends IPerson, mongoose.Document {
-
-}
-
 export const PersonSchema = new mongoose.Schema(
   {
     identityCard: {
@@ -38,7 +34,10 @@ export const PersonSchema = new mongoose.Schema(
       type: [ObjectId],
       ref: 'DomainUser',
     },
-    serviceType: String,
+    serviceType: {
+      type: String,
+      required: [true, 'You must enter service type'],
+    },
     firstName: {
       type: String,
       required: [true, 'You must enter a first name!'],
@@ -72,6 +71,7 @@ export const PersonSchema = new mongoose.Schema(
     },
     directGroup: {
       type: ObjectId,
+      required: [true, 'a person must belong '],
       index: true,
     },
     managedGroup: {
@@ -140,4 +140,4 @@ PersonSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;
 });
 
-export const PersonModel = mongoose.model<IPersonModel>('Person', PersonSchema);
+export const PersonModel = mongoose.model<IPerson & mongoose.Document>('Person', PersonSchema);

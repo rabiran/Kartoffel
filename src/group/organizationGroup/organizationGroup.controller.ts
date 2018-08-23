@@ -69,7 +69,7 @@ export class OrganizationGroup {
   }
 
   static async updateOrganizationGroup(updateTo: IOrganizationGroup): Promise<IOrganizationGroup> {
-    const updated = await OrganizationGroup._organizationGroupRepository.update(updateTo);
+    const updated = await OrganizationGroup._organizationGroupRepository.update(updateTo._id ,updateTo);
     if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + updateTo._id));
     return <IOrganizationGroup>updated;
   }

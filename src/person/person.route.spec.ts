@@ -16,6 +16,8 @@ const should = chai.should();
 chai.use(require('chai-http'));
 const expect = chai.expect;
 
+const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
+
 const personExamples: IPerson[] = [  
   <IPerson>{
     identityCard: '234567891',
@@ -58,7 +60,7 @@ const personExamples: IPerson[] = [
     hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
     responsibility: 'SecurityOfficer',
-    responsibilityLocation: new ObjectId(),
+    responsibilityLocation: dbIdExample[0],
     clearance: '3',
     rank: 'Skillful',
   },
@@ -73,7 +75,6 @@ const personExamples: IPerson[] = [
     job: 'cosmetician 1',
   },  
 ];
-const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 
 const BASE_URL = '/api/person';
 
@@ -119,7 +120,7 @@ describe('Person', () => {
     it('Should return a person', async() => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
-        .get(`${BASE_URL}/${person._id}`)
+        .get(`${BASE_URL}/${person.id}`)
         .then((res) => {
           res.should.have.status(200);
           res.should.exist;
@@ -228,8 +229,8 @@ describe('Person', () => {
       it('Should return the updated person', async () => {
         const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
         await chai.request(server)
-          .put(`${BASE_URL}/${person._id}/personal`)
-          .send({ _id: person._id.toString(), phone: ['027654321'] })
+          .put(`${BASE_URL}/${person.id}/personal`)
+          .send({ _id: person.id.toString(), phone: ['027654321'] })
           .then((res) => {
             res.should.exist;
             res.should.have.status(200);
@@ -254,7 +255,7 @@ describe('Person', () => {
     it('Should return successful result ', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
-        .del(`${BASE_URL}/${person._id}`)
+        .del(`${BASE_URL}/${person.id}`)
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);

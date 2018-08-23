@@ -2,25 +2,24 @@ import { Document } from 'mongoose';
 import { Rank, Responsibility } from '../utils';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-import { ObjectId } from 'bson';
 
 export interface IPerson {
 // Person's Basic information
   id?: string;
   identityCard: string;
   personalNumber?: string;
-  primaryDomainUser?: ObjectId | IDomainUser;
-  secondaryDomainUsers?: ObjectId[] | IDomainUser[];
-  serviceType?: string;
+  primaryDomainUser?: string | IDomainUser;
+  secondaryDomainUsers?: string[] | IDomainUser[];
+  serviceType: string;
   firstName: string;
   lastName: string;
   currentUnit?: string;
-  alive: boolean;
+  alive?: boolean;
   dischargeDay: Date;
   hierarchy: string[];
-  directGroup: IOrganizationGroup | ObjectId;
-  managedGroup?: IOrganizationGroup | ObjectId;
-  rank?: Rank;
+  directGroup: string | IOrganizationGroup; 
+  managedGroup?: string | IOrganizationGroup;
+  rank?: Rank;  // optional at create
   updatedAt?: Date;
   createdAt?: Date;
 // Editable by the Person
@@ -31,7 +30,7 @@ export interface IPerson {
   address?: string;
 // Editable with strong permissions
   responsibility?: Responsibility;
-  responsibilityLocation?: ObjectId;
+  responsibilityLocation?: string | IOrganizationGroup;
   clearance?: string;
 }
 

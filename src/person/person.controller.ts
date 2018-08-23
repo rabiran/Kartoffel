@@ -6,8 +6,6 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
 import { Rank } from '../utils';
 import { Document } from 'mongoose';
-import { ObjectId } from 'bson';
-import { IPersonModel } from './person.model';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -25,10 +23,10 @@ export class Person {
     return <IPerson[]>persons;
   }
 
-  static async getPerson(personID: ObjectId): Promise<IPerson> {
+  static async getPerson(personID: string): Promise<IPerson> {
     const person = await Person._personRepository.findById(personID);
     if (!person) return Promise.reject(new Error('Cannot find person with ID: ' + personID));
-    return <IPersonModel>person;
+    return person;
   }
 
   static async getUpdatedFrom(from: Date, to: Date) {
@@ -51,7 +49,7 @@ export class Person {
     return <IPerson>newPerson;
   }
 
-  static async discharge(personID: ObjectId): Promise<any> {
+  static async discharge(personID: string): Promise<any> {
     let person = await Person.getPerson(personID);
 
     // If the person was in a group, notify it
@@ -64,25 +62,25 @@ export class Person {
     return res;
   }
 
-  static async removePerson(personID: ObjectId): Promise<any> {
+  static async removePerson(personID: string): Promise<any> {
     const res = await Person._personRepository.delete(personID);
     return res.result.n > 0 ? res.result : Promise.reject(new Error('Cannot find person with ID: ' + personID));
   }
 
-  static async updatePerson(person: IPerson): Promise<IPerson> {
+  static async updatePerson(person: Partial<IPerson>): Promise<IPerson> {
     const updatedPerson = await Person._personRepository.update(person.id, person);
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + person.id));
     return <IPerson>updatedPerson;
   }
 
-  static async updateTeam(personID: ObjectId, newTeamID: ObjectId): Promise<IPerson> {
+  static async updateTeam(personID: string, newTeamID: string): Promise<IPerson> {
     const person = await Person.getPerson(personID);
     person.directGroup = newTeamID;
     return await Person.updatePerson(person);
   }
 
   // Will transfer person between groups automatically. Is that what we want?
-  static async assign(personID: ObjectId, groupID: string): Promise<IPerson> {
+  static async assign(personID: string, groupID: string): Promise<IPerson> {
     let person = await Person.getPerson(personID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
@@ -92,7 +90,7 @@ export class Person {
   }
 
   // Will delete managedGroup too
-  static async dismiss(personID: ObjectId) {
+  static async dismiss(personID: string) {
     let person = await Person.getPerson(personID);
     if (!person.directGroup) return;
 
@@ -102,7 +100,7 @@ export class Person {
     return person;
   }
 
-  static async manage(personID: ObjectId, groupID: string) {
+  static async manage(personID: string, groupID: string) {
     const person = await Person.getPerson(personID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
     
@@ -115,7 +113,7 @@ export class Person {
     return;
   }
 
-  static async resign(personID: ObjectId) {
+  static async resign(personID: string) {
     const person = await Person.getPerson(personID);
     person.managedGroup = undefined;
     await Person.updatePerson(person);
