@@ -22,6 +22,16 @@ export class OrganizationGroup {
     return _.flatMap(<IOrganizationGroup[]>organizationGroups, k => pick(k, ...fieldsToSend));
   }
 
+  static async getOrganizationGroupByHierarchy(name: string, hierarchy: string[]): Promise<IOrganizationGroup> {
+    const cond = {
+      name,
+      hierarchy,
+    };
+    const organizationGroup = await OrganizationGroup._organizationGroupRepository.findOne(cond);
+    if (!organizationGroup) return Promise.reject(new Error(`Cannot find group with name: ${name} and hierarchy: ${hierarchy}`));
+    return <IOrganizationGroup>organizationGroup;
+  }
+
   static async createOrganizationGroup(organizationGroup: IOrganizationGroup, parentID: string = undefined): Promise<IOrganizationGroup> {
     if (parentID) {
       // Create group hierarchy
