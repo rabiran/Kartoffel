@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { Types } from 'mongoose';
 import { Rank, Responsibility } from '../utils';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { IDomainUser } from '../domainUser/domainUser.interface';
@@ -8,8 +8,8 @@ export interface IPerson {
   id?: string;
   identityCard: string;
   personalNumber?: string;
-  primaryDomainUser?: string | IDomainUser;
-  secondaryDomainUsers?: string[] | IDomainUser[];
+  primaryDomainUser?: string | Types.ObjectId | IDomainUser;
+  secondaryDomainUsers?: string[] | Types.ObjectId[] | IDomainUser[];
   serviceType: string;
   firstName: string;
   lastName: string;
@@ -17,8 +17,8 @@ export interface IPerson {
   alive?: boolean;
   dischargeDay: Date;
   hierarchy: string[];
-  directGroup: string | IOrganizationGroup; 
-  managedGroup?: string | IOrganizationGroup;
+  directGroup: string | Types.ObjectId | IOrganizationGroup; 
+  managedGroup?: string | Types.ObjectId | IOrganizationGroup;
   rank?: Rank;  // optional at create
   updatedAt?: Date;
   createdAt?: Date;
@@ -30,7 +30,7 @@ export interface IPerson {
   address?: string;
 // Editable with strong permissions
   responsibility?: Responsibility;
-  responsibilityLocation?: string | IOrganizationGroup;
+  responsibilityLocation?: string | Types.ObjectId | IOrganizationGroup;
   clearance?: string;
 }
 

@@ -284,6 +284,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const person_12 = await Person.createPerson(<IPerson>{
     identityCard: '000000012',
@@ -293,6 +294,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const person_21 = await Person.createPerson(<IPerson>{
     identityCard: '000000021',
@@ -302,6 +304,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const person_111 = await Person.createPerson(<IPerson>{
     identityCard: '000000111',
@@ -311,6 +314,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const person_221 = await Person.createPerson(<IPerson>{
     identityCard: '000000221',
@@ -320,6 +324,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const person_311 = await Person.createPerson(<IPerson>{
     identityCard: '000000311',
@@ -329,6 +334,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const person_312 = await Person.createPerson(<IPerson>{
     identityCard: '000000312',
@@ -338,6 +344,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const person_331 = await Person.createPerson(<IPerson>{
     identityCard: '000000331',
@@ -347,6 +354,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
 
   const friede = await Person.createPerson(<IPerson>{ 
@@ -357,6 +365,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
   const gale = await Person.createPerson(<IPerson>{ 
     identityCard: '100000002',
@@ -366,6 +375,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill',
   });
 
   await Person.assign(person_11.id, parent_1._id);

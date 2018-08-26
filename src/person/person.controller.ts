@@ -67,16 +67,16 @@ export class Person {
     return res.result.n > 0 ? res.result : Promise.reject(new Error('Cannot find person with ID: ' + personID));
   }
 
-  static async updatePerson(person: Partial<IPerson>): Promise<IPerson> {
-    const updatedPerson = await Person._personRepository.update(person.id, person);
-    if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + person.id));
+  static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
+    const updatedPerson = await Person._personRepository.update(id, change);
+    if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     return <IPerson>updatedPerson;
   }
 
   static async updateTeam(personID: string, newTeamID: string): Promise<IPerson> {
     const person = await Person.getPerson(personID);
     person.directGroup = newTeamID;
-    return await Person.updatePerson(person);
+    return await Person.updatePerson(personID ,person);
   }
 
   // Will transfer person between groups automatically. Is that what we want?
@@ -85,7 +85,7 @@ export class Person {
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
     person.directGroup = group._id;
-    person = await Person.updatePerson(person);
+    person = await Person.updatePerson(personID, person);
     return <IPerson>person;
   }
 
@@ -96,7 +96,7 @@ export class Person {
 
     person.directGroup = null;
     if (person.managedGroup) person.managedGroup = null;
-    person = await Person.updatePerson(person);
+    person = await Person.updatePerson(personID, person);
     return person;
   }
 
@@ -109,13 +109,13 @@ export class Person {
     }
     // else
     person.managedGroup = group._id;
-    await Person.updatePerson(person);
+    await Person.updatePerson(personID, person);
     return;
   }
 
   static async resign(personID: string) {
     const person = await Person.getPerson(personID);
     person.managedGroup = undefined;
-    await Person.updatePerson(person);
+    await Person.updatePerson(personID, person);
   }
 }

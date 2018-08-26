@@ -3,6 +3,8 @@
 /.vscode
 /src/models
 /src/pagination
+/mochawesome-reports
+/mochawesome-report
 npm-debug.log
 .env
 !example.env
