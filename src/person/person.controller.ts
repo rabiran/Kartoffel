@@ -23,10 +23,18 @@ export class Person {
     return <IPerson[]>persons;
   }
 
-  static async getPerson(personID: string): Promise<IPerson> {
+  static async getPersonById(personID: string): Promise<IPerson> {
     const person = await Person._personRepository.findById(personID);
     if (!person) return Promise.reject(new Error('Cannot find person with ID: ' + personID));
     return person;
+  }
+
+  static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
+    const cond = {};
+    cond[nameField] = identityValue;
+    const person = await Person._personRepository.findOne(cond);
+    if (!person) return Promise.reject(new Error(`Cannot find person with ${nameField}: '${identityValue}'`));
+    return <IPerson>person;
   }
 
   static async getUpdatedFrom(from: Date, to: Date) {
@@ -50,15 +58,14 @@ export class Person {
   }
 
   static async discharge(personID: string): Promise<any> {
-    let person = await Person.getPerson(personID);
-
-    // If the person was in a group, notify it
-    if (person && person.directGroup) {
-      person = await Person.dismiss(personID);
-    }
-
+    const person = await Person.getPersonById(personID);
+    // remove the person from his direct organization group
+    person.directGroup = null;
     person.alive = false;
-    const res = await Person._personRepository.update(personID, person);
+    if (person.managedGroup) {
+      person.managedGroup = null;
+    }
+    const res = await Person.updatePerson(personID, person);
     return res;
   }
 
@@ -74,14 +81,14 @@ export class Person {
   }
 
   static async updateTeam(personID: string, newTeamID: string): Promise<IPerson> {
-    const person = await Person.getPerson(personID);
+    const person = await Person.getPersonById(personID);
     person.directGroup = newTeamID;
     return await Person.updatePerson(personID ,person);
   }
 
   // Will transfer person between groups automatically. Is that what we want?
   static async assign(personID: string, groupID: string): Promise<IPerson> {
-    let person = await Person.getPerson(personID);
+    let person = await Person.getPersonById(personID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
     person.directGroup = group._id;
@@ -90,18 +97,18 @@ export class Person {
   }
 
   // Will delete managedGroup too
-  static async dismiss(personID: string) {
-    let person = await Person.getPerson(personID);
-    if (!person.directGroup) return;
+  // static async dismiss(personID: string) {
+  //   let person = await Person.getPersonById(personID);
+  //   if (!person.directGroup) return;
 
-    person.directGroup = null;
-    if (person.managedGroup) person.managedGroup = null;
-    person = await Person.updatePerson(personID, person);
-    return person;
-  }
+  //   person.directGroup = null;
+  //   if (person.managedGroup) person.managedGroup = null;
+  //   person = await Person.updatePerson(personID, person);
+  //   return person;
+  // }
 
   static async manage(personID: string, groupID: string) {
-    const person = await Person.getPerson(personID);
+    const person = await Person.getPersonById(personID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
     
     if (String(person.directGroup) !== String(groupID)) {
@@ -114,7 +121,7 @@ export class Person {
   }
 
   static async resign(personID: string) {
-    const person = await Person.getPerson(personID);
+    const person = await Person.getPersonById(personID);
     person.managedGroup = undefined;
     await Person.updatePerson(personID, person);
   }

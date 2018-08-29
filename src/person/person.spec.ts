@@ -10,7 +10,6 @@ import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError } from '../helpers/spec.helper';
 import { Types } from 'mongoose';
-import { ObjectId } from 'bson';
 
 const should = chai.should();
 const expect = chai.expect;
@@ -22,7 +21,7 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '123456789',
     personalNumber: '2345671',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[2]),
+    primaryDomainUser: dbIdExample[2],
     firstName: 'Avi',
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
@@ -30,19 +29,19 @@ const personExamples: IPerson[] = [
     hierarchy: ['Airport', 'Pilots guild', 'captain'],
     job: 'Pilot 1',
     serviceType: 'shit',
-    directGroup: new Types.ObjectId(dbIdExample[3]),
+    directGroup: dbIdExample[3],
   },
   <IPerson>{
     identityCard: '234567891',
     personalNumber: '3456712',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
+    primaryDomainUser: dbIdExample[3],
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     serviceType: 'this',
-    directGroup: new Types.ObjectId(dbIdExample[3]),    
+    directGroup: dbIdExample[3],    
   },
   <IPerson>{
     identityCard: '345678912',
@@ -53,11 +52,11 @@ const personExamples: IPerson[] = [
     hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
     responsibility: 'SecurityOfficer',
-    responsibilityLocation: new Types.ObjectId(dbIdExample[1]),
+    responsibilityLocation: dbIdExample[1],
     clearance: '3',
     rank: 'Skillful',
     serviceType: 'is',
-    directGroup: new Types.ObjectId(dbIdExample[3]),
+    directGroup: dbIdExample[3],
   },
   <IPerson>{
     identityCard: '456789123',
@@ -68,7 +67,7 @@ const personExamples: IPerson[] = [
     hierarchy: ['fashion designer', 'cosmetician guild'],
     job: 'cosmetician 1',
     serviceType: 'fucking',
-    directGroup: new Types.ObjectId(dbIdExample[1]),
+    directGroup: dbIdExample[1],
   },
   <IPerson>{
     identityCard: '567891234',
@@ -79,7 +78,7 @@ const personExamples: IPerson[] = [
     hierarchy: ['www', 'microsoft', 'github'],
     job: 'Programmer',
     serviceType: 'shit',
-    directGroup: new Types.ObjectId(dbIdExample[3]),
+    directGroup: dbIdExample[3],
   },
 ];
 
@@ -91,8 +90,8 @@ describe('Persons', () => {
       persons.should.have.lengthOf(0);
     });
     it('Should get all the persons', async () => {
-      await Person.createPerson(<IPerson>{ ...personExamples[0] });
-
+      // console.log('-------------- person -------', personExamples[0]);
+      await Person.createPerson(personExamples[0]);
       let persons = await Person.getPersons();
       persons.should.be.a('array');
       persons.should.have.lengthOf(1);
@@ -140,7 +139,8 @@ describe('Persons', () => {
       should.exist(person);
       person.should.have.property('identityCard', '567891234');
       person.should.have.property('personalNumber', '1234567');
-      person.should.have.property('primaryDomainUser', personExamples[4].primaryDomainUser);
+      // person.should.have.property('primaryDomainUser');
+      // expect(String(person.primaryDomainUser) === personExamples[4].primaryDomainUser).to.be.true;
       person.should.have.property('firstName', 'Yonatan');
       person.should.have.property('lastName', 'Tal');
       person.should.have.property('dischargeDay', personExamples[4].dischargeDay);
@@ -155,9 +155,8 @@ describe('Persons', () => {
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
         ...personExamples[4],
-        primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-        secondaryDomainUsers: [new Types.ObjectId(dbIdExample[0]), 
-          new Types.ObjectId(dbIdExample[1])],
+        primaryDomainUser: dbIdExample[3],
+        secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
         serviceType: 'standing army',
         mail: 'yonatan@work.com',
         phone: ['023456789', '02-3456389'],
@@ -173,12 +172,16 @@ describe('Persons', () => {
       const person = await Person.createPerson(newPerson);
       should.exist(person);
       // todo: remove this
-      console.log('---------createdperson.domainUser-------', person.primaryDomainUser);
+      console.log('---------createdperson.domainUser-------', 
+        String(person.primaryDomainUser) === newPerson.primaryDomainUser);
       person.should.have.property('identityCard', newPerson.identityCard);
       person.should.have.property('personalNumber', newPerson.personalNumber);
-      person.should.have.property('primaryDomainUser', newPerson.primaryDomainUser);
+      expect(String(person.primaryDomainUser) === newPerson.primaryDomainUser).to.be.true;
       person.should.have.property('secondaryDomainUsers');
-      person.secondaryDomainUsers.should.have.members(newPerson.secondaryDomainUsers);
+      for (let i = 0; i < person.secondaryDomainUsers.length; i++) {
+        expect(String(person.secondaryDomainUsers[i]) === 
+          newPerson.secondaryDomainUsers[i]).to.be.true;
+      }
       person.should.have.property('serviceType', newPerson.serviceType);
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
@@ -297,7 +300,7 @@ describe('Persons', () => {
         person.responsibility = 'HR';
         await expectError(Person.createPerson, [person]);
         person.responsibility = 'None';
-        person.responsibilityLocation = new Types.ObjectId('');
+        person.responsibilityLocation = '';
         await expectError(Person.createPerson, [person]);
         delete person.responsibility;
         await expectError(Person.createPerson, [person]);
@@ -378,11 +381,11 @@ describe('Persons', () => {
 
   describe('#getPerson', () => {
     it('Should throw an error when there is no matching person', async () => {
-      await expectError(Person.getPerson, [dbIdExample[0]]);
+      await expectError(Person.getPersonById, [dbIdExample[0]]);
     });
     it('Should find person when one exists', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const returnedPerson = await Person.getPerson(person.id);
+      const returnedPerson = await Person.getPersonById(person.id);
       should.exist(returnedPerson);
       person.should.have.property('identityCard', '123456789');
       person.should.have.property('firstName', 'Avi');
@@ -455,7 +458,7 @@ describe('Persons', () => {
 
       await expectError(Person.updatePerson, [person]);
     });
-    it.only('Should return the updated person', async () => {
+    it('Should return the updated person', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
 
       person.job = 'Programmer';
@@ -466,13 +469,13 @@ describe('Persons', () => {
       const updatedPerson = await Person.updatePerson(person.id, person);
       console.log('-----updated person ---------', <any>person.responsibilityLocation instanceof Types.ObjectId);
       should.exist(updatedPerson);
-
       expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
       updatedPerson.should.have.property('rank', person.rank);
       updatedPerson.should.have.property('job', person.job);
       updatedPerson.should.have.property('responsibility', person.responsibility);
-      expect(updatedPerson.responsibilityLocation === person.responsibilityLocation).to.be.true;
+      expect(String(updatedPerson.responsibilityLocation) === 
+        String(person.responsibilityLocation)).to.be.true;
     });
     it('Should not delete the unchanged props', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -488,7 +491,7 @@ describe('Persons', () => {
       person.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
 
       await Person.updatePerson(person.id, person);
-      const updatedPerson = await Person.getPerson(person.id);
+      const updatedPerson = await Person.getPersonById(person.id);
 
       should.exist(updatedPerson);
 
@@ -499,7 +502,8 @@ describe('Persons', () => {
       updatedPerson.should.have.property('rank', person.rank);
       updatedPerson.should.have.property('job', person.job);
       updatedPerson.should.have.property('responsibility', person.responsibility);
-      expect(updatedPerson.responsibilityLocation === person.responsibilityLocation).to.be.true;
+      expect(String(updatedPerson.responsibilityLocation) ===
+        String(person.responsibilityLocation)).to.be.true;
     });
   });
   describe('Person Staffing', () => {
@@ -518,7 +522,7 @@ describe('Persons', () => {
       await Person.assign(person.id, group._id);
 
       // Check in the person and group after the update
-      person = await Person.getPerson(person.id);
+      person = await Person.getPersonById(person.id);
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
       should.exist(person);
       should.exist(group);
@@ -534,7 +538,7 @@ describe('Persons', () => {
       await Person.assign(person.id, group1._id);
       await Person.assign(person.id, group2._id);
 
-      person = await Person.getPerson(person.id);
+      person = await Person.getPersonById(person.id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers']);
 
@@ -561,12 +565,12 @@ describe('Persons', () => {
       await Person.manage(person.id, group._id);
 
       // Check in the person and group after the update
-      person = await Person.getPerson(person.id);
+      person = await Person.getPersonById(person.id);
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers', 'directManagers']);
 
       should.exist(person);
       should.exist(group);
-      expect(person.directGroup === group._id.toString()).to.be.true;
+      expect(person.directGroup.toString() === group._id.toString()).to.be.true;
       group.directMembers.should.have.lengthOf(1);
       expect(group.directMembers[0].id === person.id).to.be.true;
       group.directManagers.should.have.lengthOf(1);
@@ -580,7 +584,7 @@ describe('Persons', () => {
       await Person.assign(person.id, group1._id);
       await expectError(Person.manage, [person.id, group2._id]);
 
-      person = await Person.getPerson(person.id);
+      person = await Person.getPersonById(person.id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
 
@@ -589,13 +593,13 @@ describe('Persons', () => {
       group2.directMembers.should.have.lengthOf(0);
       group2.directManagers.should.have.lengthOf(0);
       expect(group1.directMembers[0].id === person.id).to.be.true;
-      expect(person.directGroup === group1._id.toString()).to.be.true;
+      expect(person.directGroup.toString() === group1._id.toString()).to.be.true;
 
 
       await Person.manage(person.id, group1._id);
       await expectError(Person.manage, [person.id, group2._id]);
 
-      person = await Person.getPerson(person.id);
+      person = await Person.getPersonById(person.id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
       group1.directMembers.should.have.lengthOf(1);

@@ -1,10 +1,10 @@
-import { Document } from 'mongoose';
-import { ObjectId } from 'bson';
+import { Types } from 'mongoose';
+import { IPerson } from '../person/person.interface';
 
-export interface IDomainUser extends Document {
-  _id: ObjectId;
+export interface IDomainUser {
+  id?: string;
   domain: string;
   name: string;
-  fullString: string;
-  personId: ObjectId;
+  fullString?: string;
+  personId?: Types.ObjectId | string | IPerson;
 }

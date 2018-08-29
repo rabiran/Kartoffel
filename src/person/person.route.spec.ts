@@ -122,7 +122,7 @@ describe('Person', () => {
         done();
       });
     });
-    it('Should return a person', async() => {
+    it('Should return a person according to "_id"', async() => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
         .get(`${BASE_URL}/${person.id}`)
@@ -130,6 +130,30 @@ describe('Person', () => {
           res.should.have.status(200);
           res.should.exist;
           res.body.should.have.property('identityCard', personExamples[0].identityCard);
+          res.body.should.have.property('firstName', personExamples[0].firstName);
+          res.body.should.have.property('lastName', personExamples[0].lastName);
+        }).catch((err) => { throw err; });
+    });
+    it('Should return a person according to "personalNumber"', async() => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await chai.request(server)
+        .get(`${BASE_URL}/personalNumber/${person.personalNumber}`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.exist;
+          res.body.should.have.property('identityCard', personExamples[0].identityCard);
+          res.body.should.have.property('firstName', personExamples[0].firstName);
+          res.body.should.have.property('lastName', personExamples[0].lastName);
+        }).catch((err) => { throw err; });
+    });
+    it('Should return a person according to "identityCard"', async() => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await chai.request(server)
+        .get(`${BASE_URL}/identityCard/${person.identityCard}`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.exist;
+          res.body.should.have.property('personalNumber', personExamples[0].personalNumber);
           res.body.should.have.property('firstName', personExamples[0].firstName);
           res.body.should.have.property('lastName', personExamples[0].lastName);
         }).catch((err) => { throw err; });

@@ -27,8 +27,20 @@ persons.post('/',
            ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.get('/:id', (req: Request, res: Response) => {
-  ch(Person.getPerson, (req: Request, res: Response) => {
+  ch(Person.getPersonById, (req: Request, res: Response) => {
     return [req.params.id]; 
+  }, 404)(req, res, null);
+});
+
+persons.get('/personalNumber/:personalNumber', (req: Request, res: Response) => {
+  ch(Person.getPerson, (req: Request, res: Response) => {
+    return ['personalNumber', req.params.personalNumber]; 
+  }, 404)(req, res, null);
+});
+
+persons.get('/identityCard/:identityCard', (req: Request, res: Response) => {
+  ch(Person.getPerson, (req: Request, res: Response) => {
+    return ['identityCard', req.params.identityCard]; 
   }, 404)(req, res, null);
 });
 
@@ -41,9 +53,9 @@ persons.delete('/:id',
 persons.put('/:id/personal',
           PermissionMiddleware.hasPersonsPermission,
           ch(Person.updatePerson, (req: Request, res: Response) => {
-            if (req.params.id !== req.body._id) return res.status(400).send('Person ID doesn\'t match');
+            // if (req.params.id !== req.body._id) return res.status(400).send('Person ID doesn\'t match');
             const toUpdate = filterObjectByKeys(req.body, EDITABLE_FIELDS.concat('_id'));
-            return [toUpdate];
+            return [req.params.id, toUpdate];
           }, 404));
 
 persons.put('/',
@@ -59,13 +71,6 @@ persons.put('/:id/assign',
             const personID  = req.params.id;
             const groupID  = req.body.group;
             return [personID, groupID];
-          }, 404));
-
-persons.put('/:id/dismiss',
-          PermissionMiddleware.hasAdvancedPermission,
-          ch(Person.dismiss, (req: Request, res: Response) => {
-            const personID  = req.params.person;
-            return [personID];
           }, 404));
 
 persons.put('/:id/manage',

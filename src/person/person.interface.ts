@@ -9,7 +9,7 @@ export interface IPerson {
   identityCard: string;
   personalNumber?: string;
   primaryDomainUser?: string | Types.ObjectId | IDomainUser;
-  secondaryDomainUsers?: string[] | Types.ObjectId[] | IDomainUser[];
+  secondaryDomainUsers?:  string[] | Types.ObjectId[] | IDomainUser[];
   serviceType: string;
   firstName: string;
   lastName: string;
