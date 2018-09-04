@@ -76,7 +76,7 @@ persons.put('/:id/assign',
 persons.put('/:id/dismiss',
           PermissionMiddleware.hasAdvancedPermission,
           ch(Person.dismiss, (req: Request, res: Response) => {
-            const personID  = req.params.person;
+            const personID  = req.params.id;
             return [personID];
           }, 404));
 

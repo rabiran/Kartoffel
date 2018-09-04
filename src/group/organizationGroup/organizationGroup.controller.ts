@@ -6,6 +6,7 @@ import { IPerson } from '../../person/person.interface';
 import { PersonRepository } from '../../person/person.repository';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
+import { ObjectId } from 'bson';
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -18,7 +19,7 @@ export class OrganizationGroup {
 
   static async getOrganizationGroups(cond?: Object): Promise<IOrganizationGroup[]> {
     const organizationGroups = await OrganizationGroup._organizationGroupRepository.find(cond);
-    const fieldsToSend = <(keyof IOrganizationGroup)[]> _.difference(ORGANIZATION_GROUP_KEYS, ORGANIZATION_GROUP_OBJECT_FIELDS);
+    const fieldsToSend = <(keyof IOrganizationGroup)[]>_.difference(ORGANIZATION_GROUP_KEYS, ORGANIZATION_GROUP_OBJECT_FIELDS);
     return _.flatMap(<IOrganizationGroup[]>organizationGroups, k => pick(k, ...fieldsToSend));
   }
 
@@ -63,7 +64,7 @@ export class OrganizationGroup {
 
   static async getOrganizationGroup(organizationGroupID: string, toPopulate?: String[]): Promise<IOrganizationGroup> {
     toPopulate = _.intersection(toPopulate, ORGANIZATION_GROUP_OBJECT_FIELDS);
-    const select = ['id', 'name', 'childless', 'type', 'rank', 'firstName', 'lastName'];
+    const select = ['id', 'name', 'isAleaf', 'type', 'rank', 'firstName', 'lastName'];
     const populateOptions = _.flatMap(toPopulate, (path) => {
       return { path, select };
     });
@@ -100,13 +101,16 @@ export class OrganizationGroup {
     return;
   }
 
+  static async lockGroup(groupID: string): Promise<any> {
+
+  }
+
   static async deleteGroup(groupID: string): Promise<any> {
-    const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
-    // Check that the group has no members or children
+    const group = await OrganizationGroup.getOrganizationGroup(groupID, ['directMembers']);
     if (group.children.length > 0) {
       return Promise.reject(new Error('Can not delete a group with sub groups!'));
     }
-    if (group.members.length > 0) {
+    if (group.directMembers.length > 0) {
       return Promise.reject(new Error('Can not delete a group with members!'));
     }
     // Find the parent, if there is one
@@ -127,7 +131,7 @@ export class OrganizationGroup {
     const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
     if (childrenIDs.length === 0) {
       childrenIDs = <string[]>(parent.children);
-    } 
+    }
     const ancestors = await OrganizationGroup.getAncestors(parentID);
     ancestors.unshift(parentID);
     const hierarchy = await OrganizationGroup.getHierarchyFromAncestors(parentID);
@@ -142,7 +146,7 @@ export class OrganizationGroup {
     const parent = await OrganizationGroup.getOrganizationGroupOld(organizationGroupID);
     // Add the new children if they dont exist yet
     // All of this below is because a stupid bug...
-    const children:string[] = [];
+    const children: string[] = [];
     _.flatMap(parent.children, c => children.push(c.toString()));
     children.push(...childrenIDs);
     parent.children = _.uniq(children);
@@ -156,7 +160,7 @@ export class OrganizationGroup {
   private static async disownChild(parentID: string, childID: string): Promise<IOrganizationGroup> {
     if (!parentID) return;
     const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
-    _.pull(<string[]>parent.children, childID);
+    _.remove(<string[]>parent.children, (item) => {return item.toString() === childID;});
     if (parent.children.length === 0) {
       parent.isALeaf = true;
     } else parent.isALeaf = false;
@@ -170,9 +174,9 @@ export class OrganizationGroup {
   }
 
   private static async isMember(groupID: string, personID: string): Promise<boolean> {
-    const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
-    const members = group.members;
-    return _.includes(<string[]>members, personID);
+    const members = await OrganizationGroup.getAllMembers(groupID);
+    const memberIDs = members.map(member => member.id);
+    return _.includes(<string[]>memberIDs, personID);
   }
 
   private static async getHierarchyFromAncestors(groupID: string, group?: IOrganizationGroup): Promise<string[]> {
@@ -190,29 +194,22 @@ export class OrganizationGroup {
   static async getAllMembers(groupID: string): Promise<IPerson[]> {
     // check that this group exists
     const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
-
-    // const offsprings = <IOrganizationGroup[]>(await OrganizationGroup._organizationGroupRepository.getOffsprings(groupID));
-    // const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => (<string[]>a).concat(<string[]>b));
-    // const members = <IPerson[]>await OrganizationGroup._personRepository.getSome(<string[]>membersIDs);
-    // return members;
-
     const offsprings = await OrganizationGroup._organizationGroupRepository.getOffspringsIds(groupID);
     const offspringIDs = offsprings.map(offspring => offspring._id);
     offspringIDs.push(groupID);
-    const members = <IPerson[]> await OrganizationGroup._personRepository.getMembersOfGroups(offspringIDs);
+    const members = <IPerson[]>await OrganizationGroup._personRepository.getMembersOfGroups(offspringIDs);
     return members;
   }
 }
 
-function modifyOrganizationGroupBeforeSend(organizationGroup: IOrganizationGroup, toPopulate:String[]): IOrganizationGroup {
+function modifyOrganizationGroupBeforeSend(organizationGroup: IOrganizationGroup, toPopulate: String[]): IOrganizationGroup {
   if (organizationGroup.isALeaf === undefined) {
     organizationGroup.isALeaf = (organizationGroup.children.length === 0);
   }
 
-  const fieldsToIgnore = _.difference(ORGANIZATION_GROUP_OBJECT_FIELDS, toPopulate);
-  const fieldsToSend = <(keyof IOrganizationGroup)[]> _.difference(ORGANIZATION_GROUP_KEYS, fieldsToIgnore);
+  const fieldsToIgnore = _.difference(['directMembers', 'directManagers'], toPopulate);
+  const fieldsToSend = <(keyof IOrganizationGroup)[]>_.difference(ORGANIZATION_GROUP_KEYS, fieldsToIgnore);
   return pick(organizationGroup, ...fieldsToSend);
-  // return organizationGroup;
 }
 
 function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {

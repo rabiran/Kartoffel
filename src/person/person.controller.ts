@@ -43,16 +43,6 @@ export class Person {
     return <IPerson[]>persons;
   }
 
-  static async getOrganizationGroupMembers(groupID: string): Promise<IPerson[]> {
-    // check that this group exists
-    const group = await OrganizationGroup.getOrganizationGroupOld(groupID);
-
-    const offsprings = <IOrganizationGroup[]>(await this._organizationGroupRepository.getOffsprings(groupID));
-    const membersIDs = offsprings.map(offspring => offspring.members).reduce((a, b) => (<string[]>a).concat(<string[]>b));
-    const members = <IPerson[]>await this._personRepository.getSome(<string[]>membersIDs);
-    return members;
-  }
-
   static async createPerson(person: IPerson): Promise<IPerson> {
     const newPerson = await Person._personRepository.create(person);
     return <IPerson>newPerson;
