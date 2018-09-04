@@ -27,8 +27,20 @@ persons.post('/',
            ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.get('/:id', (req: Request, res: Response) => {
-  ch(Person.getPerson, (req: Request, res: Response) => {
+  ch(Person.getPersonById, (req: Request, res: Response) => {
     return [req.params.id]; 
+  }, 404)(req, res, null);
+});
+
+persons.get('/personalNumber/:personalNumber', (req: Request, res: Response) => {
+  ch(Person.getPerson, (req: Request, res: Response) => {
+    return ['personalNumber', req.params.personalNumber]; 
+  }, 404)(req, res, null);
+});
+
+persons.get('/identityCard/:identityCard', (req: Request, res: Response) => {
+  ch(Person.getPerson, (req: Request, res: Response) => {
+    return ['identityCard', req.params.identityCard]; 
   }, 404)(req, res, null);
 });
 
