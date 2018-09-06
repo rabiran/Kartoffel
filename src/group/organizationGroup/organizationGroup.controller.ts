@@ -105,28 +105,6 @@ export class OrganizationGroup {
       await OrganizationGroup.adoptChildren(parentID, [newOrganizationGroup._id]);
     }
     return <IOrganizationGroup>newOrganizationGroup;
-    /* try {
-      const groupExists = await OrganizationGroup.getOrganizationGroupByHierarchy(organizationGroup.name, organizationGroup.hierarchy);
-
-      // If the group exists and is alive
-      if (groupExists.isAlive) {
-        return Promise.reject(new Error(`The group with name: ${organizationGroup.name} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`));
-
-        // If the group exists and is not alive, revive it and return it to its parent
-      } else {
-        groupExists.isAlive = true;
-        await OrganizationGroup.adoptChildren(groupExists.ancestors[0], [groupExists.id]);
-        return await OrganizationGroup.updateOrganizationGroup(groupExists);
-      }
-    } catch (error) {
-      // Create the Group
-      const newOrganizationGroup = await OrganizationGroup._organizationGroupRepository.create(organizationGroup);
-      if (parentID) {
-        // Update the parent
-        await OrganizationGroup.adoptChildren(parentID, [newOrganizationGroup._id]);
-      }
-      return <IOrganizationGroup>newOrganizationGroup;
-    } */
   }
 
   static async getOrganizationGroupOld(organizationGroupID: string): Promise<IOrganizationGroup> {
