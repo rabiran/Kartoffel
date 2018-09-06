@@ -30,6 +30,12 @@ organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, [
   return [from, new Date()];
 }));
 
+organizationGroups.get('/path/:path', ch(OrganizationGroup.getOrganizationGroupByHierarchy, (req: Request) => {
+  const hierarchy = req.params.path.split('/');
+  const name = hierarchy.pop();
+  return [name, hierarchy];
+}));
+
 organizationGroups.post('/',
   PermissionMiddleware.hasAdvancedPermission,
   ch(OrganizationGroup.createOrganizationGroup, (req: Request, res: Response) => {

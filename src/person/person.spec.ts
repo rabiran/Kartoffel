@@ -357,11 +357,11 @@ describe('Persons', () => {
 
   describe('#getPerson', () => {
     it('Should throw an error when there is no matching person', async () => {
-      await expectError(Person.getPerson, [dbIdExample[0]]);
+      await expectError(Person.getPersonById, [dbIdExample[0]]);
     });
     it('Should find person when one exists', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const returnedPerson = await Person.getPerson(person._id);
+      const returnedPerson = await Person.getPersonById(person._id);
       should.exist(returnedPerson);
       person.should.have.property('identityCard', '123456789');
       person.should.have.property('firstName', 'Avi');
@@ -377,7 +377,7 @@ describe('Persons', () => {
       should.exist(res);
       res.should.have.property('ok', 1);
       res.should.have.property('n', 1);
-      await expectError(Person.getPerson, [person._id]);
+      await expectError(Person.getPersonById, [person._id]);
     });
     it('Should update the person\'s group after that the person is removed', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -466,7 +466,7 @@ describe('Persons', () => {
       person.responsibilityLocation = new ObjectId(dbIdExample[0]);
 
       await Person.updatePerson(person);
-      const updatedPerson = await Person.getPerson(person._id);
+      const updatedPerson = await Person.getPersonById(person._id);
 
       should.exist(updatedPerson);
 
@@ -496,7 +496,7 @@ describe('Persons', () => {
       await Person.assign(person._id, group._id);
 
       // Check in the person and group after the update
-      person = await Person.getPerson(person._id);
+      person = await Person.getPersonById(person._id);
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers']);
       should.exist(person);
       should.exist(group);
@@ -511,7 +511,7 @@ describe('Persons', () => {
       await Person.assign(person._id, group1._id);
       await Person.assign(person._id, group2._id);
 
-      person = await Person.getPerson(person._id);
+      person = await Person.getPersonById(person._id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers']);
 
@@ -538,7 +538,7 @@ describe('Persons', () => {
       await Person.manage(person._id, group._id);
 
       // Check in the person and group after the update
-      person = await Person.getPerson(person._id);
+      person = await Person.getPersonById(person._id);
       group = await OrganizationGroup.getOrganizationGroup(group._id, ['directMembers', 'directManagers']);
 
       should.exist(person);
@@ -557,7 +557,7 @@ describe('Persons', () => {
       await Person.assign(person._id, group1._id);
       await expectError(Person.manage, [person._id, group2._id]);
 
-      person = await Person.getPerson(person._id);
+      person = await Person.getPersonById(person._id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
 
@@ -572,7 +572,7 @@ describe('Persons', () => {
       await Person.manage(person._id, group1._id);
       await expectError(Person.manage, [person._id, group2._id]);
 
-      person = await Person.getPerson(person._id);
+      person = await Person.getPersonById(person._id);
       group1 = await OrganizationGroup.getOrganizationGroup(group1._id, ['directMembers', 'directManagers']);
       group2 = await OrganizationGroup.getOrganizationGroup(group2._id, ['directMembers', 'directManagers']);
       group1.directMembers.should.have.lengthOf(1);
