@@ -53,3 +53,17 @@ export function filterObjectByKeys(object: Object, allowedKeys: string[]): Objec
     {});
   return filtered;
 }
+/**
+ * Sort array of objects according to IDs array
+ * @param objects Array objects to sort
+ * @param array IDs array to sort by them
+ */
+export function sortObjectsByIDArray(objects: Object[], array: string[]) : Object[] {
+  const newObjects: Object[] = [];
+  array.forEach((idValue) => {
+    const currObject = objects.find((object) => {return object['id'] === idValue.toString();});
+    if (currObject) {newObjects.push(currObject);} 
+  });
+
+  return newObjects;
+}

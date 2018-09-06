@@ -59,7 +59,7 @@ organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
   ));
 
 organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission,
-  ch(OrganizationGroup.deleteGroup, (req: Request) => {
+  ch(OrganizationGroup.hideGroup, (req: Request) => {
     return [req.params.id];
   }, 400
   )

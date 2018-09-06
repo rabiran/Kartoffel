@@ -7,6 +7,7 @@ import { PersonRepository } from '../../person/person.repository';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
 import { ObjectId } from 'bson';
+import { sortObjectsByIDArray } from '../../utils';
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -23,14 +24,49 @@ export class OrganizationGroup {
     return _.flatMap(<IOrganizationGroup[]>organizationGroups, k => pick(k, ...fieldsToSend));
   }
 
+  /**
+   * Add organizationGroup
+   * @param organizationGroup 
+   * @param parentID 
+   */
   static async createOrganizationGroup(organizationGroup: IOrganizationGroup, parentID: string = undefined): Promise<IOrganizationGroup> {
+    
+    /* In case there is a parent checking that all his ancestor 
+       lives and creates a hierarchy and an ancestor */
     if (parentID) {
+      const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
+      
+      // If the parent is not alive checks all the other ancestors
+      if (!parent.isAlive) {
+        const parentAncestors = await OrganizationGroup.getAncestors(parentID, { isAlive: false });
+        parentAncestors.unshift(parent);
+
+        // Revives all the ancestors that are not alive and returns to each parent his son 
+        parentAncestors.forEach(async (ancestor, index, parentAncestors) => {
+          ancestor.isAlive = true;
+
+          // Returns each child to the parent, except the last one that is not in the array
+          if (index !== parentAncestors.length - 1) {
+            (<string[]>parentAncestors[index + 1].children).push(ancestor.id);
+            
+            // 'Is a leaf' check:
+            if (parentAncestors[index + 1].isALeaf) parentAncestors[index + 1].isALeaf = false;
+
+            // Update the last parent
+          } else {
+            await OrganizationGroup.adoptChildren(ancestor.ancestors[0], [ancestor.id]);
+          }
+
+          // Updating any parent that has been modified
+          await OrganizationGroup.updateOrganizationGroup(ancestor);
+        });
+      }
+
       // Create group hierarchy
-      const parentsHierarchy = await OrganizationGroup.getAncestors(parentID);
-      parentsHierarchy.unshift(parentID);
-      organizationGroup.ancestors = parentsHierarchy;
-      await OrganizationGroup.getHierarchyFromAncestors(organizationGroup._id, organizationGroup);
+      organizationGroup.ancestors = [parent._id].concat(parent.ancestors);
+      organizationGroup.hierarchy = parent.hierarchy.concat(parent.name);
     }
+
     // Create the Group
     const newOrganizationGroup = await OrganizationGroup._organizationGroupRepository.create(organizationGroup);
     if (parentID) {
@@ -54,7 +90,7 @@ export class OrganizationGroup {
 
   static async getOrganizationGroup(organizationGroupID: string, toPopulate?: String[]): Promise<IOrganizationGroup> {
     toPopulate = _.intersection(toPopulate, ORGANIZATION_GROUP_OBJECT_FIELDS);
-    const select = ['id', 'name', 'isAleaf', 'type', 'rank', 'firstName', 'lastName'];
+    const select = ['id', 'name', 'isALeaf', 'type', 'rank', 'firstName', 'lastName'];
     const populateOptions = _.flatMap(toPopulate, (path) => {
       return { path, select };
     });
@@ -91,13 +127,42 @@ export class OrganizationGroup {
     return;
   }
 
-  static async lockGroup(groupID: string): Promise<any> {
+  /**
+   * Hides the group when it is no longer used
+   * @param groupID Group id of the group to hide
+   */
+  static async hideGroup(groupID: string): Promise<any> {
+    const group = await OrganizationGroup.getOrganizationGroup(groupID, ['directMembers']);
+    
+    // Checks if the group has subgroups
+    if (!group.isALeaf) {
+      return Promise.reject(new Error('Can not delete a group with sub groups!'));
+    }
 
+    // Checks if the group has no friends
+    if (group.directMembers.length === 0) {
+      group.isAlive = false;
+    } else {
+      return Promise.reject(new Error('Can not delete a group with members!'));
+    }
+
+    // Find the parent, if there is one
+    const parentID = group.ancestors.length > 0 ? group.ancestors[0] : undefined;
+
+    // Update the group
+    const res = await OrganizationGroup.updateOrganizationGroup(group);
+
+    // Inform the parent about his child's death
+    if (parentID) {
+      await OrganizationGroup.disownChild(parentID, groupID);
+    }
+    return res;
   }
 
   static async deleteGroup(groupID: string): Promise<any> {
     const group = await OrganizationGroup.getOrganizationGroup(groupID, ['directMembers']);
-    if (group.children.length > 0) {
+
+    if (!group.isALeaf) {
       return Promise.reject(new Error('Can not delete a group with sub groups!'));
     }
     if (group.directMembers.length > 0) {
@@ -122,7 +187,7 @@ export class OrganizationGroup {
     if (childrenIDs.length === 0) {
       childrenIDs = <string[]>(parent.children);
     }
-    const ancestors = await OrganizationGroup.getAncestors(parentID);
+    const ancestors = await OrganizationGroup.getIDAncestors(parentID);
     ancestors.unshift(parentID);
     const hierarchy = await OrganizationGroup.getHierarchyFromAncestors(parentID);
     hierarchy.unshift(parent.name);
@@ -132,13 +197,12 @@ export class OrganizationGroup {
   }
 
   // Update the father about his child
-  private static async adoptChildren(organizationGroupID: string, childrenIDs: string[]): Promise<IOrganizationGroup> {
-    const parent = await OrganizationGroup.getOrganizationGroupOld(organizationGroupID);
+  private static async adoptChildren(parentID: string, childrenIDs: string[], parent?: IOrganizationGroup): Promise<IOrganizationGroup> {
+    if (!parent) {
+      parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
+    }
     // Add the new children if they dont exist yet
-    // All of this below is because a stupid bug...
-    const children: string[] = [];
-    _.flatMap(parent.children, c => children.push(c.toString()));
-    children.push(...childrenIDs);
+    const children = (<string[]>parent.children).concat(childrenIDs);
     parent.children = _.uniq(children);
     // 'Is a leaf' check:
     if (parent.children.length !== 0) {
@@ -150,17 +214,35 @@ export class OrganizationGroup {
   private static async disownChild(parentID: string, childID: string): Promise<IOrganizationGroup> {
     if (!parentID) return;
     const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
-    _.remove(<string[]>parent.children, (item) => {return item.toString() === childID;});
+    _.remove(<string[]>parent.children, (item) => { return item.toString() === childID; });
     if (parent.children.length === 0) {
       parent.isALeaf = true;
     } else parent.isALeaf = false;
     return await OrganizationGroup.updateOrganizationGroup(parent);
   }
 
-  private static async getAncestors(organizationGroupID: string): Promise<string[]> {
+  private static async getIDAncestors(organizationGroupID: string): Promise<string[]> {
     const organizationGroup = await OrganizationGroup.getOrganizationGroupOld(organizationGroupID);
     if (!organizationGroup.ancestors) return [];
     return <string[]>organizationGroup.ancestors;
+  }
+
+  /**
+   * Get ancestors of group 
+   * @param organizationGroupID ID of group
+   * @param cond Condition of query
+   */
+  private static async getAncestors(organizationGroupID: string, cond?: Object): Promise<IOrganizationGroup[]> {
+    const organizationGroup = await OrganizationGroup.getOrganizationGroupOld(organizationGroupID);
+    if (!organizationGroup.ancestors) return [];
+    
+    // If there are conditions adding them to the request, otherwise no
+    const ancestorObjects: IOrganizationGroup[] = cond ?
+      <IOrganizationGroup[]>await OrganizationGroup._organizationGroupRepository.getSome(organizationGroup.ancestors, cond) :
+      <IOrganizationGroup[]>await OrganizationGroup._organizationGroupRepository.getSome(organizationGroup.ancestors);
+    
+    // Return sort array according ancestors  
+    return <IOrganizationGroup[]>sortObjectsByIDArray(ancestorObjects, organizationGroup.ancestors);
   }
 
   private static async isMember(groupID: string, personID: string): Promise<boolean> {
@@ -169,16 +251,10 @@ export class OrganizationGroup {
     return _.includes(<string[]>memberIDs, personID);
   }
 
-  private static async getHierarchyFromAncestors(groupID: string, group?: IOrganizationGroup): Promise<string[]> {
-    if (!group) {
-      group = await OrganizationGroup.getOrganizationGroupOld(groupID);
-    }
-    const parentID = group.ancestors[0];
-    if (!parentID) return [];
+  private static async getHierarchyFromAncestors(parentID: string): Promise<string[]> {
     const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
-    const newHierarchy = parent.hierarchy.concat(parent.name);
-    group.hierarchy = newHierarchy;
-    return newHierarchy;
+    if (!parent.hierarchy) return [];
+    return parent.hierarchy;
   }
 
   static async getAllMembers(groupID: string): Promise<IPerson[]> {

@@ -222,8 +222,7 @@ describe('OrganizationGroup API', () => {
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('ok', 1);
-          res.body.should.have.property('n', 1);
+          res.body.should.have.property('isAlive', false);
         }).catch((err) => { throw err; });
     });
   });

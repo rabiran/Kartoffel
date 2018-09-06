@@ -13,6 +13,6 @@ export interface IOrganizationGroup extends IGroup {
   isAlive: boolean;
 }
 
-export const ORGANIZATION_GROUP_BASIC_FIELDS = ['name', 'clearance', 'type', 'isAleaf'];
+export const ORGANIZATION_GROUP_BASIC_FIELDS = ['name', 'clearance', 'type', 'isALeaf'];
 export const ORGANIZATION_GROUP_OBJECT_FIELDS = ['ancestors', 'children','directMembers', 'directManagers'];
-export const ORGANIZATION_GROUP_KEYS = ['_id', 'updatedAt', 'name', 'clearance', 'type', 'hierarchy', 'ancestors', 'children', 'directMembers', 'directManagers', 'isAleaf'];
+export const ORGANIZATION_GROUP_KEYS = ['_id', 'updatedAt', 'name', 'clearance', 'type', 'hierarchy', 'ancestors', 'children', 'directMembers', 'directManagers', 'isALeaf'];

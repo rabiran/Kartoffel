@@ -29,8 +29,13 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     return this._model.find({}).exec();
   }
 
-  getSome(ids: string[]): Promise<mongoose.Document[]> {
-    return this._model.find({ _id: { $in: ids } }).exec();
+  getSome(ids: string[], cond?: Object): Promise<mongoose.Document[]> {
+    const query = this._model.find({ _id: { $in: ids } });
+    if (cond) {
+      query.where(cond);
+    }
+
+    return query.exec();
   }
 
   getUpdatedFrom(from: Date, to: Date): Promise<mongoose.Document[]> {

@@ -313,8 +313,6 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person.phone = ['02-36456'];
         await expectError(Person.createPerson, [person]);
-        person.phone = ['12364564'];
-        await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when Mobile Phone is invalid', async () => {
         const person = { ...personExamples[1] };
@@ -325,10 +323,8 @@ describe('Persons', () => {
         person.mobilePhone = ['054-12345678'];
         await expectError(Person.createPerson, [person]);
         person.mobilePhone = ['054-123456'];
-        await expectError(Person.createPerson, [person]);
-        person.mobilePhone = ['0236456789'];
-        await expectError(Person.createPerson, [person]);
-        person.mobilePhone = ['1523645678'];
+        await expectError(Person.createPerson, [person]);      
+        person.mobilePhone = ['1523645'];
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when clearance is invalid', async () => {

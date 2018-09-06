@@ -36,11 +36,11 @@ export class PersonValidate extends ModelValidate {
   }
 
   public static mobilePhone(mobilePhone: string) {
-    return /^05\d-?\d{7}$/.test(mobilePhone);
+    return /^\d{2,3}-?\d{7}$/.test(mobilePhone);
   }
 
   public static phone(phone: string) {
-    return /^0\d-?\d{6,7}$/.test(phone);
+    return /^\d{1,2}-?\d{6,7}$/.test(phone);
   }
 
   public static personalNumber(personalNumber: string) {
