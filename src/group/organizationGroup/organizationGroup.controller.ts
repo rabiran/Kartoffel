@@ -24,11 +24,11 @@ export class OrganizationGroup {
     return _.flatMap(<IOrganizationGroup[]>organizationGroups, k => pick(k, ...fieldsToSend));
   }
 
- /**
-  * Checks if there is a group with this hierarchy
-  * @param name Name of OrganizationGgroup
-  * @param hierarchy Hierarchy of OrganizationGgroup
-  */
+  /**
+   * Checks if there is a group with this hierarchy
+   * @param name Name of OrganizationGgroup
+   * @param hierarchy Hierarchy of OrganizationGgroup
+   */
   static async getOrganizationGroupByHierarchy(name: string, hierarchy: string[]): Promise<IOrganizationGroup> {
     const cond = {
       name,
@@ -39,18 +39,18 @@ export class OrganizationGroup {
     return <IOrganizationGroup>organizationGroup;
   }
 
-   /**
-   * Add organizationGroup
-   * @param organizationGroup The object with details to create organizationGroup 
-   * @param parentID ID of parent of organizationGroup to insert 
-   */
+  /**
+  * Add organizationGroup
+  * @param organizationGroup The object with details to create organizationGroup 
+  * @param parentID ID of parent of organizationGroup to insert 
+  */
   static async createOrganizationGroup(organizationGroup: IOrganizationGroup, parentID: string = undefined): Promise<IOrganizationGroup> {
-    
+
     /* In case there is a parent checking that all his ancestor 
        lives and creates a hierarchy and an ancestor */
     if (parentID) {
       const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
-      
+
       // If the parent is not alive checks all the other ancestors
       if (!parent.isAlive) {
         const parentAncestors = await OrganizationGroup.getAncestors(parentID, { isAlive: false });
@@ -63,7 +63,7 @@ export class OrganizationGroup {
           // Returns each child to the parent, except the last one that is not in the array
           if (index !== parentAncestors.length - 1) {
             (<string[]>parentAncestors[index + 1].children).push(ancestor.id);
-            
+
             // 'Is a leaf' check:
             if (parentAncestors[index + 1].isALeaf) parentAncestors[index + 1].isALeaf = false;
 
@@ -82,6 +82,22 @@ export class OrganizationGroup {
       organizationGroup.hierarchy = parent.hierarchy.concat(parent.name);
     }
 
+    // Checks if the group exists
+    const groupExists = <IOrganizationGroup>await OrganizationGroup._organizationGroupRepository.
+      findOne({ name: organizationGroup.name, hierarchy: organizationGroup.hierarchy });    
+    if (groupExists) {
+      // If the group exists and is alive
+      if (groupExists.isAlive) {
+        return Promise.reject(new Error(`The group with name: ${organizationGroup.name} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`));
+
+      // If the group exists and is not alive, revive it and return it to its parent
+      } else {
+        groupExists.isAlive = true;
+        await OrganizationGroup.adoptChildren(groupExists.ancestors[0], [groupExists.id]);
+        return await OrganizationGroup.updateOrganizationGroup(groupExists);
+      }
+    }
+
     // Create the Group
     const newOrganizationGroup = await OrganizationGroup._organizationGroupRepository.create(organizationGroup);
     if (parentID) {
@@ -89,6 +105,28 @@ export class OrganizationGroup {
       await OrganizationGroup.adoptChildren(parentID, [newOrganizationGroup._id]);
     }
     return <IOrganizationGroup>newOrganizationGroup;
+    /* try {
+      const groupExists = await OrganizationGroup.getOrganizationGroupByHierarchy(organizationGroup.name, organizationGroup.hierarchy);
+
+      // If the group exists and is alive
+      if (groupExists.isAlive) {
+        return Promise.reject(new Error(`The group with name: ${organizationGroup.name} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`));
+
+        // If the group exists and is not alive, revive it and return it to its parent
+      } else {
+        groupExists.isAlive = true;
+        await OrganizationGroup.adoptChildren(groupExists.ancestors[0], [groupExists.id]);
+        return await OrganizationGroup.updateOrganizationGroup(groupExists);
+      }
+    } catch (error) {
+      // Create the Group
+      const newOrganizationGroup = await OrganizationGroup._organizationGroupRepository.create(organizationGroup);
+      if (parentID) {
+        // Update the parent
+        await OrganizationGroup.adoptChildren(parentID, [newOrganizationGroup._id]);
+      }
+      return <IOrganizationGroup>newOrganizationGroup;
+    } */
   }
 
   static async getOrganizationGroupOld(organizationGroupID: string): Promise<IOrganizationGroup> {
@@ -148,7 +186,7 @@ export class OrganizationGroup {
    */
   static async hideGroup(groupID: string): Promise<any> {
     const group = await OrganizationGroup.getOrganizationGroup(groupID, ['directMembers']);
-    
+
     // Checks if the group has subgroups
     if (!group.isALeaf) {
       return Promise.reject(new Error('Can not delete a group with sub groups!'));
@@ -250,12 +288,12 @@ export class OrganizationGroup {
   private static async getAncestors(organizationGroupID: string, cond?: Object): Promise<IOrganizationGroup[]> {
     const organizationGroup = await OrganizationGroup.getOrganizationGroupOld(organizationGroupID);
     if (!organizationGroup.ancestors) return [];
-    
+
     // If there are conditions adding them to the request, otherwise no
     const ancestorObjects: IOrganizationGroup[] = cond ?
       <IOrganizationGroup[]>await OrganizationGroup._organizationGroupRepository.getSome(organizationGroup.ancestors, cond) :
       <IOrganizationGroup[]>await OrganizationGroup._organizationGroupRepository.getSome(organizationGroup.ancestors);
-    
+
     // Return sort array according ancestors  
     return <IOrganizationGroup[]>sortObjectsByIDArray(ancestorObjects, organizationGroup.ancestors);
   }
