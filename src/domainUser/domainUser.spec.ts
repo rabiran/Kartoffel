@@ -62,7 +62,13 @@ describe('DomainUsers', () => {
     it('should get all the users');
   });
   describe('#getById', () => {
-    it('should get the specified user by its ID');
+    it('should get the specified user by its ID', async () => {
+      const createdUser = await Users.create(userExample);
+      const user = await Users.getById(createdUser.id);
+      user.should.have.property('name', createdUser.name);
+      user.should.have.property('domain', createdUser.domain);
+      user.should.have.property('fullString', `${createdUser.name}@${createdUser.domain}`);
+    });
   });
   describe('#delete', () => {
     it('should delete the specified user');
