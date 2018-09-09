@@ -60,7 +60,7 @@ describe('OrganizationGroup API', () => {
     it('Should return a group', async() => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
       await chai.request(server)
-        .get(BASE_URL + '/' + organizationGroup._id)
+        .get(BASE_URL + '/' + organizationGroup.id)
         .then((res) => {
           res.should.have.status(200);
           res.should.exist;
@@ -141,7 +141,7 @@ describe('OrganizationGroup API', () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'MyGroup' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
-        .send({ parentID: group._id })
+        .send({ parentID: group.id })
         .then(
           () => expect.fail(undefined, undefined, 'Should not succeed!'),
           err => err.should.have.status(400)
@@ -163,7 +163,7 @@ describe('OrganizationGroup API', () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'MyGroup' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
-        .send({ parentID: group._id, childID: group._id })
+        .send({ parentID: group.id, childID: group.id })
         .then(
           () => expect.fail(undefined, undefined, 'Should not succeed!'),
           err => err.should.have.status(400)
@@ -174,21 +174,21 @@ describe('OrganizationGroup API', () => {
       let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
       await chai.request(server)
             .put(BASE_URL + '/adoption')
-            .send({ parentID: parent._id, childID: child._id })
+            .send({ parentID: parent.id, childID: child.id })
             .then((res) => {
               res.should.have.status(200);
             }).catch((err) => {
               expect.fail(undefined, undefined, err.message);
             });
-      parent = await OrganizationGroup.getOrganizationGroupOld(parent._id);
-      child = await OrganizationGroup.getOrganizationGroupOld(child._id);
+      parent = await OrganizationGroup.getOrganizationGroupOld(parent.id);
+      child = await OrganizationGroup.getOrganizationGroupOld(child.id);
 
       parent.should.exist;
       parent.children.should.exist;
-      expect(parent.children[0].toString() === child._id.toString()).to.be.ok;
+      expect(parent.children[0].toString() === child.id.toString()).to.be.ok;
       child.should.exist;
       child.ancestors.should.exist;
-      expect(child.ancestors[0].toString() === parent._id.toString()).to.be.ok;
+      expect(child.ancestors[0].toString() === parent.id.toString()).to.be.ok;
     });
   });
   describe('/DELETE group', () => {
@@ -204,11 +204,11 @@ describe('OrganizationGroup API', () => {
         });
     });
     it('Should return 400 if group cannot be removed', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
-      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE_2, name: 'child' });
-      await OrganizationGroup.childrenAdoption(group._id, [child._id]);
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
+      await OrganizationGroup.childrenAdoption(group.id, [child.id]);
       await chai.request(server)
-        .del(BASE_URL + '/' + ID_EXAMPLE)
+        .del(BASE_URL + '/' + group.id)
         .then(() => expect.fail(undefined, undefined, 'Should not succeed!'))
         .catch((err) => {
           err.status.should.be.equal(400);
@@ -216,9 +216,9 @@ describe('OrganizationGroup API', () => {
         });
     });
     it('Should return successful result ', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ id: ID_EXAMPLE, name: 'group' });
       await chai.request(server)
-        .del(BASE_URL + '/' + group._id)
+        .del(BASE_URL + '/' + group.id)
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);

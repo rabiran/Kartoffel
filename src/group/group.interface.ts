@@ -1,12 +1,13 @@
 import { Document } from 'mongoose';
 import { IPerson } from '../person/person.interface';
 
-export interface IGroup extends Document {
+export interface IGroup {
+  id?: string;
   name: string;
-  admins: IPerson[] | string[];
-  members: IPerson[] | string[];
-  clearance: number;
-  updatedAt: Date;
+  admins?: IPerson[] | string[];
+  members?: IPerson[] | string[];
+  clearance?: number;
+  updatedAt?: Date;
 }
 
 export interface IOrganizationGroup extends IGroup {

@@ -2,6 +2,7 @@ import * as chai from 'chai';
 import { IDomainUser } from './domainUser.interface';
 import { DomainUserController as Users } from './domainUser.controller';
 import { expectError } from '../helpers/spec.helper';
+import { userFromString } from './domainUser.utils';
 
 const should = chai.should();
 const expect = chai.expect;
@@ -17,6 +18,8 @@ describe('DomainUsers', () => {
   describe('#createDomainUser', () => {
     it('should create domain user', async () => {
       const user = await Users.create(userExample);
+      user.should.exist;
+      user.should.have.property('id');
       user.should.have.property('name', userExample.name);
       user.should.have.property('domain', userExample.domain);
       user.should.have.property('fullString', `${userExample.name}@${userExample.domain}`);
@@ -30,6 +33,30 @@ describe('DomainUsers', () => {
       await Users.create(userExample);
       await expectError(Users.create, [sameUser]);
     });
+
+    it('should create the user from the string representation', async () => {
+      const name = 'someuser123', domain = 'somedomain';
+      const userString = `${name}@${domain}`;
+      const userObj = userFromString(userString);
+      userObj.should.have.property('name', name);
+      userObj.should.have.property('domain', domain);
+      const user = await Users.create(userObj);
+      user.should.exist;
+      user.should.have.property('name', name);
+      user.should.have.property('domain', domain);
+      user.should.have.property('fullString', userString);
+      user.should.have.property('id');
+    });
+
+    it('should throw an error when trying to construct user object fron illegal string', () => {
+      const illegalString1 = 'withoutSeperator', illegalString2 = 'two@shit@seperators',
+        illegalString3 = '@noName', illegalString4 = 'noDomain@';
+      expect(userFromString.bind(null, illegalString1)).to.throw();
+      expect(userFromString.bind(null, illegalString2)).to.throw();
+      expect(userFromString.bind(null, illegalString3)).to.throw();
+      expect(userFromString.bind(null, illegalString4)).to.throw();
+    });
+
   });
   describe('#getAll', () => {
     it('should get all the users');

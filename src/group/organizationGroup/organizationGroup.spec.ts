@@ -52,12 +52,12 @@ describe('Strong Groups', () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_1' });
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2' });
       const update2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_3' });
-      await OrganizationGroup.updateOrganizationGroup(update1);
+      await OrganizationGroup.updateOrganizationGroup(update1.id, update1);
       clock.tick(1000);
       const to = new Date();
       clock.tick(1000);
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_4' });
-      await OrganizationGroup.updateOrganizationGroup(update2);
+      await OrganizationGroup.updateOrganizationGroup(update2.id, update2);
       const groups = await OrganizationGroup.getUpdatedFrom(from, to);
       clock.restore();
 
@@ -86,26 +86,26 @@ describe('Strong Groups', () => {
     });
     it('Should create a group correctly with one parent', async () => {
       const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Ido' });
-      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Elad' }, parent._id);
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Elad' }, parent.id);
       child.should.exist;
       child.should.have.property('ancestors');
       child.ancestors.should.have.lengthOf(1);
       const hisParent = child.ancestors[0].toString();
-      hisParent.should.equal(parent._id.toString());
+      hisParent.should.equal(parent.id);
       child.hierarchy.should.have.lengthOf(1);
       child.hierarchy[0].should.be.equal(parent.name);
     });
     it('Should create a group correctly with two ancestors', async () => {
       const grandparent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandparent' });
-      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' }, grandparent._id);
-      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent._id);
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' }, grandparent.id);
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
       child.should.exist;
       child.should.have.property('ancestors');
       child.ancestors.should.have.lengthOf(2);
       const hisParent = child.ancestors[0].toString();
       const hisGrandparent = child.ancestors[1].toString();
-      hisParent.should.equal(parent._id.toString());
-      hisGrandparent.should.equal(grandparent._id.toString());
+      hisParent.should.equal(parent.id.toString());
+      hisGrandparent.should.equal(grandparent.id.toString());
       child.hierarchy.should.have.lengthOf(2);
       child.hierarchy[0].should.be.equal(grandparent.name);
       child.hierarchy[1].should.be.equal(parent.name);
@@ -124,8 +124,8 @@ describe('Strong Groups', () => {
     });
     it('should return the group populated', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
-      const child1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 1' }, organizationGroup._id);
-      const child2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2' }, organizationGroup._id);
+      const child1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 1' }, organizationGroup.id);
+      const child2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2' }, organizationGroup.id);
 
       const res = await OrganizationGroup.getOrganizationGroupPopulated(organizationGroup.id);
 
@@ -143,11 +143,11 @@ describe('Strong Groups', () => {
     describe('#updateOrganizationGroup', () => {
       it('Should throw an error if the group doesn\'t exist', async () => {
         // OrganizationGroup.updateOrganizationGroupDry(ID_EXAMPLE, <IOrganizationGroup>{ name: 'newName' });
-        await expectError(OrganizationGroup.updateOrganizationGroup, [<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'newName' }]);
+        await expectError(OrganizationGroup.updateOrganizationGroup, [ID_EXAMPLE, <IOrganizationGroup>{ name: 'newName' }]);
       });
       it('Should update the group', async () => {
         const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myTeam' });
-        const updated = await OrganizationGroup.updateOrganizationGroup(<IOrganizationGroup>{ _id: organizationGroup.id, name: 'newName' });
+        const updated = await OrganizationGroup.updateOrganizationGroup(organizationGroup.id ,<IOrganizationGroup>{ name: 'newName' });
 
         updated.should.exist;
         updated.should.have.property('name', 'newName');
@@ -163,14 +163,14 @@ describe('Strong Groups', () => {
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
         let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
 
-        await OrganizationGroup.childrenAdoption(parent._id, [child._id]);
+        await OrganizationGroup.childrenAdoption(parent.id, [child.id]);
 
-        child = await OrganizationGroup.getOrganizationGroupOld(child._id);
+        child = await OrganizationGroup.getOrganizationGroupOld(child.id);
 
         child.should.exist;
         child.should.have.property('ancestors');
         child.ancestors.should.have.lengthOf(1);
-        expect(child.ancestors[0].toString() === parent._id.toString()).to.be.ok;
+        expect(child.ancestors[0].toString() === parent.id).to.be.ok;
         child.should.have.property('hierarchy');
         child.hierarchy.should.have.lengthOf(1);
         child.hierarchy[0].should.be.equal(parent.name);
@@ -180,30 +180,30 @@ describe('Strong Groups', () => {
         let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
 
-        await OrganizationGroup.childrenAdoption(parent_old._id, [child._id]);
-        await OrganizationGroup.childrenAdoption(parent._id, [child._id]);
-        child = await OrganizationGroup.getOrganizationGroupOld(child._id);
+        await OrganizationGroup.childrenAdoption(parent_old.id, [child.id]);
+        await OrganizationGroup.childrenAdoption(parent.id, [child.id]);
+        child = await OrganizationGroup.getOrganizationGroupOld(child.id);
 
         child.should.exist;
         child.should.have.property('ancestors');
         child.ancestors.should.have.lengthOf(1);
-        expect(child.ancestors[0].toString() === parent._id.toString()).to.be.ok;
+        expect(child.ancestors[0].toString() === parent.id).to.be.ok;
       });
       it('Should update a child\'s hierarchy', async () => {
         const grandparent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandparent' });
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
         let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
 
-        await OrganizationGroup.childrenAdoption(grandparent._id, [parent._id]);
-        await OrganizationGroup.childrenAdoption(parent._id, [child._id]);
+        await OrganizationGroup.childrenAdoption(grandparent.id, [parent.id]);
+        await OrganizationGroup.childrenAdoption(parent.id, [child.id]);
 
-        child = await OrganizationGroup.getOrganizationGroupOld(child._id);
+        child = await OrganizationGroup.getOrganizationGroupOld(child.id);
 
         child.should.exist;
         child.should.have.property('ancestors');
         child.ancestors.should.have.lengthOf(2);
-        expect(child.ancestors[0].toString() === parent._id.toString()).to.be.ok;
-        expect(child.ancestors[1].toString() === grandparent._id.toString()).to.be.ok;
+        expect(child.ancestors[0].toString() === parent.id).to.be.ok;
+        expect(child.ancestors[1].toString() === grandparent.id).to.be.ok;
       });
       it('Should update a child\'s hierarchy multiple times', async () => {
         const grandparent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandparent' });
@@ -211,17 +211,17 @@ describe('Strong Groups', () => {
         const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
         let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
 
-        await OrganizationGroup.childrenAdoption(grandparent._id, [parent._id]);
-        await OrganizationGroup.childrenAdoption(parent._id, [child._id]);
-        await OrganizationGroup.childrenAdoption(grandparent_2._id, [parent._id]);
+        await OrganizationGroup.childrenAdoption(grandparent.id, [parent.id]);
+        await OrganizationGroup.childrenAdoption(parent.id, [child.id]);
+        await OrganizationGroup.childrenAdoption(grandparent_2.id, [parent.id]);
 
-        child = await OrganizationGroup.getOrganizationGroupOld(child._id);
+        child = await OrganizationGroup.getOrganizationGroupOld(child.id);
 
         child.should.exist;
         child.should.have.property('ancestors');
         child.ancestors.should.have.lengthOf(2);
-        expect(child.ancestors[0].toString() === parent._id.toString()).to.be.ok;
-        expect(child.ancestors[1].toString() === grandparent_2._id.toString()).to.be.ok;
+        expect(child.ancestors[0].toString() === parent.id).to.be.ok;
+        expect(child.ancestors[1].toString() === grandparent_2.id).to.be.ok;
       });
     });
   });
@@ -230,18 +230,18 @@ describe('Strong Groups', () => {
       await expectError(OrganizationGroup.deleteGroup, [ID_EXAMPLE]);
     });
     it('Should delete the group', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
-      const res = await OrganizationGroup.deleteGroup(group._id);
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
+      const res = await OrganizationGroup.deleteGroup(group.id);
       res.should.exist;
       res.should.have.property('ok', 1);
       res.should.have.property('n', 1);
-      await expectError(OrganizationGroup.getOrganizationGroup, [group._id]);
+      await expectError(OrganizationGroup.getOrganizationGroup, [group.id]);
     });
     it('Should not remove a group with children', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: ID_EXAMPLE, name: 'group' });
-      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ _id: idXmpls[0], name: 'child' });
-      await OrganizationGroup.childrenAdoption(group._id, [child._id]);
-      await expectError(OrganizationGroup.deleteGroup, [group._id]);
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
+      await OrganizationGroup.childrenAdoption(group.id, [child.id]);
+      await expectError(OrganizationGroup.deleteGroup, [group.id]);
     });
   });
   describe('#getGroupMembers', () => {
@@ -250,7 +250,7 @@ describe('Strong Groups', () => {
     });
     it('Should be returning the matching members', async () => {
       const ancestor = await bigTree();
-      const treeMembers = await OrganizationGroup.getAllMembers(ancestor._id);
+      const treeMembers = await OrganizationGroup.getAllMembers(ancestor.id);
       treeMembers.should.have.lengthOf(8);
     });
   });
@@ -271,10 +271,10 @@ async function bigTree() {
   const child_32 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.2' });
   const child_33 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.3' });
 
-  await OrganizationGroup.childrenAdoption(seldag._id, [parent_1._id, parent_2._id, parent_3._id]);
-  await OrganizationGroup.childrenAdoption(parent_1._id, [child_11._id]);
-  await OrganizationGroup.childrenAdoption(parent_2._id, [child_21._id, child_22._id]);
-  await OrganizationGroup.childrenAdoption(parent_3._id, [child_31._id, child_32._id, child_33._id]);
+  await OrganizationGroup.childrenAdoption(seldag.id, [parent_1.id, parent_2.id, parent_3.id]);
+  await OrganizationGroup.childrenAdoption(parent_1.id, [child_11.id]);
+  await OrganizationGroup.childrenAdoption(parent_2.id, [child_21.id, child_22.id]);
+  await OrganizationGroup.childrenAdoption(parent_3.id, [child_31.id, child_32.id, child_33.id]);
 
   const person_11 = await Person.createPerson(<IPerson>{
     identityCard: '000000011',
@@ -388,17 +388,17 @@ async function bigTree() {
     directGroup: idXmpls[1],
   });
 
-  await Person.assign(person_11.id, parent_1._id);
-  await Person.assign(person_12.id, parent_1._id);
-  await Person.assign(person_21.id, parent_2._id);
-  await Person.assign(person_111.id, child_11._id);
-  await Person.assign(person_221.id, child_22._id);
-  await Person.assign(person_311.id, child_31._id);
-  await Person.assign(person_312.id, child_31._id);
-  await Person.assign(person_331.id, child_33._id);
+  await Person.assign(person_11.id, parent_1.id);
+  await Person.assign(person_12.id, parent_1.id);
+  await Person.assign(person_21.id, parent_2.id);
+  await Person.assign(person_111.id, child_11.id);
+  await Person.assign(person_221.id, child_22.id);
+  await Person.assign(person_311.id, child_31.id);
+  await Person.assign(person_312.id, child_31.id);
+  await Person.assign(person_331.id, child_33.id);
 
-  await Person.assign(friede.id, ariandel._id);
-  await Person.assign(gale.id, ariandel._id);
+  await Person.assign(friede.id, ariandel.id);
+  await Person.assign(gale.id, ariandel.id);
 
   return seldag;
 }

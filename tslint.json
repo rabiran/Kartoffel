@@ -33,6 +33,7 @@
         "max-line-length": false, // 18.12
         "no-increment-decrement": false, // 13.6
         "radix": false, // 21.3 22.3
-        "align":[false, "arguments"]
+        "align":[false, "arguments"],
+        "one-variable-per-declaration": false
     }
 }

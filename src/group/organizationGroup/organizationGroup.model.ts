@@ -85,4 +85,4 @@ OrganizationGroupSchema.pre('update', function () {
   this.update({}, { $set: { updatedAt: new Date() } });
 });
 
-export const OrganizationGroupModel = mongoose.model<IOrganizationGroup>('OrganizationGroup', OrganizationGroupSchema);
+export const OrganizationGroupModel = mongoose.model<IOrganizationGroup & mongoose.Document>('OrganizationGroup', OrganizationGroupSchema);

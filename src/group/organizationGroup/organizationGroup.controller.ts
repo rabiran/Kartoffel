@@ -29,7 +29,7 @@ export class OrganizationGroup {
     };
     const organizationGroup = await OrganizationGroup._organizationGroupRepository.findOne(cond);
     if (!organizationGroup) return Promise.reject(new Error(`Cannot find group with name: ${name} and hierarchy: ${hierarchy}`));
-    return <IOrganizationGroup>organizationGroup;
+    return organizationGroup;
   }
 
   static async createOrganizationGroup(organizationGroup: IOrganizationGroup, parentID: string = undefined): Promise<IOrganizationGroup> {
@@ -38,15 +38,15 @@ export class OrganizationGroup {
       const parentsHierarchy = await OrganizationGroup.getAncestors(parentID);
       parentsHierarchy.unshift(parentID);
       organizationGroup.ancestors = parentsHierarchy;
-      await OrganizationGroup.getHierarchyFromAncestors(organizationGroup._id, organizationGroup);
+      await OrganizationGroup.getHierarchyFromAncestors(organizationGroup.id, organizationGroup);
     }
     // Create the Group
     const newOrganizationGroup = await OrganizationGroup._organizationGroupRepository.create(organizationGroup);
     if (parentID) {
       // Update the parent
-      await OrganizationGroup.adoptChildren(parentID, [newOrganizationGroup._id]);
+      await OrganizationGroup.adoptChildren(parentID, [newOrganizationGroup.id]);
     }
-    return <IOrganizationGroup>newOrganizationGroup;
+    return newOrganizationGroup;
   }
 
   static async getOrganizationGroupOld(organizationGroupID: string): Promise<IOrganizationGroup> {
@@ -78,10 +78,10 @@ export class OrganizationGroup {
     return <IOrganizationGroup[]>persons;
   }
 
-  static async updateOrganizationGroup(updateTo: IOrganizationGroup): Promise<IOrganizationGroup> {
-    const updated = await OrganizationGroup._organizationGroupRepository.update(updateTo._id ,updateTo);
-    if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + updateTo._id));
-    return <IOrganizationGroup>updated;
+  static async updateOrganizationGroup(id: string ,updateTo: Partial<IOrganizationGroup>): Promise<IOrganizationGroup> {
+    const updated = await OrganizationGroup._organizationGroupRepository.update(id ,updateTo);
+    if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + id));
+    return updated;
   }
 
   static async changeName(groupID: string, name: string): Promise<IOrganizationGroup> {
@@ -91,7 +91,7 @@ export class OrganizationGroup {
   static async childrenAdoption(parentID: string, childrenIDs: string[]): Promise<void> {
     // Update the children's previous parents
     const children = <IOrganizationGroup[]>(await OrganizationGroup._organizationGroupRepository.getSome(childrenIDs));
-    await Promise.all(children.map(child => OrganizationGroup.disownChild(child.ancestors[0], child._id)));
+    await Promise.all(children.map(child => OrganizationGroup.disownChild(child.ancestors[0], child.id)));
     // Update the parent and the children
     await Promise.all([
       OrganizationGroup.adoptChildren(parentID, childrenIDs),
@@ -150,7 +150,7 @@ export class OrganizationGroup {
     if (parent.children.length !== 0) {
       parent.isALeaf = false;
     } else parent.isALeaf = true;
-    return await OrganizationGroup.updateOrganizationGroup(parent);
+    return await OrganizationGroup.updateOrganizationGroup(parent.id, parent);
   }
 
   private static async disownChild(parentID: string, childID: string): Promise<IOrganizationGroup> {
@@ -160,7 +160,7 @@ export class OrganizationGroup {
     if (parent.children.length === 0) {
       parent.isALeaf = true;
     } else parent.isALeaf = false;
-    return await OrganizationGroup.updateOrganizationGroup(parent);
+    return await OrganizationGroup.updateOrganizationGroup(parent.id, parent);
   }
 
   private static async getAncestors(organizationGroupID: string): Promise<string[]> {
@@ -197,7 +197,7 @@ export class OrganizationGroup {
     // return members;
 
     const offsprings = await OrganizationGroup._organizationGroupRepository.getOffspringsIds(groupID);
-    const offspringIDs = offsprings.map(offspring => offspring._id);
+    const offspringIDs = offsprings.map(offspring => offspring.id);
     offspringIDs.push(groupID);
     const members = <IPerson[]> await OrganizationGroup._personRepository.getMembersOfGroups(offspringIDs);
     return members;

@@ -9,11 +9,11 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
   constructor() {
     super(OrganizationGroup);
   }
-  getOffsprings(ancestor_id: string): Promise<mongoose.Document[]> {
+  getOffsprings(ancestor_id: string): Promise<IOrganizationGroup[]> {
     return OrganizationGroup.find({ ancestors: ObjectId(ancestor_id) }).exec();
   }
-
-  getOffspringsIds(ancestor_id: string): Promise<mongoose.Document[]> {
+  // todo: use the repo base? 
+  getOffspringsIds(ancestor_id: string): Promise<IOrganizationGroup[]> {
     return OrganizationGroup.find({ ancestors: ObjectId(ancestor_id) }, 'id').exec();
   }
 }

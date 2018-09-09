@@ -91,7 +91,7 @@ export class Person {
     let person = await Person.getPersonById(personID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
-    person.directGroup = group._id;
+    person.directGroup = group.id;
     person = await Person.updatePerson(personID, person);
     return <IPerson>person;
   }
@@ -115,7 +115,7 @@ export class Person {
       return Promise.reject(new Error('This person is not a member in this group, hence can not be appointed as a leaf'));
     }
     // else
-    person.managedGroup = group._id;
+    person.managedGroup = group.id;
     await Person.updatePerson(personID, person);
     return;
   }
