@@ -25,7 +25,7 @@ describe('DomainUsers', () => {
       user.should.have.property('fullString', `${userExample.name}@${userExample.domain}`);
     });
 
-    it('should throw an error when creating existing user', async () => {
+    it('should throw an error when creating an existing user', async () => {
       const sameUser = {
         name: 'fuckYou',
         domain: 'rabiran',

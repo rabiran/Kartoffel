@@ -2,16 +2,19 @@ import { IDomainUser } from './domainUser.interface';
 
 export const DomainSeperator = '@';
 
+
+export function isLegalUserString(fullString: string): boolean {
+  const l = fullString.length;
+  return !(fullString.startsWith(DomainSeperator) || fullString.endsWith(DomainSeperator) 
+          || fullString.split(DomainSeperator).length !== 2);
+}
+
 export function userFromString(fullString: string): IDomainUser {
+  if (!isLegalUserString(fullString)) {
+    throw new Error(`${fullString} is illegal user representation`);
+  }
   const splitted = fullString.split(DomainSeperator);
-  if (splitted.length !== 2) {
-    throw new Error(`${fullString} is illegal user representation`);
-  }
   const name = splitted[0], domain = splitted[1];
-  if (name.length === 0 || name.includes(DomainSeperator) || 
-      domain.length === 0 || domain.includes(DomainSeperator)) {
-    throw new Error(`${fullString} is illegal user representation`);
-  }
   const user: IDomainUser = {
     name,
     domain,

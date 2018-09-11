@@ -1,13 +1,17 @@
 import { Repository as DomainUserRepository } from './domainUser.repository';
 import { IDomainUser } from './domainUser.interface';
+import { userFromString as f } from './domainUser.utils';
+import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
+
+const userFromString = wrapIgnoreCatch(f); 
 
 export class DomainUserController {
-  static async findDomainUsers(query = {}): Promise<IDomainUser[]> {
+  static async find(query = {}): Promise<IDomainUser[]> {
     return DomainUserRepository.find(query);
   }
 
   static async getAll(): Promise<IDomainUser[]> {
-    return DomainUserController.findDomainUsers();
+    return DomainUserController.find();
   }
 
   static async getById(id: string): Promise<IDomainUser> {
@@ -27,11 +31,27 @@ export class DomainUserController {
   }
 
   static async create(user: IDomainUser): Promise<IDomainUser> {
-    const users = await DomainUserController
-      .findDomainUsers({ name: user.name, domain: user.domain });
-    if (users && users.length > 0) {
+    if (await DomainUserController.exists(user)) {
       throw new Error(`user with name: ${user.name} and domain: ${user.domain} already exists`);
     }
     return DomainUserRepository.create(user);
+  }
+
+  static async exists(user: IDomainUser): Promise<boolean> {
+    const users = await DomainUserController.find({ name: user.name, domain: user.domain });
+    return users && users.length > 0;
+  }
+
+  static async createManyFromString(usersStrings: string[], personId: string): Promise<IDomainUser[]> {
+    const userPromises = await Promise.all(usersStrings
+      .map(s => {
+        const userObj = userFromString(s);
+        if(userObj) {
+          userObj.personId = personId;
+        }
+        return userObj;
+      })
+      .map(u => reflectPromise(DomainUserController.create(u))));
+    return userPromises.map(p => p.status === 'fulfilled' ? p.v : null);
   }
 }
