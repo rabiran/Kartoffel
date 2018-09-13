@@ -46,10 +46,10 @@ export class OrganizationGroup {
   */
   static async createOrganizationGroup(organizationGroup: IOrganizationGroup, parentID: string = undefined): Promise<IOrganizationGroup> {
 
+    const parent = parentID ? await OrganizationGroup.getOrganizationGroupOld(parentID) : null;
     /* In case there is a parent checking that all his ancestor 
        lives and creates a hierarchy and an ancestor */
     if (parentID) {
-      const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
 
       // If the parent is not alive checks all the other ancestors
       if (!parent.isAlive) {
@@ -76,11 +76,11 @@ export class OrganizationGroup {
           await OrganizationGroup.updateOrganizationGroup(ancestor);
         });
       }
-
-      // Create group hierarchy
-      organizationGroup.ancestors = [parent._id].concat(parent.ancestors);
-      organizationGroup.hierarchy = parent.hierarchy.concat(parent.name);
     }
+
+    // Create group hierarchy
+    organizationGroup.ancestors = parent ? [parent._id].concat(parent.ancestors) : [];
+    organizationGroup.hierarchy = parent ? parent.hierarchy.concat(parent.name) : [];
 
     // Checks if the group exists
     const groupExists = <IOrganizationGroup>await OrganizationGroup._organizationGroupRepository.
@@ -93,7 +93,9 @@ export class OrganizationGroup {
       // If the group exists and is not alive, revive it and return it to its parent
       } else {
         groupExists.isAlive = true;
-        await OrganizationGroup.adoptChildren(groupExists.ancestors[0], [groupExists.id]);
+
+        // Return son to parent if exsist
+        if (groupExists.ancestors[0]) await OrganizationGroup.adoptChildren(groupExists.ancestors[0], [groupExists.id]);
         return await OrganizationGroup.updateOrganizationGroup(groupExists);
       }
     }
