@@ -7,6 +7,7 @@ import { OrganizationGroupRepository } from '../group/organizationGroup/organiza
 import { isLegalUserString, userFromString } from '../domainUser/domainUser.utils';
 import { DomainUserController } from '../domainUser/domainUser.controller';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
+import { IDomainUser } from '../domainUser/domainUser.interface';
 
 const userFromStringWrapped = wrapIgnoreCatch(userFromString);
 
@@ -55,38 +56,58 @@ export class Person {
     return members;
   }
 
-  static async addNewUsers(personId: string, usersStrings: string | string[]): Promise<IPerson> {
-    const isPrimary = typeof usersStrings === 'string';
-    const usersToAdd = [].concat(usersStrings);
-    // it also checks that the person exists
+  static async addNewUser(personId: string, user: IDomainUser | string, isPrimary: boolean): 
+  Promise<IPerson> {
+    const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
+    // get the person (it also checks that the person exists)
     const person = await Person.getPersonById(personId);
-    const addedUsers = (await DomainUserController.createManyFromString(usersToAdd, personId))
-      .filter(u => u ? true : false);
-    if (addedUsers.length === 0) { //
-      throw new Error('All the supplied users were not added');
+    // connect the user to the person
+    userObj.personId = personId;
+    const newUser = await DomainUserController.create(userObj);
+    // connect the person to the user
+    if (isPrimary) {
+      // if the person already has primary user - make it secondary
+      if (person.primaryDomainUser) {
+        // wtf to do here? the array is actually ObjectId[]
+        (<string[]>person.secondaryDomainUsers).push(<string>person.primaryDomainUser);
+      }
+      person.primaryDomainUser = newUser.id;
+    } else { // also here it's actually ObjectId[]
+      (<string[]>person.secondaryDomainUsers).push(newUser.id) 
     }
+    const updatedPerson = Person.updatePerson(personId, person);
+    return updatedPerson;
   }
 
+
   static async createPerson(person: IPerson): Promise<IPerson> {
-    const { primaryDomainUser, secondaryDomainUsers, ...toCreate } = person;
-    const tmpPerson = await Person._personRepository.create(toCreate);
-    // create the domain users while ignoring illegals
-    const domainUsers = [primaryDomainUser, ...secondaryDomainUsers];
-    const [primaryUser, ...secondaryUsers] = await DomainUserController
-      .createManyFromString(<string[]>domainUsers, tmpPerson.id);
-    const SecondaryUsersIds = secondaryUsers.filter(u => u ? true : false).map(u => u.id);
-    const primaryUserId = primaryUser? primaryUser.id : null;
-    // add the created domain users to the person
-    let update: Partial<IPerson> = {};
-    if (SecondaryUsersIds.length !== 0) {
-      update.secondaryDomainUsers = SecondaryUsersIds;
-    }
-    if (primaryUserId) {
-      update.primaryDomainUser = primaryUserId;
-    }
-    const createdPerson = await Person.updatePerson(tmpPerson.id, update);
-    return createdPerson;
+    const newPerson = await Person._personRepository.create(person);
+    return newPerson;
   }
+
+  /**
+   * maybe in the future we will support creating the person and it's users at the same time
+   */
+  // static async createPerson(person: IPerson): Promise<IPerson> {
+  //   const { primaryDomainUser, secondaryDomainUsers, ...toCreate } = person;
+  //   const tmpPerson = await Person._personRepository.create(toCreate);
+  //   // create the domain users while ignoring illegals
+  //   const domainUsers = [primaryDomainUser, ...secondaryDomainUsers];
+  //   const [primaryUser, ...secondaryUsers] = await DomainUserController
+  //     .createManyFromString(<string[]>domainUsers, tmpPerson.id);
+  //   const SecondaryUsersIds = secondaryUsers.filter(u => u ? true : false).map(u => u.id);
+  //   const primaryUserId = primaryUser? primaryUser.id : null;
+  //   // add the created domain users to the person
+  //   let update: Partial<IPerson> = {};
+  //   if (SecondaryUsersIds.length !== 0) {
+  //     update.secondaryDomainUsers = SecondaryUsersIds;
+  //   }
+  //   if (primaryUserId) {
+  //     update.primaryDomainUser = primaryUserId;
+  //   }
+  //   const createdPerson = await Person.updatePerson(tmpPerson.id, update);
+  //   return createdPerson;
+  // }
 
   static async discharge(personID: string): Promise<any> {
     const person = await Person.getPersonById(personID);
