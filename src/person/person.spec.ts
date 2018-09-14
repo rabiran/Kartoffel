@@ -107,12 +107,13 @@ describe('Persons', () => {
   describe('#get updated persons a from given date', () => {
     it('Should get the current persons', async () => {
       const clock = sinon.useFakeTimers();
-      await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       clock.tick(1000);
       const from = new Date();
       clock.tick(1000);
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      await Person.updatePerson(person);
       clock.tick(1000);
       const to = new Date();
       clock.tick(1000);
@@ -121,10 +122,10 @@ describe('Persons', () => {
       clock.restore();
 
       should.exist(persons);
-      persons.should.have.lengthOf(2);
-      persons[0].should.have.property('personalNumber', '3456712');
-      persons[1].should.have.property('personalNumber', '4567123');
-
+      persons.should.have.lengthOf(3);
+      persons[0].should.have.property('personalNumber', '2345671');
+      persons[1].should.have.property('personalNumber', '3456712');
+      persons[2].should.have.property('personalNumber', '4567123');
     });
   });
   describe('#createPerson', () => {

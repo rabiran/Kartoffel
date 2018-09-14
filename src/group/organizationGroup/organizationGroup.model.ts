@@ -37,7 +37,6 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    updatedAt: Date,
   }, 
   {
     toObject: {
@@ -47,7 +46,9 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       virtuals: true,
       versionKey:false,
     },
-  });
+    timestamps: true,
+  }
+);
 
 OrganizationGroupSchema.virtual('directManagers', {
   ref: 'Person',
@@ -67,16 +68,10 @@ OrganizationGroupSchema.virtual('directMembers', {
 //   return this._id;
 // });   
 
-// OrganizationGroupSchema.virtual('childless').get(function () {
-//   return this.children.length === 0;
-// });
-
 OrganizationGroupSchema.pre('save', function (next) {
-  if (!this.updatedAt) this.updatedAt = new Date;
   this.isALeaf = (this.children.length === 0);
   next();
 });
-
 
 OrganizationGroupSchema.pre('update', function () {
   this.update({}, { $set: { updatedAt: new Date() } });

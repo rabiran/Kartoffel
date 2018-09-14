@@ -7,6 +7,7 @@ export interface IGroup extends Document {
   directMembers: IPerson[] | string[];
   clearance: number;
   updatedAt: Date;
+  createdAt: Date;
 }
 
 export interface IApfel extends IGroup {
