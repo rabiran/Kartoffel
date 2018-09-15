@@ -44,9 +44,9 @@ export class DomainUserController {
 
   static async createManyFromString(usersStrings: string[], personId: string): Promise<IDomainUser[]> {
     const userPromises = await Promise.all(usersStrings
-      .map(s => {
+      .map((s) => {
         const userObj = userFromString(s);
-        if(userObj) {
+        if (userObj) {
           userObj.personId = personId;
         }
         return userObj;

@@ -9,13 +9,14 @@ import { DomainUserController } from '../domainUser/domainUser.controller';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
 import { IDomainUser } from '../domainUser/domainUser.interface';
 
-const userFromStringWrapped = wrapIgnoreCatch(userFromString);
+const populateFields = 'primaryDomainUser secondaryDomainUsers';
+
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
   _personService: PersonRepository;
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
-
+  
   constructor() {
     this._personService = new PersonRepository();
   }
@@ -23,12 +24,12 @@ export class Person {
   static async getPersons(query = {}): Promise<IPerson[]> {
     const cond = {};
     if (!('dead' in query)) cond['alive'] = 'true';
-    const persons = await Person._personRepository.find(cond);
+    const persons = await Person._personRepository.find(cond, populateFields);
     return <IPerson[]>persons;
   }
 
   static async getPersonById(personID: string): Promise<IPerson> {
-    const person = await Person._personRepository.findById(personID);
+    const person = await Person._personRepository.findById(personID, populateFields);
     if (!person) return Promise.reject(new Error('Cannot find person with ID: ' + personID));
     return person;
   }
@@ -36,7 +37,7 @@ export class Person {
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
-    const person = await Person._personRepository.findOne(cond);
+    const person = await Person._personRepository.findOne(cond, populateFields);
     if (!person) return Promise.reject(new Error(`Cannot find person with ${nameField}: '${identityValue}'`));
     return <IPerson>person;
   }
@@ -73,7 +74,7 @@ export class Person {
       }
       person.primaryDomainUser = newUser.id;
     } else { // also here it's actually ObjectId[]
-      (<string[]>person.secondaryDomainUsers).push(newUser.id) 
+      (<string[]>person.secondaryDomainUsers).push(newUser.id); 
     }
     const updatedPerson = Person.updatePerson(personId, person);
     return updatedPerson;

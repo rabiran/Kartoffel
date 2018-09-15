@@ -10,6 +10,7 @@ import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError } from '../helpers/spec.helper';
 import { Types } from 'mongoose';
+import { IDomainUser } from '../domainUser/domainUser.interface';
 
 const should = chai.should();
 const expect = chai.expect;
@@ -21,7 +22,6 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '123456789',
     personalNumber: '2345671',
-    primaryDomainUser: dbIdExample[2],
     firstName: 'Avi',
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
@@ -34,7 +34,6 @@ const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '234567891',
     personalNumber: '3456712',
-    primaryDomainUser: dbIdExample[3],
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
@@ -606,6 +605,33 @@ describe('Persons', () => {
       group1.directManagers.should.have.lengthOf(1);
       group2.directMembers.should.have.lengthOf(0);
       group2.directManagers.should.have.lengthOf(0);
+    });
+  });
+  describe('#addDomainUser', () => {
+    it('should add new primary domain user to the person', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      const updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', true);
+      updatedPerson.should.exist;
+      updatedPerson.should.have.property('primaryDomainUser');
+      const user = <IDomainUser>updatedPerson.primaryDomainUser;
+      user.id.should.exist;
+      user.should.have.property('personId', person.id);
+    });
+
+    it('should throw error when trying to create illegal primary domain user', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      expectError(Person.addNewUser, [person.id, 'fff@', true]);
+    });
+
+    it('should add new secondary domain users to the person', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      let updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', false);
+      updatedPerson.should.exist;
+      updatedPerson.should.have.property('secondaryDomainUser');
+      updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
+      // add another secondary user
+      updatedPerson = await Person.addNewUser(person.id, 'nitro2@jello', false);
+      updatedPerson.secondaryDomainUsers.should.have.lengthOf(2);
     });
   });
 
