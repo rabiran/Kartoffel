@@ -26,6 +26,11 @@ persons.post('/',
            PermissionMiddleware.hasAdvancedPermission,
            ch(Person.createPerson, (req: Request) => [req.body]));
 
+persons.post('/domainUser', PermissionMiddleware.hasAdvancedPermission,
+            ch(Person.addNewUser, (req: Request) => {
+              return [req.body.personId, req.body.fullString, req.body.isPrimary];
+            }));
+
 persons.get('/:id', (req: Request, res: Response) => {
   ch(Person.getPersonById, (req: Request, res: Response) => {
     return [req.params.id]; 

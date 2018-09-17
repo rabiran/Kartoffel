@@ -128,7 +128,7 @@ export class Person {
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    const updatedPerson = await Person._personRepository.update(id, change);
+    const updatedPerson = await Person._personRepository.update(id, change, populateFields);
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     return <IPerson>updatedPerson;
   }

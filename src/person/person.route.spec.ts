@@ -228,6 +228,58 @@ describe('Person', () => {
         });
     });
   });
+
+  describe('/POST person/domainUser', () => {
+    it('should return the person with the newly created primary domainUser', (done) => {
+      chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .end((err, res) => {
+        const person = res.body;
+        chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ 
+          personId: person.id,
+          fullString: 'nitro@jello',
+          isPrimary: true,
+        })
+        .end((err, res) => {
+          res.should.exist;
+          res.should.have.status(200);
+          const updatedPerson = res.body;
+          updatedPerson.should.have.property('primaryDomainUser');
+        });
+      });
+    });
+
+    it('should return the person with the newly created secondary domainUser', (done) => {
+      chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .end((err, res) => {
+        const person = res.body;
+        chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ 
+          personId: person.id,
+          fullString: 'nitro@jello',
+          isPrimary: false,
+        })
+        .end((err, res) => {
+          res.should.exist;
+          res.should.have.status(200);
+          const updatedPerson = res.body;
+          updatedPerson.should.have.property('secondaryDomainUsers');
+          updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
+        });
+      });
+    });
+
+    it('should return error when the domain user string is invalid');
+
+    it('should return error when the domain user already exists', (done) => {
+      chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .end((err, res) => {
+        const person = res.body;
+        chai.request(server).post(`${BASE_URL}/domainUser`).send({ personId: person.id, fullString: 'nitro@jello', isPrimary: true })
+      })
+    });
+  });
+
   describe('/PUT person', () => {
     describe('/PUT person basic dry information', () => {
       it('Should return 400 when person does not exist', (done) => {

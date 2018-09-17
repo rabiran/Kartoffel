@@ -171,16 +171,16 @@ describe('Persons', () => {
       const person = await Person.createPerson(newPerson);
       should.exist(person);
       // todo: remove this
-      console.log('---------createdperson.domainUser-------', 
-        String(person.primaryDomainUser) === newPerson.primaryDomainUser);
+      // console.log('---------createdperson.domainUser-------', 
+      //   String(person.primaryDomainUser) === newPerson.primaryDomainUser);
       person.should.have.property('identityCard', newPerson.identityCard);
       person.should.have.property('personalNumber', newPerson.personalNumber);
-      expect(String(person.primaryDomainUser) === newPerson.primaryDomainUser).to.be.true;
-      person.should.have.property('secondaryDomainUsers');
-      for (let i = 0; i < person.secondaryDomainUsers.length; i++) {
-        expect(String(person.secondaryDomainUsers[i]) === 
-          newPerson.secondaryDomainUsers[i]).to.be.true;
-      }
+      // expect(String(person.primaryDomainUser) === newPerson.primaryDomainUser).to.be.true;
+      // person.should.have.property('secondaryDomainUsers');
+      // for (let i = 0; i < person.secondaryDomainUsers.length; i++) {
+      //   expect(String(person.secondaryDomainUsers[i]) === 
+      //     newPerson.secondaryDomainUsers[i]).to.be.true;
+      // }
       person.should.have.property('serviceType', newPerson.serviceType);
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
@@ -618,6 +618,20 @@ describe('Persons', () => {
       user.should.have.property('personId', person.id);
     });
 
+    it('should add new user with object as parameter', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      const userObj: IDomainUser = {
+        name: 'elad',
+        domain: 'ex',
+      };
+      const updatedPerson = await Person.addNewUser(person.id, userObj, true);
+      updatedPerson.should.exist;
+      updatedPerson.should.have.property('primaryDomainUser');
+      const user = <IDomainUser>updatedPerson.primaryDomainUser;
+      user.id.should.exist;
+      user.should.have.property('personId', person.id);
+    });
+
     it('should throw error when trying to create illegal primary domain user', async () => {
       const person = await Person.createPerson(personExamples[3]);
       expectError(Person.addNewUser, [person.id, 'fff@', true]);
@@ -632,6 +646,11 @@ describe('Persons', () => {
       // add another secondary user
       updatedPerson = await Person.addNewUser(person.id, 'nitro2@jello', false);
       updatedPerson.secondaryDomainUsers.should.have.lengthOf(2);
+      // check that it was populated correctly 
+      const secUser = <IDomainUser>updatedPerson.secondaryDomainUsers[1];
+      secUser.id.should.exist;
+      secUser.should.have.property('personId', person.id);
+      secUser.should.have.property('fullString', 'nitro2@jello');
     });
   });
 
