@@ -9,8 +9,12 @@ import { IPerson } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError } from '../helpers/spec.helper';
-import { Types } from 'mongoose';
+import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
+const Types = mongoose.Types;
+
+// mongoose.set('debug', true);
+
 
 const should = chai.should();
 const expect = chai.expect;
@@ -613,9 +617,11 @@ describe('Persons', () => {
       const updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', true);
       updatedPerson.should.exist;
       updatedPerson.should.have.property('primaryDomainUser');
-      const user = <IDomainUser>updatedPerson.primaryDomainUser;
+      const populatedPerson = await Person.getPersonById(person.id);
+      const user = <IDomainUser>populatedPerson.primaryDomainUser;
       user.id.should.exist;
-      user.should.have.property('personId', person.id);
+      user.should.have.property('personId');
+      expect(String(user.personId) === person.id).to.be.true;
     });
 
     it('should add new user with object as parameter', async () => {
@@ -627,29 +633,33 @@ describe('Persons', () => {
       const updatedPerson = await Person.addNewUser(person.id, userObj, true);
       updatedPerson.should.exist;
       updatedPerson.should.have.property('primaryDomainUser');
-      const user = <IDomainUser>updatedPerson.primaryDomainUser;
+      const populatedPerson = await Person.getPersonById(person.id);
+      const user = <IDomainUser>populatedPerson.primaryDomainUser;
       user.id.should.exist;
-      user.should.have.property('personId', person.id);
+      user.should.have.property('personId');
+      expect(String(user.personId) === person.id).to.be.true;
     });
 
     it('should throw error when trying to create illegal primary domain user', async () => {
       const person = await Person.createPerson(personExamples[3]);
       expectError(Person.addNewUser, [person.id, 'fff@', true]);
     });
-
+    
     it('should add new secondary domain users to the person', async () => {
       const person = await Person.createPerson(personExamples[3]);
       let updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', false);
       updatedPerson.should.exist;
-      updatedPerson.should.have.property('secondaryDomainUser');
+      updatedPerson.should.have.property('secondaryDomainUsers');
       updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
       // add another secondary user
       updatedPerson = await Person.addNewUser(person.id, 'nitro2@jello', false);
       updatedPerson.secondaryDomainUsers.should.have.lengthOf(2);
       // check that it was populated correctly 
-      const secUser = <IDomainUser>updatedPerson.secondaryDomainUsers[1];
+      const populatedPerson = await Person.getPersonById(person.id);
+      const secUser = <IDomainUser>populatedPerson.secondaryDomainUsers[1];
       secUser.id.should.exist;
-      secUser.should.have.property('personId', person.id);
+      secUser.should.have.property('personId');
+      expect(String(secUser.personId) === person.id).to.be.true; // hate to convert objectId :\
       secUser.should.have.property('fullString', 'nitro2@jello');
     });
   });

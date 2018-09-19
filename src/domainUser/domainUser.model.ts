@@ -4,7 +4,6 @@ import { DomainSeperator } from './domainUser.utils';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-
 export const DomainUserSchema = new mongoose.Schema({
   domain: {
     type: String,
@@ -28,5 +27,11 @@ DomainUserSchema.virtual('fullString').get(function () {
   return `${this.name}${DomainSeperator}${this.domain}`;
 });
 
+/* maybe we will use it in the future
+DomainUserSchema.statics.transformToString = function (doc: any) {
+  console.log('user toString', doc.fullString);
+  return doc.fullString;
+};
+*/
 export const DomainUserModel = mongoose.model<IDomainUser & mongoose.Document>('DomainUser', 
   DomainUserSchema);

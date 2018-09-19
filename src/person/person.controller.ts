@@ -4,12 +4,9 @@ import { IPerson } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { isLegalUserString, userFromString } from '../domainUser/domainUser.utils';
+import { userFromString } from '../domainUser/domainUser.utils';
 import { DomainUserController } from '../domainUser/domainUser.controller';
-import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-
-const populateFields = 'primaryDomainUser secondaryDomainUsers';
 
 
 export class Person {
@@ -24,12 +21,12 @@ export class Person {
   static async getPersons(query = {}): Promise<IPerson[]> {
     const cond = {};
     if (!('dead' in query)) cond['alive'] = 'true';
-    const persons = await Person._personRepository.find(cond, populateFields);
+    const persons = await Person._personRepository.find(cond);
     return <IPerson[]>persons;
   }
 
   static async getPersonById(personID: string): Promise<IPerson> {
-    const person = await Person._personRepository.findById(personID, populateFields);
+    const person = await Person._personRepository.findById(personID);
     if (!person) return Promise.reject(new Error('Cannot find person with ID: ' + personID));
     return person;
   }
@@ -37,7 +34,7 @@ export class Person {
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
-    const person = await Person._personRepository.findOne(cond, populateFields);
+    const person = await Person._personRepository.findOne(cond);
     if (!person) return Promise.reject(new Error(`Cannot find person with ${nameField}: '${identityValue}'`));
     return <IPerson>person;
   }
@@ -69,14 +66,17 @@ export class Person {
     if (isPrimary) {
       // if the person already has primary user - make it secondary
       if (person.primaryDomainUser) {
-        // wtf to do here? the array is actually ObjectId[]
-        (<string[]>person.secondaryDomainUsers).push(<string>person.primaryDomainUser);
+        // the primary user is populated 
+        (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);
       }
-      person.primaryDomainUser = newUser.id;
-    } else { // also here it's actually ObjectId[]
-      (<string[]>person.secondaryDomainUsers).push(newUser.id); 
+      person.primaryDomainUser = newUser;
+    } else { 
+      // fuck you mongoose! I am using copy only because of your stupid 'push'
+      const copy: IDomainUser[] = <IDomainUser[]>person.secondaryDomainUsers.slice();
+      copy.push(newUser);
+      person.secondaryDomainUsers = copy;
     }
-    const updatedPerson = Person.updatePerson(personId, person);
+    const updatedPerson = await Person.updatePerson(personId, person);
     return updatedPerson;
   }
 
@@ -128,7 +128,7 @@ export class Person {
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    const updatedPerson = await Person._personRepository.update(id, change, populateFields);
+    const updatedPerson = await Person._personRepository.update(id, change);
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     return <IPerson>updatedPerson;
   }

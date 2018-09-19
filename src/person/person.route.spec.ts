@@ -245,6 +245,7 @@ describe('Person', () => {
           res.should.have.status(200);
           const updatedPerson = res.body;
           updatedPerson.should.have.property('primaryDomainUser');
+          done();
         });
       });
     });
@@ -265,19 +266,20 @@ describe('Person', () => {
           const updatedPerson = res.body;
           updatedPerson.should.have.property('secondaryDomainUsers');
           updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
+          done();
         });
       });
     });
 
     it('should return error when the domain user string is invalid');
 
-    it('should return error when the domain user already exists', (done) => {
-      chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .end((err, res) => {
-        const person = res.body;
-        chai.request(server).post(`${BASE_URL}/domainUser`).send({ personId: person.id, fullString: 'nitro@jello', isPrimary: true })
-      })
-    });
+    // it('should return error when the domain user already exists', (done) => {
+    //   chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+    //   .end((err, res) => {
+    //     const person = res.body;
+    //     chai.request(server).post(`${BASE_URL}/domainUser`).send({ personId: person.id, fullString: 'nitro@jello', isPrimary: true })
+    //   })
+    // });
   });
 
   describe('/PUT person', () => {
