@@ -82,6 +82,11 @@ describe('DomainUsers', () => {
     });
   });
   describe('#delete', () => {
-    it('should delete the specified user');
+    it.only('should delete the specified user', async () => {
+      const createdUser = await Users.create(userExample);
+      const res = await Users.delete(createdUser.id);
+      res.should.have.property('ok', 1);
+      res.should.have.property('n', 1);
+    });
   });
 });

@@ -7,18 +7,11 @@ import { RESPONSIBILITY } from '../utils';
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const personValidator = new PersonValidate();
-
-function validateEmail(email: string): boolean {
-  return true;
-}
 
 function autoPopulate(next: Function) {
   this.populate('primaryDomainUser secondaryDomainUsers');
   next();
 }
-
-
 
 export const PersonSchema = new mongoose.Schema(
   {
@@ -154,24 +147,6 @@ PersonSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;
 });
 
-// PersonSchema.pre('find', autoPopulate);
 PersonSchema.pre('findOne', autoPopulate);
-// PersonSchema.post('findOne', (doc: any) => {
-//   console.log('person post find one');
-//   if (doc.populated('primaryDomainUser')) {
-//     doc.primaryDomainUser = userToString(doc.primaryDomainUser);
-//   }
-//   if (doc.populated('secondaryDomainUsers')) {
-//     console.log('person post find one - was populated');
-//     for (let i = 0; i < doc.secondaryDomainUsers.length; i++) {
-//       doc.secondaryDomainUsers[i] = userToString(doc.secondaryDomainUsers[i]);
-//     }
-//     // doc.secondaryDomainUsers = doc.secondaryDomainUsers.map(userToString);
-//   }
-//   console.log('person doc', doc);
-//   return doc;
-// });
-// PersonSchema.pre('findById', autoPopulate);
-
 
 export const PersonModel = mongoose.model<IPerson & mongoose.Document>('Person', PersonSchema);

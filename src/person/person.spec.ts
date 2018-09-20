@@ -93,7 +93,6 @@ describe('Persons', () => {
       persons.should.have.lengthOf(0);
     });
     it('Should get all the persons', async () => {
-      // console.log('-------------- person -------', personExamples[0]);
       await Person.createPerson(personExamples[0]);
       let persons = await Person.getPersons();
       persons.should.be.a('array');
@@ -174,17 +173,8 @@ describe('Persons', () => {
 
       const person = await Person.createPerson(newPerson);
       should.exist(person);
-      // todo: remove this
-      // console.log('---------createdperson.domainUser-------', 
-      //   String(person.primaryDomainUser) === newPerson.primaryDomainUser);
       person.should.have.property('identityCard', newPerson.identityCard);
       person.should.have.property('personalNumber', newPerson.personalNumber);
-      // expect(String(person.primaryDomainUser) === newPerson.primaryDomainUser).to.be.true;
-      // person.should.have.property('secondaryDomainUsers');
-      // for (let i = 0; i < person.secondaryDomainUsers.length; i++) {
-      //   expect(String(person.secondaryDomainUsers[i]) === 
-      //     newPerson.secondaryDomainUsers[i]).to.be.true;
-      // }
       person.should.have.property('serviceType', newPerson.serviceType);
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
@@ -256,30 +246,6 @@ describe('Persons', () => {
         person.personalNumber = '234a567';
         await expectError(Person.createPerson, [person]);
       });
-      // TODO: move these to the domain user tests
-
-      // it('Should throw an error when primary person is not valid', async () => {
-      //   const person = { ...personExamples[1] };
-      //   person.primaryDomainUser = 'aviron@secure.';
-      //   await expectError(Person.createPerson, [person]);
-      //   person.primaryDomainUser = 'avironsecure.sod';
-      //   await expectError(Person.createPerson, [person]);
-      //   person.primaryDomainUser = 'aviron@securesod';
-      //   await expectError(Person.createPerson, [person]);
-      //   person.primaryDomainUser = '@secure.sod';
-      //   await expectError(Person.createPerson, [person]);
-      //   person.primaryDomainUser = 'aviron@.sod';
-      //   await expectError(Person.createPerson, [person]);
-      // });
-      // it('Should throw an error when secondary persons is not valid', async () => {
-      //   const person = { ...personExamples[1] };
-      //   person.secondaryDomainUsers = ['avi@secure.sod', 'ron@.sod'];
-      //   await expectError(Person.createPerson, [person]);
-      //   person.secondaryDomainUsers = ['@secure.sod', 'ron@secure.sod'];
-      //   await expectError(Person.createPerson, [person]);
-      //   person.secondaryDomainUsers = ['avi@secure.sod', 'ron@secure'];
-      //   await expectError(Person.createPerson, [person]);
-      // });
       it('Should throw an error when Name strings are empty', async () => {
         const person = { ...personExamples[1] };
         person.firstName = '';
@@ -372,13 +338,6 @@ describe('Persons', () => {
         person.personalNumber = personExamples[1].personalNumber;
         await expectError(Person.createPerson, [person]);
       });
-      // todo: implement the checks for that
-      // it('Should throw an error when existed primary person is given', async () => {
-      //   await Person.createPerson(<IPerson>{ ...personExamples[1] });
-      //   const person = { ...personExamples[3] };
-      //   person.primaryDomainUser = personExamples[1].primaryDomainUser;
-      //   await expectError(Person.createPerson, [person]);
-      // });
     });
   });
 
@@ -470,7 +429,6 @@ describe('Persons', () => {
       person.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
 
       const updatedPerson = await Person.updatePerson(person.id, person);
-      console.log('-----updated person ---------', <any>person.responsibilityLocation instanceof Types.ObjectId);
       should.exist(updatedPerson);
       expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
