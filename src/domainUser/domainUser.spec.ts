@@ -14,6 +14,7 @@ const userExample: IDomainUser = {
   domain: 'rabiran',
 };
 
+
 describe('DomainUsers', () => {
   describe('#createDomainUser', () => {
     it('should create domain user', async () => {
@@ -59,7 +60,17 @@ describe('DomainUsers', () => {
 
   });
   describe('#getAll', () => {
-    it('should get all the users');
+    it('should be empty when there are no users', async () => {
+      const users = await Users.getAll();
+      users.should.be.an('array');
+      users.should.have.lengthOf(0);
+    });
+    it('should get all the users', async () => {
+      await Users.create(userExample);
+      const users = await Users.getAll();
+      users.should.be.an('array');
+      users.should.have.lengthOf(1);
+    });
   });
   describe('#getById', () => {
     it('should get the specified user by its ID', async () => {

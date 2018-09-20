@@ -230,56 +230,73 @@ describe('Person', () => {
   });
 
   describe('/POST person/domainUser', () => {
-    it('should return the person with the newly created primary domainUser', (done) => {
-      chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .end((err, res) => {
+    it('should return the person with the newly created primary domainUser', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
         const person = res.body;
-        chai.request(server).post(`${BASE_URL}/domainUser`)
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
           fullString: 'nitro@jello',
           isPrimary: true,
-        })
-        .end((err, res) => {
-          res.should.exist;
-          res.should.have.status(200);
-          const updatedPerson = res.body;
-          updatedPerson.should.have.property('primaryDomainUser');
-          done();
         });
+      })
+      .then((res) => {
+        res.should.exist;
+        res.should.have.status(200);
+        const updatedPerson = res.body;
+        updatedPerson.should.have.property('primaryDomainUser');
       });
     });
 
-    it('should return the person with the newly created secondary domainUser', (done) => {
-      chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .end((err, res) => {
+    it('should return the person with the newly created secondary domainUser', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
         const person = res.body;
-        chai.request(server).post(`${BASE_URL}/domainUser`)
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
           fullString: 'nitro@jello',
           isPrimary: false,
-        })
-        .end((err, res) => {
-          res.should.exist;
-          res.should.have.status(200);
-          const updatedPerson = res.body;
-          updatedPerson.should.have.property('secondaryDomainUsers');
-          updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
-          done();
         });
+      })
+      .then((res) => {
+        res.should.exist;
+        res.should.have.status(200);
+        const updatedPerson = res.body;
+        updatedPerson.should.have.property('secondaryDomainUsers');
+        updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
       });
     });
 
-    it('should return error when the domain user string is invalid');
+    it('should return error when the domain user string is invalid', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, fullString: 'nitro@jello@', isPrimary: true });
+      })
+      .catch((err) => {
+        err.should.exist;
+      });
+    });
 
-    // it('should return error when the domain user already exists', (done) => {
-    //   chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-    //   .end((err, res) => {
-    //     const person = res.body;
-    //     chai.request(server).post(`${BASE_URL}/domainUser`).send({ personId: person.id, fullString: 'nitro@jello', isPrimary: true })
-    //   })
-    // });
+    it('should return error when the domain user already exists', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, fullString: 'nitro@jello', isPrimary: true });
+      })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, fullString: 'nitro@jello', isPrimary: false });
+      })
+      .catch((err) => {
+        err.should.exist;
+      });
+    });
   });
 
   describe('/PUT person', () => {
