@@ -4,13 +4,9 @@ process.env.PORT = '8080';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as server from '../server';
-import * as personRouter from './person.route';
 import { Person } from './person.controller';
-import { PersonModel } from './person.model';
-import { OrganizationGroupModel } from '../group/organizationGroup/organizationGroup.model';
 import { IPerson } from './person.interface';
-import { expectError } from '../helpers/spec.helper';
-import { ObjectId } from 'mongodb';
+
 
 const should = chai.should();
 chai.use(require('chai-http'));
