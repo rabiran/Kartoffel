@@ -44,6 +44,15 @@ export class Person {
     return <IPerson[]>persons;
   }
 
+  static async getByDomainUserString(userString: string): Promise<IPerson> {
+    console.log('userString', userString);
+    const user = await DomainUserController.getByFullString(userString);
+    if (user && user.personId) {
+      return await Person.getPersonById(<string>user.personId);
+    }
+    return null;
+  }
+
   static async getOrganizationGroupMembers(groupID: string): Promise<IPerson[]> {
     // check that this group exists
     const group = await OrganizationGroup.getOrganizationGroupOld(groupID);

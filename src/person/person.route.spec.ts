@@ -14,6 +14,8 @@ const expect = chai.expect;
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 
+const userStringEx = 'nitro@jello';
+
 const personExamples: IPerson[] = [  
   <IPerson>{
     identityCard: '234567891',
@@ -154,6 +156,30 @@ describe('Person', () => {
           res.body.should.have.property('lastName', personExamples[0].lastName);
         }).catch((err) => { throw err; });
     });
+
+    it('should return the person by it\'s domain user', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ 
+          personId: person.id,
+          fullString: userStringEx,
+          isPrimary: true,
+        });
+      })
+      .then(res => chai.request(server).get(`${BASE_URL}/domainUser/${userStringEx}`))
+      .then((res) => {
+        res.should.have.status(200);
+        res.should.exist;
+        const person = res.body;
+        person.should.exist;
+        person.should.have.property('primaryDomainUser');
+        const user = person.primaryDomainUser;
+        user.should.have.property('personId');
+        user.should.have.property('fullString', userStringEx);
+      });
+    });
   });
   describe('/GET updated persons', () => {
     it('Should return an 400 when given a wrong param', (done) => {
@@ -170,7 +196,7 @@ describe('Person', () => {
     it('Should return the updated persons from a certain date', async () => {
       const clock = sinon.useFakeTimers();
       await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      clock.tick(1000);
+      clock.tick(1000); 
       const from = Date.now();
       clock.tick(1000);
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
@@ -233,7 +259,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: 'nitro@jello',
+          fullString: userStringEx,
           isPrimary: true,
         });
       })
@@ -252,7 +278,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: 'nitro@jello',
+          fullString: userStringEx,
           isPrimary: false,
         });
       })
@@ -270,7 +296,7 @@ describe('Person', () => {
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: 'nitro@jello@', isPrimary: true });
+        .send({ personId: person.id, fullString: `${userStringEx}@`, isPrimary: true });
       })
       .catch((err) => {
         err.should.exist;
@@ -282,12 +308,12 @@ describe('Person', () => {
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: 'nitro@jello', isPrimary: true });
+        .send({ personId: person.id, fullString: userStringEx, isPrimary: true });
       })
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: 'nitro@jello', isPrimary: false });
+        .send({ personId: person.id, fullString: userStringEx, isPrimary: false });
       })
       .catch((err) => {
         err.should.exist;

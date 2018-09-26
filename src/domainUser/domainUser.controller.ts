@@ -1,13 +1,17 @@
 import { Repository as DomainUserRepository } from './domainUser.repository';
 import { IDomainUser } from './domainUser.interface';
-import { userFromString as f } from './domainUser.utils';
+import { userFromString } from './domainUser.utils';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
 
-const userFromString = wrapIgnoreCatch(f); 
+const userFromStringIgnore = wrapIgnoreCatch(userFromString); 
 
 export class DomainUserController {
   static async find(query = {}): Promise<IDomainUser[]> {
     return DomainUserRepository.find(query);
+  }
+
+  static async findOne(query = {}): Promise<IDomainUser> {
+    return DomainUserRepository.findOne(query);
   }
 
   static async getAll(): Promise<IDomainUser[]> {
@@ -18,6 +22,15 @@ export class DomainUserController {
     const user = DomainUserRepository.findById(id);
     if (!user) {
       throw new Error(`domainUser with id: ${id} is not found`);
+    }
+    return user;
+  }
+
+  static async getByFullString(fullString: string): Promise<IDomainUser> {
+    const userObj = userFromString(fullString);
+    const user = await DomainUserController.findOne({ ...userObj });
+    if (!user) {
+      throw new Error(`domainUser ${fullString} does not exist`);
     }
     return user;
   }
@@ -45,7 +58,7 @@ export class DomainUserController {
   static async createManyFromString(usersStrings: string[], personId: string): Promise<IDomainUser[]> {
     const userPromises = await Promise.all(usersStrings
       .map((s) => {
-        const userObj = userFromString(s);
+        const userObj = userFromStringIgnore(s);
         if (userObj) {
           userObj.personId = personId;
         }

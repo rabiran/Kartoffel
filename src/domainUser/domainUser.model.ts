@@ -4,6 +4,17 @@ import { DomainSeperator } from './domainUser.utils';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
+const schemaOptions = {
+  toObject: {
+    virtuals: true,
+    versionKey: false,
+  },
+  toJSON: {
+    virtuals: true,
+    versionKey:false,
+  },
+};
+
 export const DomainUserSchema = new mongoose.Schema({
   domain: {
     type: String,
@@ -18,7 +29,7 @@ export const DomainUserSchema = new mongoose.Schema({
     ref: 'Person',
     // required: [true, 'User must belong to a person'],
   },
-});
+}, schemaOptions);
 
 // don't know if this is a good solution:
 // DomainUserSchema.index({'name':1, 'domain':1}, {unique: true});

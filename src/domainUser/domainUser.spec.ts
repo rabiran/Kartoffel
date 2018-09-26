@@ -59,12 +59,14 @@ describe('DomainUsers', () => {
     });
 
   });
+
   describe('#getAll', () => {
     it('should be empty when there are no users', async () => {
       const users = await Users.getAll();
       users.should.be.an('array');
       users.should.have.lengthOf(0);
     });
+
     it('should get all the users', async () => {
       await Users.create(userExample);
       const users = await Users.getAll();
@@ -72,6 +74,7 @@ describe('DomainUsers', () => {
       users.should.have.lengthOf(1);
     });
   });
+
   describe('#getById', () => {
     it('should get the specified user by its ID', async () => {
       const createdUser = await Users.create(userExample);
@@ -81,6 +84,22 @@ describe('DomainUsers', () => {
       user.should.have.property('fullString', `${createdUser.name}@${createdUser.domain}`);
     });
   });
+
+  describe('#getByFullString', () => {
+    it('should get the user by it\'s full string', async () => {
+      await Users.create(userExample);
+      const user = await Users.getByFullString(`${userExample.name}@${userExample.domain}`);
+      user.should.exist;
+      user.should.have.property('name', userExample.name); 
+      user.should.have.property('domain', userExample.domain);
+    });
+
+    it('should throw error when there is not user with matching full string', async () => {
+      await Users.create(userExample);
+      await expectError(Users.getByFullString, [`other@domain`]);
+    });
+  });
+
   describe('#delete', () => {
     it('should delete the specified user', async () => {
       const createdUser = await Users.create(userExample);

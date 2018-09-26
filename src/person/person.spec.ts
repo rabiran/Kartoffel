@@ -353,6 +353,7 @@ describe('Persons', () => {
       person.should.have.property('firstName', 'Avi');
     });
   });
+
   describe('#removePerson', () => {
     it('Should throw an error when there is no person to remove', async () => {
       await expectError(Person.removePerson, [dbIdExample[0]]);
@@ -579,6 +580,8 @@ describe('Persons', () => {
       const user = <IDomainUser>populatedPerson.primaryDomainUser;
       user.id.should.exist;
       user.should.have.property('personId');
+      user.should.have.property('fullString', 'nitro@jello');
+      console.log(user);
       expect(String(user.personId) === person.id).to.be.true;
     });
 
@@ -619,6 +622,26 @@ describe('Persons', () => {
       secUser.should.have.property('personId');
       expect(String(secUser.personId) === person.id).to.be.true; // hate to convert objectId :\
       secUser.should.have.property('fullString', 'nitro2@jello');
+    });
+  });
+
+  describe('#getByDomainUserString', () => {
+    it('should get the person by it\'s domain user string', async () => {
+      const createdPerson = await Person.createPerson(personExamples[3]);
+      await Person.addNewUser(createdPerson.id, 'nitro@jello', true);
+      const person = await Person.getByDomainUserString('nitro@jello');
+      person.should.exist;
+      person.should.have.property('primaryDomainUser');
+      // the person should be populated
+      const user = <IDomainUser>person.primaryDomainUser;
+      user.id.should.exist;
+      user.should.have.property('personId');
+      expect(String(user.personId) === person.id).to.be.true;
+    });
+    it('should throw error when the there is no matching user', async () => {
+      const createdPerson = await Person.createPerson(personExamples[3]);
+      await Person.addNewUser(createdPerson.id, 'nitro@jello', true);
+      expectError(Person.getByDomainUserString, ['other@jello']);
     });
   });
 

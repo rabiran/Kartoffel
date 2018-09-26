@@ -49,6 +49,12 @@ persons.get('/identityCard/:identityCard', (req: Request, res: Response) => {
   }, 404)(req, res, null);
 });
 
+persons.get('/domainUser/:domainUser', 
+  ch(Person.getByDomainUserString, (req: Request) => {
+    return [req.params.domainUser];
+  })
+);
+
 persons.delete('/:id',
              PermissionMiddleware.hasAdvancedPermission, 
              ch(Person.discharge, (req: Request) => {
