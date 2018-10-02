@@ -4,10 +4,13 @@ import { IOrganizationGroup, ORGANIZATION_GROUP_OBJECT_FIELDS, ORGANIZATION_GROU
 import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { PersonRepository } from '../../person/person.repository';
-import { Document } from 'mongoose';
+import { Document, PromiseProvider } from 'mongoose';
 import * as _ from 'lodash';
 import { ObjectId } from 'bson';
 import { sortObjectsByIDArray } from '../../utils';
+
+const p = new Promise(x => x);  
+Promise['almost'] = async function (r: Promise<any>[]) {return await Promise.all(r.map(p => p.catch ? p.catch(e => e) : p));};
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -35,9 +38,16 @@ export class OrganizationGroup {
       hierarchy,
     };
     const organizationGroup = await OrganizationGroup._organizationGroupRepository.findOne(cond);
-    if (!organizationGroup) return Promise.reject(new Error(`Cannot find group with name: ${name} and hierarchy: ${hierarchy}`));
+    if (!organizationGroup) return Promise.reject(new Error(`Cannot find group with name: ${name} and hierarchy: ${hierarchy.join('/')}`));
     return <IOrganizationGroup>organizationGroup;
   }
+
+  /* TODO: static async getOrganizationGroupByHierarchyabc(hierarchy: string[]) {
+    const a: Object[] = await Promise['almost'](hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0,index))));
+    // const obj = {};
+    const obj = a.map((abc, index) => {});
+    return obj;
+  } */
 
   /**
   * Add organizationGroup

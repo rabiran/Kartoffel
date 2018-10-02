@@ -36,6 +36,11 @@ organizationGroups.get('/path/:path', ch(OrganizationGroup.getOrganizationGroupB
   return [name, hierarchy];
 }));
 
+organizationGroups.get('/path/:path/allhierarchyExists', ch(OrganizationGroup.getOrganizationGroupByHierarchyabc, (req: Request) => {
+  const hierarchy = req.params.path.split('/');
+  return [hierarchy];
+}));
+
 organizationGroups.post('/',
   PermissionMiddleware.hasAdvancedPermission,
   ch(OrganizationGroup.createOrganizationGroup, (req: Request, res: Response) => {
