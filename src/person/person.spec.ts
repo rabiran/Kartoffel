@@ -13,8 +13,6 @@ import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
 const Types = mongoose.Types;
 
-// mongoose.set('debug', true);
-
 
 const should = chai.should();
 const expect = chai.expect;
