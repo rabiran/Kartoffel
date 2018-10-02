@@ -579,7 +579,6 @@ describe('Persons', () => {
       user.id.should.exist;
       user.should.have.property('personId');
       user.should.have.property('fullString', 'nitro@jello');
-      console.log(user);
       expect(String(user.personId) === person.id).to.be.true;
     });
 
