@@ -67,3 +67,13 @@ export function sortObjectsByIDArray(objects: Object[], array: string[]) : Objec
 
   return newObjects;
 }
+
+export function reflectPromise<T>(p: Promise<T>, putNull = false): Promise<{ v?: T, e?: any, status: string }> {
+  return p.then(v => ({ v, status: 'fulfilled' }),
+    e => (putNull ? null : { e, status: 'rejected' }));
+}
+
+export async function wholePromise(r: Promise<any>[]) { 
+  // return await Promise.all(r.map(p => p.catch ? p.catch(e => e) : p)); 
+  return await Promise.all(r.map(p => p.catch(e => e))); 
+}

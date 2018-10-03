@@ -7,10 +7,9 @@ import { PersonRepository } from '../../person/person.repository';
 import { Document, PromiseProvider } from 'mongoose';
 import * as _ from 'lodash';
 import { ObjectId } from 'bson';
-import { sortObjectsByIDArray } from '../../utils';
+import { sortObjectsByIDArray, wholePromise } from '../../utils';
 
-const p = new Promise(x => x);  
-Promise['almost'] = async function (r: Promise<any>[]) {return await Promise.all(r.map(p => p.catch ? p.catch(e => e) : p));};
+Promise['whole'] = async function (r: Promise<any>[]) { return await Promise.all(r.map(p => p.catch ? p.catch(e => e) : p)); };
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -42,12 +41,15 @@ export class OrganizationGroup {
     return <IOrganizationGroup>organizationGroup;
   }
 
-  /* TODO: static async getOrganizationGroupByHierarchyabc(hierarchy: string[]) {
-    const a: Object[] = await Promise['almost'](hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0,index))));
-    // const obj = {};
-    const obj = a.map((abc, index) => {});
-    return obj;
-  } */
+  static async getOrganizationGroupByHierarchyabc(hierarchy: string[]) {
+    const a: IOrganizationGroup[] = await wholePromise(hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0, index))));
+    const existingGroups = {};
+    for (let index = 0; index < hierarchy.length; index++) {
+      const value = a[index].id ? a[index].id : null;
+      existingGroups[hierarchy[index]] = value;
+    }
+    return existingGroups;
+  }
 
   /**
   * Add organizationGroup
@@ -94,13 +96,13 @@ export class OrganizationGroup {
 
     // Checks if the group exists
     const groupExists = <IOrganizationGroup>await OrganizationGroup._organizationGroupRepository.
-      findOne({ name: organizationGroup.name, hierarchy: organizationGroup.hierarchy });    
+      findOne({ name: organizationGroup.name, hierarchy: organizationGroup.hierarchy });
     if (groupExists) {
       // If the group exists and is alive
       if (groupExists.isAlive) {
         return Promise.reject(new Error(`The group with name: ${organizationGroup.name} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`));
 
-      // If the group exists and is not alive, revive it and return it to its parent
+        // If the group exists and is not alive, revive it and return it to its parent
       } else {
         groupExists.isAlive = true;
 
