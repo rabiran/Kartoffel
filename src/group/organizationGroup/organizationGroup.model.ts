@@ -76,7 +76,6 @@ function onlyAliveMembers(group: IOrganizationGroup) {
 function postFind(result: IOrganizationGroup | IOrganizationGroup[]) {
   if (Array.isArray(result)) {
     result.map(onlyAliveMembers);
-    console.log('array!!!!!');
   } else {
     onlyAliveMembers(result);
   }
