@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { IOrganizationGroup } from './organizationGroup.interface';
 import { PersonModel as Person } from '../../person/person.model';
+import { IPerson } from '../../person/person.interface';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -65,6 +66,24 @@ OrganizationGroupSchema.virtual('directMembers', {
   foreignField: 'directGroup',
   justOne: false,
 });
+
+function onlyAliveMembers(group: IOrganizationGroup) {
+  if (group && group.directMembers) {
+    group.directMembers = group.directMembers.filter(p => p.alive);
+  }
+}
+
+function postFind(result: IOrganizationGroup | IOrganizationGroup[]) {
+  if (Array.isArray(result)) {
+    result.map(onlyAliveMembers);
+    console.log('array!!!!!');
+  } else {
+    onlyAliveMembers(result);
+  }
+}
+
+OrganizationGroupSchema.post('findOne', postFind);
+OrganizationGroupSchema.post('find', postFind);
 
 // OrganizationGroupSchema.virtual('id').get(function () {
 //   return this._id;

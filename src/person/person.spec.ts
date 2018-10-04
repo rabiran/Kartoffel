@@ -387,6 +387,7 @@ describe('Persons', () => {
       const res = await Person.discharge(person.id);
       should.exist(res);
       res.should.have.property('alive', false);
+      res.should.have.property('directGroup');
     });
     it('Should update the person\'s group and manage group after that the person is discharged', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });

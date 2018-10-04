@@ -45,7 +45,6 @@ export class Person {
   }
 
   static async getByDomainUserString(userString: string): Promise<IPerson> {
-    console.log('userString', userString);
     const user = await DomainUserController.getByFullString(userString);
     if (user && user.personId) {
       return await Person.getPersonById(<string>user.personId);
@@ -121,8 +120,6 @@ export class Person {
 
   static async discharge(personID: string): Promise<any> {
     const person = await Person.getPersonById(personID);
-    // remove the person from his direct organization group
-    person.directGroup = null;
     person.alive = false;
     if (person.managedGroup) {
       person.managedGroup = null;

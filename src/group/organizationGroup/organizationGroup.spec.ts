@@ -7,6 +7,8 @@ import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
 
+// import * as mongoose from 'mongoose';
+// mongoose.set('debug', true);
 
 const should = chai.should();
 const expect = chai.expect;
@@ -121,6 +123,32 @@ describe('Strong Groups', () => {
 
       res.should.exist;
       res.should.have.property('name', organizationGroup.name);
+    });
+    it('should get the group with it\'s member and without it after discharge', async () => {
+      const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
+      const p = await Person.createPerson({
+        identityCard: '000000311',
+        personalNumber: '1000002',
+        firstName: 'elaf',
+        lastName: 'hhhh',
+        serviceType: 'shit',
+        dischargeDay: new Date(2022, 11),
+        hierarchy: ['hhh'],
+        directGroup: organizationGroup.id,
+        job: 'dead',
+      });
+      const groupWithMember = await OrganizationGroup.getOrganizationGroup(organizationGroup.id, ['directMembers']);
+      // console.log(groupWithMember);
+      groupWithMember.should.have.property('directMembers');
+      groupWithMember.directMembers.should.have.lengthOf(1);
+      const member = groupWithMember.directMembers[0];
+      member.should.have.property('firstName', 'elaf');
+      await Person.discharge(p.id);
+      const groupAfterdischarge = await OrganizationGroup.getOrganizationGroup(organizationGroup.id, ['directMembers']);
+      groupAfterdischarge.should.have.property('directMembers');
+      groupAfterdischarge.directMembers.should.have.lengthOf(0);  
+      // console.log(groupWithMember);
+      
     });
     it('should return the group populated', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });

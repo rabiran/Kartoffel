@@ -63,7 +63,7 @@ export class OrganizationGroup {
 
   static async getOrganizationGroup(organizationGroupID: string, toPopulate?: String[]): Promise<IOrganizationGroup> {
     toPopulate = _.intersection(toPopulate, ORGANIZATION_GROUP_OBJECT_FIELDS);
-    const select = ['id', 'name', 'childless', 'type', 'rank', 'firstName', 'lastName'];
+    const select = ['id', 'name', 'type', 'rank', 'firstName', 'lastName', 'alive'];
     const populateOptions = _.flatMap(toPopulate, (path) => {
       return { path, select };
     });
