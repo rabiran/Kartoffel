@@ -36,7 +36,7 @@ organizationGroups.get('/path/:path', ch(OrganizationGroup.getOrganizationGroupB
   return [name, hierarchy];
 }));
 
-organizationGroups.get('/path/:path/allhierarchyExists', ch(OrganizationGroup.getOrganizationGroupByHierarchyabc, (req: Request) => {
+organizationGroups.get('/path/:path/hierarchyExistenceChecking', ch(OrganizationGroup.getIDofOrganizationGroupsInHierarchy, (req: Request) => {
   const hierarchy = req.params.path.split('/');
   return [hierarchy];
 }));

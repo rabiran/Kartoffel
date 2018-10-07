@@ -73,7 +73,6 @@ export function reflectPromise<T>(p: Promise<T>, putNull = false): Promise<{ v?:
     e => (putNull ? null : { e, status: 'rejected' }));
 }
 
-export async function wholePromise(r: Promise<any>[]) { 
-  // return await Promise.all(r.map(p => p.catch ? p.catch(e => e) : p)); 
-  return await Promise.all(r.map(p => p.catch(e => e))); 
+export async function promiseAllWithFails(promiseArray: Promise<any>[], valueErr?: any) { 
+  return await Promise.all(promiseArray.map(promise => promise.catch(err => valueErr ? valueErr : err))); 
 }

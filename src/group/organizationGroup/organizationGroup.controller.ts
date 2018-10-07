@@ -7,7 +7,7 @@ import { PersonRepository } from '../../person/person.repository';
 import { Document, PromiseProvider } from 'mongoose';
 import * as _ from 'lodash';
 import { ObjectId } from 'bson';
-import { sortObjectsByIDArray, wholePromise } from '../../utils';
+import { sortObjectsByIDArray, promiseAllWithFails } from '../../utils';
 
 Promise['whole'] = async function (r: Promise<any>[]) { return await Promise.all(r.map(p => p.catch ? p.catch(e => e) : p)); };
 
@@ -41,8 +41,8 @@ export class OrganizationGroup {
     return <IOrganizationGroup>organizationGroup;
   }
 
-  static async getOrganizationGroupByHierarchyabc(hierarchy: string[]) {
-    const a: IOrganizationGroup[] = await wholePromise(hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0, index))));
+  static async getIDofOrganizationGroupsInHierarchy(hierarchy: string[]) {
+    const a: IOrganizationGroup[] = await promiseAllWithFails(hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0, index))), null);
     const existingGroups = {};
     for (let index = 0; index < hierarchy.length; index++) {
       const value = a[index].id ? a[index].id : null;
