@@ -1,14 +1,14 @@
 import * as mongoose from 'mongoose';
 
-interface IRead {
-  find: (cond: Object, populate: Object | string) => Promise<mongoose.Document[]>;
-  findById: (id: any) => Promise<mongoose.Document>;
-  findOne: (cond: Object) => Promise<mongoose.Document>;
+interface IRead<T> {
+  find: (cond: Object, populate: Object | string) => Promise<mongoose.Document[] | T[]>;
+  findById: (id: any) => Promise<mongoose.Document | T>;
+  findOne: (cond: Object) => Promise<mongoose.Document | T>;
 }
 
 interface IWrite<T> {
-  create: (item: T) => Promise<mongoose.Document>;
-  update: (item: T) => Promise<mongoose.Document>;
+  create: (item: T) => Promise<mongoose.Document | T>;
+  update: (_id: any, item: T) => Promise<mongoose.Document | T>;
   delete: (_id: any) => Promise<void>;
 }
 
@@ -17,32 +17,32 @@ export interface ICollection<T> {
   totalCount: number;
 }
 
-export abstract class RepositoryBase<T extends mongoose.Document> implements IRead, IWrite<T> {
+export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
 
-  private _model: mongoose.Model<mongoose.Document>;
+  private _model: mongoose.Model<T & mongoose.Document>;
 
-  constructor(schemaModel: mongoose.Model<mongoose.Document>) {
+  constructor(schemaModel: mongoose.Model<T & mongoose.Document>) {
     this._model = schemaModel;
   }
 
-  getAll(): Promise<mongoose.Document[]> {
+  getAll(): Promise<T[]> {
     return this._model.find({}).exec();
   }
 
-  getSome(ids: string[]): Promise<mongoose.Document[]> {
+  getSome(ids: string[]): Promise<T[]> {
     return this._model.find({ _id: { $in: ids } }).exec();
   }
 
-  getUpdatedFrom(from: Date, to: Date): Promise<mongoose.Document[]> {
+  getUpdatedFrom(from: Date, to: Date): Promise<T[]> {
     return this._model.find({ updatedAt: { $gte: from, $lte: to } }).exec();
   }
 
-  findAndUpdateSome(ids: string[], set: Object): Promise<mongoose.Document[]> {
+  findAndUpdateSome(ids: string[], set: Object): Promise<T[]> {
     return this._model.update({ _id: { $in: ids } }, { $set: set }, { multi: true }).exec();
   }
 
   // TODO: Check why it doesn't work with throw (It doesn't get caught).
-  create(item: T): Promise<mongoose.Document> {
+  create(item: T): Promise<T> {
     return new Promise((resolve, reject) => {
       this._model.create(item, (err: any, obj: any): void => {
         if (err) reject(err);
@@ -51,10 +51,10 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     });
   }
 
-  update(item: T, populateOptions?: string | Object): Promise<mongoose.Document> {
+  update(_id: any, item: Partial<T>, populateOptions?: string | Object): Promise<T> {
     item['updatedAt'] = new Date();
     const opts = { new: true, runValidators: true, context: 'query' };
-    let updateQuery = this._model.findByIdAndUpdate({ _id: item._id }, item, opts);
+    let updateQuery = this._model.findByIdAndUpdate({ _id }, item, opts);
     if (populateOptions) {
       updateQuery = updateQuery.populate(populateOptions);
     }
@@ -65,7 +65,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     return this._model.remove({ _id }).exec();
   }
 
-  findById(_id: any, populateOptions?: string | Object): Promise<mongoose.Document> {
+  findById(_id: any, populateOptions?: string | Object): Promise<T> {
     let findQuery = this._model.findById(_id);
 
     if (populateOptions) {
@@ -75,7 +75,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     return findQuery.exec();
   }
 
-  findOne(cond?: Object, populateOptions?: string | Object, select?: string): Promise<mongoose.Document> {
+  findOne(cond?: Object, populateOptions?: string | Object, select?: string): Promise<T> {
     let findQuery = this._model.findOne(cond);
     if (populateOptions) {
       findQuery = findQuery.populate(populateOptions);
@@ -86,7 +86,7 @@ export abstract class RepositoryBase<T extends mongoose.Document> implements IRe
     return findQuery.exec();
   }
 
-  find(cond?: Object, populate?: string | Object, select?: string): Promise<mongoose.Document[]> {
+  find(cond?: Object, populate?: string | Object, select?: string): Promise<T[]> {
 
     let findPromise = this._model.find(cond);
     if (populate) {

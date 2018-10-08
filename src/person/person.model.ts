@@ -3,13 +3,14 @@ import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
 import { RESPONSIBILITY } from '../utils';
 
+
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const personValidator = new PersonValidate();
 
-function validateEmail(email: string): boolean {
-  return true;
+function autoPopulate(next: Function) {
+  this.populate('primaryDomainUser secondaryDomainUsers');
+  next();
 }
 
 export const PersonSchema = new mongoose.Schema(
@@ -27,16 +28,17 @@ export const PersonSchema = new mongoose.Schema(
       validate: { validator: PersonValidate.personalNumber, message: '{VALUE} is an invalid personal number!' },
     },
     primaryDomainUser: {
-      type: String,
-      required: [true, 'You must enter a primary domain user!'],
-      unique: true,
-      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid domain user' },
+      type: ObjectId,
+      ref: 'DomainUser',
     },
     secondaryDomainUsers: [{
-      type: String,
-      validate: { validator: PersonValidate.email, message: '{VALUE} is an invalid domain user' },
+      type: ObjectId,
+      ref: 'DomainUser',
     }],
-    serviceType: String,
+    serviceType: {
+      type: String,
+      required: [true, 'You must enter service type'],
+    },
     firstName: {
       type: String,
       required: [true, 'You must enter a first name!'],
@@ -70,6 +72,7 @@ export const PersonSchema = new mongoose.Schema(
     },
     directGroup: {
       type: ObjectId,
+      required: [true, 'a person must belong to an organization group'],
       index: true,
     },
     managedGroup: {
@@ -138,4 +141,6 @@ PersonSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;
 });
 
-export const PersonModel = mongoose.model<IPerson>('Person', PersonSchema);
+PersonSchema.pre('findOne', autoPopulate);
+
+export const PersonModel = mongoose.model<IPerson & mongoose.Document>('Person', PersonSchema);

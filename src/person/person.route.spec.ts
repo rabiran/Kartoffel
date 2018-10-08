@@ -4,76 +4,80 @@ process.env.PORT = '8080';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as server from '../server';
-import * as personRouter from './person.route';
 import { Person } from './person.controller';
-import { PersonModel } from './person.model';
-import { OrganizationGroupModel } from '../group/organizationGroup/organizationGroup.model';
 import { IPerson } from './person.interface';
-import { expectError } from '../helpers/spec.helper';
-import { ObjectId } from 'mongodb';
+
 
 const should = chai.should();
 chai.use(require('chai-http'));
 const expect = chai.expect;
 
+const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
+
+const userStringEx = 'nitro@jello';
+
 const personExamples: IPerson[] = [  
   <IPerson>{
     identityCard: '234567891',
     personalNumber: '3456712',
-    primaryDomainUser: 'mazaltov@surprise.sod',
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
+    serviceType: 'kill me',
+    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '567891234',
     personalNumber: '1234567',
-    primaryDomainUser: 'yonatantal@development.sod',
     firstName: 'Yonatan',
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['www', 'microsoft', 'github'],
     job: 'Programmer',
+    serviceType: 'kill me',
+    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '123456789',
     personalNumber: '2345671',
-    primaryDomainUser: 'aviron@secure.sod',
     firstName: 'Avi',
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
     mail: 'avi.ron@gmail.com',
     hierarchy: ['Airport', 'Pilots guild', 'captain'],
     job: 'Pilot 1',
+    serviceType: 'kill me',
+    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '345678912',
     personalNumber: '4567123',
-    primaryDomainUser: 'elikopter@secure.sod',
     firstName: 'Eli',
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
     responsibility: 'SecurityOfficer',
-    responsibilityLocation: new ObjectId(),
+    responsibilityLocation: dbIdExample[0],
     clearance: '3',
     rank: 'Skillful',
+    serviceType: 'kill me',
+    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '456789123',
     personalNumber: '5671234',
-    primaryDomainUser: 'tikipoor@cosmetician.sod',
     firstName: 'Tiki',
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
     hierarchy: ['fashion designer', 'cosmetician guild'],
     job: 'cosmetician 1',
+    serviceType: 'kill me',
+    directGroup: dbIdExample[0],
   },  
 ];
-const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 
 const BASE_URL = '/api/person';
 
@@ -119,7 +123,7 @@ describe('Person', () => {
     it('Should return a person according to "_id"', async() => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
-        .get(`${BASE_URL}/${person._id}`)
+        .get(`${BASE_URL}/${person.id}`)
         .then((res) => {
           res.should.have.status(200);
           res.should.exist;
@@ -152,6 +156,30 @@ describe('Person', () => {
           res.body.should.have.property('lastName', personExamples[0].lastName);
         }).catch((err) => { throw err; });
     });
+
+    it('should return the person by it\'s domain user', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ 
+          personId: person.id,
+          fullString: userStringEx,
+          isPrimary: true,
+        });
+      })
+      .then(res => chai.request(server).get(`${BASE_URL}/domainUser/${userStringEx}`))
+      .then((res) => {
+        res.should.have.status(200);
+        res.should.exist;
+        const person = res.body;
+        person.should.exist;
+        person.should.have.property('primaryDomainUser');
+        const user = person.primaryDomainUser;
+        user.should.have.property('personId');
+        user.should.have.property('fullString', userStringEx);
+      });
+    });
   });
   describe('/GET updated persons', () => {
     it('Should return an 400 when given a wrong param', (done) => {
@@ -168,7 +196,7 @@ describe('Person', () => {
     it('Should return the updated persons from a certain date', async () => {
       const clock = sinon.useFakeTimers();
       await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      clock.tick(1000);
+      clock.tick(1000); 
       const from = Date.now();
       clock.tick(1000);
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
@@ -222,6 +250,77 @@ describe('Person', () => {
         });
     });
   });
+
+  describe('/POST person/domainUser', () => {
+    it('should return the person with the newly created primary domainUser', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ 
+          personId: person.id,
+          fullString: userStringEx,
+          isPrimary: true,
+        });
+      })
+      .then((res) => {
+        res.should.exist;
+        res.should.have.status(200);
+        const updatedPerson = res.body;
+        updatedPerson.should.have.property('primaryDomainUser');
+      });
+    });
+
+    it('should return the person with the newly created secondary domainUser', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ 
+          personId: person.id,
+          fullString: userStringEx,
+          isPrimary: false,
+        });
+      })
+      .then((res) => {
+        res.should.exist;
+        res.should.have.status(200);
+        const updatedPerson = res.body;
+        updatedPerson.should.have.property('secondaryDomainUsers');
+        updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
+      });
+    });
+
+    it('should return error when the domain user string is invalid', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, fullString: `${userStringEx}@`, isPrimary: true });
+      })
+      .catch((err) => {
+        err.should.exist;
+      });
+    });
+
+    it('should return error when the domain user already exists', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, fullString: userStringEx, isPrimary: true });
+      })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, fullString: userStringEx, isPrimary: false });
+      })
+      .catch((err) => {
+        err.should.exist;
+      });
+    });
+  });
+
   describe('/PUT person', () => {
     describe('/PUT person basic dry information', () => {
       it('Should return 400 when person does not exist', (done) => {
@@ -249,18 +348,18 @@ describe('Person', () => {
         //   });
         done();
       });
-      it('Should return the updated person', async () => {
-        const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-        await chai.request(server)
-          .put(`${BASE_URL}/${person._id}/personal`)
-          .send({ _id: person._id.toString(), phone: ['027654321'] })
-          .then((res) => {
-            res.should.exist;
-            res.should.have.status(200);
-            res.body.should.have.property('phone');
-            res.body.phone.should.have.members(['027654321']);
-          }).catch((err) => { throw err; });
-      });
+      // it('Should return the updated person', async () => {
+      //   const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      //   await chai.request(server)
+      //     .put(`${BASE_URL}/${person.id}/personal`)
+      //     .send({ _id: person.id.toString(), phone: ['027654321'] })
+      //     .then((res) => {
+      //       res.should.exist;
+      //       res.should.have.status(200);
+      //       res.body.should.have.property('phone');
+      //       res.body.phone.should.have.members(['027654321']);
+      //     }).catch((err) => { throw err; });
+      // });
     });
   });
   describe('/DELETE person', () => {
@@ -278,7 +377,7 @@ describe('Person', () => {
     it('Should return successful result ', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
-        .del(`${BASE_URL}/${person._id}`)
+        .del(`${BASE_URL}/${person.id}`)
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
