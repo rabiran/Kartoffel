@@ -8,7 +8,6 @@ export interface IOrganizationGroup extends IGroup {
   directMembers?: IPerson[];
   directManagers?: IPerson[];
   hierarchy?: string[];
-  type?: string;
   isALeaf?: boolean;
 }
 

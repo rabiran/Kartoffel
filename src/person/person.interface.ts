@@ -19,7 +19,7 @@ export interface IPerson {
   hierarchy: string[];
   directGroup: string | Types.ObjectId | IOrganizationGroup; 
   managedGroup?: string | Types.ObjectId | IOrganizationGroup;
-  rank?: Rank;  // optional at create
+  rank?: Rank;
   updatedAt?: Date;
   createdAt?: Date;
 // Editable by the Person

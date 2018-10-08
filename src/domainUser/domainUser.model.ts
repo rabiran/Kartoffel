@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { IDomainUser } from './domainUser.interface';
-import { DomainSeperator } from './domainUser.utils';
+import { DomainSeperator } from '../utils';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 

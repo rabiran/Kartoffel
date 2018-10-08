@@ -348,18 +348,18 @@ describe('Person', () => {
         //   });
         done();
       });
-      it('Should return the updated person', async () => {
-        const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-        await chai.request(server)
-          .put(`${BASE_URL}/${person.id}/personal`)
-          .send({ _id: person.id.toString(), phone: ['027654321'] })
-          .then((res) => {
-            res.should.exist;
-            res.should.have.status(200);
-            res.body.should.have.property('phone');
-            res.body.phone.should.have.members(['027654321']);
-          }).catch((err) => { throw err; });
-      });
+      // it('Should return the updated person', async () => {
+      //   const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      //   await chai.request(server)
+      //     .put(`${BASE_URL}/${person.id}/personal`)
+      //     .send({ _id: person.id.toString(), phone: ['027654321'] })
+      //     .then((res) => {
+      //       res.should.exist;
+      //       res.should.have.status(200);
+      //       res.body.should.have.property('phone');
+      //       res.body.phone.should.have.members(['027654321']);
+      //     }).catch((err) => { throw err; });
+      // });
     });
   });
   describe('/DELETE person', () => {

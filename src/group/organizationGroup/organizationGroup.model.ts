@@ -26,10 +26,6 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       ref: 'OrganizationGroup',
       default: [],
     },
-    clearance: {
-      type: Number,
-      default: 0,
-    },
     ancestors: {
       type: [ObjectId],
       ref: 'OrganizationGroup',
@@ -39,7 +35,6 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    type: String,
     isALeaf: Boolean,
     updatedAt: Date,
   }, 

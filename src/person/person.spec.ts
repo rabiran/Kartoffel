@@ -604,6 +604,12 @@ describe('Persons', () => {
       expectError(Person.addNewUser, [person.id, 'fff@', true]);
     });
     
+    it('should throw error when trying to add existing user', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      await Person.addNewUser(person.id, 'nitro@jello', true);
+      expectError(Person.addNewUser, ['nitro@jello']);
+    });
+
     it('should add new secondary domain users to the person', async () => {
       const person = await Person.createPerson(personExamples[3]);
       let updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', false);
@@ -620,6 +626,26 @@ describe('Persons', () => {
       secUser.should.have.property('personId');
       expect(String(secUser.personId) === person.id).to.be.true; // hate to convert objectId :\
       secUser.should.have.property('fullString', 'nitro2@jello');
+    });
+
+    it('should replace the primary user and make the previous secondaries', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      let updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', true);
+      updatedPerson =  await Person.addNewUser(person.id, 'nitro2@jello', true);
+      updatedPerson =  await Person.addNewUser(person.id, 'nitro3@jello', true);
+      updatedPerson.should.exist;
+      // check that the person have both primary & secondary domain users
+      updatedPerson.should.have.property('primaryDomainUser');
+      updatedPerson.should.have.property('secondaryDomainUsers');
+      updatedPerson.secondaryDomainUsers.should.have.lengthOf(2);
+      // check that the primary & secondary users are the correct ones
+      const populatedPerson = await Person.getPersonById(person.id);
+      const primaryUser = <IDomainUser>populatedPerson.primaryDomainUser;
+      primaryUser.should.exist;
+      primaryUser.should.have.property('fullString', 'nitro3@jello');
+      const secUser = <IDomainUser>populatedPerson.secondaryDomainUsers[0];
+      secUser.should.exist;
+      secUser.should.have.property('fullString', 'nitro@jello');
     });
   });
 

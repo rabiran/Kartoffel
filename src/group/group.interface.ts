@@ -6,7 +6,6 @@ export interface IGroup {
   name: string;
   admins?: IPerson[] | string[];
   members?: IPerson[] | string[];
-  clearance?: number;
   updatedAt?: Date;
 }
 

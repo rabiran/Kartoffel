@@ -61,13 +61,13 @@ persons.delete('/:id',
                return [req.params.id];
              }, 404));
 
-persons.put('/:id/personal',
-          PermissionMiddleware.hasPersonsPermission,
-          ch(Person.updatePerson, (req: Request, res: Response) => {
-            // if (req.params.id !== req.body._id) return res.status(400).send('Person ID doesn\'t match');
-            const toUpdate = filterObjectByKeys(req.body, EDITABLE_FIELDS.concat('_id'));
-            return [req.params.id, toUpdate];
-          }, 404));
+// persons.put('/:id/personal',
+//           PermissionMiddleware.hasPersonsPermission,
+//           ch(Person.updatePerson, (req: Request, res: Response) => {
+//             if (req.params.id !== req.body.id) return res.status(400).send('Person ID doesn\'t match');
+//             const toUpdate = filterObjectByKeys(req.body, EDITABLE_FIELDS.concat('_id'));
+//             return [req.params.id, toUpdate];
+//           }, 404));
 
 persons.put('/',
           PermissionMiddleware.hasAdvancedPermission,

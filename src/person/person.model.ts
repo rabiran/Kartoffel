@@ -72,13 +72,7 @@ export const PersonSchema = new mongoose.Schema(
     },
     directGroup: {
       type: ObjectId,
-      required: [function () {
-        // allows to unset directGroup only if the person's 'alive' is false 
-        // or set to false at the SAME update!!
-        const isUpdate = typeof this.getUpdate === 'function';
-        const alive = isUpdate ? this.getUpdate().$set.alive : this.alive;
-        return alive !== false;
-      }, 'a person must belong to an organization group'],
+      required: [true, 'a person must belong to an organization group'],
       index: true,
     },
     managedGroup: {
