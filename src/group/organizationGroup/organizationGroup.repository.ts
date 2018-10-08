@@ -9,7 +9,7 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
   constructor() {
     super(OrganizationGroup);
   }
-  getOffsprings(ancestor_id: string, selectField?: string[], cond?: object): Promise<mongoose.Document[]> {
+  getOffsprings(ancestor_id: string, selectField?: string[], cond?: object): Promise<IOrganizationGroup[]> {
     const query = OrganizationGroup.find({ ancestors: ObjectId(ancestor_id) });
     if (selectField) {
       !selectField.includes('id') ? selectField.push('id') : selectField; 
@@ -18,8 +18,8 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
     if (cond) query.where(cond);
     return query.exec();
   }
-
-  getOffspringsIds(ancestor_id: string): Promise<mongoose.Document[]> {
+  // todo: use the repo base? 
+  getOffspringsIds(ancestor_id: string): Promise<IOrganizationGroup[]> {
     return OrganizationGroup.find({ ancestors: ObjectId(ancestor_id) }, 'id').exec();
   }
 }

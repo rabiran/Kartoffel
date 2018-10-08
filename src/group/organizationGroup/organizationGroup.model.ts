@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import { IOrganizationGroup } from './organizationGroup.interface';
 import { PersonModel as Person } from '../../person/person.model';
+import { IPerson } from '../../person/person.interface';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -15,10 +16,6 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       ref: 'OrganizationGroup',
       default: [],
     },
-    clearance: {
-      type: Number,
-      default: 0,
-    },
     ancestors: {
       type: [ObjectId],
       ref: 'OrganizationGroup',
@@ -32,7 +29,6 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    type: String,
     isALeaf: {
       type: Boolean,
       default: true,
@@ -64,6 +60,23 @@ OrganizationGroupSchema.virtual('directMembers', {
   justOne: false,
 });
 
+function onlyAliveMembers(group: IOrganizationGroup) {
+  if (group && group.directMembers) {
+    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.alive);
+  }
+}
+
+function postFind(result: mongoose.Document | IOrganizationGroup | IOrganizationGroup[]) {
+  if (Array.isArray(result)) {
+    result.map(onlyAliveMembers);
+  } else {
+    onlyAliveMembers(<IOrganizationGroup>result);
+  }
+}
+
+OrganizationGroupSchema.post('findOne', postFind);
+OrganizationGroupSchema.post('find', postFind);
+
 // OrganizationGroupSchema.virtual('id').get(function () {
 //   return this._id;
 // });   
@@ -77,4 +90,4 @@ OrganizationGroupSchema.pre('update', function () {
   this.update({}, { $set: { updatedAt: new Date() } });
 });
 
-export const OrganizationGroupModel = mongoose.model<IOrganizationGroup>('OrganizationGroup', OrganizationGroupSchema);
+export const OrganizationGroupModel = mongoose.model<IOrganizationGroup & mongoose.Document>('OrganizationGroup', OrganizationGroupSchema);

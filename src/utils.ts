@@ -42,6 +42,8 @@ export enum RESPONSIBILITY {
   'HR',
 }
 
+export const DomainSeperator = '@';
+
 export function filterObjectByKeys(object: Object, allowedKeys: string[]): Object {
   const filtered = Object.keys(object)
   .filter(key => allowedKeys.includes(key))

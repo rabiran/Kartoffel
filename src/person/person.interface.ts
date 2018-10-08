@@ -1,37 +1,37 @@
-import { Document } from 'mongoose';
+import { Types } from 'mongoose';
 import { Rank, Responsibility } from '../utils';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { ObjectId } from 'bson';
+import { IDomainUser } from '../domainUser/domainUser.interface';
 
-export interface IPerson extends Document {
+export interface IPerson {
 // Person's Basic information
-  _id: ObjectId;
+  id?: string;
   identityCard: string;
-  personalNumber: string;
-  primaryDomainUser: string;
-  secondaryDomainUsers: string[];
+  personalNumber?: string;
+  primaryDomainUser?: string | Types.ObjectId | IDomainUser;
+  secondaryDomainUsers?:  string[] | Types.ObjectId[] | IDomainUser[];
   serviceType: string;
   firstName: string;
   lastName: string;
-  currentUnit: string;
-  alive: boolean;
+  currentUnit?: string;
+  alive?: boolean;
   dischargeDay: Date;
   hierarchy: string[];
-  directGroup: IOrganizationGroup | ObjectId;
-  managedGroup: IOrganizationGroup | ObjectId;
-  rank: Rank;
-  updatedAt: Date;
-  createdAt: Date;
+  directGroup: string | Types.ObjectId | IOrganizationGroup; 
+  managedGroup?: string | Types.ObjectId | IOrganizationGroup;
+  rank?: Rank;
+  updatedAt?: Date;
+  createdAt?: Date;
 // Editable by the Person
   job: string;
-  mail: string;
-  phone: string[];
-  mobilePhone: string[];
-  address: string;
+  mail?: string;
+  phone?: string[];
+  mobilePhone?: string[];
+  address?: string;
 // Editable with strong permissions
-  responsibility: Responsibility;
-  responsibilityLocation: ObjectId;
-  clearance: string;
+  responsibility?: Responsibility;
+  responsibilityLocation?: string | Types.ObjectId | IOrganizationGroup;
+  clearance?: string;
 }
 
 export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
