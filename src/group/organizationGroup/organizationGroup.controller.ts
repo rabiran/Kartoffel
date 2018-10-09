@@ -4,12 +4,10 @@ import { IOrganizationGroup, ORGANIZATION_GROUP_OBJECT_FIELDS, ORGANIZATION_GROU
 import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { PersonRepository } from '../../person/person.repository';
-import { Document, PromiseProvider } from 'mongoose';
+import { Document } from 'mongoose';
 import * as _ from 'lodash';
 import { ObjectId } from 'bson';
 import { sortObjectsByIDArray, promiseAllWithFails } from '../../utils';
-
-Promise['whole'] = async function (r: Promise<any>[]) { return await Promise.all(r.map(p => p.catch ? p.catch(e => e) : p)); };
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -41,6 +39,11 @@ export class OrganizationGroup {
     return organizationGroup;
   }
 
+  /**
+   * Check if groups in hierarchy exist and return object with IDs 
+   * of groups if existing, otherwise null
+   * @param hierarchy hierarchy of groups to check
+   */
   static async getIDofOrganizationGroupsInHierarchy(hierarchy: string[]) {
     const a: IOrganizationGroup[] = await promiseAllWithFails(hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0, index))), null);
     const existingGroups = {};
@@ -204,6 +207,10 @@ export class OrganizationGroup {
     return res;
   }
 
+  /**
+   * Delete organization Group from the DB
+   * @param groupID OrganizationGroup to delete
+   */
   static async deleteGroup(groupID: string): Promise<any> {
     const group = await OrganizationGroup.getOrganizationGroup(groupID, ['directMembers']);
 
@@ -266,6 +273,10 @@ export class OrganizationGroup {
     return await OrganizationGroup.updateOrganizationGroup(parent.id, parent);
   }
 
+  /**
+   * Return array of ids ancestors of group
+   * @param organizationGroupID ID of group we want its ancestors
+   */
   private static async getIDAncestors(organizationGroupID: string): Promise<string[]> {
     const organizationGroup = await OrganizationGroup.getOrganizationGroupOld(organizationGroupID);
     if (!organizationGroup.ancestors) return [];
@@ -290,6 +301,11 @@ export class OrganizationGroup {
     return <IOrganizationGroup[]>sortObjectsByIDArray(ancestorObjects, organizationGroup.ancestors);
   }
 
+  /**
+   * Return true if person is a member of group 
+   * @param groupID 
+   * @param personID 
+   */
   private static async isMember(groupID: string, personID: string): Promise<boolean> {
     const members = await OrganizationGroup.getAllMembers(groupID);
     const memberIDs = members.map(member => member.id);
