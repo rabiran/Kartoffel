@@ -1,4 +1,5 @@
 import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as sinon from 'sinon';
 import { OrganizationGroup } from './organizationGroup.controller';
 import { OrganizationGroupModel } from './organizationGroup.model';
@@ -10,6 +11,7 @@ import { expectError } from '../../helpers/spec.helper';
 const should = chai.should();
 const expect = chai.expect;
 chai.use(require('chai-http'));
+chai.use(chaiAsPromised);
 
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const idXmpls = ['59a6aa1f5caa4e4d2ac39797', '59a56d577bedba18504298df'];
@@ -72,6 +74,34 @@ describe('Strong Groups', () => {
       groups[2].should.have.property('name', 'group_2');
     });
   });
+
+  describe('#Get group by hierarchy', () => {
+    it('Should not find the group', async () => {
+      const exsistGroups = OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
+      return exsistGroups.should.be.rejected;
+    });
+    it('Should return group', async () => {
+      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
+      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
+      const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);
+      const exsistGroups = await OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
+      expect(exsistGroups).to.be.an('object');
+      expect(exsistGroups).to.have.property(`name`, 'group4');
+      expect(exsistGroups.hierarchy).to.have.lengthOf(3);
+      expect(exsistGroups.hierarchy).to.include.members(['group1', 'group2', 'group3']);
+      expect(exsistGroups.ancestors).to.have.lengthOf(3);    
+      expect(exsistGroups.ancestors).to.include.members([group3.id, group2.id, group1.id]);    
+    });
+    it('Should not find the group and have hierarchy', async () => {
+      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
+      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
+      const exsistGroups = OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
+      return exsistGroups.should.be.rejected;
+    });
+  });
+
   describe('#Get ID groups according hierarchy', () => {
     it('Should return Object that all values is null', async () => {
       const exsistGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
@@ -236,9 +266,9 @@ describe('Strong Groups', () => {
       await Person.discharge(p.id);
       const groupAfterdischarge = await OrganizationGroup.getOrganizationGroup(organizationGroup.id, ['directMembers']);
       groupAfterdischarge.should.have.property('directMembers');
-      groupAfterdischarge.directMembers.should.have.lengthOf(0);  
+      groupAfterdischarge.directMembers.should.have.lengthOf(0);
       // console.log(groupWithMember);
-      
+
     });
     it('should return the group populated', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
@@ -265,7 +295,7 @@ describe('Strong Groups', () => {
       });
       it('Should update the group', async () => {
         const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myTeam' });
-        const updated = await OrganizationGroup.updateOrganizationGroup(organizationGroup.id ,<IOrganizationGroup>{ name: 'newName' });
+        const updated = await OrganizationGroup.updateOrganizationGroup(organizationGroup.id, <IOrganizationGroup>{ name: 'newName' });
 
         updated.should.exist;
         updated.should.have.property('name', 'newName');

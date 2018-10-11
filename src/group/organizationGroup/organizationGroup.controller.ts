@@ -6,8 +6,7 @@ import { IPerson } from '../../person/person.interface';
 import { PersonRepository } from '../../person/person.repository';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
-import { ObjectId } from 'bson';
-import { sortObjectsByIDArray, promiseAllWithFails } from '../../utils';
+import { sortObjectsByIDArray, promiseAllWithFails, asyncForEach } from '../../utils';
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -45,13 +44,13 @@ export class OrganizationGroup {
    * @param hierarchy hierarchy of groups to check
    */
   static async getIDofOrganizationGroupsInHierarchy(hierarchy: string[]) {
-    const a: IOrganizationGroup[] = await promiseAllWithFails(hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0, index))), null);
-    const existingGroups = {};
+    const groups: IOrganizationGroup[] = await promiseAllWithFails(hierarchy.map((p, index, hierarchy) => OrganizationGroup.getOrganizationGroupByHierarchy(p, hierarchy.slice(0, index))), null);
+    const groupsID = {};
     for (let index = 0; index < hierarchy.length; index++) {
-      const value = a[index].id ? a[index].id : null;
-      existingGroups[hierarchy[index]] = value;
+      const value = groups[index].id ? groups[index].id : null;
+      groupsID[hierarchy[index]] = value;
     }
-    return existingGroups;
+    return groupsID;
   }
 
   /**
@@ -72,24 +71,25 @@ export class OrganizationGroup {
         parentAncestors.unshift(parent);
 
         // Revives all the ancestors that are not alive and returns to each parent his son 
-        parentAncestors.forEach(async (ancestor, index, parentAncestors) => {
-          ancestor.isAlive = true;
+        await asyncForEach(parentAncestors,
+          async (ancestor: IOrganizationGroup, index: number, parentAncestors: IOrganizationGroup[]) => {
+            ancestor.isAlive = true;
 
-          // Returns each child to the parent, except the last one that is not in the array
-          if (index !== parentAncestors.length - 1) {
-            (<string[]>parentAncestors[index + 1].children).push(ancestor.id);
+            // Returns each child to the parent, except the last one that is not in the array
+            if (index !== parentAncestors.length - 1) {
+              (<string[]>parentAncestors[index + 1].children).push(ancestor.id);
 
-            // 'Is a leaf' check:
-            if (parentAncestors[index + 1].isALeaf) parentAncestors[index + 1].isALeaf = false;
+              // 'Is a leaf' check:
+              if (parentAncestors[index + 1].isALeaf) parentAncestors[index + 1].isALeaf = false;
 
-            // Update the last parent
-          } else {
-            await OrganizationGroup.adoptChildren(ancestor.ancestors[0], [ancestor.id]);
-          }
+              // Update the last parent
+            } else {
+              await OrganizationGroup.adoptChildren(ancestor.ancestors[0], [ancestor.id]);
+            }
 
-          // Updating any parent that has been modified
-          await OrganizationGroup.updateOrganizationGroup(ancestor.id, ancestor);
-        });
+            // Updating any parent that has been modified
+            await OrganizationGroup.updateOrganizationGroup(ancestor.id, ancestor);
+          });
       }
     }
 
@@ -153,8 +153,8 @@ export class OrganizationGroup {
     return <IOrganizationGroup[]>persons;
   }
 
-  static async updateOrganizationGroup(id: string ,updateTo: Partial<IOrganizationGroup>): Promise<IOrganizationGroup> {
-    const updated = await OrganizationGroup._organizationGroupRepository.update(id ,updateTo);
+  static async updateOrganizationGroup(id: string, updateTo: Partial<IOrganizationGroup>): Promise<IOrganizationGroup> {
+    const updated = await OrganizationGroup._organizationGroupRepository.update(id, updateTo);
     if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + id));
     return updated;
   }
@@ -288,14 +288,13 @@ export class OrganizationGroup {
    * @param organizationGroupID ID of group
    * @param cond Condition of query
    */
-  private static async getAncestors(organizationGroupID: string, cond?: Object): Promise<IOrganizationGroup[]> {
+  private static async getAncestors(organizationGroupID: string, cond: Object = {}): Promise<IOrganizationGroup[]> {
     const organizationGroup = await OrganizationGroup.getOrganizationGroupOld(organizationGroupID);
     if (!organizationGroup.ancestors) return [];
 
     // If there are conditions adding them to the request, otherwise no
-    const ancestorObjects: IOrganizationGroup[] = cond ?
-      <IOrganizationGroup[]>await OrganizationGroup._organizationGroupRepository.getSome(organizationGroup.ancestors, cond) :
-      <IOrganizationGroup[]>await OrganizationGroup._organizationGroupRepository.getSome(organizationGroup.ancestors);
+    const ancestorObjects: IOrganizationGroup[] = 
+      <IOrganizationGroup[]>await OrganizationGroup._organizationGroupRepository.getSome(organizationGroup.ancestors, cond);
 
     // Return sort array according ancestors  
     return <IOrganizationGroup[]>sortObjectsByIDArray(ancestorObjects, organizationGroup.ancestors);
