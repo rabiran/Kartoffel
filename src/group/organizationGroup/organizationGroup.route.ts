@@ -34,6 +34,11 @@ organizationGroups.get('/path/:path', ch(OrganizationGroup.getOrganizationGroupB
   const hierarchy = req.params.path.split('/');
   const name = hierarchy.pop();
   return [name, hierarchy];
+}, 404));
+
+organizationGroups.get('/path/:path/hierarchyExistenceChecking', ch(OrganizationGroup.getIDofOrganizationGroupsInHierarchy, (req: Request) => {
+  const hierarchy = req.params.path.split('/');
+  return [hierarchy];
 }));
 
 organizationGroups.post('/',
@@ -65,7 +70,7 @@ organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
   ));
 
 organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission,
-  ch(OrganizationGroup.deleteGroup, (req: Request) => {
+  ch(OrganizationGroup.hideGroup, (req: Request) => {
     return [req.params.id];
   }, 400
   )

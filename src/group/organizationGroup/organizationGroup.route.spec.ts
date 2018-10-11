@@ -46,7 +46,7 @@ describe('OrganizationGroup API', () => {
     });
   });
   describe('/GET group by ID', () => {
-    it('Should return 404 when group does not exist',  (done) => {
+    it('Should return 404 when group does not exist', (done) => {
       chai.request(server)
         .get(BASE_URL + '/' + ID_EXAMPLE)
         .end((err, res) => {
@@ -57,7 +57,7 @@ describe('OrganizationGroup API', () => {
           done();
         });
     });
-    it('Should return a group', async() => {
+    it('Should return a group', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
       await chai.request(server)
         .get(BASE_URL + '/' + organizationGroup.id)
@@ -68,17 +68,93 @@ describe('OrganizationGroup API', () => {
         }).catch((err) => { throw err; });
     });
   });
+  describe('/GET group by hierarchy', () => {
+    it('Should return a group', async () => {
+      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
+      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
+      const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);
+      await chai.request(server)
+        .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4`)
+        .then((res) => {
+          expect(res.body).to.have.property(`name`, 'group4');
+          expect(res.body.hierarchy).to.have.lengthOf(3);
+          expect(res.body.hierarchy).to.include.members(['group1', 'group2', 'group3']);
+          expect(res.body.ancestors).to.have.lengthOf(3);
+          expect(res.body.ancestors).to.include.members([group3.id, group2.id, group1.id]);
+        }).catch((err) => { throw err; });
+    });
+    it('Should return an 404 when given a path that all group not exsit', (done) => {
+      chai.request(server)
+        .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4`)
+        .end((err, res) => {
+          err.should.exist;
+          res.should.have.status(404);
+          done();
+        });
+    });
+    it('Should return an 404 when given a path that herarchy exist but group not exsit', async () => {
+      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
+      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
+      await chai.request(server)
+        .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4`)
+        .then(
+          () => [expect.fail(undefined, undefined, 'Should not succeed!')],
+          err => err.should.have.status(404)
+          );
+    });
+  });
+  describe('/GET Object with ID of groups by hierarchy', () => {
+    it('Should return a object with all IDs', async () => {
+      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
+      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
+      const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);
+      await chai.request(server)
+        .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4/hierarchyExistenceChecking`)
+        .then((res) => {
+          expect(res.body).to.have.property('group1', group1.id);
+          expect(res.body).to.have.property('group2', group2.id);
+          expect(res.body).to.have.property('group3', group3.id);
+          expect(res.body).to.have.property('group4', group4.id);        
+        }).catch((err) => { throw err; });
+    });
+    it('Should return object that all value null because group not exsit', async () => {     
+      await chai.request(server)
+        .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4/hierarchyExistenceChecking`)
+        .then((res) => {
+          expect(res.body).to.have.property('group1', null);
+          expect(res.body).to.have.property('group2', null);
+          expect(res.body).to.have.property('group3', null);
+          expect(res.body).to.have.property('group4', null);        
+        }).catch((err) => { throw err; });
+    });
+    it('Should return object that 3 value is ids because group exsit and the last value null', async () => { 
+      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
+      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);    
+      await chai.request(server)
+        .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4/hierarchyExistenceChecking`)
+        .then((res) => {
+          expect(res.body).to.have.property('group1', group1.id);
+          expect(res.body).to.have.property('group2', group2.id);
+          expect(res.body).to.have.property('group3', group3.id);
+          expect(res.body).to.have.property('group4', null);        
+        }).catch((err) => { throw err; });
+    });
+  });
   describe('/GET updated groups', () => {
     it('Should return an 400 when given a wrong param', (done) => {
       chai.request(server)
-      .get(BASE_URL + '/getUpdated/' + 'abc')
-      .end((err, res) => {
-        err.should.exist;
-        res.should.have.status(400);
-        const errMsg = res.text;
-        errMsg.should.be.equal('Did not receive a valid date ;)');
-        done();
-      });
+        .get(BASE_URL + '/getUpdated/' + 'abc')
+        .end((err, res) => {
+          err.should.exist;
+          res.should.have.status(400);
+          const errMsg = res.text;
+          errMsg.should.be.equal('Did not receive a valid date ;)');
+          done();
+        });
     });
     it('Should return the updated groups from a certain date', async () => {
       const clock = sinon.useFakeTimers();
@@ -89,13 +165,13 @@ describe('OrganizationGroup API', () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2' });
 
       await chai.request(server)
-            .get(BASE_URL + '/getUpdated/' + from)
-            .then((res) => {
-              res.should.have.status(200);
-              const groups = res.body;
-              groups.should.have.lengthOf(1);
-              groups[0].should.have.property('name', 'group_2');
-            }).catch((err) => { throw err; });
+        .get(BASE_URL + '/getUpdated/' + from)
+        .then((res) => {
+          res.should.have.status(200);
+          const groups = res.body;
+          groups.should.have.lengthOf(1);
+          groups[0].should.have.property('name', 'group_2');
+        }).catch((err) => { throw err; });
       clock.restore();
     });
   });
@@ -143,8 +219,8 @@ describe('OrganizationGroup API', () => {
         .put(BASE_URL + '/adoption')
         .send({ parentID: group.id })
         .then(
-          () => expect.fail(undefined, undefined, 'Should not succeed!'),
-          err => err.should.have.status(400)
+        () => expect.fail(undefined, undefined, 'Should not succeed!'),
+        err => err.should.have.status(400)
         );
     });
     it('Should return 400 if group is not found', (done) => {
@@ -152,11 +228,11 @@ describe('OrganizationGroup API', () => {
         .put(BASE_URL + '/adoption')
         .send({ parentID: ID_EXAMPLE, childID: ID_EXAMPLE_2 })
         .then(
-          () => expect.fail(undefined, undefined, 'Should not succeed!'),
-          (err) => {
-            err.should.have.status(400);
-            done();
-          }
+        () => expect.fail(undefined, undefined, 'Should not succeed!'),
+        (err) => {
+          err.should.have.status(400);
+          done();
+        }
         );
     });
     it('Should fail if parent and child are the same', async () => {
@@ -165,21 +241,21 @@ describe('OrganizationGroup API', () => {
         .put(BASE_URL + '/adoption')
         .send({ parentID: group.id, childID: group.id })
         .then(
-          () => expect.fail(undefined, undefined, 'Should not succeed!'),
-          err => err.should.have.status(400)
+        () => expect.fail(undefined, undefined, 'Should not succeed!'),
+        err => err.should.have.status(400)
         );
     });
-    it('Should adopt (simple)', async() => {
+    it('Should adopt (simple)', async () => {
       let parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
       let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
       await chai.request(server)
-            .put(BASE_URL + '/adoption')
-            .send({ parentID: parent.id, childID: child.id })
-            .then((res) => {
-              res.should.have.status(200);
-            }).catch((err) => {
-              expect.fail(undefined, undefined, err.message);
-            });
+        .put(BASE_URL + '/adoption')
+        .send({ parentID: parent.id, childID: child.id })
+        .then((res) => {
+          res.should.have.status(200);
+        }).catch((err) => {
+          expect.fail(undefined, undefined, err.message);
+        });
       parent = await OrganizationGroup.getOrganizationGroupOld(parent.id);
       child = await OrganizationGroup.getOrganizationGroupOld(child.id);
 
@@ -222,8 +298,7 @@ describe('OrganizationGroup API', () => {
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('ok', 1);
-          res.body.should.have.property('n', 1);
+          res.body.should.have.property('isAlive', false);
         }).catch((err) => { throw err; });
     });
   });

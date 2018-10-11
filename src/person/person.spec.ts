@@ -113,12 +113,13 @@ describe('Persons', () => {
   describe('#get updated persons a from given date', () => {
     it('Should get the current persons', async () => {
       const clock = sinon.useFakeTimers();
-      await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       clock.tick(1000);
       const from = new Date();
       clock.tick(1000);
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      await Person.updatePerson(person.id, person);
       clock.tick(1000);
       const to = new Date();
       clock.tick(1000);
@@ -127,10 +128,10 @@ describe('Persons', () => {
       clock.restore();
 
       should.exist(persons);
-      persons.should.have.lengthOf(2);
-      persons[0].should.have.property('personalNumber', '3456712');
-      persons[1].should.have.property('personalNumber', '4567123');
-
+      persons.should.have.lengthOf(3);
+      persons[0].should.have.property('personalNumber', '2345671');
+      persons[1].should.have.property('personalNumber', '3456712');
+      persons[2].should.have.property('personalNumber', '4567123');
     });
   });
   describe('#createPerson', () => {
@@ -299,8 +300,6 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person.phone = ['02-36456'];
         await expectError(Person.createPerson, [person]);
-        person.phone = ['12364564'];
-        await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when Mobile Phone is invalid', async () => {
         const person = { ...personExamples[1] };
@@ -311,10 +310,8 @@ describe('Persons', () => {
         person.mobilePhone = ['054-12345678'];
         await expectError(Person.createPerson, [person]);
         person.mobilePhone = ['054-123456'];
-        await expectError(Person.createPerson, [person]);
-        person.mobilePhone = ['0236456789'];
-        await expectError(Person.createPerson, [person]);
-        person.mobilePhone = ['1523645678'];
+        await expectError(Person.createPerson, [person]);      
+        person.mobilePhone = ['1523645'];
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when clearance is invalid', async () => {
@@ -489,8 +486,7 @@ describe('Persons', () => {
       should.exist(group);
       expect(person.directGroup.toString() === group.id.toString()).to.be.ok;
       group.directMembers.should.have.lengthOf(1);
-      expect(group.directMembers[0].id === person.id).to.be.true;
-      (group.admins == null).should.be.true;
+      expect((<IPerson>group.directMembers[0]).id === person.id).to.be.true;
     });
     it('Should transfer a person from another group if he was assigned to one before', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -505,7 +501,7 @@ describe('Persons', () => {
 
       group1.directMembers.should.have.lengthOf(0);
       group2.directMembers.should.have.lengthOf(1);
-      expect(group2.directMembers[0].id === person.id).to.be.true;
+      expect((<IPerson>group2.directMembers[0]).id === person.id).to.be.true;
       expect(person.directGroup.toString() === group2.id.toString()).to.be.ok;
     });
   });
@@ -533,9 +529,9 @@ describe('Persons', () => {
       should.exist(group);
       expect(person.directGroup.toString() === group.id.toString()).to.be.true;
       group.directMembers.should.have.lengthOf(1);
-      expect(group.directMembers[0].id === person.id).to.be.true;
+      expect((<IPerson>group.directMembers[0]).id === person.id).to.be.true;
       group.directManagers.should.have.lengthOf(1);
-      expect(group.directManagers[0].id === person.id).to.be.true;
+      expect((<IPerson>group.directManagers[0]).id === person.id).to.be.true;
     });
     it('Should not transfer if in another group', async () => {
       let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -553,7 +549,7 @@ describe('Persons', () => {
       group1.directManagers.should.have.lengthOf(0);
       group2.directMembers.should.have.lengthOf(0);
       group2.directManagers.should.have.lengthOf(0);
-      expect(group1.directMembers[0].id === person.id).to.be.true;
+      expect((<IPerson>group1.directMembers[0]).id === person.id).to.be.true;
       expect(person.directGroup.toString() === group1.id.toString()).to.be.true;
 
 

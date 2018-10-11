@@ -29,8 +29,13 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     return this._model.find({}).exec();
   }
 
-  getSome(ids: string[]): Promise<T[]> {
-    return this._model.find({ _id: { $in: ids } }).exec();
+  getSome(ids: string[], cond?: Object): Promise<T[]> {
+    const query = this._model.find({ _id: { $in: ids } });
+    if (cond) {
+      query.where(cond);
+    }
+
+    return query.exec();
   }
 
   getUpdatedFrom(from: Date, to: Date): Promise<T[]> {

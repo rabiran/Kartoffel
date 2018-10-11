@@ -11,16 +11,6 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // admins: {
-    //   type: [ObjectId],
-    //   ref: 'Person',
-    //   default: [],
-    // },
-    members: {
-      type: [ObjectId],
-      ref: 'Person',
-      default: [],
-    },
     children: {
       type: [ObjectId],
       ref: 'OrganizationGroup',
@@ -35,8 +25,14 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
-    isALeaf: Boolean,
-    updatedAt: Date,
+    isAlive: {
+      type: Boolean,
+      default: true,
+    },
+    isALeaf: {
+      type: Boolean,
+      default: true,
+    },
   }, 
   {
     toObject: {
@@ -46,7 +42,9 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       virtuals: true,
       versionKey:false,
     },
-  });
+    timestamps: true,
+  }
+);
 
 OrganizationGroupSchema.virtual('directManagers', {
   ref: 'Person',
@@ -64,15 +62,15 @@ OrganizationGroupSchema.virtual('directMembers', {
 
 function onlyAliveMembers(group: IOrganizationGroup) {
   if (group && group.directMembers) {
-    group.directMembers = group.directMembers.filter(p => p.alive);
+    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.alive);
   }
 }
 
-function postFind(result: IOrganizationGroup | IOrganizationGroup[]) {
+function postFind(result: mongoose.Document | IOrganizationGroup | IOrganizationGroup[]) {
   if (Array.isArray(result)) {
     result.map(onlyAliveMembers);
   } else {
-    onlyAliveMembers(result);
+    onlyAliveMembers(<IOrganizationGroup>result);
   }
 }
 
@@ -81,18 +79,12 @@ OrganizationGroupSchema.post('find', postFind);
 
 // OrganizationGroupSchema.virtual('id').get(function () {
 //   return this._id;
-// });
-
-// OrganizationGroupSchema.virtual('childless').get(function () {
-//   return this.children.length === 0;
-// });
+// });   
 
 OrganizationGroupSchema.pre('save', function (next) {
-  if (!this.updatedAt) this.updatedAt = new Date;
   this.isALeaf = (this.children.length === 0);
   next();
 });
-
 
 OrganizationGroupSchema.pre('update', function () {
   this.update({}, { $set: { updatedAt: new Date() } });
