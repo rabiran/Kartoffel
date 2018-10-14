@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-import { Rank, Responsibility } from '../utils';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { IDomainUser } from '../domainUser/domainUser.interface';
 
@@ -19,7 +18,7 @@ export interface IPerson {
   hierarchy: string[];
   directGroup: string | Types.ObjectId | IOrganizationGroup; 
   managedGroup?: string | Types.ObjectId | IOrganizationGroup;
-  rank?: Rank;
+  rank?: string;
   updatedAt?: Date;
   createdAt?: Date;
 // Editable by the Person
@@ -29,7 +28,7 @@ export interface IPerson {
   mobilePhone?: string[];
   address?: string;
 // Editable with strong permissions
-  responsibility?: Responsibility;
+  responsibility?: string;
   responsibilityLocation?: string | Types.ObjectId | IOrganizationGroup;
   clearance?: string;
 }

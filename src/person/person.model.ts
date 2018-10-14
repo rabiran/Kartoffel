@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
-import { RESPONSIBILITY } from '../utils';
+import  * as consts  from '../../db-enums';
 
 
 (<any>mongoose).Promise = Promise;
@@ -37,6 +37,7 @@ export const PersonSchema = new mongoose.Schema(
     }],
     serviceType: {
       type: String,
+      enum: consts.SERVICE_TYPE,
       required: [true, 'You must enter service type'],
     },
     firstName: {
@@ -81,15 +82,15 @@ export const PersonSchema = new mongoose.Schema(
     },
     responsibility: {
       type: String,
-      default: 'None',
-      validate: { validator: PersonValidate.responsibility, message: '{VALUE} is an invalid responsibility!' },
+      enum: consts.RESPONSIBILITY,
+      default: consts.RESPONSIBILITY[0],
     },
     responsibilityLocation: {
       type: ObjectId,
       required: [function () {
         // In update the mongo does not keep the document in "this" 
         const res = typeof this.getUpdate !== 'function' ? this.responsibility : this.getUpdate().$set.responsibility;        
-        return res && res !== RESPONSIBILITY[0];
+        return res && res !== consts.RESPONSIBILITY[0];
       },
         'You must enter a responsibility location!'],
       validate: {
@@ -117,8 +118,7 @@ export const PersonSchema = new mongoose.Schema(
     }],
     rank: {
       type: String,
-      default: 'Newbie',
-      validate: { validator: PersonValidate.rank, message: '"{VALUE}" is an invalid rank!' },
+      enum: consts.RANK,
     },
     address: String,
 

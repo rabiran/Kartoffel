@@ -7,6 +7,7 @@ import { IOrganizationGroup } from './organizationGroup.interface';
 import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
+import { SERVICE_TYPE } from '../../../db-enums';
 
 const should = chai.should();
 const expect = chai.expect;
@@ -122,7 +123,6 @@ describe('Strong Groups', () => {
       expect(Object.keys(exsistGroups)).to.have.lengthOf(4);
       for (let index = 0; index < Object.keys(exsistGroups).length; index++) {
         const complete = index + 1;
-        console.log(`group${complete}, ${groupIDs[index]}`);
         expect(exsistGroups).to.have.property(`group${complete}`, groupIDs[index]);
       }
     });
@@ -251,7 +251,7 @@ describe('Strong Groups', () => {
         personalNumber: '1000002',
         firstName: 'elaf',
         lastName: 'hhhh',
-        serviceType: 'shit',
+        serviceType: SERVICE_TYPE[0],
         dischargeDay: new Date(2022, 11),
         hierarchy: ['hhh'],
         directGroup: organizationGroup.id,
@@ -432,7 +432,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const person_12 = await Person.createPerson(<IPerson>{
@@ -443,7 +443,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const person_21 = await Person.createPerson(<IPerson>{
@@ -454,7 +454,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const person_111 = await Person.createPerson(<IPerson>{
@@ -465,7 +465,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const person_221 = await Person.createPerson(<IPerson>{
@@ -476,7 +476,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const person_311 = await Person.createPerson(<IPerson>{
@@ -487,7 +487,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const person_312 = await Person.createPerson(<IPerson>{
@@ -498,7 +498,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const person_331 = await Person.createPerson(<IPerson>{
@@ -509,7 +509,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
 
@@ -521,7 +521,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
   const gale = await Person.createPerson(<IPerson>{
@@ -532,7 +532,7 @@ async function bigTree() {
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill',
+    serviceType: SERVICE_TYPE[0],
     directGroup: idXmpls[1],
   });
 

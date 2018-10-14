@@ -11,8 +11,9 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
+import { RESPONSIBILITY, RANK, SERVICE_TYPE } from '../../db-enums'; 
 const Types = mongoose.Types;
-
+const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
 const should = chai.should();
 const expect = chai.expect;
@@ -30,7 +31,7 @@ const personExamples: IPerson[] = [
     mail: 'avi.ron@gmail.com',
     hierarchy: ['Airport', 'Pilots guild', 'captain'],
     job: 'Pilot 1',
-    serviceType: 'shit',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[3],
   },
   <IPerson>{
@@ -41,7 +42,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'this',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[3],    
   },
   <IPerson>{
@@ -52,11 +53,11 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
-    responsibility: 'SecurityOfficer',
+    responsibility: RESPONSIBILITY[1],
     responsibilityLocation: dbIdExample[1],
     clearance: '3',
-    rank: 'Skillful',
-    serviceType: 'is',
+    rank: RANK[0],
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[3],
   },
   <IPerson>{
@@ -67,7 +68,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['fashion designer', 'cosmetician guild'],
     job: 'cosmetician 1',
-    serviceType: 'fucking',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[1],
   },
   <IPerson>{
@@ -78,7 +79,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['www', 'microsoft', 'github'],
     job: 'Programmer',
-    serviceType: 'shit',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[3],
   },
 ];
@@ -148,8 +149,7 @@ describe('Persons', () => {
       person.should.have.property('hierarchy');
       person.hierarchy.should.have.ordered.members(['www', 'microsoft', 'github']);
       person.should.have.property('job', 'Programmer');
-      person.should.have.property('rank', 'Newbie');
-      person.should.have.property('responsibility', 'None');
+      person.should.have.property('responsibility', RESPONSIBILITY_DEFAULT);
       person.should.have.property('clearance', '0');
       person.should.have.property('alive', true);
     });
@@ -158,13 +158,13 @@ describe('Persons', () => {
         ...personExamples[4],
         primaryDomainUser: dbIdExample[3],
         secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
-        serviceType: 'standing army',
+        serviceType: SERVICE_TYPE[0],
         mail: 'yonatan@work.com',
         phone: ['023456789', '02-3456389'],
         mobilePhone: ['054-9754999', '0541234567'],
-        rank: 'Skillful',
+        rank: RANK[0],
         address: 'I live here',
-        responsibility: 'HR',
+        responsibility: RESPONSIBILITY[1],
         responsibilityLocation: new Types.ObjectId(dbIdExample[3]),
         clearance: '5',
         alive: true,
@@ -265,9 +265,9 @@ describe('Persons', () => {
       });
       it('Should throw an error when responsibility is not valid', async () => {
         const person = { ...personExamples[1] };
-        person.responsibility = 'HR';
+        person.responsibility = RESPONSIBILITY[1];
         await expectError(Person.createPerson, [person]);
-        person.responsibility = 'None';
+        person.responsibility = RESPONSIBILITY_DEFAULT;
         person.responsibilityLocation = '';
         await expectError(Person.createPerson, [person]);
         delete person.responsibility;
@@ -312,6 +312,11 @@ describe('Persons', () => {
         person.mobilePhone = ['054-123456'];
         await expectError(Person.createPerson, [person]);      
         person.mobilePhone = ['1523645'];
+        await expectError(Person.createPerson, [person]);
+      });
+      it('should throw error when service type is invalid', async () => {
+        const person = { ...personExamples[1] };
+        person.serviceType = SERVICE_TYPE[0] + '_bullshit';
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when clearance is invalid', async () => {
@@ -421,8 +426,8 @@ describe('Persons', () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
 
       person.job = 'Programmer';
-      person.rank = 'Skilled';
-      person.responsibility = 'HR';
+      person.rank = RANK[0];
+      person.responsibility = RESPONSIBILITY[1];
       person.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
 
       const updatedPerson = await Person.updatePerson(person.id, person);
@@ -444,8 +449,8 @@ describe('Persons', () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
 
       person.job = 'Programmer';
-      person.rank = 'Skilled';
-      person.responsibility = 'SecurityOfficer';
+      person.rank = RANK[0];
+      person.responsibility = RESPONSIBILITY[1];
       person.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
 
       await Person.updatePerson(person.id, person);
