@@ -1,4 +1,4 @@
-import { Rank, RANK, RESPONSIBILITY, Responsibility } from '../utils';
+import { RESPONSIBILITY } from '../../db-enums';
 
 export class ModelValidate {
   static stringNotEmpty(str: string) {
@@ -31,10 +31,6 @@ export class PersonValidate extends ModelValidate {
     return /.+@.+\..+/.test(mail) || !mail;
   }
 
-  public static rank(rank: Rank) {
-    return rank in RANK;
-  }
-
   public static mobilePhone(mobilePhone: string) {
     return /^\d{2,3}-?\d{7}$/.test(mobilePhone);
   }
@@ -55,11 +51,7 @@ export class PersonValidate extends ModelValidate {
     return /^([0-9]|10)$/.test(clearance);
   }
 
-  public static responsibility(responsibility: Responsibility) {
-    return responsibility in RESPONSIBILITY;
-  }
-
-  public static responsibilityLocation(responsibilityLocation: string, responsibility: Responsibility) {
+  public static responsibilityLocation(responsibilityLocation: string, responsibility: string) {
     return (responsibility !== RESPONSIBILITY[0]);
   }
 

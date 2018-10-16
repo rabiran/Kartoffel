@@ -7,6 +7,7 @@ import * as server from '../server';
 import { Person } from './person.controller';
 import { IPerson } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
+import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../../db-enums';
 
 
 const should = chai.should();
@@ -25,7 +26,7 @@ const personExamples: IPerson[] = [
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     job: 'parent',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
   },
   <IPerson>{
     identityCard: '567891234',
@@ -34,7 +35,7 @@ const personExamples: IPerson[] = [
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
     job: 'Programmer',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
   },
   <IPerson>{
     identityCard: '123456789',
@@ -44,7 +45,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     mail: 'avi.ron@gmail.com',
     job: 'Pilot 1',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
   },
   <IPerson>{
     identityCard: '345678912',
@@ -53,11 +54,11 @@ const personExamples: IPerson[] = [
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
     job: 'Pilot 2',
-    responsibility: 'SecurityOfficer',
+    responsibility: RESPONSIBILITY[1],
     responsibilityLocation: dbIdExample[0],
     clearance: '3',
-    rank: 'Skillful',
-    serviceType: 'kill me',
+    rank: RANK[0],
+    serviceType: SERVICE_TYPE[0],
   },
   <IPerson>{
     identityCard: '456789123',
@@ -66,7 +67,7 @@ const personExamples: IPerson[] = [
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
     job: 'cosmetician 1',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
   },  
 ];
 
