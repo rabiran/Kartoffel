@@ -6,6 +6,7 @@ import * as sinon from 'sinon';
 import * as server from '../server';
 import { Person } from './person.controller';
 import { IPerson } from './person.interface';
+import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../../db-enums';
 
 
 const should = chai.should();
@@ -25,7 +26,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[0],
   },
   <IPerson>{
@@ -36,7 +37,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['www', 'microsoft', 'github'],
     job: 'Programmer',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[0],
   },
   <IPerson>{
@@ -48,7 +49,7 @@ const personExamples: IPerson[] = [
     mail: 'avi.ron@gmail.com',
     hierarchy: ['Airport', 'Pilots guild', 'captain'],
     job: 'Pilot 1',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[0],
   },
   <IPerson>{
@@ -59,11 +60,11 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
-    responsibility: 'SecurityOfficer',
+    responsibility: RESPONSIBILITY[1],
     responsibilityLocation: dbIdExample[0],
     clearance: '3',
-    rank: 'Skillful',
-    serviceType: 'kill me',
+    rank: RANK[0],
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[0],
   },
   <IPerson>{
@@ -74,7 +75,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     hierarchy: ['fashion designer', 'cosmetician guild'],
     job: 'cosmetician 1',
-    serviceType: 'kill me',
+    serviceType: SERVICE_TYPE[0],
     directGroup: dbIdExample[0],
   },  
 ];
