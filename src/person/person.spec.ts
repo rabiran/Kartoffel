@@ -20,6 +20,10 @@ chai.use(require('chai-http'));
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34','5b50a76713ddf90af494de35','5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
 
+const dummyGroup: any = {
+  name: 'uniqueAndSpecialName',
+};
+
 const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '123456789',
@@ -28,10 +32,8 @@ const personExamples: IPerson[] = [
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
     mail: 'avi.ron@gmail.com',
-    hierarchy: ['Airport', 'Pilots guild', 'captain'],
     job: 'Pilot 1',
     serviceType: 'shit',
-    directGroup: dbIdExample[3],
   },
   <IPerson>{
     identityCard: '234567891',
@@ -39,10 +41,8 @@ const personExamples: IPerson[] = [
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
-    serviceType: 'this',
-    directGroup: dbIdExample[3],    
+    serviceType: 'this',  
   },
   <IPerson>{
     identityCard: '345678912',
@@ -50,14 +50,12 @@ const personExamples: IPerson[] = [
     firstName: 'Eli',
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
     responsibility: 'SecurityOfficer',
     responsibilityLocation: dbIdExample[1],
     clearance: '3',
     rank: 'Skillful',
     serviceType: 'is',
-    directGroup: dbIdExample[3],
   },
   <IPerson>{
     identityCard: '456789123',
@@ -65,10 +63,8 @@ const personExamples: IPerson[] = [
     firstName: 'Tiki',
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['fashion designer', 'cosmetician guild'],
     job: 'cosmetician 1',
     serviceType: 'fucking',
-    directGroup: dbIdExample[1],
   },
   <IPerson>{
     identityCard: '567891234',
@@ -76,14 +72,20 @@ const personExamples: IPerson[] = [
     firstName: 'Yonatan',
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['www', 'microsoft', 'github'],
     job: 'Programmer',
     serviceType: 'shit',
-    directGroup: dbIdExample[3],
   },
 ];
 
 describe('Persons', () => {
+  // create OG to link with each person.
+  beforeEach(async () => {
+    const g = await OrganizationGroup.createOrganizationGroup(dummyGroup);
+    for (const p of personExamples) {
+      p.directGroup = g.id;
+    }
+  });
+
   describe('#getPersons', () => {
     it('Should be empty if there are no persons', async () => {
       const persons = await Person.getPersons();
@@ -146,12 +148,20 @@ describe('Persons', () => {
       person.should.have.property('lastName', 'Tal');
       person.should.have.property('dischargeDay', personExamples[4].dischargeDay);
       person.should.have.property('hierarchy');
-      person.hierarchy.should.have.ordered.members(['www', 'microsoft', 'github']);
+      person.hierarchy.should.have.ordered.members([dummyGroup.name]);
       person.should.have.property('job', 'Programmer');
       person.should.have.property('rank', 'Newbie');
       person.should.have.property('responsibility', 'None');
       person.should.have.property('clearance', '0');
       person.should.have.property('alive', true);
+    });
+    it('should create a person with more complex hierarchy', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<any>{ name: 'group0' });
+      const p = personExamples[0];
+      await OrganizationGroup.childrenAdoption(parent.id, [<string>p.directGroup]);
+      const newPerson = await Person.createPerson(p);
+      newPerson.should.have.property('hierarchy');
+      newPerson.hierarchy.should.have.ordered.members([parent.name, dummyGroup.name]);
     });
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
@@ -180,7 +190,7 @@ describe('Persons', () => {
       person.should.have.property('currentUnit', newPerson.currentUnit);
       person.should.have.property('dischargeDay', newPerson.dischargeDay);
       person.should.have.property('hierarchy');
-      person.hierarchy.should.have.ordered.members(newPerson.hierarchy);
+      person.hierarchy.should.have.ordered.members([dummyGroup.name]);
       person.should.have.property('job', newPerson.job);
       person.should.have.property('mail', newPerson.mail);
       person.should.have.property('phone');
@@ -213,9 +223,6 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.dischargeDay;
-        await expectError(Person.createPerson, [person]);
-        person = { ...personExamples[1] };
-        delete person.hierarchy;
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.job;
@@ -251,11 +258,6 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person.firstName = 'Avi';
         person.lastName = '';
-        await expectError(Person.createPerson, [person]);
-      });
-      it('Should throw an error when hierarchy are empty', async () => {
-        const person = { ...personExamples[1] };
-        person.hierarchy = [];
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when job is empty', async () => {
@@ -666,153 +668,6 @@ describe('Persons', () => {
   });
 
 });
-
-async function bigTree() {
-  const seldag = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Seldag' });
-  const ariandel = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Ariandel' });
-
-  const parent_1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Sheep' });
-  const parent_2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'A sheep' });
-  const parent_3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'And a sheep' });
-
-  const child_11 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 1.1' });
-  const child_21 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2.1' });
-  const child_22 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2.2' });
-  const child_31 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.1' });
-  const child_32 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.2' });
-  const child_33 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 3.3' });
-
-  await OrganizationGroup.childrenAdoption(seldag.id, [parent_1.id, parent_2.id, parent_3.id]);
-  await OrganizationGroup.childrenAdoption(parent_1.id, [child_11.id]);
-  await OrganizationGroup.childrenAdoption(parent_2.id, [child_21.id, child_22.id]);
-  await OrganizationGroup.childrenAdoption(parent_3.id, [child_31.id, child_32.id, child_33.id]);
-
-  const person_11 = await Person.createPerson(<IPerson>{
-    identityCard: '000000011',
-    personalNumber: '0000011',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'dying',
-  });
-  const person_12 = await Person.createPerson(<IPerson>{
-    identityCard: '000000012',
-    personalNumber: '0000012',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[2]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'inside',
-  });
-  const person_21 = await Person.createPerson(<IPerson>{
-    identityCard: '000000021',
-    personalNumber: '0000021',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'cant',
-  });
-  const person_111 = await Person.createPerson(<IPerson>{
-    identityCard: '000000111',
-    personalNumber: '0000111',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'let go',
-  });
-  const person_221 = await Person.createPerson(<IPerson>{
-    identityCard: '000000221',
-    personalNumber: '0000221',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'of',
-  });
-  const person_311 = await Person.createPerson(<IPerson>{
-    identityCard: '000000311',
-    personalNumber: '0000311',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'that',
-  });
-  const person_312 = await Person.createPerson(<IPerson>{
-    identityCard: '000000312',
-    personalNumber: '0000312',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'africa',
-  });
-  const person_331 = await Person.createPerson(<IPerson>{
-    identityCard: '000000331',
-    personalNumber: '0000331',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'toto',
-  });
-
-  const friede = await Person.createPerson(<IPerson>{
-    identityCard: '100000001',
-    personalNumber: '1000001',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'hold',
-  });
-  const gale = await Person.createPerson(<IPerson>{
-    identityCard: '100000002',
-    personalNumber: '1000002',
-    primaryDomainUser: new Types.ObjectId(dbIdExample[3]),
-    firstName: 'Mazal',
-    lastName: 'Tov',
-    dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
-    job: 'parent',
-    serviceType: 'the',
-  });
-
-  await Person.assign(person_11.id, parent_1.id);
-  await Person.assign(person_12.id, parent_1.id);
-  await Person.assign(person_21.id, parent_2.id);
-  await Person.assign(person_111.id, child_11.id);
-  await Person.assign(person_221.id, child_22.id);
-  await Person.assign(person_311.id, child_31.id);
-  await Person.assign(person_312.id, child_31.id);
-  await Person.assign(person_331.id, child_33.id);
-
-  await Person.assign(friede.id, ariandel.id);
-  await Person.assign(gale.id, ariandel.id);
-
-  return seldag;
-}
 
 async function printTreeHeavy(sourceID: string, deep = 0) {
   const source = await OrganizationGroup.getOrganizationGroupOld(sourceID);
