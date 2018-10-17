@@ -8,6 +8,7 @@ import { Person } from './person.controller';
 import { IPerson } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../../db-enums';
+import { createGroupForPersons } from '../helpers/spec.helper';
 
 
 const should = chai.should();
@@ -74,14 +75,8 @@ const personExamples: IPerson[] = [
 const BASE_URL = '/api/person';
 
 describe('Person', () => {
-  const dummyGroup: any = { name: 'bla' };
   // create OG to link with each person.
-  beforeEach(async () => {
-    const g = await OrganizationGroup.createOrganizationGroup(dummyGroup);
-    for (const p of personExamples) {
-      p.directGroup = g.id;
-    }
-  });
+  beforeEach(async () => await createGroupForPersons(personExamples));
 
   describe('/GET getAll', () => {
     it('Should get all the persons', (done) => {

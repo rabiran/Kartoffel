@@ -8,7 +8,7 @@ import { OrganizationGroupModel } from '../group/organizationGroup/organizationG
 import { IPerson } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
-import { expectError } from '../helpers/spec.helper';
+import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
 import { RESPONSIBILITY, RANK, SERVICE_TYPE } from '../../db-enums'; 
@@ -20,10 +20,6 @@ const expect = chai.expect;
 chai.use(require('chai-http'));
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34','5b50a76713ddf90af494de35','5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
-
-const dummyGroup: any = {
-  name: 'uniqueAndSpecialName',
-};
 
 const personExamples: IPerson[] = [
   <IPerson>{
@@ -80,12 +76,7 @@ const personExamples: IPerson[] = [
 
 describe('Persons', () => {
   // create OG to link with each person.
-  beforeEach(async () => {
-    const g = await OrganizationGroup.createOrganizationGroup(dummyGroup);
-    for (const p of personExamples) {
-      p.directGroup = g.id;
-    }
-  });
+  beforeEach(async () => await createGroupForPersons(personExamples));
 
   describe('#getPersons', () => {
     it('Should be empty if there are no persons', async () => {
