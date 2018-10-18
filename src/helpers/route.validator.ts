@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction, Router } from 'express';
+import * as _ from 'lodash';
 
 export class RouteParamsValidate {
 
@@ -24,6 +25,17 @@ export class RouteParamsValidate {
     }
   }
 
+  static fieldExistanceGenerator(requiredfields: string[], allowOtherfields: boolean = false) {
+    return (obj: Object) => {
+      const hasAll = _.has(obj, requiredfields);
+      const tothrow = allowOtherfields ? hasAll : 
+        hasAll && Object.keys(obj).length === requiredfields.length;
+      if (tothrow) {
+        throw new Error('sdfsdf');
+      }
+    };
+  }
+
   private static isValidDate(val: any): Boolean {
     return val instanceof Date;
   }
@@ -34,13 +46,13 @@ export class RouteParamsValidate {
 }
 
 export const validatorMiddleware =
-  (validator: Function, varNames: string[], path: string = 'body') =>
+  (validator: Function, varNames: string[], path: string = 'body', errStatus:number = 400) =>
   (req: Request, res: Response, next: NextFunction) => {
     const vars = varNames.map(varName => req[path][varName]);
     try {
       const result = validator(...vars);
       next();
     } catch (err) {
-      res.status(400).send(err.message);
+      res.status(errStatus).send(err.message);
     }
   };
