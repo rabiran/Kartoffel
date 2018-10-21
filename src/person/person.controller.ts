@@ -149,6 +149,7 @@ export class Person {
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
     person.directGroup = group.id;
+    person.hierarchy = group.hierarchy.concat(group.name);
     person = await Person.updatePerson(personID, person);
     return <IPerson>person;
   }

@@ -7,8 +7,9 @@ import * as server from '../server';
 import { Person } from './person.controller';
 import { IPerson } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
+import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../../db-enums';
-import { createGroupForPersons } from '../helpers/spec.helper';
+import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 
 
 const should = chai.should();
@@ -356,6 +357,21 @@ describe('Person', () => {
       //       res.body.phone.should.have.members(['027654321']);
       //     }).catch((err) => { throw err; });
       // });
+    });
+    describe('/assign person', () => {
+      it('Should return a person whose group and hierarchy has been changed', async () => {
+        const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+        const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
+        await chai.request(server)
+          .put(`${BASE_URL}/${person.id}/assign`)
+          .send({ group: group.id })
+          .then((res) => {
+            res.should.exist;
+            expect(res.body.directGroup.toString() === group.id.toString()).to.be.ok;
+            res.body.should.have.property('hierarchy');
+            res.body.hierarchy.should.have.ordered.members([group.name]);           
+          }).catch((err) => { throw err; }); 
+      });
     });
   });
   describe('/DELETE person', () => {

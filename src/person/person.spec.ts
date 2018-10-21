@@ -483,6 +483,8 @@ describe('Persons', () => {
       should.exist(person);
       should.exist(group);
       expect(person.directGroup.toString() === group.id.toString()).to.be.ok;
+      person.should.have.property('hierarchy');
+      person.hierarchy.should.have.ordered.members([group.name]);
       group.directMembers.should.have.lengthOf(1);
       expect((<IPerson>group.directMembers[0]).id === person.id).to.be.true;
     });
