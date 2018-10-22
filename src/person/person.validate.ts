@@ -1,4 +1,4 @@
-import { RESPONSIBILITY } from '../../db-enums';
+import { RESPONSIBILITY } from '../config/db-enums';
 
 export class ModelValidate {
   static stringNotEmpty(str: string) {
