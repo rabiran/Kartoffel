@@ -40,7 +40,7 @@ export class PersonValidate extends ModelValidate {
   }
 
   public static personalNumber(personalNumber: string) {
-    return /^\d{6,8}$/.test(personalNumber);
+    return /^\d{6,9}$/.test(personalNumber);
   }
 
   public static identityCard(identityCard: string) {
