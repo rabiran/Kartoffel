@@ -25,13 +25,14 @@ export class RouteParamsValidate {
     }
   }
 
-  static fieldExistanceGenerator(requiredfields: string[], allowOtherfields: boolean = false) {
+  static fieldExistanceGenerator(allowedfields: string[], requireAll: boolean = false) {
     return (obj: Object) => {
-      const hasAll = _.has(obj, requiredfields);
-      const tothrow = allowOtherfields ? hasAll : 
-        hasAll && Object.keys(obj).length === requiredfields.length;
-      if (tothrow) {
-        throw new Error('sdfsdf');
+      const diff = _.difference(Object.keys(obj), allowedfields);
+      if (diff.length !== 0) {
+        throw new Error(`unexpected fields: ${diff}`);
+      } else if (requireAll && allowedfields.length !== Object.keys(obj).length) {
+        const missingFields = _.difference(allowedfields, Object.keys(obj));
+        throw new Error(`missing required fields: ${missingFields}`);
       }
     };
   }
@@ -48,7 +49,8 @@ export class RouteParamsValidate {
 export const validatorMiddleware =
   (validator: Function, varNames: string[], path: string = 'body', errStatus:number = 400) =>
   (req: Request, res: Response, next: NextFunction) => {
-    const vars = varNames.map(varName => req[path][varName]);
+    const usePath = !varNames || varNames.length === 0;
+    const vars = usePath ? [req[path]] : varNames.map(varName => req[path][varName]);
     try {
       const result = validator(...vars);
       next();
