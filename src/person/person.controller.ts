@@ -80,6 +80,14 @@ export class Person {
 
 
   static async createPerson(person: IPerson): Promise<IPerson> {
+    // check that 'directGroup' field exists
+    if (!person.directGroup) {
+      throw new Error('a person must have a direct group');
+    }
+    // get direct group - will throw error if the group doesn`t exist
+    const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
+    // create the person's hierarchy
+    person.hierarchy = directGroup.hierarchy.concat(directGroup.name);
     const newPerson = await Person._personRepository.create(person);
     return newPerson;
   }
@@ -141,6 +149,7 @@ export class Person {
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
     person.directGroup = group.id;
+    person.hierarchy = group.hierarchy.concat(group.name);
     person = await Person.updatePerson(personID, person);
     return <IPerson>person;
   }
