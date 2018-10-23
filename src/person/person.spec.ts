@@ -64,7 +64,6 @@ const personExamples: IPerson[] = [
     serviceType: SERVICE_TYPE[0],
   },
   <IPerson>{
-    identityCard: '567891234',
     personalNumber: '1234567',
     firstName: 'Yonatan',
     lastName: 'Tal',
@@ -132,7 +131,6 @@ describe('Persons', () => {
     it('Should create a person with basic info', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[4] });
       should.exist(person);
-      person.should.have.property('identityCard', '567891234');
       person.should.have.property('personalNumber', '1234567');
       // person.should.have.property('primaryDomainUser');
       // expect(String(person.primaryDomainUser) === personExamples[4].primaryDomainUser).to.be.true;
@@ -157,6 +155,7 @@ describe('Persons', () => {
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
         ...personExamples[4],
+        identityCard: '1234567',
         primaryDomainUser: dbIdExample[3],
         secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
         serviceType: SERVICE_TYPE[0],
@@ -199,11 +198,17 @@ describe('Persons', () => {
       it('Should throw an error when Person is undefined', async () => {
         await expectError(Person.createPerson, [undefined]);
       });
+      it('should create a person that have pn with id card value (9 digits)', async () => {
+        const person = { ...personExamples[0] };
+        delete person.identityCard;
+        person.personalNumber = '123456789';
+        const createdPerson = await Person.createPerson(person);
+        createdPerson.should.exist;
+        createdPerson.should.have.property('personalNumber', '123456789');
+        should.not.exist(createdPerson.identityCard);
+      });
       it('Should throw an error when mandatory fields are missing', async () => {
         let person = { ...personExamples[1] };
-        delete person.identityCard;
-        await expectError(Person.createPerson, [person]);
-        person = { ...personExamples[1] };
         person.personalNumber = '';
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
@@ -236,7 +241,7 @@ describe('Persons', () => {
       });
       it('Should throw an error when personal number is not valid', async () => {
         const person = { ...personExamples[1] };
-        person.personalNumber = '234567103';
+        person.personalNumber = '2345671034';
         await expectError(Person.createPerson, [person]);
         person.personalNumber = '23456';
         await expectError(Person.createPerson, [person]);

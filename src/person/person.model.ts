@@ -7,6 +7,16 @@ import  * as consts  from '../config/db-enums';
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
+const schemaOptions = {
+  toObject: {
+    virtuals: true,
+    versionKey: false,
+  },
+  toJSON: {
+    virtuals: true,
+    versionKey:false,
+  },
+};
 
 function autoPopulate(next: Function) {
   this.populate('primaryDomainUser secondaryDomainUsers');
@@ -17,7 +27,6 @@ export const PersonSchema = new mongoose.Schema(
   {
     identityCard: {
       type: String,
-      required: [true, 'You must enter an identity card!'],
       unique: true,
       validate: { validator: PersonValidate.identityCard, message: '{VALUE} is an invalid identity card!' },
     },
@@ -127,13 +136,9 @@ export const PersonSchema = new mongoose.Schema(
       default: '0',
       validate: { validator: PersonValidate.clearance, message: '{VALUE} is an invalid clearance!' },
     },
-  }
+  },
+  schemaOptions
 );
-
-PersonSchema.set('toJSON', {
-  virtuals: true,
-  versionKey: false,
-});
 
 PersonSchema.set('timestamps', true);
 
