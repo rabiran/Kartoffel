@@ -1,4 +1,4 @@
-import { Repository as DomainUserRepository } from './domainUser.repository';
+import { DomainUserRepository } from './domainUser.repository';
 import { IDomainUser } from './domainUser.interface';
 import { userFromString } from './domainUser.utils';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
@@ -6,12 +6,14 @@ import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
 const userFromStringIgnore = wrapIgnoreCatch(userFromString); 
 
 export class DomainUserController {
+  static _userRepository: DomainUserRepository = new DomainUserRepository();
+
   static async find(query = {}): Promise<IDomainUser[]> {
-    return DomainUserRepository.find(query);
+    return DomainUserController._userRepository.find(query);
   }
 
   static async findOne(query = {}): Promise<IDomainUser> {
-    return DomainUserRepository.findOne(query);
+    return DomainUserController._userRepository.findOne(query);
   }
 
   static async getAll(): Promise<IDomainUser[]> {
@@ -19,7 +21,7 @@ export class DomainUserController {
   }
 
   static async getById(id: string): Promise<IDomainUser> {
-    const user = DomainUserRepository.findById(id);
+    const user = DomainUserController._userRepository.findById(id);
     if (!user) {
       throw new Error(`domainUser with id: ${id} is not found`);
     }
@@ -36,7 +38,7 @@ export class DomainUserController {
   }
 
   static async delete(id: string): Promise<any> {
-    const res = await DomainUserRepository.delete(id);
+    const res = await DomainUserController._userRepository.delete(id);
     if (res.result.n === 0) {
       throw new Error(`domainUser with id: ${id} is not found`);
     }
@@ -47,7 +49,7 @@ export class DomainUserController {
     if (await DomainUserController.exists(user)) {
       throw new Error(`user with name: ${user.name} and domain: ${user.domain} already exists`);
     }
-    return DomainUserRepository.create(user);
+    return DomainUserController._userRepository.create(user);
   }
 
   static async exists(user: IDomainUser): Promise<boolean> {

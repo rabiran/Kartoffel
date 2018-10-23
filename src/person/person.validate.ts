@@ -1,4 +1,4 @@
-import { RESPONSIBILITY } from '../../db-enums';
+import { RESPONSIBILITY } from '../config/db-enums';
 
 export class ModelValidate {
   static stringNotEmpty(str: string) {
@@ -40,7 +40,7 @@ export class PersonValidate extends ModelValidate {
   }
 
   public static personalNumber(personalNumber: string) {
-    return /^\d{6,8}$/.test(personalNumber);
+    return /^\d{6,9}$/.test(personalNumber);
   }
 
   public static identityCard(identityCard: string) {

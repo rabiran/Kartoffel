@@ -6,7 +6,10 @@ import * as sinon from 'sinon';
 import * as server from '../server';
 import { Person } from './person.controller';
 import { IPerson } from './person.interface';
-import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../../db-enums';
+import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
+import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
+import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../config/db-enums';
+import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 
 
 const should = chai.should();
@@ -24,10 +27,8 @@ const personExamples: IPerson[] = [
     firstName: 'Mazal',
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     serviceType: SERVICE_TYPE[0],
-    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '567891234',
@@ -35,10 +36,8 @@ const personExamples: IPerson[] = [
     firstName: 'Yonatan',
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['www', 'microsoft', 'github'],
     job: 'Programmer',
     serviceType: SERVICE_TYPE[0],
-    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '123456789',
@@ -47,10 +46,8 @@ const personExamples: IPerson[] = [
     lastName: 'Ron',
     dischargeDay: new Date(2022, 11),
     mail: 'avi.ron@gmail.com',
-    hierarchy: ['Airport', 'Pilots guild', 'captain'],
     job: 'Pilot 1',
     serviceType: SERVICE_TYPE[0],
-    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '345678912',
@@ -58,14 +55,12 @@ const personExamples: IPerson[] = [
     firstName: 'Eli',
     lastName: 'Kopter',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['Airport', 'Pilots guild'],
     job: 'Pilot 2',
     responsibility: RESPONSIBILITY[1],
     responsibilityLocation: dbIdExample[0],
     clearance: '3',
     rank: RANK[0],
     serviceType: SERVICE_TYPE[0],
-    directGroup: dbIdExample[0],
   },
   <IPerson>{
     identityCard: '456789123',
@@ -73,16 +68,17 @@ const personExamples: IPerson[] = [
     firstName: 'Tiki',
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
-    hierarchy: ['fashion designer', 'cosmetician guild'],
     job: 'cosmetician 1',
     serviceType: SERVICE_TYPE[0],
-    directGroup: dbIdExample[0],
   },  
 ];
 
 const BASE_URL = '/api/person';
 
 describe('Person', () => {
+  // create OG to link with each person.
+  beforeEach(async () => await createGroupForPersons(personExamples));
+
   describe('/GET getAll', () => {
     it('Should get all the persons', (done) => {
       chai.request(server)
@@ -361,6 +357,21 @@ describe('Person', () => {
       //       res.body.phone.should.have.members(['027654321']);
       //     }).catch((err) => { throw err; });
       // });
+    });
+    describe('/assign person', () => {
+      it('Should return a person whose group and hierarchy has been changed', async () => {
+        const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+        const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
+        await chai.request(server)
+          .put(`${BASE_URL}/${person.id}/assign`)
+          .send({ group: group.id })
+          .then((res) => {
+            res.should.exist;
+            expect(res.body.directGroup.toString() === group.id.toString()).to.be.ok;
+            res.body.should.have.property('hierarchy');
+            res.body.hierarchy.should.have.ordered.members([group.name]);           
+          }).catch((err) => { throw err; }); 
+      });
     });
   });
   describe('/DELETE person', () => {
