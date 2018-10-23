@@ -202,8 +202,6 @@ describe('Persons', () => {
         delete person.identityCard;
         person.personalNumber = '123456789';
         const createdPerson = await Person.createPerson(person);
-        console.log(createdPerson);
-        console.log('identityCard' in createdPerson);
         createdPerson.should.exist;
         createdPerson.should.have.property('personalNumber', '123456789');
         should.not.exist(createdPerson.identityCard);
