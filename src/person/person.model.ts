@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
-import  * as consts  from '../../db-enums';
+import  * as consts  from '../config/db-enums';
 
 
 (<any>mongoose).Promise = Promise;
