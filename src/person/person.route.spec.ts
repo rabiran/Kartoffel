@@ -6,7 +6,7 @@ import * as sinon from 'sinon';
 import * as server from '../server';
 import { Person } from './person.controller';
 import { IPerson } from './person.interface';
-import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../../db-enums';
+import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../config/db-enums';
 
 
 const should = chai.should();

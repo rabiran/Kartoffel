@@ -11,7 +11,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-import { RESPONSIBILITY, RANK, SERVICE_TYPE } from '../../db-enums'; 
+import { RESPONSIBILITY, RANK, SERVICE_TYPE } from '../config/db-enums'; 
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
