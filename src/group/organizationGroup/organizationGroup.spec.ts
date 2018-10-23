@@ -7,7 +7,7 @@ import { IOrganizationGroup } from './organizationGroup.interface';
 import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
-import { SERVICE_TYPE } from '../../../db-enums';
+import { SERVICE_TYPE } from '../../config/db-enums';
 
 const should = chai.should();
 const expect = chai.expect;
