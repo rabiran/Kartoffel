@@ -14,7 +14,7 @@ export interface IPerson {
   lastName: string;
   currentUnit?: string;
   alive?: boolean;
-  dischargeDay: Date;
+  dischargeDay?: Date;
   hierarchy?: string[];
   directGroup: string | Types.ObjectId | IOrganizationGroup; 
   managedGroup?: string | Types.ObjectId | IOrganizationGroup;
