@@ -23,8 +23,6 @@ organizationGroups.get('/:id', (req: Request, res: Response) => {
   }, 404)(req, res, null);
 });
 
-organizationGroups.get('/getAll', ch(OrganizationGroup.getAllOrganizationGroups, (): any[] => []));
-
 organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), ch(OrganizationGroup.getUpdatedFrom, (req: Request) => {
   let from = req.params.from;
   if (typeof (from) === 'number') from = new Date(from);
