@@ -66,7 +66,6 @@ export const PersonSchema = new mongoose.Schema(
     },
     dischargeDay: {
       type: Date,
-      required: [true, 'You must enter a discharge day!'],
     },
     hierarchy: {
       type: [String],
