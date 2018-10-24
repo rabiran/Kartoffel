@@ -73,16 +73,16 @@ const personExamples: IPerson[] = [
   },  
 ];
 
-const BASE_URL = '/api/person';
+const BASE_URL = '/api/persons';
 
 describe('Person', () => {
   // create OG to link with each person.
   beforeEach(async () => await createGroupForPersons(personExamples));
 
-  describe('/GET getAll', () => {
+  describe('/GET', () => {
     it('Should get all the persons', (done) => {
       chai.request(server)
-        .get(`${BASE_URL}/getAll`)
+        .get(BASE_URL)
         .end((err, res) => {
           expect(err).to.be.null;
           res.should.have.status(200);
@@ -96,12 +96,40 @@ describe('Person', () => {
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
 
       await chai.request(server)
-        .get(`${BASE_URL}/getAll`)
+        .get(BASE_URL)
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
           res.body.length.should.be.eql(2);
           const persons = res.body;
+        }).catch((err) => {throw err;});
+    });
+    it('Should get persons without person that dead', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await Person.createPerson(<IPerson>{ ...personExamples[1] });
+
+      await Person.discharge(person.id);
+
+      await chai.request(server)
+        .get(BASE_URL)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(1);
+        }).catch((err) => {throw err;});
+    });
+    it('Should get persons with person that dead', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await Person.createPerson(<IPerson>{ ...personExamples[1] });
+
+      await Person.discharge(person.id);
+
+      await chai.request(server)
+        .get(`${BASE_URL}?alsoDead=true`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(2);
         }).catch((err) => {throw err;});
     });
   });

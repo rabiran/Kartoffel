@@ -102,6 +102,26 @@ describe('Persons', () => {
       persons[1].should.exist;
       persons[2].should.have.property('lastName', 'Kopter');
     });
+    it('Should get persons without person that dead', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      
+      await Person.discharge(person.id);
+      
+      const persons = await Person.getPersons();
+      persons.should.be.a('array');
+      persons.should.have.lengthOf(1);
+    });
+    it('Should get persons with person that dead', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      
+      await Person.discharge(person.id);
+      
+      const persons = await Person.getPersons({ alsoDead: 'true' });
+      persons.should.be.a('array');
+      persons.should.have.lengthOf(2);
+    });
   });
   describe('#get updated persons a from given date', () => {
     it('Should get the current persons', async () => {
