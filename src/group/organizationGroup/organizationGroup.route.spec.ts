@@ -16,7 +16,7 @@ const expect = chai.expect;
 
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const ID_EXAMPLE_2 = '59a56d577bedba18504298de';
-const BASE_URL = '/api/organizationGroup';
+const BASE_URL = '/api/organizationGroups';
 
 describe('OrganizationGroup API', () => {
   describe('/GET all groups', () => {

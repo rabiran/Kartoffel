@@ -59,8 +59,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/api/person', personRouter);
-app.use('/api/organizationGroup', organizationGroupRouter);
+app.use('/api/persons', personRouter);
+app.use('/api/organizationGroups', organizationGroupRouter);
 
 /**
  * Error Handler. Provides full stack - remove for production

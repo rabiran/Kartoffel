@@ -12,7 +12,7 @@ const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
-persons.get('/getAll', ch(Person.getPersons, (): any[] => []));
+persons.get('/', ch(Person.getPersons, (req: Request) => [req.query]));
 
 persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params') , 
           ch(Person.getUpdatedFrom, (req: Request) => {
