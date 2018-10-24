@@ -18,9 +18,11 @@ export class OrganizationGroup {
     return <IOrganizationGroup[]>organizationGroups;
   } */
 
-  static async getOrganizationGroups(cond?: Object): Promise<IOrganizationGroup[]> {
+  static async getOrganizationGroups(query?: any): Promise<IOrganizationGroup[]> {
+    const cond = {};
+    if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['isAlive'] = 'true'; 
     const organizationGroups = await OrganizationGroup._organizationGroupRepository.find(cond);
-    const fieldsToSend = <(keyof IOrganizationGroup)[]>_.difference(ORGANIZATION_GROUP_KEYS, ORGANIZATION_GROUP_OBJECT_FIELDS);
+    const fieldsToSend = <(keyof IOrganizationGroup)[]>_.difference(ORGANIZATION_GROUP_KEYS, ['directMembers', 'directManagers']);
     return _.flatMap(<IOrganizationGroup[]>organizationGroups, k => pick(k, ...fieldsToSend));
   }
 
