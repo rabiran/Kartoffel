@@ -47,7 +47,7 @@ export class RouteParamsValidate {
 }
 
 export const validatorMiddleware =
-  (validator: Function, varNames: string[], path: string = 'body', errStatus:number = 400) =>
+  (validator: Function, varNames: string[] = [], path: string = 'body', errStatus:number = 400) =>
   (req: Request, res: Response, next: NextFunction) => {
     const usePath = !varNames || varNames.length === 0;
     const vars = usePath ? [req[path]] : varNames.map(varName => req[path][varName]);

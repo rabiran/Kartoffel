@@ -1,9 +1,5 @@
 import { RouteParamsValidate as RPV, validatorMiddleware as vm } from '../../helpers/route.validator';
 
-export class GroupRouteParamsValidate extends RPV {
-  constructor() {
-    super();
-  }
-}
+export const createAllowedFileds = ['name', 'parentId'];
 
-export const validatorMiddleware = vm;
+export const atCreateFieldCheck = RPV.fieldExistanceGenerator(createAllowedFileds);
