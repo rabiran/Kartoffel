@@ -67,7 +67,6 @@ const personExamples: IPerson[] = [
     personalNumber: '1234567',
     firstName: 'Yonatan',
     lastName: 'Tal',
-    dischargeDay: new Date(2022, 11),
     job: 'Programmer',
     serviceType: SERVICE_TYPE[0],
   },
@@ -136,7 +135,6 @@ describe('Persons', () => {
       // expect(String(person.primaryDomainUser) === personExamples[4].primaryDomainUser).to.be.true;
       person.should.have.property('firstName', 'Yonatan');
       person.should.have.property('lastName', 'Tal');
-      person.should.have.property('dischargeDay', personExamples[4].dischargeDay);
       person.should.have.property('hierarchy');
       person.hierarchy.should.have.ordered.members([dummyGroup.name]);
       person.should.have.property('job', 'Programmer');
@@ -163,6 +161,7 @@ describe('Persons', () => {
         phone: ['023456789', '02-3456389'],
         mobilePhone: ['054-9754999', '0541234567'],
         rank: RANK[0],
+        dischargeDay: new Date(2022, 11),
         address: 'I live here',
         responsibility: RESPONSIBILITY[1],
         responsibilityLocation: new Types.ObjectId(dbIdExample[3]),
@@ -216,9 +215,6 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.lastName;
-        await expectError(Person.createPerson, [person]);
-        person = { ...personExamples[1] };
-        delete person.dischargeDay;
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.job;
