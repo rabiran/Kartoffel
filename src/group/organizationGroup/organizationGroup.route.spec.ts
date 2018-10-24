@@ -44,6 +44,36 @@ describe('OrganizationGroup API', () => {
           const persons = res.body;
         }).catch((err) => { throw err; });
     });
+    it('Should get all the groups without group that delete', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      await OrganizationGroup.hideGroup(group.id);
+
+      await chai.request(server)
+        .get(BASE_URL)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(2);
+        }).catch((err) => { throw err; });
+    });
+    it('Should get all the groups with group that delete', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      await OrganizationGroup.hideGroup(group.id);
+
+      await chai.request(server)
+        .get(`${BASE_URL}?alsoDead=true`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(3);
+        }).catch((err) => { throw err; });
+    });
   });
   describe('/GET group by ID', () => {
     it('Should return 404 when group does not exist', (done) => {
