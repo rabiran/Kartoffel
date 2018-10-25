@@ -12,14 +12,17 @@ export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
   static _personRepository: PersonRepository = new PersonRepository();
 
-  static async getAllOrganizationGroups(): Promise<IOrganizationGroup[]> {
+// Used for a 'getAll' route that no longer exists
+/*   static async getAllOrganizationGroups(): Promise<IOrganizationGroup[]> {
     const organizationGroups = await OrganizationGroup._organizationGroupRepository.getAll();
     return <IOrganizationGroup[]>organizationGroups;
-  }
+  } */
 
-  static async getOrganizationGroups(cond?: Object): Promise<IOrganizationGroup[]> {
+  static async getOrganizationGroups(query?: any): Promise<IOrganizationGroup[]> {
+    const cond = {};
+    if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['isAlive'] = 'true'; 
     const organizationGroups = await OrganizationGroup._organizationGroupRepository.find(cond);
-    const fieldsToSend = <(keyof IOrganizationGroup)[]>_.difference(ORGANIZATION_GROUP_KEYS, ORGANIZATION_GROUP_OBJECT_FIELDS);
+    const fieldsToSend = <(keyof IOrganizationGroup)[]>_.difference(ORGANIZATION_GROUP_KEYS, ['directMembers', 'directManagers']);
     return _.flatMap(<IOrganizationGroup[]>organizationGroups, k => pick(k, ...fieldsToSend));
   }
 

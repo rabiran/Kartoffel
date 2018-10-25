@@ -18,9 +18,9 @@ export class Person {
     this._personService = new PersonRepository();
   }
 
-  static async getPersons(query = {}): Promise<IPerson[]> {
+  static async getPersons(query?: any): Promise<IPerson[]> {
     const cond = {};
-    if (!('dead' in query)) cond['alive'] = 'true';
+    if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['alive'] = 'true';
     const persons = await Person._personRepository.find(cond);
     return <IPerson[]>persons;
   }

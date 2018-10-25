@@ -4,15 +4,16 @@ import { controllerHandler as ch } from '../helpers/controller.helper';
 import { PermissionMiddleware } from '../middlewares/permission.middleware';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { Person } from './person.controller';
-import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
-import { PersonRouteParamsValidate as Vld, validatorMiddleware } from './person.route.validator';
+// import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
+import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
+import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
 
 // const person = new Person();
 const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
-persons.get('/getAll', ch(Person.getPersons, (): any[] => []));
+persons.get('/', ch(Person.getPersons, (req: Request) => [req.query]));
 
 persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params') , 
           ch(Person.getUpdatedFrom, (req: Request) => {
@@ -22,8 +23,8 @@ persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'p
           }
 ));
 
-persons.post('/', 
-           PermissionMiddleware.hasAdvancedPermission,
+persons.post('/', PermissionMiddleware.hasAdvancedPermission,
+           validatorMiddleware(atCreateFieldCheck),
            ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.post('/domainUser', PermissionMiddleware.hasAdvancedPermission,
@@ -69,11 +70,13 @@ persons.delete('/:id',
 //             return [req.params.id, toUpdate];
 //           }, 404));
 
-persons.put('/',
+persons.put('/:id',
           PermissionMiddleware.hasAdvancedPermission,
+          validatorMiddleware(atUpdateFieldCheck),
           ch(Person.updatePerson, (req: Request, res: Response) => {
-            const toUpdate = filterObjectByKeys(req.body, PERSON_FIELDS.concat('_id'));
-            return [toUpdate];
+            const personId = req.params.id;
+            const fieldsToUpdate = req.body;
+            return [personId, fieldsToUpdate];
           }, 404));
 
 persons.put('/:id/assign',

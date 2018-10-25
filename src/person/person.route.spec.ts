@@ -73,16 +73,16 @@ const personExamples: IPerson[] = [
   },  
 ];
 
-const BASE_URL = '/api/person';
+const BASE_URL = '/api/persons';
 
 describe('Person', () => {
   // create OG to link with each person.
   beforeEach(async () => await createGroupForPersons(personExamples));
 
-  describe('/GET getAll', () => {
+  describe('/GET', () => {
     it('Should get all the persons', (done) => {
       chai.request(server)
-        .get(`${BASE_URL}/getAll`)
+        .get(BASE_URL)
         .end((err, res) => {
           expect(err).to.be.null;
           res.should.have.status(200);
@@ -96,12 +96,40 @@ describe('Person', () => {
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
 
       await chai.request(server)
-        .get(`${BASE_URL}/getAll`)
+        .get(BASE_URL)
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
           res.body.length.should.be.eql(2);
           const persons = res.body;
+        }).catch((err) => {throw err;});
+    });
+    it('Should get persons without person that dead', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await Person.createPerson(<IPerson>{ ...personExamples[1] });
+
+      await Person.discharge(person.id);
+
+      await chai.request(server)
+        .get(BASE_URL)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(1);
+        }).catch((err) => {throw err;});
+    });
+    it('Should get persons with person that dead', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await Person.createPerson(<IPerson>{ ...personExamples[1] });
+
+      await Person.discharge(person.id);
+
+      await chai.request(server)
+        .get(`${BASE_URL}?alsoDead=true`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(2);
         }).catch((err) => {throw err;});
     });
   });
@@ -232,6 +260,15 @@ describe('Person', () => {
           done();
         });
     });
+    it('should return error when sending unexpected fields', (done) => {
+      chai.request(server).post(BASE_URL).send({ ...personExamples[0], eyeColor:'blue' })
+      .end((err, res) => {
+        err.should.exist;
+        err.should.have.status(400);
+        const errMsg = res.text;
+        done();
+      });
+    });
     it('Should return the created person', (done) => {
       chai.request(server)
         .post(BASE_URL)
@@ -345,18 +382,39 @@ describe('Person', () => {
         //   });
         done();
       });
-      // it('Should return the updated person', async () => {
-      //   const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      //   await chai.request(server)
-      //     .put(`${BASE_URL}/${person.id}/personal`)
-      //     .send({ _id: person.id.toString(), phone: ['027654321'] })
-      //     .then((res) => {
-      //       res.should.exist;
-      //       res.should.have.status(200);
-      //       res.body.should.have.property('phone');
-      //       res.body.phone.should.have.members(['027654321']);
-      //     }).catch((err) => { throw err; });
-      // });
+      it('should return error when trying to update non-updatable field', async () => {
+        const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+        await chai.request(server).put(`${BASE_URL}/${person.id}`)
+          .send({ personalNumber:'1234567' })
+          .then()
+          .catch((err) => {
+            err.should.exist;
+            err.should.have.status(400);
+          });
+      });
+      it('Should return the updated person', async () => {
+        const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+        await chai.request(server)
+          .put(`${BASE_URL}/${person.id}`)
+          .send({ phone: ['027654321'] })
+          .then((res) => {
+            res.should.exist;
+            res.should.have.status(200);
+            res.body.should.have.property('phone');
+            res.body.phone.should.have.members(['027654321']);
+          }).catch((err) => { throw err; });
+      });
+      it('Should return the updated person #2', async () => {
+        const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+        await chai.request(server)
+          .put(`${BASE_URL}/${person.id}`)
+          .send({ job: 'broken' })
+          .then((res) => {
+            res.should.exist;
+            res.should.have.status(200);
+            res.body.should.have.property('job', 'broken');
+          }).catch((err) => { throw err; });
+      });
     });
     describe('/assign person', () => {
       it('Should return a person whose group and hierarchy has been changed', async () => {

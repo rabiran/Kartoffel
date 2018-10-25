@@ -47,6 +47,28 @@ describe('Strong Groups', () => {
       groups.should.be.a('array');
       groups.should.have.lengthOf(3);
     });
+    it('Should get all the groups without group that delete', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      await OrganizationGroup.hideGroup(group.id);
+      
+      const groups = await OrganizationGroup.getOrganizationGroups();
+      groups.should.be.a('array');
+      groups.should.have.lengthOf(2);
+    });
+    it('Should get all the groups with group that delete', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      await OrganizationGroup.hideGroup(group.id);
+      
+      const groups = await OrganizationGroup.getOrganizationGroups({ alsoDead: 'true' });
+      groups.should.be.a('array');
+      groups.should.have.lengthOf(3);
+    });
   });
   describe('#get updated groups from a given date', () => {
     it('Should get the current groups', async () => {

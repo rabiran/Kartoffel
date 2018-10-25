@@ -16,7 +16,7 @@ const expect = chai.expect;
 
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const ID_EXAMPLE_2 = '59a56d577bedba18504298de';
-const BASE_URL = '/api/organizationGroup';
+const BASE_URL = '/api/organizationGroups';
 
 describe('OrganizationGroup API', () => {
   describe('/GET all groups', () => {
@@ -42,6 +42,36 @@ describe('OrganizationGroup API', () => {
           res.body.should.be.an('array');
           res.body.length.should.be.eql(2);
           const persons = res.body;
+        }).catch((err) => { throw err; });
+    });
+    it('Should get all the groups without group that delete', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      await OrganizationGroup.hideGroup(group.id);
+
+      await chai.request(server)
+        .get(BASE_URL)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(2);
+        }).catch((err) => { throw err; });
+    });
+    it('Should get all the groups with group that delete', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      await OrganizationGroup.hideGroup(group.id);
+
+      await chai.request(server)
+        .get(`${BASE_URL}?alsoDead=true`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(3);
         }).catch((err) => { throw err; });
     });
   });
@@ -186,10 +216,9 @@ describe('OrganizationGroup API', () => {
           done();
         });
     });
-    it('Should return 400 when group is not valid', (done) => {
-      chai.request(server)
-        .post(BASE_URL)
-        .send({ type: 'Group' })
+    it('should return error when trying to create group with unexpected fields', (done) => {
+      chai.request(server).post(BASE_URL)
+        .send({ name: 'fuckoff', blarg: 'dfg' })
         .end((err, res) => {
           err.should.exist;
           err.should.have.status(400);
