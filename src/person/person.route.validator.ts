@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { RouteParamsValidate as RPV, validatorMiddleware as vm } from '../helpers/route.validator';
+import { RouteParamsValidate as RPV } from '../helpers/route.validator';
 
 export const createAllowedFileds =  ['serviceType', 'firstName', 'lastName', 'currentUnit', 'job', 'mail', 'phone', 
   'address', 'mobilePhone', 'dischargeDay', 'directGroup', 'managedGroup', 'rank', 'responsibility', 

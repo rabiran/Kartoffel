@@ -1,4 +1,4 @@
-import { RouteParamsValidate as RPV, validatorMiddleware as vm } from '../../helpers/route.validator';
+import { RouteParamsValidate as RPV } from '../../helpers/route.validator';
 
 export const createAllowedFileds = ['name', 'parentId'];
 

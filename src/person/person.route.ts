@@ -23,8 +23,8 @@ persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'p
           }
 ));
 
-persons.post('/', validatorMiddleware(atCreateFieldCheck),
-           PermissionMiddleware.hasAdvancedPermission,
+persons.post('/', PermissionMiddleware.hasAdvancedPermission,
+           validatorMiddleware(atCreateFieldCheck),
            ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.post('/domainUser', PermissionMiddleware.hasAdvancedPermission,
