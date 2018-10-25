@@ -216,10 +216,9 @@ describe('OrganizationGroup API', () => {
           done();
         });
     });
-    it('Should return 400 when group is not valid', (done) => {
-      chai.request(server)
-        .post(BASE_URL)
-        .send({ type: 'Group' })
+    it('should return error when trying to create group with unexpected fields', (done) => {
+      chai.request(server).post(BASE_URL)
+        .send({ name: 'fuckoff', blarg: 'dfg' })
         .end((err, res) => {
           err.should.exist;
           err.should.have.status(400);

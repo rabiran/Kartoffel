@@ -14,7 +14,7 @@ export interface IPerson {
   lastName: string;
   currentUnit?: string;
   alive?: boolean;
-  dischargeDay: Date;
+  dischargeDay?: Date;
   hierarchy?: string[];
   directGroup: string | Types.ObjectId | IOrganizationGroup; 
   managedGroup?: string | Types.ObjectId | IOrganizationGroup;
@@ -33,7 +33,7 @@ export interface IPerson {
   clearance?: string;
 }
 
-export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
-export const PERSON_FIELDS = EDITABLE_FIELDS.concat(
-  ['primaryDomainUser', 'secondaryDomainUsers', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
-    'dischargeDay', 'hierarchy', 'directGroup', 'managedGroup', 'rank', 'alive', 'responsibility', 'responsibilityLocation', 'clearance']);
+// export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
+// export const PERSON_FIELDS = EDITABLE_FIELDS.concat(
+//   ['primaryDomainUser', 'secondaryDomainUsers', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
+//     'dischargeDay', 'hierarchy', 'directGroup', 'managedGroup', 'rank', 'alive', 'responsibility', 'responsibilityLocation', 'clearance']);

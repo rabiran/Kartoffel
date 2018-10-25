@@ -6,7 +6,8 @@ import { AuthMiddleware } from '../../middlewares/auth.middleware';
 import { OrganizationGroup } from './organizationGroup.controller';
 import { Person } from '../../person/person.controller';
 import { IOrganizationGroup, ORGANIZATION_GROUP_BASIC_FIELDS } from './organizationGroup.interface';
-import { GroupRouteParamsValidate as Vld, validatorMiddleware } from './organizationGroup.route.validator';
+import { atCreateFieldCheck } from './organizationGroup.route.validator';
+import { validatorMiddleware, RouteParamsValidate as Vld } from '../../helpers/route.validator';
 // import { body, param, check, validationResult } from 'express-validator/check';
 
 const organizationGroups = Router();
@@ -41,10 +42,11 @@ organizationGroups.get('/path/:path/hierarchyExistenceChecking', ch(Organization
 
 organizationGroups.post('/',
   PermissionMiddleware.hasAdvancedPermission,
+  validatorMiddleware(atCreateFieldCheck),
   ch(OrganizationGroup.createOrganizationGroup, (req: Request, res: Response) => {
     const organizationGroup = filterObjectByKeys(req.body, ORGANIZATION_GROUP_BASIC_FIELDS);
-    const parentID = req.body.parentID;
-    return [organizationGroup, parentID];
+    const parentId = req.body.parentId;
+    return [organizationGroup, parentId];
   }, 400
   ));
 

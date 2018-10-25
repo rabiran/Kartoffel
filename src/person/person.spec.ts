@@ -238,9 +238,6 @@ describe('Persons', () => {
         delete person.lastName;
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
-        delete person.dischargeDay;
-        await expectError(Person.createPerson, [person]);
-        person = { ...personExamples[1] };
         delete person.job;
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
