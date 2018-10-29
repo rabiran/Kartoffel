@@ -117,10 +117,15 @@ paths:
               type: string
               example: 3
       responses:
-        200:
+        '200':
           description: OK
           schema:
             $ref: '#/definitions/Person'
+        '400':
+          description: 'unexpected parametrs'
+          x-oad-type: response
+        '500':
+          description: 'invalid values supplied'
   /persons/{id}:
     get:
       tags: 
@@ -137,6 +142,8 @@ paths:
           description: A Person object
           schema:
             $ref: '#/definitions/Person'
+        404:
+          description: Person with the specified id doesn't exist
     put:
       tags: 
         - Person
@@ -210,6 +217,11 @@ paths:
           description: A Person object with the changes
           schema:
             $ref: '#/definitions/Person'
+        400:
+          description: unexpected field(s)
+        404:
+          description: person doesn't exist or invalid field(s) value   
+          
     delete:
       tags: 
       - Person
@@ -225,6 +237,8 @@ paths:
           description: The deleted Person object
           schema:
             $ref: '#/definitions/Person'
+        400:
+          description: person doesn't exist
   /persons/{id}/assign:
     put:
       tags: 
@@ -237,7 +251,8 @@ paths:
           type: string
           description: 'The Id of Person'
         - in: body
-          name: Group Id
+          name: group
+          description: 'The group id'
           required: true
           schema:
             type: object
@@ -250,6 +265,9 @@ paths:
           description: A Person object with new directGroup and hierarchy
           schema:
             $ref: '#/definitions/Person'
+        404:
+          description: person or group doesn't exist
+
   /persons/{id}/manage:
     put:
       tags: 
@@ -262,7 +280,8 @@ paths:
           type: string
           description: 'The Id of Person'
         - in: body
-          name: Group Id
+          name: group
+          description: 'The group id'
           required: true
           schema:
             type: object
@@ -275,6 +294,8 @@ paths:
           description: A Person object with new directGroup and hierarchy
           schema:
             $ref: '#/definitions/Person'
+        404:
+          description: person or group doesn't exist
   /persons/getUpdated/{from}:
     get:
       tags: 
@@ -309,6 +330,8 @@ paths:
           description: A Person object
           schema:
             $ref: '#/definitions/Person'
+        404: 
+          description: Person with the specified pesonal number doesn't exist
   /persons/identityCard/{identityCard}:
     get:
       tags: 
@@ -325,6 +348,8 @@ paths:
           description: A Person object
           schema:
             $ref: '#/definitions/Person'
+        404: 
+          description: Person with the specified identity card doesn't exist
   /persons/domainUser/{domainUser}:
     get:
       tags: 
@@ -335,12 +360,15 @@ paths:
           name: domainUser
           required: true
           type: string
-          description: 'The domain user of Person'
+          description: 'The full string of the domain user'
       responses:
         200:
           description: A Person object
           schema:
             $ref: '#/definitions/Person'
+        500:
+          description: domain user doesn't exist or illegal full string  
+        
   /persons/domainUser:
     post:
       tags: 
@@ -369,6 +397,8 @@ paths:
           description: A Person object with new domain user
           schema:
             $ref: '#/definitions/Person'
+        500:
+          description: person does't exist or domain user already exists or illegal full string
   '/organizationGroups/{id}':
     get:
       summary: 'Get organization Group by id'
@@ -430,7 +460,7 @@ paths:
             $ref: '#/definitions/OG'
           x-oad-type: response
         '404':
-          description: 'path does not exist'
+          description: path does not exist
           x-oad-type: response
       parameters:
         -
@@ -488,9 +518,9 @@ paths:
             x-oad-type: array
             type: array
             items:
-              x-oad-type: object
-              type: object
-              title: 'array of persons'
+              $ref: '#/definitions/Person'
+        '404':
+          description: Group doesn't exist
           x-oad-type: response
       parameters:
         -
@@ -499,7 +529,6 @@ paths:
           description: id
           required: true
           type: string
-          x-oad-type: parameter
     x-oad-type: operation
   /organizationGroups/adoption:
     put:
@@ -516,6 +545,8 @@ paths:
               message:
                 type: string
                 enum: ["ok"]
+        '400':
+          description: One of the groups doesn't exist
           x-oad-type: response
       parameters:
         -
