@@ -71,7 +71,7 @@
     "chai": "^4.1.1",
     "chai-as-promised": "^7.1.1",
     "chai-http": "^3.0.0",
-    "concurrently": "^3.5.0",
+    "concurrently": "^3.6.1",
     "mocha": "^3.5.0",
     "mochawesome": "^3.0.3",
     "node-sass": "^4.9.2",
