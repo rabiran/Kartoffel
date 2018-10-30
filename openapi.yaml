@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  title: Swagger Kartoffel 
+  title: Swagger Kartoffel
   description: API of Kartoffel server
   version: 0.0.2
 host: kartoffel.com
@@ -10,436 +10,1017 @@ consumes:
 produces:
   - application/json
 tags:
-- name: 'Person'
-  description: 'Operations about persons'
-- name: 'Organization Group'
-  description: 'Operations about Organization Groups' 
+  - name: Person
+    description: Operations about persons
+  - name: Organization Group
+    description: Operations about Organization Groups
 schemes:
-- http
-- https
+  - http
+  - https
 paths:
   /persons:
     get:
       tags:
-      - Person
+        - Person
       summary: Returns a list of all persons
-      produces: 
+      produces:
         - application/json
       responses:
-        200:
+        '200':
           description: OK
           schema:
             items:
               $ref: '#/definitions/Person'
     post:
       tags:
-      - Person
+        - Person
       summary: Add a new person
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        required: true
-        schema:
-          type: object
-          required:
-          - firstName
-          - identityCard
-          - serviceType
-          - lastName
-          - directGroup
-          - job
-          properties:
-            identityCard:
-              type: string
-              pattern: '^\d{6,9}$'
-              example: '234567891'
-            personalNumber: 
-              type: string
-              pattern: '^\d{6,9}$'
-              example: '3456712'
-            serviceType: 
-              type: string
-              enum: ['a', 'b']
-              example: 'a'
-            firstName: 
-              type: string
-              example: 'Avi'
-            lastName: 
-              type: string
-              example: 'Ron'
-            currentUnit: 
-              type: string
-              example: 'Pilots Guild'
-            dischargeDay: 
-              type: string
-              format: date
-              example: '2022-11-30T22:00:00.000Z'
-            directGroup: 
-              type: string
-              example: '5b50a76713ddf90af494dadc'
-            rank: 
-              type: string
-              enum: ['a', 'b', 'c']
-              example: 'b'
-            job: 
-              type: string
-              example: 'Pilot 2'
-            mail: 
-              type: string
-              format: email
-            phone: 
-              type: array
-              items:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - firstName
+              - identityCard
+              - serviceType
+              - lastName
+              - directGroup
+              - job
+            properties:
+              identityCard:
                 type: string
-                pattern: '^\d{1,2}-?\d{6,7}$'
-              example: ['02-123456', '03456789']
-            mobilePhone:
-              type: array
-              items:
+                pattern: '^\d{6,9}$'
+                example: '234567891'
+              personalNumber:
                 type: string
-                pattern: '^\d{2,3}-?\d{7}$'
-              example: ['052-1234567', '048456789']
-            address: 
-              type: string
-              example: "Alexander 2, Jerusalem, Israel"
-            responsibility: 
-              type: string
-              enum: ['a', 'b', 'c']
-              example: 'c'
-            responsibilityLocation: 
-              type: string
-              example: '5b50a76713ddf90af494dabc'
-            clearance: 
-              type: string
-              example: 3
+                pattern: '^\d{6,9}$'
+                example: '3456712'
+              serviceType:
+                type: string
+                enum:
+                  - a
+                  - b
+                example: a
+              firstName:
+                type: string
+                example: Avi
+              lastName:
+                type: string
+                example: Ron
+              currentUnit:
+                type: string
+                example: Pilots Guild
+              dischargeDay:
+                type: string
+                format: date
+                example: '2022-11-30T22:00:00.000Z'
+              directGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              rank:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: b
+              job:
+                type: string
+                example: Pilot 2
+              mail:
+                type: string
+                format: email
+              phone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{1,2}-?\d{6,7}$'
+                example:
+                  - 02-123456
+                  - 03456789
+              mobilePhone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{2,3}-?\d{7}$'
+                example:
+                  - 052-1234567
+                  - 048456789
+              address:
+                type: string
+                example: 'Alexander 2, Jerusalem, Israel'
+              responsibility:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: c
+              responsibilityLocation:
+                type: string
+                example: 5b50a76713ddf90af494dabc
+              clearance:
+                type: string
+                example: 3
       responses:
         '200':
           description: OK
           schema:
             $ref: '#/definitions/Person'
         '400':
-          description: 'unexpected parametrs'
+          description: unexpected parametrs
           x-oad-type: response
         '500':
-          description: 'invalid values supplied'
-  /persons/{id}:
+          description: invalid values supplied
+  '/persons/{id}':
     get:
-      tags: 
+      tags:
         - Person
-      summary: 'Returns a specific person'
-      parameters: 
+      summary: Returns a specific person
+      parameters:
         - in: path
           name: id
           required: true
           type: string
-          description: 'The Id of Person'
+          description: The Id of Person
       responses:
-        200:
-          description: A Person object
-          schema:
-            $ref: '#/definitions/Person'
-        404:
-          description: Person with the specified id doesn't exist
-    put:
-      tags: 
-        - Person
-      summary: 'Update person'
-      parameters: 
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: 'The Id of Person'
-        - in: body
-          name: body
-          required: true
+        '200':
+          description: A Person object (domain user populated)
           schema:
             type: object
+            required:
+              - firstName
+              - identityCard
+              - serviceType
+              - lastName
+              - directGroup
+              - job
             properties:
-              serviceType: 
+              id:
                 type: string
-                enum: ['a', 'b']
-                example: 'a'
-              firstName: 
+                example: 5b50a76713ddf90af494de32
+              identityCard:
                 type: string
-                example: 'Avi'
-              lastName: 
+                pattern: '^\d{6,9}$'
+                example: '234567891'
+              personalNumber:
                 type: string
-                example: 'Ron'
-              currentUnit: 
+                pattern: '^\d{6,9}$'
+                example: '3456712'
+              primaryDomainUser:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: '5b50a76713ddf90af494de72'
+                  name:
+                    type: string
+                    example: 'nitro'
+                  domain:
+                    type: string
+                    example: 'jello'
+                  personId:
+                    type: string
+                    example: '5b50a76713ddf90af494de32'
+                  fullString: 
+                    type: string
+                    example: 'nitro@jello'
+              secondaryDomainUsers:
+                type: array
+                items:
+                  type: object
+                  example: 
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+                   
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+              serviceType:
                 type: string
-                example: 'Pilots Guild'
-              dischargeDay: 
+                enum:
+                  - a
+                  - b
+                example: a
+              firstName:
+                type: string
+                example: Avi
+              lastName:
+                type: string
+                example: Ron
+              currentUnit:
+                type: string
+                example: Pilots Guild
+              dischargeDay:
                 type: string
                 format: date
                 example: '2022-11-30T22:00:00.000Z'
-              rank: 
+              hierarchy:
+                type: array
+                items:
+                  type: string
+                example:
+                  - ElAl
+                  - Pilots Guild
+                  - Captains
+              directGroup:
                 type: string
-                enum: ['a', 'b', 'c']
-                example: 'b'
-              job: 
+                example: 5b50a76713ddf90af494dadc
+              managedGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              rank:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: b
+              updatedAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:20:13.129Z'
+              createdAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:17:07.372Z'
+              job:
                 type: string
                 example: 'Pilot 2'
-              mail: 
+              mail:
                 type: string
                 format: email
-              phone: 
+              phone:
                 type: array
                 items:
                   type: string
                   pattern: '^\d{1,2}-?\d{6,7}$'
-                example: ['02-123456', '03456789']
+                example:
+                  - 02-123456
+                  - 03456789
               mobilePhone:
                 type: array
                 items:
                   type: string
                   pattern: '^\d{2,3}-?\d{7}$'
-                example: ['052-1234567', '048456789']
-              address: 
+                example:
+                  - 052-1234567
+                  - 048456789
+              address:
                 type: string
-                example: "Alexander 2, Jerusalem, Israel"
-              responsibility: 
+                example: 'Alexander 2, Jerusalem, Israel'
+              responsibility:
                 type: string
-                enum: ['a', 'b', 'c']
-                example: 'c'
-              responsibilityLocation: 
+                enum:
+                  - a
+                  - b
+                  - c
+                example: c
+              responsibilityLocation:
                 type: string
-                example: '5b50a76713ddf90af494dabc'
-              clearance: 
+                example: 5b50a76713ddf90af494dabc
+              clearance:
                 type: string
                 example: 3
-      responses:
-        200:
-          description: A Person object with the changes
-          schema:
-            $ref: '#/definitions/Person'
-        400:
-          description: unexpected field(s)
-        404:
-          description: person doesn't exist or invalid field(s) value   
-          
-    delete:
-      tags: 
-      - Person
-      summary: Delete a specific Person
-      parameters: 
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: 'The Id of Person'
-      responses:
-        200:
-          description: The deleted Person object
-          schema:
-            $ref: '#/definitions/Person'
-        400:
-          description: person doesn't exist
-  /persons/{id}/assign:
+        '404':
+          description: Person with the specified id doesn't exist
     put:
-      tags: 
+      tags:
         - Person
-      summary: 'Moves the person to another group'
-      parameters: 
+      summary: Update person
+      parameters:
         - in: path
           name: id
           required: true
           type: string
-          description: 'The Id of Person'
-        - in: body
-          name: group
-          description: 'The group id'
-          required: true
-          schema:
-            type: object
-            properties:
-              group:
-                type: string
-                example: '5b50a76713ddf90af494dadc'
-      responses:
-        200:
-          description: A Person object with new directGroup and hierarchy
-          schema:
-            $ref: '#/definitions/Person'
-        404:
-          description: person or group doesn't exist
-
-  /persons/{id}/manage:
-    put:
-      tags: 
-        - Person
-      summary: 'Set the Person as a group manage'
-      parameters: 
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: 'The Id of Person'
-        - in: body
-          name: group
-          description: 'The group id'
-          required: true
-          schema:
-            type: object
-            properties:
-              group:
-                type: string
-                example: '5b50a76713ddf90af494dadc'
-      responses:
-        200:
-          description: A Person object with new directGroup and hierarchy
-          schema:
-            $ref: '#/definitions/Person'
-        404:
-          description: person or group doesn't exist
-  /persons/getUpdated/{from}:
-    get:
-      tags: 
-        - Person
-      summary: 'Returns list of persons whose last update was after the specified date'
-      parameters: 
-        - in: path
-          name: from
-          required: true
-          type: string
-          format: date
-          description: 'The date of last update. The date looks like this: "2018-10-23T1:13:00.503Z"'
-      responses:
-        200:
-          description: OK 
-          schema:
-            items:
-              $ref: '#/definitions/Person'
-  /persons/personalNumber/{personalNumber}:
-    get:
-      tags: 
-        - Person
-      summary: 'Returns a specific person by a personal number'
-      parameters: 
-        - in: path
-          name: personalNumber
-          required: true
-          type: string
-          description: 'The personal number of Person'
-      responses:
-        200:
-          description: A Person object
-          schema:
-            $ref: '#/definitions/Person'
-        404: 
-          description: Person with the specified pesonal number doesn't exist
-  /persons/identityCard/{identityCard}:
-    get:
-      tags: 
-        - Person
-      summary: 'Returns a specific person by an Identity Card'
-      parameters: 
-        - in: path
-          name: identityCard
-          required: true
-          type: string
-          description: 'The Identity Card of Person'
-      responses:
-        200:
-          description: A Person object
-          schema:
-            $ref: '#/definitions/Person'
-        404: 
-          description: Person with the specified identity card doesn't exist
-  /persons/domainUser/{domainUser}:
-    get:
-      tags: 
-        - Person
-      summary: 'Returns a specific person by a domain user'
-      parameters: 
-        - in: path
-          name: domainUser
-          required: true
-          type: string
-          description: 'The full string of the domain user'
-      responses:
-        200:
-          description: A Person object
-          schema:
-            $ref: '#/definitions/Person'
-        500:
-          description: domain user doesn't exist or illegal full string  
-        
-  /persons/domainUser:
-    post:
-      tags: 
-        - Person
-      summary: 'Add domain user to person'
-      parameters: 
+          description: The Id of Person
         - in: body
           name: body
           required: true
           schema:
             type: object
-            required: 
+            properties:
+              serviceType:
+                type: string
+                enum:
+                  - a
+                  - b
+                example: a
+              firstName:
+                type: string
+                example: Avi
+              lastName:
+                type: string
+                example: Ron
+              currentUnit:
+                type: string
+                example: Pilots Guild
+              dischargeDay:
+                type: string
+                format: date
+                example: '2022-11-30T22:00:00.000Z'
+              rank:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: b
+              job:
+                type: string
+                example: Pilot 2
+              mail:
+                type: string
+                format: email
+              phone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{1,2}-?\d{6,7}$'
+                example:
+                  - 02-123456
+                  - 03456789
+              mobilePhone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{2,3}-?\d{7}$'
+                example:
+                  - 052-1234567
+                  - 048456789
+              address:
+                type: string
+                example: 'Alexander 2, Jerusalem, Israel'
+              responsibility:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: c
+              responsibilityLocation:
+                type: string
+                example: 5b50a76713ddf90af494dabc
+              clearance:
+                type: string
+                example: 3
+      responses:
+        '200':
+          description: A Person object with the changes
+          schema:
+            $ref: '#/definitions/Person'
+        '400':
+          description: unexpected field(s)
+        '404':
+          description: person doesn't exist or invalid field(s) value
+    delete:
+      tags:
+        - Person
+      summary: Delete a specific Person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The Id of Person
+      responses:
+        '200':
+          description: The deleted Person object
+          schema:
+            $ref: '#/definitions/Person'
+        '400':
+          description: person doesn't exist
+  '/persons/{id}/assign':
+    put:
+      tags:
+        - Person
+      summary: Moves the person to another group
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The Id of Person
+        - in: body
+          name: group
+          description: The group id
+          required: true
+          schema:
+            type: object
+            properties:
+              group:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+      responses:
+        '200':
+          description: A Person object with new directGroup and hierarchy
+          schema:
+            $ref: '#/definitions/Person'
+        '404':
+          description: person or group doesn't exist
+  '/persons/{id}/manage':
+    put:
+      tags:
+        - Person
+      summary: Set the Person as a group manage
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The Id of Person
+        - in: body
+          name: group
+          description: The group id
+          required: true
+          schema:
+            type: object
+            properties:
+              group:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+      responses:
+        '200':
+          description: A Person object with new directGroup and hierarchy
+          schema:
+            $ref: '#/definitions/Person'
+        '404':
+          description: person or group doesn't exist
+  '/persons/getUpdated/{from}':
+    get:
+      tags:
+        - Person
+      summary: Returns list of persons whose last update was after the specified date
+      parameters:
+        - in: path
+          name: from
+          required: true
+          type: string
+          format: date
+          description: >-
+            The date of last update. The date looks like this:
+            "2018-10-23T1:13:00.503Z"
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+  '/persons/personalNumber/{personalNumber}':
+    get:
+      tags:
+        - Person
+      summary: Returns a specific person by a personal number
+      parameters:
+        - in: path
+          name: personalNumber
+          required: true
+          type: string
+          description: The personal number of Person
+      responses:
+        '200':
+          description: A Person object (domain user populated)
+          schema:
+            type: object
+            required:
+              - firstName
+              - identityCard
+              - serviceType
+              - lastName
+              - directGroup
+              - job
+            properties:
+              id:
+                type: string
+                example: 5b50a76713ddf90af494de32
+              identityCard:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '234567891'
+              personalNumber:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '3456712'
+              primaryDomainUser:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: '5b50a76713ddf90af494de72'
+                  name:
+                    type: string
+                    example: 'nitro'
+                  domain:
+                    type: string
+                    example: 'jello'
+                  personId:
+                    type: string
+                    example: '5b50a76713ddf90af494de32'
+                  fullString: 
+                    type: string
+                    example: 'nitro@jello'
+              secondaryDomainUsers:
+                type: array
+                items:
+                  type: object
+                  example: 
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+                   
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+              serviceType:
+                type: string
+                enum:
+                  - a
+                  - b
+                example: a
+              firstName:
+                type: string
+                example: Avi
+              lastName:
+                type: string
+                example: Ron
+              currentUnit:
+                type: string
+                example: Pilots Guild
+              dischargeDay:
+                type: string
+                format: date
+                example: '2022-11-30T22:00:00.000Z'
+              hierarchy:
+                type: array
+                items:
+                  type: string
+                example:
+                  - ElAl
+                  - Pilots Guild
+                  - Captains
+              directGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              managedGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              rank:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: b
+              updatedAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:20:13.129Z'
+              createdAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:17:07.372Z'
+              job:
+                type: string
+                example: 'Pilot 2'
+              mail:
+                type: string
+                format: email
+              phone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{1,2}-?\d{6,7}$'
+                example:
+                  - 02-123456
+                  - 03456789
+              mobilePhone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{2,3}-?\d{7}$'
+                example:
+                  - 052-1234567
+                  - 048456789
+              address:
+                type: string
+                example: 'Alexander 2, Jerusalem, Israel'
+              responsibility:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: c
+              responsibilityLocation:
+                type: string
+                example: 5b50a76713ddf90af494dabc
+              clearance:
+                type: string
+                example: 3
+
+        '404':
+          description: Person with the specified pesonal number doesn't exist
+  '/persons/identityCard/{identityCard}':
+    get:
+      tags:
+        - Person
+      summary: Returns a specific person by an Identity Card
+      parameters:
+        - in: path
+          name: identityCard
+          required: true
+          type: string
+          description: The Identity Card of Person
+      responses:
+        '200':
+          description: A Person object (domain user populated)
+          schema:
+            type: object
+            required:
+              - firstName
+              - identityCard
+              - serviceType
+              - lastName
+              - directGroup
+              - job
+            properties:
+              id:
+                type: string
+                example: 5b50a76713ddf90af494de32
+              identityCard:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '234567891'
+              personalNumber:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '3456712'
+              primaryDomainUser:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: '5b50a76713ddf90af494de72'
+                  name:
+                    type: string
+                    example: 'nitro'
+                  domain:
+                    type: string
+                    example: 'jello'
+                  personId:
+                    type: string
+                    example: '5b50a76713ddf90af494de32'
+                  fullString: 
+                    type: string
+                    example: 'nitro@jello'
+              secondaryDomainUsers:
+                type: array
+                items:
+                  type: object
+                  example: 
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+                   
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+              serviceType:
+                type: string
+                enum:
+                  - a
+                  - b
+                example: a
+              firstName:
+                type: string
+                example: Avi
+              lastName:
+                type: string
+                example: Ron
+              currentUnit:
+                type: string
+                example: Pilots Guild
+              dischargeDay:
+                type: string
+                format: date
+                example: '2022-11-30T22:00:00.000Z'
+              hierarchy:
+                type: array
+                items:
+                  type: string
+                example:
+                  - ElAl
+                  - Pilots Guild
+                  - Captains
+              directGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              managedGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              rank:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: b
+              updatedAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:20:13.129Z'
+              createdAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:17:07.372Z'
+              job:
+                type: string
+                example: 'Pilot 2'
+              mail:
+                type: string
+                format: email
+              phone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{1,2}-?\d{6,7}$'
+                example:
+                  - 02-123456
+                  - 03456789
+              mobilePhone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{2,3}-?\d{7}$'
+                example:
+                  - 052-1234567
+                  - 048456789
+              address:
+                type: string
+                example: 'Alexander 2, Jerusalem, Israel'
+              responsibility:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: c
+              responsibilityLocation:
+                type: string
+                example: 5b50a76713ddf90af494dabc
+              clearance:
+                type: string
+                example: 3
+
+        '404':
+          description: Person with the specified identity card doesn't exist
+  '/persons/domainUser/{domainUser}':
+    get:
+      tags:
+        - Person
+      summary: Returns a specific person by a domain user
+      parameters:
+        - in: path
+          name: domainUser
+          required: true
+          type: string
+          description: The full string of the domain user
+      responses:
+        '200':
+          description: A Person object
+          schema:
+            type: object
+            required:
+              - firstName
+              - identityCard
+              - serviceType
+              - lastName
+              - directGroup
+              - job
+            properties:
+              id:
+                type: string
+                example: 5b50a76713ddf90af494de32
+              identityCard:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '234567891'
+              personalNumber:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '3456712'
+              primaryDomainUser:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: '5b50a76713ddf90af494de72'
+                  name:
+                    type: string
+                    example: 'nitro'
+                  domain:
+                    type: string
+                    example: 'jello'
+                  personId:
+                    type: string
+                    example: '5b50a76713ddf90af494de32'
+                  fullString: 
+                    type: string
+                    example: 'nitro@jello'
+              secondaryDomainUsers:
+                type: array
+                items:
+                  type: object
+                  example: 
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+                   
+                  - id: 5b50a76713ddf90af494de72
+                    name: nitro
+                    domain: jello
+                    personId: 5b50a76713ddf90af494de32
+                    fullString: nitro@jello
+              serviceType:
+                type: string
+                enum:
+                  - a
+                  - b
+                example: a
+              firstName:
+                type: string
+                example: Avi
+              lastName:
+                type: string
+                example: Ron
+              currentUnit:
+                type: string
+                example: Pilots Guild
+              dischargeDay:
+                type: string
+                format: date
+                example: '2022-11-30T22:00:00.000Z'
+              hierarchy:
+                type: array
+                items:
+                  type: string
+                example:
+                  - ElAl
+                  - Pilots Guild
+                  - Captains
+              directGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              managedGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              rank:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: b
+              updatedAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:20:13.129Z'
+              createdAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:17:07.372Z'
+              job:
+                type: string
+                example: 'Pilot 2'
+              mail:
+                type: string
+                format: email
+              phone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{1,2}-?\d{6,7}$'
+                example:
+                  - 02-123456
+                  - 03456789
+              mobilePhone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{2,3}-?\d{7}$'
+                example:
+                  - 052-1234567
+                  - 048456789
+              address:
+                type: string
+                example: 'Alexander 2, Jerusalem, Israel'
+              responsibility:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: c
+              responsibilityLocation:
+                type: string
+                example: 5b50a76713ddf90af494dabc
+              clearance:
+                type: string
+                example: 3
+        '500':
+          description: domain user doesn't exist or illegal full string
+  /persons/domainUser:
+    post:
+      tags:
+        - Person
+      summary: Add domain user to person
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
               - personId
               - fullString
             properties:
               personId:
                 type: string
-                example: '5b50a76713ddf90af494de32'
+                example: 5b50a76713ddf90af494de32
               fullString:
                 type: string
                 format: email
               isPrimary:
                 type: boolean
       responses:
-        200:
+        '200':
           description: A Person object with new domain user
           schema:
             $ref: '#/definitions/Person'
-        500:
-          description: person does't exist or domain user already exists or illegal full string
+        '500':
+          description: >-
+            person does't exist or domain user already exists or illegal full
+            string
   '/organizationGroups/{id}':
     get:
-      summary: 'Get organization Group by id'
+      summary: Get organization Group by id
       tags:
-        - 'Organization Group'
+        - Organization Group
       responses:
         '200':
-          description: 'The group exists'
+          description: The group exists
           schema:
             $ref: '#/definitions/OG'
           x-oad-type: response
         '404':
-          description: 'Group with id not found'
+          description: Group with id not found
           x-oad-type: response
       parameters:
-        -
-          name: id
+        - name: id
           in: path
-          description: 'The group''s id'
+          description: The group's id
           required: true
           type: string
           x-oad-type: parameter
     x-oad-type: operation
   '/organizationGroups/getUpdated/{from}':
     get:
-      summary: 'Get the groups that were updated from the given date'
+      summary: Get the groups that were updated from the given date
       tags:
-        - 'Organization Group'
+        - Organization Group
       responses:
         '200':
-          description: 'success - returns array of groups'
+          description: success - returns array of groups
           schema:
             x-oad-type: array
             type: array
-            description: 'Array of groups'
+            description: Array of groups
             items:
               $ref: '#/definitions/OG'
           x-oad-type: response
       parameters:
-        -
-          name: from
+        - name: from
           in: path
           required: true
           type: string
@@ -449,10 +1030,10 @@ paths:
     x-oad-type: operation
   '/organizationGroups/path/{path}':
     get:
-      summary: 'Get group by full path (hierarchy + name)'
+      summary: Get group by full path (hierarchy + name)
       description: 'Get group by full path (hierarchy + name). '
       tags:
-        - 'Organization Group'
+        - Organization Group
       responses:
         '200':
           description: success
@@ -463,8 +1044,7 @@ paths:
           description: path does not exist
           x-oad-type: response
       parameters:
-        -
-          name: path
+        - name: path
           in: path
           description: 'example: root**%2f**parent...**%2f**name'
           required: true
@@ -473,21 +1053,20 @@ paths:
     x-oad-type: operation
   /organizationGroups:
     post:
-      summary: 'Create Organization Group'
+      summary: Create Organization Group
       tags:
-        - 'Organization Group'
+        - Organization Group
       responses:
         '200':
-          description: 'Success - returns the created group'
+          description: Success - returns the created group
           schema:
             $ref: '#/definitions/OG'
           x-oad-type: response
         '400':
-          description: 'One of the parameters is missing.'
+          description: One of the parameters is missing.
           x-oad-type: response
       parameters:
-        -
-          name: 'request body'
+        - name: request body
           in: body
           required: true
           schema:
@@ -500,20 +1079,20 @@ paths:
               parentId:
                 x-oad-type: string
                 type: string
-                description: 'Id of parent group'
+                description: Id of parent group
             required:
               - name
           x-oad-type: parameter
     x-oad-type: operation
   '/organizationGroups/{id}/members':
     get:
-      summary: 'Get all persons under a group'
-      description: 'Returns direct and indirect (members of descendants) members'
+      summary: Get all persons under a group
+      description: Returns direct and indirect (members of descendants) members
       tags:
-        - 'Organization Group'
+        - Organization Group
       responses:
         '200':
-          description: 'Success - returns array of persons'
+          description: Success - returns array of persons
           schema:
             x-oad-type: array
             type: array
@@ -523,8 +1102,7 @@ paths:
           description: Group doesn't exist
           x-oad-type: response
       parameters:
-        -
-          name: id
+        - name: id
           in: path
           description: id
           required: true
@@ -532,25 +1110,27 @@ paths:
     x-oad-type: operation
   /organizationGroups/adoption:
     put:
-      summary: 'Transfer group to a new parent'
-      description: 'Change the group''s parent and update the relevant fields (of the group and it''s decendants) accordingly. '
+      summary: Transfer group to a new parent
+      description: >-
+        Change the group's parent and update the relevant fields (of the group
+        and it's decendants) accordingly. 
       tags:
-        - 'Organization Group'
+        - Organization Group
       responses:
         '200':
-          description: 'group transfered successfuly'
+          description: group transfered successfuly
           schema:
             type: object
             properties:
               message:
                 type: string
-                enum: ["ok"]
+                enum:
+                  - ok
         '400':
           description: One of the groups doesn't exist
           x-oad-type: response
       parameters:
-        -
-          name: 'request body'
+        - name: request body
           in: body
           required: true
           schema:
@@ -560,39 +1140,36 @@ paths:
               childId:
                 x-oad-type: string
                 type: string
-                description: 'Id of the group to be transferred'
+                description: Id of the group to be transferred
               parentId:
                 x-oad-type: string
                 type: string
-                description: 'Id of the new parent group'
+                description: Id of the new parent group
             required:
               - childId
               - parentId
           x-oad-type: parameter
-          
     x-oad-type: operation
   '/organizationGroups/path/{path}/hierarchyExistenceChecking':
     get:
-      summary: 'Get an object describing the path existence'
+      summary: Get an object describing the path existence
       tags:
-        - 'Organization Group'
+        - Organization Group
       responses:
         '200':
-          description: 'Successful request'
+          description: Successful request
           schema:
             type: object
             properties:
               name:
                 type: string
-          examples: 
+          examples:
             path exists except the last child (for path "root/parent/child"):
-              root: "someId"
-              parent: "otherId"
+              root: someId
+              parent: otherId
               child: null
-              
       parameters:
-        -
-          name: path
+        - name: path
           in: path
           description: 'example: root**%2f**parent...**%2f**name'
           required: true
@@ -601,7 +1178,7 @@ paths:
     x-oad-type: operation
 parameters:
   createOG:
-    name: 'Organization Group'
+    name: Organization Group
     in: body
     required: true
     schema:
@@ -629,11 +1206,11 @@ parameters:
         childId:
           x-oad-type: string
           type: string
-          description: 'Id of the group to be transferred'
+          description: Id of the group to be transferred
         parentId:
           x-oad-type: string
           type: string
-          description: 'Id of the new parent group'
+          description: Id of the new parent group
     x-oad-type: parameter
 responses:
   hierarchyExistenceCheckingOG:
@@ -641,7 +1218,9 @@ responses:
     schema:
       x-oad-type: object
       type: object
-      description: 'maps each group name in the path to it''s id (if exists) or null (if don''t exist)'
+      description: >-
+        maps each group name in the path to it's id (if exists) or null (if
+        don't exist)
       properties:
         groupName1:
           x-oad-type: string
@@ -656,65 +1235,75 @@ definitions:
   Person:
     type: object
     required:
-    - firstName
-    - identityCard
-    - serviceType
-    - lastName
-    - directGroup
-    - job
+      - firstName
+      - identityCard
+      - serviceType
+      - lastName
+      - directGroup
+      - job
     properties:
       id:
         type: string
-        example: '5b50a76713ddf90af494de32'
+        example: 5b50a76713ddf90af494de32
       identityCard:
         type: string
         pattern: '^\d{6,9}$'
         example: '234567891'
-      personalNumber: 
+      personalNumber:
         type: string
         pattern: '^\d{6,9}$'
         example: '3456712'
       primaryDomainUser:
         type: string
-        example: '5b50a76713ddf90af494de72'
+        example: 5b50a76713ddf90af494de72
       secondaryDomainUsers:
         type: array
         items:
           type: string
-        example: ['5b50a76713ddf90af494de72', '5b50a76713ddf90af494de73'] 
-      serviceType: 
+        example:
+          - 5b50a76713ddf90af494de72
+          - 5b50a76713ddf90af494de73
+      serviceType:
         type: string
-        enum: ['a', 'b']
-        example: 'a'
-      firstName: 
+        enum:
+          - a
+          - b
+        example: a
+      firstName:
         type: string
-        example: 'Avi'
-      lastName: 
+        example: Avi
+      lastName:
         type: string
-        example: 'Ron'
-      currentUnit: 
+        example: Ron
+      currentUnit:
         type: string
-        example: 'Pilots Guild'
-      dischargeDay: 
+        example: Pilots Guild
+      dischargeDay:
         type: string
         format: date
         example: '2022-11-30T22:00:00.000Z'
-      hierarchy: 
+      hierarchy:
         type: array
         items:
           type: string
-        example: ['ElAl', 'Pilots Guild', 'Captains']
-      directGroup: 
+        example:
+          - ElAl
+          - Pilots Guild
+          - Captains
+      directGroup:
         type: string
-        example: '5b50a76713ddf90af494dadc'
-      managedGroup: 
+        example: 5b50a76713ddf90af494dadc
+      managedGroup:
         type: string
-        example: '5b50a76713ddf90af494dadc'
-      rank: 
+        example: 5b50a76713ddf90af494dadc
+      rank:
         type: string
-        enum: ['a', 'b', 'c']
-        example: 'b'
-      updatedAt: 
+        enum:
+          - a
+          - b
+          - c
+        example: b
+      updatedAt:
         type: string
         format: date
         example: '2018-10-24T07:20:13.129Z'
@@ -722,41 +1311,48 @@ definitions:
         type: string
         format: date
         example: '2018-10-24T07:17:07.372Z'
-      job: 
+      job:
         type: string
         example: 'Pilot 2'
-      mail: 
+      mail:
         type: string
         format: email
-      phone: 
+      phone:
         type: array
         items:
           type: string
           pattern: '^\d{1,2}-?\d{6,7}$'
-        example: ['02-123456', '03456789']
+        example:
+          - 02-123456
+          - 03456789
       mobilePhone:
         type: array
         items:
           type: string
           pattern: '^\d{2,3}-?\d{7}$'
-        example: ['052-1234567', '048456789']
-      address: 
+        example:
+          - 052-1234567
+          - 048456789
+      address:
         type: string
-        example: "Alexander 2, Jerusalem, Israel"
-      responsibility: 
+        example: 'Alexander 2, Jerusalem, Israel'
+      responsibility:
         type: string
-        enum: ['a', 'b', 'c']
-        example: 'c'
-      responsibilityLocation: 
+        enum:
+          - a
+          - b
+          - c
+        example: c
+      responsibilityLocation:
         type: string
-        example: '5b50a76713ddf90af494dabc'
-      clearance: 
+        example: 5b50a76713ddf90af494dabc
+      clearance:
         type: string
         example: 3
   OG:
     x-oad-type: object
     type: object
-    title: 'Organization Group'
+    title: Organization Group
     properties:
       name:
         x-oad-type: string
@@ -766,7 +1362,7 @@ definitions:
         x-oad-type: array
         type: array
         title: children
-        description: 'id array of the group''s direct children'
+        description: id array of the group's direct children
         items:
           x-oad-type: string
           type: string
@@ -780,7 +1376,7 @@ definitions:
         x-oad-type: array
         type: array
         title: ancestors
-        description: 'Array of the group ancestors ids (first element is the direct parent)'
+        description: Array of the group ancestors ids (first element is the direct parent)
         items:
           x-oad-type: string
           type: string
@@ -789,7 +1385,9 @@ definitions:
         x-oad-type: array
         type: array
         title: hierarchy
-        description: 'Array of the group ancesters names (first element is the root group''s name)'
+        description: >-
+          Array of the group ancesters names (first element is the root group's
+          name)
         items:
           x-oad-type: string
           type: string
@@ -798,7 +1396,7 @@ definitions:
         x-oad-type: array
         type: array
         title: directMembers
-        description: 'Array of the group''s direct persons'
+        description: Array of the group's direct persons
         items:
           x-oad-type: object
           type: object
@@ -814,9 +1412,139 @@ definitions:
         x-oad-type: boolean
         type: boolean
         title: isAlive
-        description: 'whether the group is active'
+        description: whether the group is active
       isALeaf:
         x-oad-type: boolean
         type: boolean
         title: isALeaf
-        description: 'whether the group has direct children'
+        description: whether the group has direct children
+  Person1:
+    type: object
+    required:
+      - firstName
+      - identityCard
+      - serviceType
+      - lastName
+      - directGroup
+      - job
+    properties:
+      id:
+        type: string
+        example: 5b50a76713ddf90af494de32
+      identityCard:
+        type: string
+        pattern: '^\d{6,9}$'
+        example: '234567891'
+      personalNumber:
+        type: string
+        pattern: '^\d{6,9}$'
+        example: '3456712'
+      primaryDomainUser:
+        type: object
+        properties:
+          id:
+            type: string
+            example: '5b50a76713ddf90af494de72'
+          name:
+            type: string
+            example: 'nitro'
+          domain:
+            type: string
+            example: 'jello'
+          personId:
+            type: string
+            example: '5b50a76713ddf90af494de32'
+          fullString: 
+            type: string
+            example: 'nitro@jello'
+      secondaryDomainUsers:
+        type: array
+        items:
+          type: object
+          example: 'id: "dsfsdfsd", dsfsd; "dsfsdfsd" '
+      serviceType:
+        type: string
+        enum:
+          - a
+          - b
+        example: a
+      firstName:
+        type: string
+        example: Avi
+      lastName:
+        type: string
+        example: Ron
+      currentUnit:
+        type: string
+        example: Pilots Guild
+      dischargeDay:
+        type: string
+        format: date
+        example: '2022-11-30T22:00:00.000Z'
+      hierarchy:
+        type: array
+        items:
+          type: string
+        example:
+          - ElAl
+          - Pilots Guild
+          - Captains
+      directGroup:
+        type: string
+        example: 5b50a76713ddf90af494dadc
+      managedGroup:
+        type: string
+        example: 5b50a76713ddf90af494dadc
+      rank:
+        type: string
+        enum:
+          - a
+          - b
+          - c
+        example: b
+      updatedAt:
+        type: string
+        format: date
+        example: '2018-10-24T07:20:13.129Z'
+      createdAt:
+        type: string
+        format: date
+        example: '2018-10-24T07:17:07.372Z'
+      job:
+        type: string
+        example: 'Pilot 2'
+      mail:
+        type: string
+        format: email
+      phone:
+        type: array
+        items:
+          type: string
+          pattern: '^\d{1,2}-?\d{6,7}$'
+        example:
+          - 02-123456
+          - 03456789
+      mobilePhone:
+        type: array
+        items:
+          type: string
+          pattern: '^\d{2,3}-?\d{7}$'
+        example:
+          - 052-1234567
+          - 048456789
+      address:
+        type: string
+        example: 'Alexander 2, Jerusalem, Israel'
+      responsibility:
+        type: string
+        enum:
+          - a
+          - b
+          - c
+        example: c
+      responsibilityLocation:
+        type: string
+        example: 5b50a76713ddf90af494dabc
+      clearance:
+        type: string
+        example: 3
