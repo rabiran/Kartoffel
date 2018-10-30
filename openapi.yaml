@@ -1,475 +1,822 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "This is a sample server Kartoffel server."
-  version: "0.2.2"
-  title: "Kartoffel"
-basePath: "/api"
+  title: Swagger Kartoffel 
+  description: API of Kartoffel server
+  version: 0.0.2
+host: kartoffel.com
+basePath: /v1/api
+consumes:
+  - application/json
+produces:
+  - application/json
 tags:
-- name: "user"
-  description: "Operations about user"
-- name: "groups"
-  description: "Group stuff"
+- name: 'Person'
+  description: 'Operations about persons'
+- name: 'Organization Group'
+  description: 'Operations about Organization Groups' 
 schemes:
-- "https"
-- "http"
+- http
+- https
 paths:
-  /user:
+  /persons:
+    get:
+      tags:
+      - Person
+      summary: Returns a list of all persons
+      produces: 
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Person'
     post:
       tags:
-      - "user"
-      summary: "Create a new user"
-      description: "This could be done with permissions only"
-      operationId: "createUser"
+      - Person
+      summary: Add a new person
+      consumes:
+      - application/json
       produces:
-      - "application/json"
+      - application/json
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
+      - in: body
+        name: body
         required: true
         schema:
-          $ref: "#/definitions/User"
+          type: object
+          required:
+          - firstName
+          - identityCard
+          - serviceType
+          - lastName
+          - directGroup
+          - job
+          properties:
+            identityCard:
+              type: string
+              pattern: '^\d{6,9}$'
+              example: '234567891'
+            personalNumber: 
+              type: string
+              pattern: '^\d{6,9}$'
+              example: '3456712'
+            serviceType: 
+              type: string
+              enum: ['a', 'b']
+              example: 'a'
+            firstName: 
+              type: string
+              example: 'Avi'
+            lastName: 
+              type: string
+              example: 'Ron'
+            currentUnit: 
+              type: string
+              example: 'Pilots Guild'
+            dischargeDay: 
+              type: string
+              format: date
+              example: '2022-11-30T22:00:00.000Z'
+            directGroup: 
+              type: string
+              example: '5b50a76713ddf90af494dadc'
+            rank: 
+              type: string
+              enum: ['a', 'b', 'c']
+              example: 'b'
+            job: 
+              type: string
+              example: 'Pilot 2'
+            mail: 
+              type: string
+              format: email
+            phone: 
+              type: array
+              items:
+                type: string
+                pattern: '^\d{1,2}-?\d{6,7}$'
+              example: ['02-123456', '03456789']
+            mobilePhone:
+              type: array
+              items:
+                type: string
+                pattern: '^\d{2,3}-?\d{7}$'
+              example: ['052-1234567', '048456789']
+            address: 
+              type: string
+              example: "Alexander 2, Jerusalem, Israel"
+            responsibility: 
+              type: string
+              enum: ['a', 'b', 'c']
+              example: 'c'
+            responsibilityLocation: 
+              type: string
+              example: '5b50a76713ddf90af494dabc'
+            clearance: 
+              type: string
+              example: 3
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Person'
+        '400':
+          description: 'unexpected parametrs'
+          x-oad-type: response
+        '500':
+          description: 'invalid values supplied'
+  /persons/{id}:
+    get:
+      tags: 
+        - Person
+      summary: 'Returns a specific person'
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: 'The Id of Person'
       responses:
         200:
-          description: "successful operation"
-        405:
-          description: "Invalid Input"
+          description: A Person object
+          schema:
+            $ref: '#/definitions/Person'
+        404:
+          description: Person with the specified id doesn't exist
     put:
-      tags:
-      - "user"
-      summary: "Updated user"
-      description: "This can only be done by the logged in user."
-      operationId: "updateUser"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
-  /user/getAll:
-    get:
       tags: 
-      - "user"
-      summary: "Get all the Users "
-      description: ""
-      operationId: "getAllUsers"
-      produces:
-      - "application/json"
+        - Person
+      summary: 'Update person'
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: 'The Id of Person'
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              serviceType: 
+                type: string
+                enum: ['a', 'b']
+                example: 'a'
+              firstName: 
+                type: string
+                example: 'Avi'
+              lastName: 
+                type: string
+                example: 'Ron'
+              currentUnit: 
+                type: string
+                example: 'Pilots Guild'
+              dischargeDay: 
+                type: string
+                format: date
+                example: '2022-11-30T22:00:00.000Z'
+              rank: 
+                type: string
+                enum: ['a', 'b', 'c']
+                example: 'b'
+              job: 
+                type: string
+                example: 'Pilot 2'
+              mail: 
+                type: string
+                format: email
+              phone: 
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{1,2}-?\d{6,7}$'
+                example: ['02-123456', '03456789']
+              mobilePhone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{2,3}-?\d{7}$'
+                example: ['052-1234567', '048456789']
+              address: 
+                type: string
+                example: "Alexander 2, Jerusalem, Israel"
+              responsibility: 
+                type: string
+                enum: ['a', 'b', 'c']
+                example: 'c'
+              responsibilityLocation: 
+                type: string
+                example: '5b50a76713ddf90af494dabc'
+              clearance: 
+                type: string
+                example: 3
       responses:
         200:
-          description: "successful operation"
+          description: A Person object with the changes
           schema:
-            $ref: "#/definitions/User"
-  /user/getUpdated/{from}:
-    get:
-      tags: 
-      - "user"
-      summary: "Returns users updated from a given date"
-      description: ""
-      operationId: "getUpdatedUsers"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "from"
-        in: "path"
-        description: "The date from which you want to get the updated objects"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/User"
+            $ref: '#/definitions/Person'
         400:
-          description: "Did not recive a valid date ;)"
-  /user/{userID}:
-    get:
-      tags:
-      - "user"
-      summary: "Get user by ID"
-      description: ""
-      operationId: "getUserByID"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "The ID of the user. Use '1234567' for testing. "
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-          schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid username supplied"
+          description: unexpected field(s)
         404:
-          description: "User not found"
+          description: person doesn't exist or invalid field(s) value   
+          
     delete:
-      tags:
-      - "user"
-      summary: "Delete user"
-      description: ""
-      operationId: "deleteUser"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "The ID that needs to be deleted"
-        required: true
-        type: "string"
+      tags: 
+      - Person
+      summary: Delete a specific Person
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: 'The Id of Person'
       responses:
         200:
-          description: "successful operation"
+          description: The deleted Person object
+          schema:
+            $ref: '#/definitions/Person'
         400:
-          description: "Invalid ID supplied"
-        404:
-          description: "User not found"
-  /user/{userID}/personal:
+          description: person doesn't exist
+  /persons/{id}/assign:
     put:
-      tags:
-      - "user"
-      summary: "Update user's personal info by his ID"
-      description: "Updates only the folowing fields: job, mail, phone, address"
-      operationId: "updateUserPersonal"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "body"
-        description: "Updated user object"
-        required: true
-        schema:
-          $ref: "#/definitions/User"
-      responses:
-        400:
-          description: "Invalid user supplied"
-        404:
-          description: "User not found"
-  /user/{userID}/assign:
-    put:
-      tags:
-      - "user"
-      summary: "Assign user to a group"
-      description: "Advanced permissions needed"
-      operationId: "assignUser"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            group:
-              type: "string"
+      tags: 
+        - Person
+      summary: 'Moves the person to another group'
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: 'The Id of Person'
+        - in: body
+          name: group
+          description: 'The group id'
+          required: true
+          schema:
+            type: object
+            properties:
+              group:
+                type: string
+                example: '5b50a76713ddf90af494dadc'
       responses:
         200:
-          description: "successful operation"
+          description: A Person object with new directGroup and hierarchy
+          schema:
+            $ref: '#/definitions/Person'
         404:
-          description: "request error"
-  /user/{userID}/dismiss:
+          description: person or group doesn't exist
+
+  /persons/{id}/manage:
     put:
-      tags:
-      - "user"
-      summary: "Dissmis a user from his current group"
-      description: "Advanced permissions needed"
-      operationId: "dismissUser"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
+      tags: 
+        - Person
+      summary: 'Set the Person as a group manage'
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: 'The Id of Person'
+        - in: body
+          name: group
+          description: 'The group id'
+          required: true
+          schema:
+            type: object
+            properties:
+              group:
+                type: string
+                example: '5b50a76713ddf90af494dadc'
       responses:
         200:
-          description: "successful operation"
+          description: A Person object with new directGroup and hierarchy
+          schema:
+            $ref: '#/definitions/Person'
         404:
-          description: "request error"
-  /user/{userID}/manage:
-    put:
-      tags:
-      - "user"
-      summary: "Appoint a user to manage a group"
-      description: "Advanced permissions needed. A user can be a manager of only one Kartoffel, and he should be a member of that one as well."
-      operationId: "promoteUser"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            group:
-              type: "string"
-      responses:
-        200:
-          description: "successful operation"
-        404:
-          description: "request error"
-  /user/{userID}/resign:
-    put:
-      tags:
-      - "user"
-      summary: "Discharge a user from management of a group"
-      description: "Advanced permissions needed"
-      operationId: "resignUser"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "userID"
-        in: "path"
-        description: "name that need to be updated"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "successful operation"
-        404:
-          description: "request error"
-  /kartoffel:
+          description: person or group doesn't exist
+  /persons/getUpdated/{from}:
     get:
       tags: 
-      - "kartoffel"
-      summary: "Get all the Strong Groups "
-      description: ""
-      operationId: "getAllKartoffeln"
-      parameters:
-        - in: query
-          name: name
+        - Person
+      summary: 'Returns list of persons whose last update was after the specified date'
+      parameters: 
+        - in: path
+          name: from
+          required: true
           type: string
-          description: The name of the group
-        - in: query
-          name: type
-          type: string
-          description: The type of the group
-      produces:
-      - "application/json"
+          format: date
+          description: 'The date of last update. The date looks like this: "2018-10-23T1:13:00.503Z"'
       responses:
         200:
-          description: "successful operation"
+          description: OK 
           schema:
-            $ref: "#/definitions/Kartoffel"
+            items:
+              $ref: '#/definitions/Person'
+  /persons/personalNumber/{personalNumber}:
+    get:
+      tags: 
+        - Person
+      summary: 'Returns a specific person by a personal number'
+      parameters: 
+        - in: path
+          name: personalNumber
+          required: true
+          type: string
+          description: 'The personal number of Person'
+      responses:
+        200:
+          description: A Person object
+          schema:
+            $ref: '#/definitions/Person'
+        404: 
+          description: Person with the specified pesonal number doesn't exist
+  /persons/identityCard/{identityCard}:
+    get:
+      tags: 
+        - Person
+      summary: 'Returns a specific person by an Identity Card'
+      parameters: 
+        - in: path
+          name: identityCard
+          required: true
+          type: string
+          description: 'The Identity Card of Person'
+      responses:
+        200:
+          description: A Person object
+          schema:
+            $ref: '#/definitions/Person'
+        404: 
+          description: Person with the specified identity card doesn't exist
+  /persons/domainUser/{domainUser}:
+    get:
+      tags: 
+        - Person
+      summary: 'Returns a specific person by a domain user'
+      parameters: 
+        - in: path
+          name: domainUser
+          required: true
+          type: string
+          description: 'The full string of the domain user'
+      responses:
+        200:
+          description: A Person object
+          schema:
+            $ref: '#/definitions/Person'
+        500:
+          description: domain user doesn't exist or illegal full string  
+        
+  /persons/domainUser:
     post:
-      tags:
-      - "kartoffel"
-      summary: "Create a new strong group"
-      description: "This could be done with permissions only"
-      operationId: "createKartoffel"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created strong group object"
-        required: true
-        schema:
-          $ref: "#/definitions/Kartoffel"
-      responses:
-        200:
-          description: "successful operation"
-        405:
-          description: "Invalid Input"
-  /kartoffel/{id}:
-    get:      
-      tags:
-      - "kartoffel"
-      summary: "Get kartoffel by ID"
-      description: ""
-      operationId: "getKartoffelByID"
-      produces:
-      - "application/json"
-      parameters:
-      - in: "path"
-        name: "id"
-        description: "The ID of the user."
-        required: true
-        type: "string"
-      - in: query
-        name: populate
-        type: string
-        description: A list of fields to populate
-      responses:
-        200:
-          description: "successful operation"
+      tags: 
+        - Person
+      summary: 'Add domain user to person'
+      parameters: 
+        - in: body
+          name: body
+          required: true
           schema:
-            $ref: "#/definitions/User"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "User not found"
-    delete:
-      tags:
-      - "kartoffel"
-      summary: "Delete kartoffel"
-      description: "Advanced permissions needed"
-      operationId: "deleteKartoffel"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "id"
-        in: "path"
-        description: "The ID that needs to be deleted"
-        required: true
-        type: "string"
+            type: object
+            required: 
+              - personId
+              - fullString
+            properties:
+              personId:
+                type: string
+                example: '5b50a76713ddf90af494de32'
+              fullString:
+                type: string
+                format: email
+              isPrimary:
+                type: boolean
       responses:
         200:
-          description: "successful operation"
-        400:
-          description: "Invalid ID supplied"
-        404:
-          description: "User not found"
-  /kartoffel/adoption:
+          description: A Person object with new domain user
+          schema:
+            $ref: '#/definitions/Person'
+        500:
+          description: person does't exist or domain user already exists or illegal full string
+  '/organizationGroups/{id}':
+    get:
+      summary: 'Get organization Group by id'
+      tags:
+        - 'Organization Group'
+      responses:
+        '200':
+          description: 'The group exists'
+          schema:
+            $ref: '#/definitions/OG'
+          x-oad-type: response
+        '404':
+          description: 'Group with id not found'
+          x-oad-type: response
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'The group''s id'
+          required: true
+          type: string
+          x-oad-type: parameter
+    x-oad-type: operation
+  '/organizationGroups/getUpdated/{from}':
+    get:
+      summary: 'Get the groups that were updated from the given date'
+      tags:
+        - 'Organization Group'
+      responses:
+        '200':
+          description: 'success - returns array of groups'
+          schema:
+            x-oad-type: array
+            type: array
+            description: 'Array of groups'
+            items:
+              $ref: '#/definitions/OG'
+          x-oad-type: response
+      parameters:
+        -
+          name: from
+          in: path
+          required: true
+          type: string
+          description: Date in "**yy-mm-dd**" format
+          format: date
+          x-oad-type: parameter
+    x-oad-type: operation
+  '/organizationGroups/path/{path}':
+    get:
+      summary: 'Get group by full path (hierarchy + name)'
+      description: 'Get group by full path (hierarchy + name). '
+      tags:
+        - 'Organization Group'
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OG'
+          x-oad-type: response
+        '404':
+          description: path does not exist
+          x-oad-type: response
+      parameters:
+        -
+          name: path
+          in: path
+          description: 'example: root**%2f**parent...**%2f**name'
+          required: true
+          type: string
+          x-oad-type: parameter
+    x-oad-type: operation
+  /organizationGroups:
+    post:
+      summary: 'Create Organization Group'
+      tags:
+        - 'Organization Group'
+      responses:
+        '200':
+          description: 'Success - returns the created group'
+          schema:
+            $ref: '#/definitions/OG'
+          x-oad-type: response
+        '400':
+          description: 'One of the parameters is missing.'
+          x-oad-type: response
+      parameters:
+        -
+          name: 'request body'
+          in: body
+          required: true
+          schema:
+            x-oad-type: object
+            type: object
+            properties:
+              name:
+                x-oad-type: string
+                type: string
+              parentId:
+                x-oad-type: string
+                type: string
+                description: 'Id of parent group'
+            required:
+              - name
+          x-oad-type: parameter
+    x-oad-type: operation
+  '/organizationGroups/{id}/members':
+    get:
+      summary: 'Get all persons under a group'
+      description: 'Returns direct and indirect (members of descendants) members'
+      tags:
+        - 'Organization Group'
+      responses:
+        '200':
+          description: 'Success - returns array of persons'
+          schema:
+            x-oad-type: array
+            type: array
+            items:
+              $ref: '#/definitions/Person'
+        '404':
+          description: Group doesn't exist
+          x-oad-type: response
+      parameters:
+        -
+          name: id
+          in: path
+          description: id
+          required: true
+          type: string
+    x-oad-type: operation
+  /organizationGroups/adoption:
     put:
+      summary: 'Transfer group to a new parent'
+      description: 'Change the group''s parent and update the relevant fields (of the group and it''s decendants) accordingly. '
       tags:
-      - "kartoffel"
-      summary: "Move group A under group B"
-      description: "Advanced permissions needed. Changes the hierarchy tree"
-      operationId: "adoptKartoffel"
-      produces:
-      - "application/json"
-      parameters:
-      - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            childID:
-              type: "string"
-            parentID:
-              type: "string"
+        - 'Organization Group'
       responses:
-        200:
-          description: "successful operation"
-        400:
-          description: "request error"
-# securityDefinitions:
-#   petstore_auth:
-#     type: "oauth2"
-#     authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
-#     flow: "implicit"
-#     scopes:
-#       write:pets: "modify pets in your account"
-#       read:pets: "read your pets"
-#   api_key:
-#     type: "apiKey"
-#     name: "api_key"
-#     in: "header"
+        '200':
+          description: 'group transfered successfuly'
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                enum: ["ok"]
+        '400':
+          description: One of the groups doesn't exist
+          x-oad-type: response
+      parameters:
+        -
+          name: 'request body'
+          in: body
+          required: true
+          schema:
+            x-oad-type: object
+            type: object
+            properties:
+              childId:
+                x-oad-type: string
+                type: string
+                description: 'Id of the group to be transferred'
+              parentId:
+                x-oad-type: string
+                type: string
+                description: 'Id of the new parent group'
+            required:
+              - childId
+              - parentId
+          x-oad-type: parameter
+          
+    x-oad-type: operation
+  '/organizationGroups/path/{path}/hierarchyExistenceChecking':
+    get:
+      summary: 'Get an object describing the path existence'
+      tags:
+        - 'Organization Group'
+      responses:
+        '200':
+          description: 'Successful request'
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+          examples: 
+            path exists except the last child (for path "root/parent/child"):
+              root: "someId"
+              parent: "otherId"
+              child: null
+              
+      parameters:
+        -
+          name: path
+          in: path
+          description: 'example: root**%2f**parent...**%2f**name'
+          required: true
+          type: string
+          x-oad-type: parameter
+    x-oad-type: operation
+parameters:
+  createOG:
+    name: 'Organization Group'
+    in: body
+    required: true
+    schema:
+      x-oad-type: object
+      type: object
+      properties:
+        name:
+          x-oad-type: string
+          type: string
+        parentId:
+          x-oad-type: string
+          type: string
+      required:
+        - name
+        - parentId
+    x-oad-type: parameter
+  adoptionOG:
+    name: body
+    in: body
+    required: true
+    schema:
+      x-oad-type: object
+      type: object
+      properties:
+        childId:
+          x-oad-type: string
+          type: string
+          description: 'Id of the group to be transferred'
+        parentId:
+          x-oad-type: string
+          type: string
+          description: 'Id of the new parent group'
+    x-oad-type: parameter
+responses:
+  hierarchyExistenceCheckingOG:
+    description: Success
+    schema:
+      x-oad-type: object
+      type: object
+      description: 'maps each group name in the path to it''s id (if exists) or null (if don''t exist)'
+      properties:
+        groupName1:
+          x-oad-type: string
+          type: string
+          title: groupName1
+        groupName2:
+          x-oad-type: string
+          type: string
+          title: groupName2
+    x-oad-type: response
 definitions:
-  # userID:
-  #   type: "string"
-  #   required: "true"
-  #   example: "1234567"
-  # groupID:
-  #   type: "string"
-  #   required: "true"
-  #   example: "59a56d577bedba18504298df"
-  Kartoffel:
-    type: "object"
+  Person:
+    type: object
     required:
-    - "name"
+    - firstName
+    - identityCard
+    - serviceType
+    - lastName
+    - directGroup
+    - job
     properties:
-      _id:
-        type: "string"
-        example: "59a56d577bedba18504298df"
+      id:
+        type: string
+        example: '5b50a76713ddf90af494de32'
+      identityCard:
+        type: string
+        pattern: '^\d{6,9}$'
+        example: '234567891'
+      personalNumber: 
+        type: string
+        pattern: '^\d{6,9}$'
+        example: '3456712'
+      primaryDomainUser:
+        type: string
+        example: '5b50a76713ddf90af494de72'
+      secondaryDomainUsers:
+        type: array
+        items:
+          type: string
+        example: ['5b50a76713ddf90af494de72', '5b50a76713ddf90af494de73'] 
+      serviceType: 
+        type: string
+        enum: ['a', 'b']
+        example: 'a'
+      firstName: 
+        type: string
+        example: 'Avi'
+      lastName: 
+        type: string
+        example: 'Ron'
+      currentUnit: 
+        type: string
+        example: 'Pilots Guild'
+      dischargeDay: 
+        type: string
+        format: date
+        example: '2022-11-30T22:00:00.000Z'
+      hierarchy: 
+        type: array
+        items:
+          type: string
+        example: ['ElAl', 'Pilots Guild', 'Captains']
+      directGroup: 
+        type: string
+        example: '5b50a76713ddf90af494dadc'
+      managedGroup: 
+        type: string
+        example: '5b50a76713ddf90af494dadc'
+      rank: 
+        type: string
+        enum: ['a', 'b', 'c']
+        example: 'b'
+      updatedAt: 
+        type: string
+        format: date
+        example: '2018-10-24T07:20:13.129Z'
+      createdAt:
+        type: string
+        format: date
+        example: '2018-10-24T07:17:07.372Z'
+      job: 
+        type: string
+        example: 'Pilot 2'
+      mail: 
+        type: string
+        format: email
+      phone: 
+        type: array
+        items:
+          type: string
+          pattern: '^\d{1,2}-?\d{6,7}$'
+        example: ['02-123456', '03456789']
+      mobilePhone:
+        type: array
+        items:
+          type: string
+          pattern: '^\d{2,3}-?\d{7}$'
+        example: ['052-1234567', '048456789']
+      address: 
+        type: string
+        example: "Alexander 2, Jerusalem, Israel"
+      responsibility: 
+        type: string
+        enum: ['a', 'b', 'c']
+        example: 'c'
+      responsibilityLocation: 
+        type: string
+        example: '5b50a76713ddf90af494dabc'
+      clearance: 
+        type: string
+        example: 3
+  OG:
+    x-oad-type: object
+    type: object
+    title: 'Organization Group'
+    properties:
       name:
-        type: "string"
-        example: "Koktamovim"
-      admins:
-        type: "array"
-        example: []
-        items:
-          type: "string"
-      members:
-        type: "array"
-        example: []
-        items:
-          type: "string"
+        x-oad-type: string
+        type: string
+        title: name
       children:
-        type: "array"
-        example: []
+        x-oad-type: array
+        type: array
+        title: children
+        description: 'id array of the group''s direct children'
         items:
-          type: "string"
-      clearance:
-        type: "number"
-        example: 0
+          x-oad-type: string
+          type: string
+          title: id
+        uniqueItems: true
+      id:
+        x-oad-type: string
+        type: string
+        title: id
       ancestors:
-        type: "array"
-        example: []
+        x-oad-type: array
+        type: array
+        title: ancestors
+        description: 'Array of the group ancestors ids (first element is the direct parent)'
         items:
-          type: "string"
-      type:
-        type: "string"
-        example: "Team"
-    xml:
-      name: "Kartoffel"
-  User:
-    type: "object"
-    required:
-    - "_id"
-    - "firstName"
-    - "lastName"
-    properties:
-      _id:
-        type: "string"
-        example: "1234567"
-      firstName:
-        type: "string"
-        example: "Avi"
-      lastName:
-        type: "string"
-        example: "Ron"
-      email:
-        type: "string"
-        example: "iam@work.com"
-      phone:
-        type: "string"
-        example: "056-874-2563"
-      job:
-        type: "string"
-        example: "Programmer"
-      rank:
-        type: "string"
-        example: "Experienced"
-      adress:
-        type: "string"
-        example: "10 Downing Street, England"
-      isSecurityOfficer:
-        type: "boolean"
-        default: false
-      clearance:
-        type: "number"
-        example: 0
-    xml:
-      name: "User"
+          x-oad-type: string
+          type: string
+          title: id
+      hierarchy:
+        x-oad-type: array
+        type: array
+        title: hierarchy
+        description: 'Array of the group ancesters names (first element is the root group''s name)'
+        items:
+          x-oad-type: string
+          type: string
+          title: name
+      directMembers:
+        x-oad-type: array
+        type: array
+        title: directMembers
+        description: 'Array of the group''s direct persons'
+        items:
+          x-oad-type: object
+          type: object
+          title: member
+      directManagers:
+        x-oad-type: array
+        type: array
+        title: directManagers
+        items:
+          x-oad-type: object
+          type: object
+      isAlive:
+        x-oad-type: boolean
+        type: boolean
+        title: isAlive
+        description: 'whether the group is active'
+      isALeaf:
+        x-oad-type: boolean
+        type: boolean
+        title: isALeaf
+        description: 'whether the group has direct children'
