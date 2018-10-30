@@ -246,7 +246,7 @@ describe('OrganizationGroup API', () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'MyGroup' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
-        .send({ parentID: group.id })
+        .send({ parentId: group.id })
         .then(
         () => expect.fail(undefined, undefined, 'Should not succeed!'),
         err => err.should.have.status(400)
@@ -255,7 +255,7 @@ describe('OrganizationGroup API', () => {
     it('Should return 400 if group is not found', (done) => {
       chai.request(server)
         .put(BASE_URL + '/adoption')
-        .send({ parentID: ID_EXAMPLE, childID: ID_EXAMPLE_2 })
+        .send({ parentId: ID_EXAMPLE, childId: ID_EXAMPLE_2 })
         .then(
         () => expect.fail(undefined, undefined, 'Should not succeed!'),
         (err) => {
@@ -268,7 +268,7 @@ describe('OrganizationGroup API', () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'MyGroup' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
-        .send({ parentID: group.id, childID: group.id })
+        .send({ parentId: group.id, childId: group.id })
         .then(
         () => expect.fail(undefined, undefined, 'Should not succeed!'),
         err => err.should.have.status(400)
@@ -279,7 +279,7 @@ describe('OrganizationGroup API', () => {
       let child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
-        .send({ parentID: parent.id, childID: child.id })
+        .send({ parentId: parent.id, childId: child.id })
         .then((res) => {
           res.should.have.status(200);
         }).catch((err) => {

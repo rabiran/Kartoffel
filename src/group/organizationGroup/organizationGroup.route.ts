@@ -61,11 +61,11 @@ organizationGroups.get('/:id/old', validatorMiddleware(Vld.toDo, ['id'], 'params
 organizationGroups.get('/:id/members', ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
 
 organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
-  validatorMiddleware(Vld.differentParams, ['parentID', 'childID']),
+  validatorMiddleware(Vld.differentParams, ['parentId', 'childId']),
   ch(OrganizationGroup.childrenAdoption, (req: Request, res: Response) => {
-    const parentID = req.body.parentID;
-    const childID = req.body.childID;
-    return [parentID, [childID]];
+    const parentId = req.body.parentId;
+    const childId = req.body.childId;
+    return [parentId, [childId]];
   }, 400
   ));
 
