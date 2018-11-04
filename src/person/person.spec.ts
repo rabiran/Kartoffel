@@ -235,10 +235,7 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.lastName;
-        await expectError(Person.createPerson, [person]);
-        person = { ...personExamples[1] };
-        delete person.job;
-        await expectError(Person.createPerson, [person]);
+        await expectError(Person.createPerson, [person]);        
         person = { ...personExamples[1] };
         delete person.directGroup;
         await expectError(Person.createPerson, [person]);
@@ -271,12 +268,7 @@ describe('Persons', () => {
         person.firstName = 'Avi';
         person.lastName = '';
         await expectError(Person.createPerson, [person]);
-      });
-      it('Should throw an error when job is empty', async () => {
-        const person = { ...personExamples[1] };
-        person.job = '';
-        await expectError(Person.createPerson, [person]);
-      });
+      });    
       it('Should throw an error when responsibility is not valid', async () => {
         const person = { ...personExamples[1] };
         person.responsibility = RESPONSIBILITY[1];

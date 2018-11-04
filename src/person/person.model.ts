@@ -74,10 +74,7 @@ export const PersonSchema = new mongoose.Schema(
     },
     job: {
       type: String,
-      required: [function () {
-        return this.alive === true;
-      }, 'You must enter a job!'],
-      validate: { validator: PersonValidate.job, message: '{VALUE} is an invalid job' },
+      default: '',
     },
     directGroup: {
       type: ObjectId,

@@ -23,10 +23,6 @@ export class PersonValidate extends ModelValidate {
     return PersonValidate.stringNotEmpty(name);
   }
 
-  public static job(job: string) {
-    return PersonValidate.stringNotEmpty(job);
-  }
-
   public static email(mail: string) {
     return /.+@.+\..+/.test(mail) || !mail;
   }
