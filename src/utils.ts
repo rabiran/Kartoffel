@@ -40,3 +40,16 @@ export async function asyncForEach(array: any[], callback: Function) {
     await callback(array[index], index, array);
   }
 }
+
+/**
+ * Checks if fields name in array is an empty or null and deleted them
+ * @param obj Object to filter
+ * @param array Fileds to filter 
+ */
+export function filterEmptyField(obj: object, array: string[]) {
+  for (let index = 0; index < array.length; index++) {
+    if (!obj[array[index]] && obj[array[index]] !== undefined) {
+      delete obj[array[index]];
+    }    
+  }
+}

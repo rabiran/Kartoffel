@@ -127,6 +127,12 @@ export const PersonSchema = new mongoose.Schema(
     rank: {
       type: String,
       enum: consts.RANK,
+      required: [function () {
+        // In update the mongo does not keep the document in "this" 
+        const srvcTyp = typeof this.getUpdate !== 'function' ? this.serviceType : this.getUpdate().$set.serviceType;       
+        return srvcTyp === consts.SERVICE_TYPE[1];
+      },
+        'You must enter a rank!'],
     },
     address: String,
 
