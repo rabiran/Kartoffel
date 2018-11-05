@@ -249,7 +249,7 @@ describe('Persons', () => {
         const createdPerson = await Person.createPerson(person);
         createdPerson.should.exist;
       });
-      it.only('should throw error when rank is missing (with the specific service type)', async() => {
+      it('should throw error when rank is missing (with the specific service type)', async() => {
         const person = { ...personExamples[1] };
         person.serviceType = SERVICE_TYPE[1];
         expectError(Person.createPerson, [person]);
