@@ -243,6 +243,17 @@ describe('Persons', () => {
         delete person.serviceType;
         await expectError(Person.createPerson, [person]);
       });
+      it('should create without phone when giving empty string', async() => {
+        const person = { ...personExamples[1] };
+        person.phone = [''];
+        const createdPerson = await Person.createPerson(person);
+        createdPerson.should.exist;
+      });
+      it.only('should throw error when rank is missing (with the specific service type)', async() => {
+        const person = { ...personExamples[1] };
+        person.serviceType = SERVICE_TYPE[1];
+        expectError(Person.createPerson, [person]);
+      });
       it('Should throw an error when Identity Card is not valid', async () => {
         const person = { ...personExamples[1] };
         person.identityCard = '1234567890';

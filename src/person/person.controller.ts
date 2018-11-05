@@ -85,7 +85,7 @@ export class Person {
     if (!person.directGroup) {
       throw new Error('a person must have a direct group');
     }
-    // delete empty or null field that not necessary
+    // delete empty or null field that are not necessary
     utils.filterEmptyField(person, ['rank','phone', 'mobilePhone', 'address', 'job']);    
     // get direct group - will throw error if the group doesn`t exist
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
