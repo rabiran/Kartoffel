@@ -235,16 +235,24 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.lastName;
-        await expectError(Person.createPerson, [person]);
-        person = { ...personExamples[1] };
-        delete person.job;
-        await expectError(Person.createPerson, [person]);
+        await expectError(Person.createPerson, [person]);        
         person = { ...personExamples[1] };
         delete person.directGroup;
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.serviceType;
         await expectError(Person.createPerson, [person]);
+      });
+      it('should create without phone when giving empty string', async() => {
+        const person = { ...personExamples[1] };
+        person.phone = [''];
+        const createdPerson = await Person.createPerson(person);
+        createdPerson.should.exist;
+      });
+      it('should throw error when rank is missing (with the specific service type)', async() => {
+        const person = { ...personExamples[1] };
+        person.serviceType = SERVICE_TYPE[1];
+        expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when Identity Card is not valid', async () => {
         const person = { ...personExamples[1] };
@@ -271,12 +279,7 @@ describe('Persons', () => {
         person.firstName = 'Avi';
         person.lastName = '';
         await expectError(Person.createPerson, [person]);
-      });
-      it('Should throw an error when job is empty', async () => {
-        const person = { ...personExamples[1] };
-        person.job = '';
-        await expectError(Person.createPerson, [person]);
-      });
+      });    
       it('Should throw an error when responsibility is not valid', async () => {
         const person = { ...personExamples[1] };
         person.responsibility = RESPONSIBILITY[1];

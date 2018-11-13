@@ -23,10 +23,6 @@ export class PersonValidate extends ModelValidate {
     return PersonValidate.stringNotEmpty(name);
   }
 
-  public static job(job: string) {
-    return PersonValidate.stringNotEmpty(job);
-  }
-
   public static email(mail: string) {
     return /.+@.+\..+/.test(mail) || !mail;
   }
@@ -35,8 +31,13 @@ export class PersonValidate extends ModelValidate {
     return /^\d{2,3}-?\d{7}$/.test(mobilePhone);
   }
 
+  /**
+   * Check if phone like to: 02-123456/7, 02123456/7,
+   *  *123, 1234/5  
+   * @param phone Phone number
+   */
   public static phone(phone: string) {
-    return /^\d{1,2}-?\d{6,7}$/.test(phone);
+    return /^\d{1,2}-?\d{6,7}$|^\*\d{3}$|^\d{4,5}$/.test(phone);
   }
 
   public static personalNumber(personalNumber: string) {
