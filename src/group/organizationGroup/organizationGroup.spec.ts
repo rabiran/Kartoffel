@@ -138,15 +138,14 @@ describe('Strong Groups', () => {
       const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
       const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
       const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
-      const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);
-      const groupIDs = [group1.id, group2.id, group3.id, group4.id];
+      const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);      
       const exsistGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
       expect(exsistGroups).to.be.an('object');
       expect(Object.keys(exsistGroups)).to.have.lengthOf(4);
-      for (let index = 0; index < Object.keys(exsistGroups).length; index++) {
-        const complete = index + 1;
-        expect(exsistGroups).to.have.property(`group${complete}`, groupIDs[index]);
-      }
+      expect(exsistGroups).to.have.property(`${group1.name}`, group1.id);
+      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}`, group2.id);
+      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/${group3.name}`, group3.id);
+      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/${group3.name}/${group4.name}`, group4.id);
     });
     it('Should return Object the first two values is ID and other is null', async () => {
       const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
@@ -154,10 +153,10 @@ describe('Strong Groups', () => {
       const exsistGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
       expect(exsistGroups).to.be.an('object');
       expect(Object.keys(exsistGroups)).to.have.lengthOf(4);
-      expect(exsistGroups).to.have.property('group1', group1.id);
-      expect(exsistGroups).to.have.property('group2', group2.id);
-      expect(exsistGroups).to.have.property('group3', null);
-      expect(exsistGroups).to.have.property('group4', null);
+      expect(exsistGroups).to.have.property(`${group1.name}`, group1.id);
+      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}`, group2.id);
+      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/group3`, null);
+      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/group3/group4`, null);
     });
   });
   describe('#createOrganizationGroup', () => {
