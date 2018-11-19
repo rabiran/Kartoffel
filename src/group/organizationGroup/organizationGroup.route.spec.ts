@@ -136,18 +136,18 @@ describe('OrganizationGroup API', () => {
     });
   });
   describe('/GET Object with ID of groups by hierarchy', () => {
-    it('Should return a object with all IDs', async () => {
-      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
-      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
-      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
-      const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);
+    it('Should return a object with all IDs and that duplicate names of the group', async () => {
+      const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Abraham' });
+      const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Itzhak' }, group1.id);
+      const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Jacob' }, group2.id);
+      const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Abraham' }, group3.id);
       await chai.request(server)
-        .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4/hierarchyExistenceChecking`)
+        .get(`${BASE_URL}/path/Abraham%2fItzhak%2fJacob%2fAbraham/hierarchyExistenceChecking`)
         .then((res) => {
-          expect(res.body).to.have.property('group1', group1.id);
-          expect(res.body).to.have.property('group2', group2.id);
-          expect(res.body).to.have.property('group3', group3.id);
-          expect(res.body).to.have.property('group4', group4.id);        
+          expect(res.body).to.have.property(group1.name, group1.id);
+          expect(res.body).to.have.property(`${group1.name}/${group2.name}`, group2.id);
+          expect(res.body).to.have.property(`${group1.name}/${group2.name}/${group3.name}`, group3.id);
+          expect(res.body).to.have.property(`${group1.name}/${group2.name}/${group3.name}/${group4.name}`, group4.id);        
         }).catch((err) => { throw err; });
     });
     it('Should return object that all value null because group not exsit', async () => {     
@@ -155,9 +155,9 @@ describe('OrganizationGroup API', () => {
         .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4/hierarchyExistenceChecking`)
         .then((res) => {
           expect(res.body).to.have.property('group1', null);
-          expect(res.body).to.have.property('group2', null);
-          expect(res.body).to.have.property('group3', null);
-          expect(res.body).to.have.property('group4', null);        
+          expect(res.body).to.have.property('group1/group2', null);
+          expect(res.body).to.have.property('group1/group2/group3', null);
+          expect(res.body).to.have.property('group1/group2/group3/group4', null);        
         }).catch((err) => { throw err; });
     });
     it('Should return object that 3 value is ids because group exsit and the last value null', async () => { 
@@ -167,10 +167,10 @@ describe('OrganizationGroup API', () => {
       await chai.request(server)
         .get(`${BASE_URL}/path/group1%2fgroup2%2fgroup3%2fgroup4/hierarchyExistenceChecking`)
         .then((res) => {
-          expect(res.body).to.have.property('group1', group1.id);
-          expect(res.body).to.have.property('group2', group2.id);
-          expect(res.body).to.have.property('group3', group3.id);
-          expect(res.body).to.have.property('group4', null);        
+          expect(res.body).to.have.property(group1.name, group1.id);
+          expect(res.body).to.have.property(`${group1.name}/${group2.name}`, group2.id);
+          expect(res.body).to.have.property(`${group1.name}/${group2.name}/${group3.name}`, group3.id);
+          expect(res.body).to.have.property(`${group1.name}/${group2.name}/${group3.name}/group4`, null);        
         }).catch((err) => { throw err; });
     });
   });
