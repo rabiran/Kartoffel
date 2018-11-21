@@ -51,7 +51,8 @@ export class OrganizationGroup {
     const groupsID = {};
     for (let index = 0; index < hierarchy.length; index++) {
       const value = groups[index].id ? groups[index].id : null;
-      groupsID[hierarchy[index]] = value;
+      const key = hierarchy.slice(0, index + 1).join('/');
+      groupsID[key] = value;
     }
     return groupsID;
   }
