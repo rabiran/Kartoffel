@@ -11,7 +11,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-import { RESPONSIBILITY, RANK, SERVICE_TYPE } from '../config/db-enums'; 
+import { RESPONSIBILITY, RANK, ENTITY_TYPE } from '../config/db-enums'; 
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -30,7 +30,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     mail: 'avi.ron@gmail.com',
     job: 'Pilot 1',
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     identityCard: '234567891',
@@ -39,7 +39,7 @@ const personExamples: IPerson[] = [
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     job: 'parent',
-    serviceType: SERVICE_TYPE[0],  
+    entityType: ENTITY_TYPE[0],  
   },
   <IPerson>{
     identityCard: '345678912',
@@ -52,7 +52,7 @@ const personExamples: IPerson[] = [
     responsibilityLocation: dbIdExample[1],
     clearance: '3',
     rank: RANK[0],
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     identityCard: '456789123',
@@ -61,14 +61,14 @@ const personExamples: IPerson[] = [
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
     job: 'cosmetician 1',
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     personalNumber: '1234567',
     firstName: 'Yonatan',
     lastName: 'Tal',
     job: 'Programmer',
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
 ];
 
@@ -176,7 +176,7 @@ describe('Persons', () => {
         identityCard: '1234567',
         primaryDomainUser: dbIdExample[3],
         secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
-        serviceType: SERVICE_TYPE[0],
+        entityType: ENTITY_TYPE[0],
         mail: 'yonatan@work.com',
         phone: ['023456789', '02-3456389'],
         mobilePhone: ['054-9754999', '0541234567'],
@@ -193,7 +193,7 @@ describe('Persons', () => {
       should.exist(person);
       person.should.have.property('identityCard', newPerson.identityCard);
       person.should.have.property('personalNumber', newPerson.personalNumber);
-      person.should.have.property('serviceType', newPerson.serviceType);
+      person.should.have.property('entityType', newPerson.entityType);
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
       person.should.have.property('currentUnit', newPerson.currentUnit);
@@ -240,7 +240,7 @@ describe('Persons', () => {
         delete person.directGroup;
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
-        delete person.serviceType;
+        delete person.entityType;
         await expectError(Person.createPerson, [person]);
       });
       it('should create without phone when giving empty string', async() => {
@@ -251,7 +251,7 @@ describe('Persons', () => {
       });
       it('should throw error when rank is missing (with the specific service type)', async() => {
         const person = { ...personExamples[1] };
-        person.serviceType = SERVICE_TYPE[1];
+        person.entityType = ENTITY_TYPE[1];
         expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when Identity Card is not valid', async () => {
@@ -333,7 +333,7 @@ describe('Persons', () => {
       });
       it('should throw error when service type is invalid', async () => {
         const person = { ...personExamples[1] };
-        person.serviceType = SERVICE_TYPE[0] + '_bullshit';
+        person.entityType = ENTITY_TYPE[0] + '_bullshit';
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when clearance is invalid', async () => {
