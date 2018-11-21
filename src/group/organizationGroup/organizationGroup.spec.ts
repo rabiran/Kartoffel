@@ -7,7 +7,7 @@ import { IOrganizationGroup } from './organizationGroup.interface';
 import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
-import { SERVICE_TYPE } from '../../config/db-enums';
+import { ENTITY_TYPE } from '../../config/db-enums';
 
 const should = chai.should();
 const expect = chai.expect;
@@ -272,7 +272,7 @@ describe('Strong Groups', () => {
         personalNumber: '1000002',
         firstName: 'elaf',
         lastName: 'hhhh',
-        serviceType: SERVICE_TYPE[0],
+        entityType: ENTITY_TYPE[0],
         dischargeDay: new Date(2022, 11),
         directGroup: organizationGroup.id,
         job: 'dead',
@@ -453,7 +453,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const person_12 = await Person.createPerson(<IPerson>{
     identityCard: '000000012',
@@ -464,7 +464,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const person_21 = await Person.createPerson(<IPerson>{
     identityCard: '000000021',
@@ -475,7 +475,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const person_111 = await Person.createPerson(<IPerson>{
     identityCard: '000000111',
@@ -486,7 +486,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const person_221 = await Person.createPerson(<IPerson>{
     identityCard: '000000221',
@@ -497,7 +497,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const person_311 = await Person.createPerson(<IPerson>{
     identityCard: '000000311',
@@ -508,7 +508,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const person_312 = await Person.createPerson(<IPerson>{
     identityCard: '000000312',
@@ -519,7 +519,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const person_331 = await Person.createPerson(<IPerson>{
     identityCard: '000000331',
@@ -530,7 +530,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
 
   const friede = await Person.createPerson(<IPerson>{
@@ -542,7 +542,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup:parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
   const gale = await Person.createPerson(<IPerson>{
     identityCard: '100000002',
@@ -553,7 +553,7 @@ async function bigTree() {
     hierarchy: ['birthday', 'anniversary'],
     job: 'parent',
     directGroup: parent_1.id,
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   });
 
   await Person.assign(person_11.id, parent_1.id);

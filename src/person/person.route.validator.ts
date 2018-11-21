@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { RouteParamsValidate as RPV } from '../helpers/route.validator';
 
-export const createAllowedFileds =  ['serviceType', 'firstName', 'lastName', 'currentUnit', 'job', 'mail', 'phone', 
+export const createAllowedFileds =  ['entityType', 'firstName', 'lastName', 'currentUnit', 'job', 'mail', 'phone', 
   'address', 'mobilePhone', 'dischargeDay', 'directGroup', 'managedGroup', 'rank', 'responsibility', 
   'responsibilityLocation', 'clearance', 'identityCard', 'personalNumber'];
 

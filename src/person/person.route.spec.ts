@@ -8,7 +8,7 @@ import { Person } from './person.controller';
 import { IPerson } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, SERVICE_TYPE, RANK } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK } from '../config/db-enums';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 
 
@@ -28,7 +28,7 @@ const personExamples: IPerson[] = [
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     job: 'parent',
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     identityCard: '567891234',
@@ -37,7 +37,7 @@ const personExamples: IPerson[] = [
     lastName: 'Tal',
     dischargeDay: new Date(2022, 11),
     job: 'Programmer',
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     identityCard: '123456789',
@@ -47,7 +47,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     mail: 'avi.ron@gmail.com',
     job: 'Pilot 1',
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     identityCard: '345678912',
@@ -60,7 +60,7 @@ const personExamples: IPerson[] = [
     responsibilityLocation: dbIdExample[0],
     clearance: '3',
     rank: RANK[0],
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     identityCard: '456789123',
@@ -69,7 +69,7 @@ const personExamples: IPerson[] = [
     lastName: 'Poor',
     dischargeDay: new Date(2022, 11),
     job: 'cosmetician 1',
-    serviceType: SERVICE_TYPE[0],
+    entityType: ENTITY_TYPE[0],
   },  
 ];
 
