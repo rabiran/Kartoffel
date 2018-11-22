@@ -252,7 +252,7 @@ describe('Persons', () => {
       it('should throw error when rank is missing (with the specific service type)', async() => {
         const person = { ...personExamples[1] };
         person.entityType = ENTITY_TYPE[1];
-        expectError(Person.createPerson, [person]);
+        await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when Identity Card is not valid', async () => {
         const person = { ...personExamples[1] };
@@ -621,13 +621,13 @@ describe('Persons', () => {
 
     it('should throw error when trying to create illegal primary domain user', async () => {
       const person = await Person.createPerson(personExamples[3]);
-      expectError(Person.addNewUser, [person.id, 'fff@', true]);
+      await expectError(Person.addNewUser, [person.id, 'fff@', true]);
     });
     
     it('should throw error when trying to add existing user', async () => {
       const person = await Person.createPerson(personExamples[3]);
       await Person.addNewUser(person.id, 'nitro@jello', true);
-      expectError(Person.addNewUser, ['nitro@jello']);
+      await expectError(Person.addNewUser, ['nitro@jello']);
     });
 
     it('should add new secondary domain users to the person', async () => {
@@ -685,7 +685,7 @@ describe('Persons', () => {
     it('should throw error when the there is no matching user', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);
       await Person.addNewUser(createdPerson.id, 'nitro@jello', true);
-      expectError(Person.getByDomainUserString, ['other@jello']);
+      await expectError(Person.getByDomainUserString, ['other@jello']);
     });
   });
 
