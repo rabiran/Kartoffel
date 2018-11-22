@@ -48,7 +48,7 @@ paths:
             required:
               - firstName
               - identityCard
-              - serviceType
+              - entityType
               - lastName
               - directGroup
               - job
@@ -61,7 +61,7 @@ paths:
                 type: string
                 pattern: '^\d{6,9}$'
                 example: '3456712'
-              serviceType:
+              entityType:
                 type: string
                 enum:
                   - a
@@ -157,7 +157,7 @@ paths:
             required:
               - firstName
               - identityCard
-              - serviceType
+              - entityType
               - lastName
               - directGroup
               - job
@@ -207,7 +207,7 @@ paths:
                     domain: jello
                     personId: 5b50a76713ddf90af494de32
                     fullString: nitro@jello
-              serviceType:
+              entityType:
                 type: string
                 enum:
                   - a
@@ -311,7 +311,7 @@ paths:
           schema:
             type: object
             properties:
-              serviceType:
+              entityType:
                 type: string
                 enum:
                   - a
@@ -496,7 +496,7 @@ paths:
             required:
               - firstName
               - identityCard
-              - serviceType
+              - entityType
               - lastName
               - directGroup
               - job
@@ -546,7 +546,7 @@ paths:
                     domain: jello
                     personId: 5b50a76713ddf90af494de32
                     fullString: nitro@jello
-              serviceType:
+              entityType:
                 type: string
                 enum:
                   - a
@@ -654,7 +654,7 @@ paths:
             required:
               - firstName
               - identityCard
-              - serviceType
+              - entityType
               - lastName
               - directGroup
               - job
@@ -704,7 +704,7 @@ paths:
                     domain: jello
                     personId: 5b50a76713ddf90af494de32
                     fullString: nitro@jello
-              serviceType:
+              entityType:
                 type: string
                 enum:
                   - a
@@ -812,7 +812,7 @@ paths:
             required:
               - firstName
               - identityCard
-              - serviceType
+              - entityType
               - lastName
               - directGroup
               - job
@@ -862,7 +862,7 @@ paths:
                     domain: jello
                     personId: 5b50a76713ddf90af494de32
                     fullString: nitro@jello
-              serviceType:
+              entityType:
                 type: string
                 enum:
                   - a
@@ -1237,7 +1237,7 @@ definitions:
     required:
       - firstName
       - identityCard
-      - serviceType
+      - entityType
       - lastName
       - directGroup
       - job
@@ -1263,7 +1263,7 @@ definitions:
         example:
           - 5b50a76713ddf90af494de72
           - 5b50a76713ddf90af494de73
-      serviceType:
+      entityType:
         type: string
         enum:
           - a
@@ -1418,133 +1418,3 @@ definitions:
         type: boolean
         title: isALeaf
         description: whether the group has direct children
-  Person1:
-    type: object
-    required:
-      - firstName
-      - identityCard
-      - serviceType
-      - lastName
-      - directGroup
-      - job
-    properties:
-      id:
-        type: string
-        example: 5b50a76713ddf90af494de32
-      identityCard:
-        type: string
-        pattern: '^\d{6,9}$'
-        example: '234567891'
-      personalNumber:
-        type: string
-        pattern: '^\d{6,9}$'
-        example: '3456712'
-      primaryDomainUser:
-        type: object
-        properties:
-          id:
-            type: string
-            example: '5b50a76713ddf90af494de72'
-          name:
-            type: string
-            example: 'nitro'
-          domain:
-            type: string
-            example: 'jello'
-          personId:
-            type: string
-            example: '5b50a76713ddf90af494de32'
-          fullString: 
-            type: string
-            example: 'nitro@jello'
-      secondaryDomainUsers:
-        type: array
-        items:
-          type: object
-          example: 'id: "dsfsdfsd", dsfsd; "dsfsdfsd" '
-      serviceType:
-        type: string
-        enum:
-          - a
-          - b
-        example: a
-      firstName:
-        type: string
-        example: Avi
-      lastName:
-        type: string
-        example: Ron
-      currentUnit:
-        type: string
-        example: Pilots Guild
-      dischargeDay:
-        type: string
-        format: date
-        example: '2022-11-30T22:00:00.000Z'
-      hierarchy:
-        type: array
-        items:
-          type: string
-        example:
-          - ElAl
-          - Pilots Guild
-          - Captains
-      directGroup:
-        type: string
-        example: 5b50a76713ddf90af494dadc
-      managedGroup:
-        type: string
-        example: 5b50a76713ddf90af494dadc
-      rank:
-        type: string
-        enum:
-          - a
-          - b
-          - c
-        example: b
-      updatedAt:
-        type: string
-        format: date
-        example: '2018-10-24T07:20:13.129Z'
-      createdAt:
-        type: string
-        format: date
-        example: '2018-10-24T07:17:07.372Z'
-      job:
-        type: string
-        example: 'Pilot 2'
-      mail:
-        type: string
-        format: email
-      phone:
-        type: array
-        items:
-          type: string
-          pattern: '^\d{1,2}-?\d{6,7}$'
-        example:
-          - 02-123456
-          - 03456789
-      mobilePhone:
-        type: array
-        items:
-          type: string
-          pattern: '^\d{2,3}-?\d{7}$'
-        example:
-          - 052-1234567
-          - 048456789
-      address:
-        type: string
-        example: 'Alexander 2, Jerusalem, Israel'
-      responsibility:
-        type: string
-        enum:
-          - a
-          - b
-          - c
-        example: c
-      responsibilityLocation:
-        type: string
-        example: 5b50a76713ddf90af494dabc
-      clearance:
-        type: string
-        example: 3

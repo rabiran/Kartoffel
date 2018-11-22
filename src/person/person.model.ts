@@ -44,10 +44,10 @@ export const PersonSchema = new mongoose.Schema(
       type: ObjectId,
       ref: 'DomainUser',
     }],
-    serviceType: {
+    entityType: {
       type: String,
-      enum: consts.SERVICE_TYPE,
-      required: [true, 'You must enter service type'],
+      enum: consts.ENTITY_TYPE,
+      required: [true, 'You must enter entity type'],
     },
     firstName: {
       type: String,
@@ -127,7 +127,7 @@ export const PersonSchema = new mongoose.Schema(
       required: [function () {
         // In update the mongo does not keep the document in "this" 
         const srvcTyp = typeof this.getUpdate !== 'function' ? this.serviceType : this.getUpdate().$set.serviceType;       
-        return srvcTyp === consts.SERVICE_TYPE[1];
+        return srvcTyp === consts.ENTITY_TYPE[1];
       },
         'You must enter a rank!'],
     },
