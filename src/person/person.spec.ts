@@ -623,7 +623,28 @@ describe('Persons', () => {
       const person = await Person.createPerson(personExamples[3]);
       await expectError(Person.addNewUser, [person.id, 'fff@', true]);
     });
+
+    it('should throw error when trying to create without user', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      try {
+        const user = await Person.addNewUser(person.id, undefined, true);
+        expect(user).to.be.undefined;
+      } catch (error) {      
+        error.should.have.property('message', `The system needs a user name and domain to create a domain user for a personId ${person.id}`);
+      }   
+    });
     
+    
+    it('should throw error when trying to create without personId', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      try {
+        const user = await Person.addNewUser(undefined, 'abc@dsfsd', true);
+        expect(user).to.be.undefined;
+      } catch (error) {      
+        error.should.have.property('message', 'The system needs a persinId to create a domain user abc@dsfsd');
+      }   
+    });
+
     it('should throw error when trying to add existing user', async () => {
       const person = await Person.createPerson(personExamples[3]);
       await Person.addNewUser(person.id, 'nitro@jello', true);
