@@ -55,6 +55,8 @@ export class Person {
 
   static async addNewUser(personId: string, user: IDomainUser | string, isPrimary: boolean): 
   Promise<IPerson> {
+    if (!personId)  return Promise.reject(new Error(`The system needs a persinId to create a domain user ${user}`));
+    if (!user)  return Promise.reject(new Error(`The system needs a user name and domain to create a domain user for a personId ${personId}`));
     const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
     // get the person (it also checks that the person exists)
     const person = await Person.getPersonById(personId);
