@@ -11,7 +11,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE } from '../config/db-enums'; 
+import { RESPONSIBILITY, RANK, ENTITY_TYPE } from '../config/db-enums';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -19,7 +19,7 @@ const should = chai.should();
 const expect = chai.expect;
 chai.use(require('chai-http'));
 
-const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34','5b50a76713ddf90af494de35','5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
+const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34', '5b50a76713ddf90af494de35', '5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
 
 const personExamples: IPerson[] = [
   <IPerson>{
@@ -39,7 +39,7 @@ const personExamples: IPerson[] = [
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     job: 'parent',
-    entityType: ENTITY_TYPE[0],  
+    entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
     identityCard: '345678912',
@@ -104,9 +104,9 @@ describe('Persons', () => {
     it('Should get persons without person that dead', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await Person.createPerson(<IPerson>{ ...personExamples[2] });
-      
+
       await Person.discharge(person.id);
-      
+
       const persons = await Person.getPersons();
       persons.should.be.a('array');
       persons.should.have.lengthOf(1);
@@ -114,9 +114,9 @@ describe('Persons', () => {
     it('Should get persons with person that dead', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await Person.createPerson(<IPerson>{ ...personExamples[2] });
-      
+
       await Person.discharge(person.id);
-      
+
       const persons = await Person.getPersons({ alsoDead: 'true' });
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
@@ -235,7 +235,7 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.lastName;
-        await expectError(Person.createPerson, [person]);        
+        await expectError(Person.createPerson, [person]);
         person = { ...personExamples[1] };
         delete person.directGroup;
         await expectError(Person.createPerson, [person]);
@@ -243,13 +243,13 @@ describe('Persons', () => {
         delete person.entityType;
         await expectError(Person.createPerson, [person]);
       });
-      it('should create without phone when giving empty string', async() => {
+      it('should create without phone when giving empty string', async () => {
         const person = { ...personExamples[1] };
         person.phone = [''];
         const createdPerson = await Person.createPerson(person);
         createdPerson.should.exist;
       });
-      it('should throw error when rank is missing (with the specific service type)', async() => {
+      it('should throw error when rank is missing (with the specific service type)', async () => {
         const person = { ...personExamples[1] };
         person.entityType = ENTITY_TYPE[1];
         await expectError(Person.createPerson, [person]);
@@ -279,7 +279,7 @@ describe('Persons', () => {
         person.firstName = 'Avi';
         person.lastName = '';
         await expectError(Person.createPerson, [person]);
-      });    
+      });
       it('Should throw an error when responsibility is not valid', async () => {
         const person = { ...personExamples[1] };
         person.responsibility = RESPONSIBILITY[1];
@@ -327,7 +327,7 @@ describe('Persons', () => {
         person.mobilePhone = ['054-12345678'];
         await expectError(Person.createPerson, [person]);
         person.mobilePhone = ['054-123456'];
-        await expectError(Person.createPerson, [person]);      
+        await expectError(Person.createPerson, [person]);
         person.mobilePhone = ['1523645'];
         await expectError(Person.createPerson, [person]);
       });
@@ -454,7 +454,7 @@ describe('Persons', () => {
       updatedPerson.should.have.property('rank', person.rank);
       updatedPerson.should.have.property('job', person.job);
       updatedPerson.should.have.property('responsibility', person.responsibility);
-      expect(String(updatedPerson.responsibilityLocation) === 
+      expect(String(updatedPerson.responsibilityLocation) ===
         String(person.responsibilityLocation)).to.be.true;
     });
     it('Should not delete the unchanged props', async () => {
@@ -626,23 +626,41 @@ describe('Persons', () => {
 
     it('should throw error when trying to create without user', async () => {
       const person = await Person.createPerson(personExamples[3]);
+      let isError = false;
       try {
-        const user = await Person.addNewUser(person.id, undefined, true);
-        expect(user).to.be.undefined;
-      } catch (error) {      
-        error.should.have.property('message', `The system needs a user name and domain to create a domain user for a personId ${person.id}`);
-      }   
+        await Person.addNewUser(person.id, undefined, true);        
+      } catch (err) {
+        err.should.exist;
+        err.should.have.property('message', `The system needs a user name and domain to create a domain user for a personId ${person.id}`);        
+        isError = true;
+      }
+      isError.should.be.true;    
     });
-    
-    
-    it('should throw error when trying to create without personId', async () => {
+
+    it('should throw error when trying to create without peresonId', async () => {
       const person = await Person.createPerson(personExamples[3]);
+      let isError = false;
       try {
-        const user = await Person.addNewUser(undefined, 'abc@dsfsd', true);
-        expect(user).to.be.undefined;
-      } catch (error) {      
-        error.should.have.property('message', 'The system needs a persinId to create a domain user abc@dsfsd');
-      }   
+        await Person.addNewUser(undefined, { name: 'david', domain: 'Heymann' }, true);
+      } catch (err) {
+        err.should.exist;
+        err.should.have.property('message', `The system needs a personId to create a domain user ${JSON.stringify({ name: 'david', domain: 'Heymann' })}`);
+        isError = true;
+      }
+      isError.should.be.true;    
+    });
+
+    it('should throw error when trying to create without personId', async () => {
+      const person = await Person.createPerson(personExamples[3]);  
+      let isError = false;
+      try {
+        await Person.addNewUser(undefined, 'abc@dsfsd', true);        
+      } catch (err) {
+        err.should.exist;
+        err.should.have.property('message', 'The system needs a personId to create a domain user "abc@dsfsd"');        
+        isError = true;
+      }
+      isError.should.be.true;    
     });
 
     it('should throw error when trying to add existing user', async () => {
@@ -672,8 +690,8 @@ describe('Persons', () => {
     it('should replace the primary user and make the previous secondaries', async () => {
       const person = await Person.createPerson(personExamples[3]);
       let updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', true);
-      updatedPerson =  await Person.addNewUser(person.id, 'nitro2@jello', true);
-      updatedPerson =  await Person.addNewUser(person.id, 'nitro3@jello', true);
+      updatedPerson = await Person.addNewUser(person.id, 'nitro2@jello', true);
+      updatedPerson = await Person.addNewUser(person.id, 'nitro3@jello', true);
       updatedPerson.should.exist;
       // check that the person have both primary & secondary domain users
       updatedPerson.should.have.property('primaryDomainUser');
