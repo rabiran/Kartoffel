@@ -20,7 +20,7 @@ const schemaOptions = {
 export const DomainUserSchema = new mongoose.Schema({
   domain: {
     type: String,
-    enum: [...domainMap.keys()],
+    enum: { values: [...domainMap.keys()], message: 'The "{VALUE}" is not a recognized domain' },    
     required: [true, 'User must belong to a domain'],
     index: true,
   },
