@@ -6,5 +6,6 @@ export interface IDomainUser {
   domain: string;
   name: string;
   fullString?: string;
+  UID?: string;
   personId?: Types.ObjectId | string | IPerson;
 }

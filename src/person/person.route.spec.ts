@@ -8,7 +8,7 @@ import { Person } from './person.controller';
 import { IPerson } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, DOMAIN_MAP } from '../config/db-enums';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 
 
@@ -18,7 +18,9 @@ const expect = chai.expect;
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 
-const userStringEx = 'nitro@jello';
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
+const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
+const UIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [  
   <IPerson>{
@@ -203,6 +205,7 @@ describe('Person', () => {
         const user = person.primaryDomainUser;
         user.should.have.property('personId');
         user.should.have.property('fullString', userStringEx);
+        user.should.have.property('UID', UIDEx);
       });
     });
   });

@@ -3,3 +3,5 @@ export const RANK = ['rookie', 'champion', 'ultimate', 'mega'];
 export const ENTITY_TYPE = ['digimon', 'tamar'];
 // the first element is the default value
 export const RESPONSIBILITY = ['none', 'HR', 'SO'];
+
+export const DOMAIN_MAP = [['rabiran','rabiranuid'], ['somedomain', 'somedomainuid'], ['jello', 'jellouid']];

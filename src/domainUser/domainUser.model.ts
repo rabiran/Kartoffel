@@ -1,8 +1,10 @@
 import * as mongoose from 'mongoose';
 import { IDomainUser } from './domainUser.interface';
 import { DomainSeperator } from '../utils';
+import { DOMAIN_MAP } from '../config/db-enums';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 
 const schemaOptions = {
   toObject: {
@@ -18,6 +20,7 @@ const schemaOptions = {
 export const DomainUserSchema = new mongoose.Schema({
   domain: {
     type: String,
+    enum: [...domainMap.keys()],
     required: [true, 'User must belong to a domain'],
     index: true,
   },
@@ -38,6 +41,10 @@ DomainUserSchema.index({ name: 1, domain: 1 }, { unique: true });
 
 DomainUserSchema.virtual('fullString').get(function () {
   return `${this.name}${DomainSeperator}${this.domain}`;
+});
+
+DomainUserSchema.virtual('UID').get(function () {
+  return `${this.name}${DomainSeperator}${domainMap.get(this.domain)}`;
 });
 
 /* maybe we will use it in the future
