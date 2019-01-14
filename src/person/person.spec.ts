@@ -462,6 +462,28 @@ describe('Persons', () => {
       expect(String(updatedPerson.responsibilityLocation) ===
         String(person.responsibilityLocation)).to.be.true;
     });
+    it('Should return the updated person with domainUser', async () => {
+      let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await Person.addNewUser(person.id, userStringEx, true);
+      person = await Person.getPersonById(person.id);
+      person.job = 'Programmer';
+      person.rank = RANK[0];
+      person.responsibility = RESPONSIBILITY[1];
+      person.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
+
+      const updatedPerson = await Person.updatePerson(person.id, person);
+      should.exist(updatedPerson);
+      expect(updatedPerson.id === person.id).to.be.true;
+      updatedPerson.should.have.property('firstName', person.firstName);
+      updatedPerson.should.have.property('rank', person.rank);
+      updatedPerson.should.have.property('job', person.job);
+      updatedPerson.should.have.property('responsibility', person.responsibility);
+      expect(String(updatedPerson.responsibilityLocation) ===
+        String(person.responsibilityLocation)).to.be.true;
+      updatedPerson.should.have.property('primaryDomainUser');
+      (updatedPerson.primaryDomainUser).should.have.property('fullString', (<IDomainUser>person.primaryDomainUser).fullString);
+      (updatedPerson.primaryDomainUser).should.have.property('UID', (<IDomainUser>person.primaryDomainUser).UID);
+    });
     it('Should not delete the unchanged props', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const updatedPerson = await Person.updatePerson(person.id, { firstName: 'Danny' });

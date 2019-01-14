@@ -338,7 +338,17 @@ describe('Person', () => {
         err.should.exist;
       });
     });
-
+    it('should return error when the domain user is\'t recognaized', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, fullString: `abc@wrong`, isPrimary: true });
+      })
+      .catch((err) => {
+        err.should.exist;
+      });
+    });
     it('should return error when the domain user already exists', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
       .then((res) => {
