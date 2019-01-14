@@ -63,7 +63,9 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     if (populateOptions) {
       updateQuery = updateQuery.populate(populateOptions);
     }
-    return updateQuery.exec();
+    return updateQuery.exec().then((result) => {
+      return (result ? result.toObject() : result);
+    });
   }
 
   delete(_id: any): Promise<any> {

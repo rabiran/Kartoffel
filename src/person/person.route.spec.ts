@@ -202,8 +202,7 @@ describe('Person', () => {
         const person = res.body;
         person.should.exist;
         person.should.have.property('primaryDomainUser');
-        const user = person.primaryDomainUser;
-        user.should.have.property('personId');
+        const user = person.primaryDomainUser;        
         user.should.have.property('fullString', userStringEx);
         user.should.have.property('UID', UIDEx);
       });

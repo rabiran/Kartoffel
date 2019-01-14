@@ -10,6 +10,7 @@ import { IDomainUser } from '../domainUser/domainUser.interface';
 import * as utils from '../utils.js';
 import { domainMatch } from 'tough-cookie';
 import { filterPersonDomainUsers } from './person.utils';
+import { DomainUserValidate } from '../domainUser/domainUser.validators';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -29,8 +30,13 @@ export class Person {
   }
 
   static async getPersonById(personID: string): Promise<IPerson> {
-    let person = await Person._personRepository.findById(personID);
+    const person = await Person._personRepository.findById(personID);
     if (!person) return Promise.reject(new Error('Cannot find person with ID: ' + personID));
+    return person;
+  }
+
+  static async getPersonByIdWithFilter(personID: string): Promise<IPerson> {
+    let person: IPerson = await Person.getPersonById(personID);
     person = filterPersonDomainUsers(person);
     return person;
   }
@@ -62,6 +68,7 @@ export class Person {
     if (!personId) return Promise.reject(new Error(`The system needs a personId to create a domain user ${JSON.stringify(user)}`));
     if (!user) return Promise.reject(new Error(`The system needs a user name and domain to create a domain user for a personId ${personId}`));
     const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
+    if (!DomainUserValidate.domain(userObj.domain)) return Promise.reject(new Error(`'The "${userObj.domain}" is not a recognized domain'`));
     // get the person (it also checks that the person exists)
     const person = await Person.getPersonById(personId);
     // connect the user to the person
@@ -141,8 +148,9 @@ export class Person {
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    const updatedPerson = await Person._personRepository.update(id, change);
+    let updatedPerson = await Person._personRepository.update(id, change, 'primaryDomainUser secondaryDomainUsers');
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
+    updatedPerson = filterPersonDomainUsers(updatedPerson);
     return <IPerson>updatedPerson;
   }
 

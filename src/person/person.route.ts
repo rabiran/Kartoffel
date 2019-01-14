@@ -33,7 +33,7 @@ persons.post('/domainUser', PermissionMiddleware.hasAdvancedPermission,
             }));
 
 persons.get('/:id', (req: Request, res: Response) => {
-  ch(Person.getPersonById, (req: Request, res: Response) => {
+  ch(Person.getPersonByIdWithFilter, (req: Request, res: Response) => {
     return [req.params.id]; 
   }, 404)(req, res, null);
 });
