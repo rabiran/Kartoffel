@@ -8,7 +8,6 @@ import { userFromString } from '../domainUser/domainUser.utils';
 import { DomainUserController } from '../domainUser/domainUser.controller';
 import { IDomainUser } from '../domainUser/domainUser.interface';
 import * as utils from '../utils.js';
-import { domainMatch } from 'tough-cookie';
 import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
 
@@ -56,7 +55,7 @@ export class Person {
   }
 
   static async getByDomainUserString(userString: string): Promise<IPerson> {
-    const user = await DomainUserController.getByFullString(userString);
+    const user = await DomainUserController.getByUniqueID(userString);
     if (user && user.personId) {
       return await Person.getPersonById(<string>user.personId);
     }

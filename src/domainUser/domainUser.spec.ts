@@ -26,8 +26,8 @@ describe('DomainUsers', () => {
       user.should.have.property('id');
       user.should.have.property('name', userExample.name);
       user.should.have.property('domain', userExample.domain);
-      user.should.have.property('fullString', `${userExample.name}@${userExample.domain}`);
-      user.should.have.property('UID', `${userExample.name}@${domainMap.get(userExample.domain)}`);
+      user.should.have.property('uniqueID', `${userExample.name}@${userExample.domain}`);
+      user.should.have.property('adfsUID', `${userExample.name}@${domainMap.get(userExample.domain)}`);
     });
 
     it('should throw an error when creating an existing user', async () => {
@@ -49,8 +49,8 @@ describe('DomainUsers', () => {
       user.should.exist;
       user.should.have.property('name', name);
       user.should.have.property('domain', domain);
-      user.should.have.property('fullString', userString);
-      user.should.have.property('UID', `${name}@${domainMap.get(domain)}`);
+      user.should.have.property('uniqueID', userString);
+      user.should.have.property('adfsUID', `${name}@${domainMap.get(domain)}`);
       user.should.have.property('id');
     });
 
@@ -86,24 +86,24 @@ describe('DomainUsers', () => {
       const user = await Users.getById(createdUser.id);
       user.should.have.property('name', createdUser.name);
       user.should.have.property('domain', createdUser.domain);
-      user.should.have.property('fullString', `${createdUser.name}@${createdUser.domain}`);
-      user.should.have.property('UID', `${createdUser.name}@${domainMap.get(createdUser.domain)}`);
+      user.should.have.property('uniqueID', `${createdUser.name}@${createdUser.domain}`);
+      user.should.have.property('adfsUID', `${createdUser.name}@${domainMap.get(createdUser.domain)}`);
     });
   });
 
-  describe('#getByFullString', () => {
+  describe('#getByUniqueID', () => {
     it('should get the user by it\'s full string', async () => {
       await Users.create(userExample);
-      const user = await Users.getByFullString(`${userExample.name}@${userExample.domain}`);
+      const user = await Users.getByUniqueID(`${userExample.name}@${userExample.domain}`);
       user.should.exist;
       user.should.have.property('name', userExample.name); 
       user.should.have.property('domain', userExample.domain);
-      user.should.have.property('UID', `${userExample.name}@${domainMap.get(userExample.domain)}`);
+      user.should.have.property('adfsUID', `${userExample.name}@${domainMap.get(userExample.domain)}`);
     });
 
     it('should throw error when there is not user with matching full string', async () => {
       await Users.create(userExample);
-      await expectError(Users.getByFullString, [`other@domain`]);
+      await expectError(Users.getByUniqueID, [`other@domain`]);
     });
   });
 

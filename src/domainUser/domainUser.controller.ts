@@ -30,17 +30,17 @@ export class DomainUserController {
     return user;
   }
 
-  static async getByFullString(fullString: string): Promise<IDomainUser> {
-    const userObj = userFromString(fullString);
-    // Checks if domain is UID
-    const uIds = Array.from(domainMap.values());
-    if (uIds.includes(userObj.domain)) {
-      const index = uIds.indexOf(userObj.domain);
+  static async getByUniqueID(uniqueID: string): Promise<IDomainUser> {
+    const userObj = userFromString(uniqueID);
+    // Checks if domain is adfsUID
+    const adfsUIds = Array.from(domainMap.values());
+    if (adfsUIds.includes(userObj.domain)) {
+      const index = adfsUIds.indexOf(userObj.domain);
       userObj.domain = Array.from(domainMap.keys())[index];
     }
     const user = await DomainUserController.findOne({ ...userObj });
     if (!user) {
-      throw new Error(`domainUser ${fullString} does not exist`);
+      throw new Error(`domainUser ${uniqueID} does not exist`);
     }
     return user;
   }

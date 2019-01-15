@@ -20,7 +20,7 @@ const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 
 const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
-const UIDEx = `nitro@${[...domainMap.values()][2]}`;
+const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [  
   <IPerson>{
@@ -191,7 +191,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: userStringEx,
+          uniqueID: userStringEx,
           isPrimary: true,
         });
       })
@@ -203,8 +203,8 @@ describe('Person', () => {
         person.should.exist;
         person.should.have.property('primaryDomainUser');
         const user = person.primaryDomainUser;        
-        user.should.have.property('fullString', userStringEx);
-        user.should.have.property('UID', UIDEx);
+        user.should.have.property('uniqueID', userStringEx);
+        user.should.have.property('adfsUID', adfsUIDEx);
       });
     });
   });
@@ -295,7 +295,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: userStringEx,
+          uniqueID: userStringEx,
           isPrimary: true,
         });
       })
@@ -314,7 +314,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: userStringEx,
+          uniqueID: userStringEx,
           isPrimary: false,
         });
       })
@@ -332,7 +332,7 @@ describe('Person', () => {
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: `${userStringEx}@`, isPrimary: true });
+        .send({ personId: person.id, uniqueID: `${userStringEx}@`, isPrimary: true });
       })
       .catch((err) => {
         err.should.exist;
@@ -343,7 +343,7 @@ describe('Person', () => {
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: `abc@wrong`, isPrimary: true });
+        .send({ personId: person.id, uniqueID: `abc@wrong`, isPrimary: true });
       })
       .catch((err) => {
         err.should.exist;
@@ -354,12 +354,12 @@ describe('Person', () => {
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: userStringEx, isPrimary: true });
+        .send({ personId: person.id, uniqueID: userStringEx, isPrimary: true });
       })
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: userStringEx, isPrimary: false });
+        .send({ personId: person.id, uniqueID: userStringEx, isPrimary: false });
       })
       .catch((err) => {
         err.should.exist;

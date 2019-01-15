@@ -39,18 +39,18 @@ export const DomainUserSchema = new mongoose.Schema({
 // don't know if this is a good solution:
 DomainUserSchema.index({ name: 1, domain: 1 }, { unique: true });
 
-DomainUserSchema.virtual('fullString').get(function () {
+DomainUserSchema.virtual('uniqueID').get(function () {
   return `${this.name}${DomainSeperator}${this.domain}`;
 });
 
-DomainUserSchema.virtual('UID').get(function () {
+DomainUserSchema.virtual('adfsUID').get(function () {
   return `${this.name}${DomainSeperator}${domainMap.get(this.domain)}`;
 });
 
 /* maybe we will use it in the future
 DomainUserSchema.statics.transformToString = function (doc: any) {
-  console.log('user toString', doc.fullString);
-  return doc.fullString;
+  console.log('user toString', doc.uniqueID);
+  return doc.uniqueID;
 };
 */
 export const DomainUserModel = mongoose.model<IDomainUser & mongoose.Document>('DomainUser', 

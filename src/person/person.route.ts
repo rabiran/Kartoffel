@@ -29,7 +29,7 @@ persons.post('/', PermissionMiddleware.hasAdvancedPermission,
 
 persons.post('/domainUser', PermissionMiddleware.hasAdvancedPermission,
             ch(Person.addNewUser, (req: Request) => {
-              return [req.body.personId, req.body.fullString, req.body.isPrimary];
+              return [req.body.personId, req.body.uniqueID, req.body.isPrimary];
             }));
 
 persons.get('/:id', (req: Request, res: Response) => {

@@ -24,7 +24,7 @@ const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b
 const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const domain = [...domainMap.keys()][2];
 const userStringEx = `nitro@${domain}`;
-const UIDEx = `nitro@${[...domainMap.values()][2]}`;
+const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [
   <IPerson>{
@@ -481,8 +481,8 @@ describe('Persons', () => {
       expect(String(updatedPerson.responsibilityLocation) ===
         String(person.responsibilityLocation)).to.be.true;
       updatedPerson.should.have.property('primaryDomainUser');
-      (updatedPerson.primaryDomainUser).should.have.property('fullString', (<IDomainUser>person.primaryDomainUser).fullString);
-      (updatedPerson.primaryDomainUser).should.have.property('UID', (<IDomainUser>person.primaryDomainUser).UID);
+      (updatedPerson.primaryDomainUser).should.have.property('uniqueID', (<IDomainUser>person.primaryDomainUser).uniqueID);
+      (updatedPerson.primaryDomainUser).should.have.property('adfsUID', (<IDomainUser>person.primaryDomainUser).adfsUID);
     });
     it('Should not delete the unchanged props', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -626,8 +626,8 @@ describe('Persons', () => {
       const user = <IDomainUser>populatedPerson.primaryDomainUser;
       user.id.should.exist;
       user.should.have.property('personId');
-      user.should.have.property('fullString', userStringEx);
-      user.should.have.property('UID', UIDEx);
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);
       expect(String(user.personId) === person.id).to.be.true;
     });
 
@@ -712,7 +712,7 @@ describe('Persons', () => {
       secUser.id.should.exist;
       secUser.should.have.property('personId');
       expect(String(secUser.personId) === person.id).to.be.true; // hate to convert objectId :\
-      secUser.should.have.property('fullString', `nitro2@${domain}`);
+      secUser.should.have.property('uniqueID', `nitro2@${domain}`);
     });
 
     it('should replace the primary user and make the previous secondaries', async () => {
@@ -729,10 +729,10 @@ describe('Persons', () => {
       const populatedPerson = await Person.getPersonById(person.id);
       const primaryUser = <IDomainUser>populatedPerson.primaryDomainUser;
       primaryUser.should.exist;
-      primaryUser.should.have.property('fullString', `nitro3@${domain}`);
+      primaryUser.should.have.property('uniqueID', `nitro3@${domain}`);
       const secUser = <IDomainUser>populatedPerson.secondaryDomainUsers[0];
       secUser.should.exist;
-      secUser.should.have.property('fullString', userStringEx);
+      secUser.should.have.property('uniqueID', userStringEx);
     });
   });
 
