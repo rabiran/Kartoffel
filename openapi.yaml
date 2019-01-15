@@ -758,7 +758,7 @@ paths:
           name: domainUser
           required: true
           type: string
-          description: The full string of the domain user
+          description: The uniqueID or adfsUID of the domain user
       responses:
         '200':
           description: A Person object
@@ -889,7 +889,7 @@ paths:
                 type: string
                 example: 3
         '500':
-          description: domain user doesn't exist or illegal full string
+          description: domain user doesn't exist or illegal string
   /persons/domainUser:
     post:
       tags:
