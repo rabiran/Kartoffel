@@ -2,7 +2,9 @@ import { DomainUserRepository } from './domainUser.repository';
 import { IDomainUser } from './domainUser.interface';
 import { userFromString } from './domainUser.utils';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
+import { DOMAIN_MAP } from '../config/db-enums';
 
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const userFromStringIgnore = wrapIgnoreCatch(userFromString); 
 
 export class DomainUserController {
@@ -28,11 +30,17 @@ export class DomainUserController {
     return user;
   }
 
-  static async getByFullString(fullString: string): Promise<IDomainUser> {
-    const userObj = userFromString(fullString);
+  static async getByUniqueID(uniqueID: string): Promise<IDomainUser> {
+    const userObj = userFromString(uniqueID);
+    // Checks if domain is adfsUID
+    const adfsUIds = Array.from(domainMap.values());
+    if (adfsUIds.includes(userObj.domain)) {
+      const index = adfsUIds.indexOf(userObj.domain);
+      userObj.domain = Array.from(domainMap.keys())[index];
+    }
     const user = await DomainUserController.findOne({ ...userObj });
     if (!user) {
-      throw new Error(`domainUser ${fullString} does not exist`);
+      throw new Error(`domainUser ${uniqueID} does not exist`);
     }
     return user;
   }

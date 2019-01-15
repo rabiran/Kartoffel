@@ -1,8 +1,10 @@
 import * as mongoose from 'mongoose';
 import { IDomainUser } from './domainUser.interface';
 import { DomainSeperator } from '../utils';
+import { DOMAIN_MAP } from '../config/db-enums';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 
 const schemaOptions = {
   toObject: {
@@ -18,6 +20,7 @@ const schemaOptions = {
 export const DomainUserSchema = new mongoose.Schema({
   domain: {
     type: String,
+    enum: { values: [...domainMap.keys()], message: 'The "{VALUE}" is not a recognized domain' },    
     required: [true, 'User must belong to a domain'],
     index: true,
   },
@@ -36,14 +39,18 @@ export const DomainUserSchema = new mongoose.Schema({
 // don't know if this is a good solution:
 DomainUserSchema.index({ name: 1, domain: 1 }, { unique: true });
 
-DomainUserSchema.virtual('fullString').get(function () {
+DomainUserSchema.virtual('uniqueID').get(function () {
   return `${this.name}${DomainSeperator}${this.domain}`;
+});
+
+DomainUserSchema.virtual('adfsUID').get(function () {
+  return `${this.name}${DomainSeperator}${domainMap.get(this.domain)}`;
 });
 
 /* maybe we will use it in the future
 DomainUserSchema.statics.transformToString = function (doc: any) {
-  console.log('user toString', doc.fullString);
-  return doc.fullString;
+  console.log('user toString', doc.uniqueID);
+  return doc.uniqueID;
 };
 */
 export const DomainUserModel = mongoose.model<IDomainUser & mongoose.Document>('DomainUser', 

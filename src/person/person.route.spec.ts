@@ -8,7 +8,7 @@ import { Person } from './person.controller';
 import { IPerson } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, DOMAIN_MAP } from '../config/db-enums';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 
 
@@ -18,7 +18,9 @@ const expect = chai.expect;
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 
-const userStringEx = 'nitro@jello';
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
+const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
+const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [  
   <IPerson>{
@@ -189,7 +191,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: userStringEx,
+          uniqueID: userStringEx,
           isPrimary: true,
         });
       })
@@ -200,9 +202,9 @@ describe('Person', () => {
         const person = res.body;
         person.should.exist;
         person.should.have.property('primaryDomainUser');
-        const user = person.primaryDomainUser;
-        user.should.have.property('personId');
-        user.should.have.property('fullString', userStringEx);
+        const user = person.primaryDomainUser;        
+        user.should.have.property('uniqueID', userStringEx);
+        user.should.have.property('adfsUID', adfsUIDEx);
       });
     });
   });
@@ -293,7 +295,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: userStringEx,
+          uniqueID: userStringEx,
           isPrimary: true,
         });
       })
@@ -312,7 +314,7 @@ describe('Person', () => {
         return chai.request(server).post(`${BASE_URL}/domainUser`)
         .send({ 
           personId: person.id,
-          fullString: userStringEx,
+          uniqueID: userStringEx,
           isPrimary: false,
         });
       })
@@ -330,24 +332,34 @@ describe('Person', () => {
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: `${userStringEx}@`, isPrimary: true });
+        .send({ personId: person.id, uniqueID: `${userStringEx}@`, isPrimary: true });
       })
       .catch((err) => {
         err.should.exist;
       });
     });
-
+    it('should return error when the domain user is\'t recognaized', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+      .then((res) => {
+        const person = res.body;
+        return chai.request(server).post(`${BASE_URL}/domainUser`)
+        .send({ personId: person.id, uniqueID: `abc@wrong`, isPrimary: true });
+      })
+      .catch((err) => {
+        err.should.exist;
+      });
+    });
     it('should return error when the domain user already exists', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: userStringEx, isPrimary: true });
+        .send({ personId: person.id, uniqueID: userStringEx, isPrimary: true });
       })
       .then((res) => {
         const person = res.body;
         return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, fullString: userStringEx, isPrimary: false });
+        .send({ personId: person.id, uniqueID: userStringEx, isPrimary: false });
       })
       .catch((err) => {
         err.should.exist;

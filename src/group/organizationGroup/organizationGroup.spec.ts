@@ -8,6 +8,8 @@ import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
 import { ENTITY_TYPE } from '../../config/db-enums';
+import { Mongoose } from 'mongoose';
+import { BSON } from 'bson';
 
 const should = chai.should();
 const expect = chai.expect;
@@ -114,7 +116,7 @@ describe('Strong Groups', () => {
       expect(exsistGroups.hierarchy).to.have.lengthOf(3);
       expect(exsistGroups.hierarchy).to.include.members(['group1', 'group2', 'group3']);
       expect(exsistGroups.ancestors).to.have.lengthOf(3);    
-      expect(exsistGroups.ancestors).to.include.members([group3.id, group2.id, group1.id]);    
+      expect(exsistGroups.ancestors.map(x => x.toString())).to.include.members([group3.id, group2.id, group1.id]);    
     });
     it('Should not find the group and have hierarchy', async () => {
       const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
@@ -240,9 +242,9 @@ describe('Strong Groups', () => {
       expect(orgGrpRvive.isAlive).to.be.true;
       expect(liveancstr3.isAlive).to.be.true;
       expect(liveancstr2.isAlive).to.be.true;
-      expect(liveancstr3.children).to.includes(orgGrpRvive.id);
-      expect(liveancstr2.children).to.includes(liveancstr3.id);
-      expect(liveancstr1.children).to.includes(liveancstr2.id);
+      expect((< String[]>liveancstr3.children).map(x => x.toString())).to.includes(orgGrpRvive.id);
+      expect((<String[]>liveancstr2.children).map(x => x.toString())).to.includes(liveancstr3.id);
+      expect((<String[]>liveancstr1.children).map(x => x.toString())).to.includes(liveancstr2.id);
     });
     it('Should throw an error when try to create organizationGroup with ancestors that exist', async () => {
       const ancstr: IOrganizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[0] });
