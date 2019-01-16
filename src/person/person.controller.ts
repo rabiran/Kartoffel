@@ -57,7 +57,7 @@ export class Person {
   static async getByDomainUserString(userString: string): Promise<IPerson> {
     const user = await DomainUserController.getByUniqueID(userString);
     if (user && user.personId) {
-      return await Person.getPersonById(<string>user.personId);
+      return await Person.getPersonByIdWithFilter(<string>user.personId);
     }
     return null;
   }
