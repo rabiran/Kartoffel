@@ -175,38 +175,23 @@ paths:
                 example: '3456712'
               primaryDomainUser:
                 type: object
-                properties:
-                  id:
-                    type: string
-                    example: '5b50a76713ddf90af494de72'
-                  name:
-                    type: string
-                    example: 'nitro'
-                  domain:
-                    type: string
-                    example: 'jello'
-                  personId:
-                    type: string
-                    example: '5b50a76713ddf90af494de32'
-                  fullString: 
+                properties:                
+                  uniqueID: 
                     type: string
                     example: 'nitro@jello'
+                  adfsUID: 
+                    type: string
+                    example: 'nitro@jellouid'
               secondaryDomainUsers:
                 type: array
                 items:
                   type: object
                   example: 
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@jello
+                    adfsUID: nitro@jellouid
                    
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@somedomain
+                    adfsUID: nitro@somedomainuid
               entityType:
                 type: string
                 enum:
@@ -515,37 +500,22 @@ paths:
               primaryDomainUser:
                 type: object
                 properties:
-                  id:
-                    type: string
-                    example: '5b50a76713ddf90af494de72'
-                  name:
-                    type: string
-                    example: 'nitro'
-                  domain:
-                    type: string
-                    example: 'jello'
-                  personId:
-                    type: string
-                    example: '5b50a76713ddf90af494de32'
-                  fullString: 
+                  uniqueID: 
                     type: string
                     example: 'nitro@jello'
+                  adfsUID: 
+                    type: string
+                    example: 'nitro@jellouid'
               secondaryDomainUsers:
                 type: array
                 items:
                   type: object
                   example: 
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@jello
+                    adfsUID: nitro@jellouid
                    
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@somedomain
+                    adfsUID: nitro@somedomainuid
               entityType:
                 type: string
                 enum:
@@ -673,37 +643,22 @@ paths:
               primaryDomainUser:
                 type: object
                 properties:
-                  id:
-                    type: string
-                    example: '5b50a76713ddf90af494de72'
-                  name:
-                    type: string
-                    example: 'nitro'
-                  domain:
-                    type: string
-                    example: 'jello'
-                  personId:
-                    type: string
-                    example: '5b50a76713ddf90af494de32'
-                  fullString: 
+                  uniqueID: 
                     type: string
                     example: 'nitro@jello'
+                  adfsUID: 
+                    type: string
+                    example: 'nitro@jellouid'
               secondaryDomainUsers:
                 type: array
                 items:
                   type: object
                   example: 
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@jello
+                    adfsUID: nitro@jellouid
                    
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@somedomain
+                    adfsUID: nitro@somedomainuid
               entityType:
                 type: string
                 enum:
@@ -803,7 +758,7 @@ paths:
           name: domainUser
           required: true
           type: string
-          description: The full string of the domain user
+          description: The uniqueID or adfsUID of the domain user
       responses:
         '200':
           description: A Person object
@@ -831,37 +786,22 @@ paths:
               primaryDomainUser:
                 type: object
                 properties:
-                  id:
-                    type: string
-                    example: '5b50a76713ddf90af494de72'
-                  name:
-                    type: string
-                    example: 'nitro'
-                  domain:
-                    type: string
-                    example: 'jello'
-                  personId:
-                    type: string
-                    example: '5b50a76713ddf90af494de32'
-                  fullString: 
+                  uniqueID: 
                     type: string
                     example: 'nitro@jello'
+                  adfsUID: 
+                    type: string
+                    example: 'nitro@jellouid'
               secondaryDomainUsers:
                 type: array
                 items:
                   type: object
                   example: 
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@jello
+                    adfsUID: nitro@jellouid
                    
-                  - id: 5b50a76713ddf90af494de72
-                    name: nitro
-                    domain: jello
-                    personId: 5b50a76713ddf90af494de32
-                    fullString: nitro@jello
+                  - uniqueID: nitro@somedomain
+                    adfsUID: nitro@somedomainuid
               entityType:
                 type: string
                 enum:
@@ -949,7 +889,7 @@ paths:
                 type: string
                 example: 3
         '500':
-          description: domain user doesn't exist or illegal full string
+          description: domain user doesn't exist or illegal string
   /persons/domainUser:
     post:
       tags:
@@ -963,12 +903,12 @@ paths:
             type: object
             required:
               - personId
-              - fullString
+              - uniqueID
             properties:
               personId:
                 type: string
                 example: 5b50a76713ddf90af494de32
-              fullString:
+              uniqueID:
                 type: string
                 format: email
               isPrimary:
@@ -1254,15 +1194,24 @@ definitions:
         pattern: '^\d{6,9}$'
         example: '3456712'
       primaryDomainUser:
-        type: string
-        example: 5b50a76713ddf90af494de72
+        type: object
+        properties:                
+          uniqueID: 
+            type: string
+            example: 'nitro@jello'
+          adfsUID: 
+            type: string
+            example: 'nitro@jellouid'        
       secondaryDomainUsers:
         type: array
         items:
-          type: string
-        example:
-          - 5b50a76713ddf90af494de72
-          - 5b50a76713ddf90af494de73
+          type: object
+        example: 
+          - uniqueID: nitro@jello
+            adfsUID: nitro@jellouid
+            
+          - uniqueID: nitro@somedomain
+            adfsUID: nitro@somedomainuid
       entityType:
         type: string
         enum:

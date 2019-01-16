@@ -3,15 +3,18 @@ import { IDomainUser } from './domainUser.interface';
 import { DomainUserController as Users } from './domainUser.controller';
 import { expectError } from '../helpers/spec.helper';
 import { userFromString } from './domainUser.utils';
+import { DOMAIN_MAP } from '../config/db-enums';
+
 
 const should = chai.should();
 const expect = chai.expect;
 
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const dbIdExample = ['5b50a76713ddf90af494de32'];
 
 const userExample: IDomainUser = {
-  name: 'fuckYou',
-  domain: 'rabiran',
+  name: 'elad',
+  domain: [...domainMap.keys()][0],
 };
 
 
@@ -23,12 +26,13 @@ describe('DomainUsers', () => {
       user.should.have.property('id');
       user.should.have.property('name', userExample.name);
       user.should.have.property('domain', userExample.domain);
-      user.should.have.property('fullString', `${userExample.name}@${userExample.domain}`);
+      user.should.have.property('uniqueID', `${userExample.name}@${userExample.domain}`);
+      user.should.have.property('adfsUID', `${userExample.name}@${domainMap.get(userExample.domain)}`);
     });
 
     it('should throw an error when creating an existing user', async () => {
       const sameUser = {
-        name: 'fuckYou',
+        name: 'elad',
         domain: 'rabiran',
       };
       await Users.create(userExample);
@@ -36,7 +40,7 @@ describe('DomainUsers', () => {
     });
 
     it('should create the user from the string representation', async () => {
-      const name = 'someuser123', domain = 'somedomain';
+      const name = 'someuser123', domain = [...domainMap.keys()][1];
       const userString = `${name}@${domain}`;
       const userObj = userFromString(userString);
       userObj.should.have.property('name', name);
@@ -45,7 +49,8 @@ describe('DomainUsers', () => {
       user.should.exist;
       user.should.have.property('name', name);
       user.should.have.property('domain', domain);
-      user.should.have.property('fullString', userString);
+      user.should.have.property('uniqueID', userString);
+      user.should.have.property('adfsUID', `${name}@${domainMap.get(domain)}`);
       user.should.have.property('id');
     });
 
@@ -81,22 +86,24 @@ describe('DomainUsers', () => {
       const user = await Users.getById(createdUser.id);
       user.should.have.property('name', createdUser.name);
       user.should.have.property('domain', createdUser.domain);
-      user.should.have.property('fullString', `${createdUser.name}@${createdUser.domain}`);
+      user.should.have.property('uniqueID', `${createdUser.name}@${createdUser.domain}`);
+      user.should.have.property('adfsUID', `${createdUser.name}@${domainMap.get(createdUser.domain)}`);
     });
   });
 
-  describe('#getByFullString', () => {
+  describe('#getByUniqueID', () => {
     it('should get the user by it\'s full string', async () => {
       await Users.create(userExample);
-      const user = await Users.getByFullString(`${userExample.name}@${userExample.domain}`);
+      const user = await Users.getByUniqueID(`${userExample.name}@${userExample.domain}`);
       user.should.exist;
       user.should.have.property('name', userExample.name); 
       user.should.have.property('domain', userExample.domain);
+      user.should.have.property('adfsUID', `${userExample.name}@${domainMap.get(userExample.domain)}`);
     });
 
     it('should throw error when there is not user with matching full string', async () => {
       await Users.create(userExample);
-      await expectError(Users.getByFullString, [`other@domain`]);
+      await expectError(Users.getByUniqueID, [`other@domain`]);
     });
   });
 

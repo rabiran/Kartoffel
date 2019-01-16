@@ -11,7 +11,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE } from '../config/db-enums';
+import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP } from '../config/db-enums';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -20,6 +20,11 @@ const expect = chai.expect;
 chai.use(require('chai-http'));
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34', '5b50a76713ddf90af494de35', '5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
+
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
+const domain = [...domainMap.keys()][2];
+const userStringEx = `nitro@${domain}`;
+const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [
   <IPerson>{
@@ -457,6 +462,28 @@ describe('Persons', () => {
       expect(String(updatedPerson.responsibilityLocation) ===
         String(person.responsibilityLocation)).to.be.true;
     });
+    it('Should return the updated person with domainUser', async () => {
+      let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await Person.addNewUser(person.id, userStringEx, true);
+      person = await Person.getPersonById(person.id);
+      person.job = 'Programmer';
+      person.rank = RANK[0];
+      person.responsibility = RESPONSIBILITY[1];
+      person.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
+
+      const updatedPerson = await Person.updatePerson(person.id, person);
+      should.exist(updatedPerson);
+      expect(updatedPerson.id === person.id).to.be.true;
+      updatedPerson.should.have.property('firstName', person.firstName);
+      updatedPerson.should.have.property('rank', person.rank);
+      updatedPerson.should.have.property('job', person.job);
+      updatedPerson.should.have.property('responsibility', person.responsibility);
+      expect(String(updatedPerson.responsibilityLocation) ===
+        String(person.responsibilityLocation)).to.be.true;
+      updatedPerson.should.have.property('primaryDomainUser');
+      (updatedPerson.primaryDomainUser).should.have.property('uniqueID', (<IDomainUser>person.primaryDomainUser).uniqueID);
+      (updatedPerson.primaryDomainUser).should.have.property('adfsUID', (<IDomainUser>person.primaryDomainUser).adfsUID);
+    });
     it('Should not delete the unchanged props', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const updatedPerson = await Person.updatePerson(person.id, { firstName: 'Danny' });
@@ -592,14 +619,15 @@ describe('Persons', () => {
   describe('#addDomainUser', () => {
     it('should add new primary domain user to the person', async () => {
       const person = await Person.createPerson(personExamples[3]);
-      const updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', true);
+      const updatedPerson = await Person.addNewUser(person.id, userStringEx, true);
       updatedPerson.should.exist;
       updatedPerson.should.have.property('primaryDomainUser');
       const populatedPerson = await Person.getPersonById(person.id);
       const user = <IDomainUser>populatedPerson.primaryDomainUser;
       user.id.should.exist;
       user.should.have.property('personId');
-      user.should.have.property('fullString', 'nitro@jello');
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);
       expect(String(user.personId) === person.id).to.be.true;
     });
 
@@ -607,7 +635,7 @@ describe('Persons', () => {
       const person = await Person.createPerson(personExamples[3]);
       const userObj: IDomainUser = {
         name: 'elad',
-        domain: 'ex',
+        domain: 'jello',
       };
       const updatedPerson = await Person.addNewUser(person.id, userObj, true);
       updatedPerson.should.exist;
@@ -665,18 +693,18 @@ describe('Persons', () => {
 
     it('should throw error when trying to add existing user', async () => {
       const person = await Person.createPerson(personExamples[3]);
-      await Person.addNewUser(person.id, 'nitro@jello', true);
-      await expectError(Person.addNewUser, ['nitro@jello']);
+      await Person.addNewUser(person.id, userStringEx, true);
+      await expectError(Person.addNewUser, [userStringEx]);
     });
 
     it('should add new secondary domain users to the person', async () => {
       const person = await Person.createPerson(personExamples[3]);
-      let updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', false);
+      let updatedPerson = await Person.addNewUser(person.id, userStringEx, false);
       updatedPerson.should.exist;
       updatedPerson.should.have.property('secondaryDomainUsers');
       updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
       // add another secondary user
-      updatedPerson = await Person.addNewUser(person.id, 'nitro2@jello', false);
+      updatedPerson = await Person.addNewUser(person.id, `nitro2@${domain}`, false);
       updatedPerson.secondaryDomainUsers.should.have.lengthOf(2);
       // check that it was populated correctly 
       const populatedPerson = await Person.getPersonById(person.id);
@@ -684,14 +712,14 @@ describe('Persons', () => {
       secUser.id.should.exist;
       secUser.should.have.property('personId');
       expect(String(secUser.personId) === person.id).to.be.true; // hate to convert objectId :\
-      secUser.should.have.property('fullString', 'nitro2@jello');
+      secUser.should.have.property('uniqueID', `nitro2@${domain}`);
     });
 
     it('should replace the primary user and make the previous secondaries', async () => {
       const person = await Person.createPerson(personExamples[3]);
-      let updatedPerson = await Person.addNewUser(person.id, 'nitro@jello', true);
-      updatedPerson = await Person.addNewUser(person.id, 'nitro2@jello', true);
-      updatedPerson = await Person.addNewUser(person.id, 'nitro3@jello', true);
+      let updatedPerson = await Person.addNewUser(person.id, userStringEx, true);
+      updatedPerson = await Person.addNewUser(person.id, `nitro2@${domain}`, true);
+      updatedPerson = await Person.addNewUser(person.id, `nitro3@${domain}`, true);
       updatedPerson.should.exist;
       // check that the person have both primary & secondary domain users
       updatedPerson.should.have.property('primaryDomainUser');
@@ -701,18 +729,18 @@ describe('Persons', () => {
       const populatedPerson = await Person.getPersonById(person.id);
       const primaryUser = <IDomainUser>populatedPerson.primaryDomainUser;
       primaryUser.should.exist;
-      primaryUser.should.have.property('fullString', 'nitro3@jello');
+      primaryUser.should.have.property('uniqueID', `nitro3@${domain}`);
       const secUser = <IDomainUser>populatedPerson.secondaryDomainUsers[0];
       secUser.should.exist;
-      secUser.should.have.property('fullString', 'nitro@jello');
+      secUser.should.have.property('uniqueID', userStringEx);
     });
   });
 
   describe('#getByDomainUserString', () => {
     it('should get the person by it\'s domain user string', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);
-      await Person.addNewUser(createdPerson.id, 'nitro@jello', true);
-      const person = await Person.getByDomainUserString('nitro@jello');
+      await Person.addNewUser(createdPerson.id, userStringEx, true);
+      const person = await Person.getByDomainUserString(userStringEx);
       person.should.exist;
       person.should.have.property('primaryDomainUser');
       // the person should be populated
@@ -723,7 +751,7 @@ describe('Persons', () => {
     });
     it('should throw error when the there is no matching user', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);
-      await Person.addNewUser(createdPerson.id, 'nitro@jello', true);
+      await Person.addNewUser(createdPerson.id, userStringEx, true);
       await expectError(Person.getByDomainUserString, ['other@jello']);
     });
   });

@@ -8,13 +8,14 @@ import { userFromString } from '../domainUser/domainUser.utils';
 import { DomainUserController } from '../domainUser/domainUser.controller';
 import { IDomainUser } from '../domainUser/domainUser.interface';
 import * as utils from '../utils.js';
-
+import { filterPersonDomainUsers } from './person.utils';
+import { DomainUserValidate } from '../domainUser/domainUser.validators';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
   _personService: PersonRepository;
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
-  
+
   constructor() {
     this._personService = new PersonRepository();
   }
@@ -22,7 +23,8 @@ export class Person {
   static async getPersons(query?: any): Promise<IPerson[]> {
     const cond = {};
     if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['alive'] = 'true';
-    const persons = await Person._personRepository.find(cond);
+    let persons: IPerson[] = await Person._personRepository.find(cond, 'primaryDomainUser secondaryDomainUsers');
+    persons = persons.map(person => filterPersonDomainUsers(person));
     return <IPerson[]>persons;
   }
 
@@ -32,11 +34,18 @@ export class Person {
     return person;
   }
 
+  static async getPersonByIdWithFilter(personID: string): Promise<IPerson> {
+    let person: IPerson = await Person.getPersonById(personID);
+    person = filterPersonDomainUsers(person);
+    return person;
+  }
+
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
-    const person = await Person._personRepository.findOne(cond);
+    let person: IPerson = (await Person._personRepository.findOne(cond));
     if (!person) return Promise.reject(new Error(`Cannot find person with ${nameField}: '${identityValue}'`));
+    person = filterPersonDomainUsers(person);
     return <IPerson>person;
   }
 
@@ -46,18 +55,19 @@ export class Person {
   }
 
   static async getByDomainUserString(userString: string): Promise<IPerson> {
-    const user = await DomainUserController.getByFullString(userString);
+    const user = await DomainUserController.getByUniqueID(userString);
     if (user && user.personId) {
       return await Person.getPersonById(<string>user.personId);
     }
     return null;
   }
 
-  static async addNewUser(personId: string, user: IDomainUser | string, isPrimary: boolean): 
-  Promise<IPerson> {
-    if (!personId)  return Promise.reject(new Error(`The system needs a personId to create a domain user ${JSON.stringify(user)}`));
-    if (!user)  return Promise.reject(new Error(`The system needs a user name and domain to create a domain user for a personId ${personId}`));
+  static async addNewUser(personId: string, user: IDomainUser | string, isPrimary: boolean):
+    Promise<IPerson> {
+    if (!personId) return Promise.reject(new Error(`The system needs a personId to create a domain user ${JSON.stringify(user)}`));
+    if (!user) return Promise.reject(new Error(`The system needs a user name and domain to create a domain user for a personId ${personId}`));
     const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
+    if (!DomainUserValidate.domain(userObj.domain)) return Promise.reject(new Error(`'The "${userObj.domain}" is not a recognized domain'`));
     // get the person (it also checks that the person exists)
     const person = await Person.getPersonById(personId);
     // connect the user to the person
@@ -71,7 +81,7 @@ export class Person {
         (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);
       }
       person.primaryDomainUser = newUser;
-    } else { 
+    } else {
       // fuck you mongoose! I am using copy only because of your stupid 'push'
       const copy: IDomainUser[] = <IDomainUser[]>person.secondaryDomainUsers.slice();
       copy.push(newUser);
@@ -88,7 +98,7 @@ export class Person {
       throw new Error('a person must have a direct group');
     }
     // delete empty or null field that are not necessary
-    utils.filterEmptyField(person, ['rank','phone', 'mobilePhone', 'address', 'job']);    
+    utils.filterEmptyField(person, ['rank', 'phone', 'mobilePhone', 'address', 'job']);
     // get direct group - will throw error if the group doesn`t exist
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
@@ -137,15 +147,16 @@ export class Person {
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    const updatedPerson = await Person._personRepository.update(id, change);
+    let updatedPerson = await Person._personRepository.update(id, change, 'primaryDomainUser secondaryDomainUsers');
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
+    updatedPerson = filterPersonDomainUsers(updatedPerson);
     return <IPerson>updatedPerson;
   }
 
   static async updateTeam(personID: string, newTeamID: string): Promise<IPerson> {
     const person = await Person.getPersonById(personID);
     person.directGroup = newTeamID;
-    return await Person.updatePerson(personID ,person);
+    return await Person.updatePerson(personID, person);
   }
 
   // Will transfer person between groups automatically. Is that what we want?
@@ -173,7 +184,7 @@ export class Person {
   static async manage(personID: string, groupID: string) {
     const person = await Person.getPersonById(personID);
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
-    
+
     if (String(person.directGroup) !== String(groupID)) {
       return Promise.reject(new Error('This person is not a member in this group, hence can not be appointed as a leaf'));
     }

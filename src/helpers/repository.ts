@@ -63,7 +63,9 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     if (populateOptions) {
       updateQuery = updateQuery.populate(populateOptions);
     }
-    return updateQuery.exec();
+    return updateQuery.exec().then((result) => {
+      return (result ? result.toObject() : result);
+    });
   }
 
   delete(_id: any): Promise<any> {
@@ -77,7 +79,9 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
       findQuery = findQuery.populate(populateOptions);
     }
 
-    return findQuery.exec();
+    return findQuery.exec().then((result) => {
+      return (result ? result.toObject() : result);
+    });
   }
 
   findOne(cond?: Object, populateOptions?: string | Object, select?: string): Promise<T> {
@@ -87,8 +91,10 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     }
     if (select) {
       findQuery = findQuery.select(select);
-    }
-    return findQuery.exec();
+    }      
+    return findQuery.exec().then((result) => {
+      return (result ? result.toObject() : result);   
+    });
   }
 
   find(cond?: Object, populate?: string | Object, select?: string): Promise<T[]> {
@@ -101,7 +107,9 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
       findPromise = findPromise.select(select);
     }
 
-    return findPromise.exec();
+    return findPromise.exec().then((result) => {
+      return (result ? result.map((mongoObject => mongoObject.toObject())) : result);
+    });
   }
 
 }
