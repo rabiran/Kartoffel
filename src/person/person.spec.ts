@@ -745,9 +745,12 @@ describe('Persons', () => {
       person.should.have.property('primaryDomainUser');
       // the person should be populated
       const user = <IDomainUser>person.primaryDomainUser;
-      user.id.should.exist;
-      user.should.have.property('personId');
-      expect(String(user.personId) === person.id).to.be.true;
+      expect(user.id).to.be.undefined;
+      expect(user.personId).to.be.undefined;
+      expect(user.domain).to.be.undefined;
+      expect(user.name).to.be.undefined;      
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);      
     });
     it('should throw error when the there is no matching user', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);
