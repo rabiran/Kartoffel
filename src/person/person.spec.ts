@@ -752,6 +752,21 @@ describe('Persons', () => {
       user.should.have.property('uniqueID', userStringEx);
       user.should.have.property('adfsUID', adfsUIDEx);      
     });
+    it('should get the person by it\'s domain user string when the there is no case match', async () => {
+      const createdPerson = await Person.createPerson(personExamples[3]);
+      await Person.addNewUser(createdPerson.id, userStringEx, true);
+      const person = await Person.getByDomainUserString(`nItRo@${domain}`);
+      person.should.exist;
+      person.should.have.property('primaryDomainUser');
+      // the person should be populated
+      const user = <IDomainUser>person.primaryDomainUser;
+      expect(user.id).to.be.undefined;
+      expect(user.personId).to.be.undefined;
+      expect(user.domain).to.be.undefined;
+      expect(user.name).to.be.undefined;      
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);      
+    });
     it('should throw error when the there is no matching user', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);
       await Person.addNewUser(createdPerson.id, userStringEx, true);

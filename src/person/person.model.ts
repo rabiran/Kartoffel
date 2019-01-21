@@ -16,6 +16,10 @@ const schemaOptions = {
     virtuals: true,
     versionKey:false,
   },
+  collation: {
+    locale:'en',
+    strength: 1,
+  },
 };
 
 function autoPopulate(next: Function) {
