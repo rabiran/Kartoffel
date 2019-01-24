@@ -13,6 +13,7 @@ import * as _             from 'lodash';
 import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
 
+import { configure as authConfigure, router as authRouter } from './auth/auth';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 
@@ -50,6 +51,9 @@ if (process.env.NODE_ENV !== 'test') {
  */
 app.set('port', process.env.PORT || 3000);
 
+// configure auth strategies
+authConfigure();
+
 // Don't log while testing
 if (process.env.NODE_ENV !== 'test') {
   app.use('/api', logger('dev')); // Morgan
@@ -58,6 +62,10 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(passport.initialize()); // passport middleware
+
+// example auth route
+app.use('/auth', authRouter);
 
 app.use('/api/persons', personRouter);
 app.use('/api/organizationGroups', organizationGroupRouter);
