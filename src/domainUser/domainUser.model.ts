@@ -15,6 +15,10 @@ const schemaOptions = {
     virtuals: true,
     versionKey:false,
   },
+  collation: {
+    locale:'en',
+    strength: 1,
+  },
 };
 
 export const DomainUserSchema = new mongoose.Schema({

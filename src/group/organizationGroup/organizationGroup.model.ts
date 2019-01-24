@@ -5,6 +5,20 @@ import { IPerson } from '../../person/person.interface';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
+const schemaOptions = {
+  toObject: {
+    virtuals: true,
+  },
+  toJSON: {
+    virtuals: true,
+    versionKey:false,
+  },
+  collation: {
+    locale:'en',
+    strength: 1,
+  },
+  timestamps: true,
+};
 export const OrganizationGroupSchema = new mongoose.Schema(
   {
     name: {
@@ -34,16 +48,7 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       default: true,
     },
   }, 
-  {
-    toObject: {
-      virtuals: true,
-    },
-    toJSON: {
-      virtuals: true,
-      versionKey:false,
-    },
-    timestamps: true,
-  }
+  schemaOptions
 );
 
 OrganizationGroupSchema.virtual('directManagers', {
