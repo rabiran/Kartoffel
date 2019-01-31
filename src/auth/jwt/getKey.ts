@@ -17,15 +17,12 @@ let publicKey: string = null;
  * @param done 
  */
 export async function getJWTPublicKey(request: any, rawJwtToken: string, done: (err: Error, pubKey: any) => void) {
-  if (publicKey) {
+  if (publicKey) { // we already got the public key
     return done(null, publicKey);
   }
-  try {
+  try { // request the public key from the auth server
     const res: string = (await axiosInstance.get(process.env.JWT_PUBLIC_KEY_PATH)).data;
-    if (typeof res !== 'string') { console.log('public key type:', typeof res); }
-    publicKey = res;
-    console.log('pubKey:', publicKey);
-    console.log('rawToken:', rawJwtToken);
+    publicKey = res; // save it for future calls
     done(null, res);
   } catch (err) {
     done(err, null);
