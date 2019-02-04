@@ -11,7 +11,8 @@ const opts: StrategyOptions = {
 };
 
 const jwtStrategy = new JwtStrategy(opts, (jwt_payload, done) => {
-  console.log('jwt_payload:', JSON.stringify(jwt_payload));
+  // console.log('jwt_payload:', JSON.stringify(jwt_payload));
+  // for now just pass the payload 
   done(null, jwt_payload);
 });
 

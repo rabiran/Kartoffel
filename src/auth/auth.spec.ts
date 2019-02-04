@@ -25,6 +25,7 @@ const mockGetKey = {
   },
 };
 
+// imported later
 let authMiddleware: Function = null;
 
 describe('Auth middleware', () => {
@@ -60,14 +61,9 @@ describe('Auth middleware', () => {
     const req = httpMocks.createRequest({ headers: { authorization: 'shitty_token' } });
     const res = httpMocks.createResponse();
     authMiddleware(req, res, nextFunction);
-    // middleware response shoul be 401 - unauthorized
+    // middleware response should be 401 - unauthorized
     res.statusCode.should.be.equal(401);
-    // 
     res._isEndCalled().should.be.true;
     nextFunction.called.should.be.false;
   });
 });
-
-// mockery.deregisterAll();
-// mockery.disable();
-// console.log('disabled!');

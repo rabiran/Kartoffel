@@ -13,7 +13,7 @@ import * as _             from 'lodash';
 import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
 
-import { configure as authConfigure, router as authRouter } from './auth/auth';
+import { configure as authConfigure, middleware as isAuthenticated } from './auth/auth';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 
@@ -64,8 +64,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(passport.initialize()); // passport middleware
 
-// example auth route
-app.use('/auth', authRouter);
+// use the auth middleware 
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api', isAuthenticated);
+} else {
+  console.log('app configured in test env - api routes dont require authentication');
+}
 
 app.use('/api/persons', personRouter);
 app.use('/api/organizationGroups', organizationGroupRouter);
