@@ -96,7 +96,10 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
       return (result ? result.toObject() : result);   
     });
   }
-
+  findOneOr(cond?: [Object], populateOptions?: string | Object, select?: string): Promise<T> {     
+    return this.findOne({ $or: cond });
+  }
+  
   find(cond?: Object, populate?: string | Object, select?: string): Promise<T[]> {
 
     let findPromise = this._model.find(cond);

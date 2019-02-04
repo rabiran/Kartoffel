@@ -43,12 +43,18 @@ export class Person {
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
-    let person: IPerson = (await Person._personRepository.findOne(cond));
+    let person: IPerson = await Person._personRepository.findOne(cond);
     if (!person) return Promise.reject(new Error(`Cannot find person with ${nameField}: '${identityValue}'`));
     person = filterPersonDomainUsers(person);
-    return <IPerson>person;
+    return person;
   }
-
+  static async getPersonByIdentifier(nameFields: [string], identityValue: string) {
+    const cond: any = nameFields.map(field => ({ [field]: identityValue }));
+    let person: IPerson = await Person._personRepository.findOneOr(cond);
+    if (!person) return Promise.reject(new Error(`Cannot find person with identityValue: '${identityValue}'`));
+    person = filterPersonDomainUsers(person);
+    return person;
+  }
   static async getUpdatedFrom(from: Date, to: Date) {
     const persons = await Person._personRepository.getUpdatedFrom(from, to);
     return <IPerson[]>persons;
