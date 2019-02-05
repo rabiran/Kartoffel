@@ -10,6 +10,7 @@ import { IDomainUser } from '../domainUser/domainUser.interface';
 import * as utils from '../utils.js';
 import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
+import  * as consts  from '../config/db-enums';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -102,9 +103,20 @@ export class Person {
     // check that 'directGroup' field exists
     if (!person.directGroup) {
       throw new Error('a person must have a direct group');
-    }
+    }  
     // delete empty or null field that are not necessary
     utils.filterEmptyField(person, ['rank', 'phone', 'mobilePhone', 'address', 'job']);
+    
+    // Chack some validation
+    // Check if personalNumber equal to identityCard
+    if (!(!person.personalNumber && !person.identityCard) && person.personalNumber === person.identityCard) {
+      throw new Error('The personal number and identity card with the same value');
+    }
+    // Checks if there is a rank for the person who needs to
+    if (person.entityType === consts.ENTITY_TYPE[1] && !person.rank) person.rank = consts.RANK[0];
+    // Checks whether the value in personalNumber or identityNumber exists in one of them
+    const a = await Person._personRepository.findOr(['personalNumber', 'identityCard'], [person.personalNumber, person.identityCard].filter(x => x != null));
+    if (a.length > 0) throw new Error('The personal number or identity card exists');
     // get direct group - will throw error if the group doesn`t exist
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
