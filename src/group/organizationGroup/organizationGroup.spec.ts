@@ -270,7 +270,7 @@ describe('Strong Groups', () => {
     it('should get the group with it\'s member and without it after discharge', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
       const p = await Person.createPerson({
-        identityCard: '000000311',
+        identityCard: '000000315',
         personalNumber: '1000002',
         firstName: 'elaf',
         lastName: 'hhhh',
@@ -447,7 +447,7 @@ async function bigTree() {
   await OrganizationGroup.childrenAdoption(parent_3.id, [child_31.id, child_32.id, child_33.id]);
 
   const person_11 = await Person.createPerson(<IPerson>{
-    identityCard: '000000011',
+    identityCard: '000000018',
     personalNumber: '0000011',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -458,7 +458,7 @@ async function bigTree() {
     entityType: ENTITY_TYPE[0],
   });
   const person_12 = await Person.createPerson(<IPerson>{
-    identityCard: '000000012',
+    identityCard: '000000125',
     personalNumber: '0000012',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -469,7 +469,7 @@ async function bigTree() {
     entityType: ENTITY_TYPE[0],
   });
   const person_21 = await Person.createPerson(<IPerson>{
-    identityCard: '000000021',
+    identityCard: '000000026',
     personalNumber: '0000021',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -480,7 +480,7 @@ async function bigTree() {
     entityType: ENTITY_TYPE[0],
   });
   const person_111 = await Person.createPerson(<IPerson>{
-    identityCard: '000000111',
+    identityCard: '000000117',
     personalNumber: '0000111',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -491,7 +491,7 @@ async function bigTree() {
     entityType: ENTITY_TYPE[0],
   });
   const person_221 = await Person.createPerson(<IPerson>{
-    identityCard: '000000221',
+    identityCard: '000000224',
     personalNumber: '0000221',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -502,7 +502,7 @@ async function bigTree() {
     entityType: ENTITY_TYPE[0],
   });
   const person_311 = await Person.createPerson(<IPerson>{
-    identityCard: '000000311',
+    identityCard: '000000315',
     personalNumber: '0000311',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -513,7 +513,7 @@ async function bigTree() {
     entityType: ENTITY_TYPE[0],
   });
   const person_312 = await Person.createPerson(<IPerson>{
-    identityCard: '000000312',
+    identityCard: '000002311',
     personalNumber: '0000312',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -536,7 +536,7 @@ async function bigTree() {
   });
 
   const friede = await Person.createPerson(<IPerson>{
-    identityCard: '100000001',
+    identityCard: '100000009',
     personalNumber: '1000001',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -547,7 +547,7 @@ async function bigTree() {
     entityType: ENTITY_TYPE[0],
   });
   const gale = await Person.createPerson(<IPerson>{
-    identityCard: '100000002',
+    identityCard: '120000005',
     personalNumber: '1000002',
     firstName: 'Mazal',
     lastName: 'Tov',

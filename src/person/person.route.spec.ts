@@ -24,7 +24,7 @@ const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [  
   <IPerson>{
-    identityCard: '234567891',
+    identityCard: '234567899',
     personalNumber: '3456712',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -33,7 +33,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    identityCard: '567891234',
+    identityCard: '567891239',
     personalNumber: '1234567',
     firstName: 'Yonatan',
     lastName: 'Tal',
@@ -42,7 +42,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    identityCard: '123456789',
+    identityCard: '123456782',
     personalNumber: '2345671',
     firstName: 'Avi',
     lastName: 'Ron',
@@ -52,7 +52,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    identityCard: '345678912',
+    identityCard: '345678916',
     personalNumber: '4567123',
     firstName: 'Eli',
     lastName: 'Kopter',
@@ -65,7 +65,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    identityCard: '456789123',
+    identityCard: '456789122',
     personalNumber: '5671234',
     firstName: 'Tiki',
     lastName: 'Poor',

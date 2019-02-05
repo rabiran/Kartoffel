@@ -28,7 +28,7 @@ const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [
   <IPerson>{
-    identityCard: '123456789',
+    identityCard: '123456782',
     personalNumber: '2345671',
     firstName: 'Avi',
     lastName: 'Ron',
@@ -38,7 +38,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    identityCard: '234567891',
+    identityCard: '234567899',
     personalNumber: '3456712',
     firstName: 'Mazal',
     lastName: 'Tov',
@@ -47,7 +47,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    identityCard: '345678912',
+    identityCard: '123458788',
     personalNumber: '4567123',
     firstName: 'Eli',
     lastName: 'Kopter',
@@ -60,7 +60,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    identityCard: '456789123',
+    identityCard: '456789122',
     personalNumber: '5671234',
     firstName: 'Tiki',
     lastName: 'Poor',
@@ -178,7 +178,7 @@ describe('Persons', () => {
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
         ...personExamples[4],
-        identityCard: '1234567',
+        identityCard: '1234566',
         primaryDomainUser: dbIdExample[3],
         secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
         entityType: ENTITY_TYPE[0],
@@ -265,7 +265,7 @@ describe('Persons', () => {
         await expectError(Person.createPerson, [person]);
         person.identityCard = '12345678a';
         await expectError(Person.createPerson, [person]);
-        person.identityCard = '12345';
+        person.identityCard = '1234';
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when personal number is not valid', async () => {
@@ -371,7 +371,7 @@ describe('Persons', () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const returnedPerson = await Person.getPersonById(person.id);
       should.exist(returnedPerson);
-      person.should.have.property('identityCard', '123456789');
+      person.should.have.property('identityCard', '123456782');
       person.should.have.property('firstName', 'Avi');
     });
   });
