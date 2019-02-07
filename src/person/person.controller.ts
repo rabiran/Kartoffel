@@ -108,14 +108,16 @@ export class Person {
     
     // Chack some validation
     // Check if personalNumber equal to identityCard
-    if (!(!person.personalNumber && !person.identityCard) && person.personalNumber === person.identityCard) {
+    if (person.personalNumber && person.identityCard && person.personalNumber === person.identityCard) {
       throw new Error('The personal number and identity card with the same value');
     }
     // Checks if there is a rank for the person who needs to
     if (person.entityType === consts.ENTITY_TYPE[1] && !person.rank) person.rank = consts.RANK[0];
     // Checks whether the value in personalNumber or identityNumber exists in one of them
-    const a = await Person._personRepository.findOr(['personalNumber', 'identityCard'], [person.personalNumber, person.identityCard].filter(x => x != null));
-    if (a.length > 0) throw new Error('The personal number or identity card exists');
+    // Checks value that exist
+    const existValue = [person.personalNumber, person.identityCard].filter(x => x != null);
+    const result = await Person._personRepository.findOr(['personalNumber', 'identityCard'], existValue);
+    if (result.length > 0) throw new Error('The personal number or identity card exists');
     // get direct group - will throw error if the group doesn`t exist
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
