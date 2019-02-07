@@ -49,9 +49,8 @@ export class Person {
     person = filterPersonDomainUsers(person);
     return person;
   }
-  static async getPersonByIdentifier(nameFields: [string], identityValue: string) {
-    const cond: any = nameFields.map(field => ({ [field]: identityValue }));
-    let person: IPerson = await Person._personRepository.findOneOr(cond);
+  static async getPersonByIdentifier(nameFields: string[], identityValue: string) {
+    let person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
     if (!person) return Promise.reject(new Error(`Cannot find person with identityValue: '${identityValue}'`));
     person = filterPersonDomainUsers(person);
     return person;

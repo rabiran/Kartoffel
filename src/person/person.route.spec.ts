@@ -18,11 +18,11 @@ const expect = chai.expect;
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 
-const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
+const domainMap: Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
-const personExamples: IPerson[] = [  
+const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '234567899',
     personalNumber: '3456712',
@@ -72,7 +72,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     job: 'cosmetician 1',
     entityType: ENTITY_TYPE[0],
-  },  
+  },
 ];
 
 const BASE_URL = '/api/persons';
@@ -104,7 +104,7 @@ describe('Person', () => {
           res.body.should.be.an('array');
           res.body.length.should.be.eql(2);
           const persons = res.body;
-        }).catch((err) => {throw err;});
+        }).catch((err) => { throw err; });
     });
     it('Should get persons without person that dead', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -118,7 +118,7 @@ describe('Person', () => {
           res.should.have.status(200);
           res.body.should.be.an('array');
           res.body.length.should.be.eql(1);
-        }).catch((err) => {throw err;});
+        }).catch((err) => { throw err; });
     });
     it('Should get persons with person that dead', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -132,22 +132,22 @@ describe('Person', () => {
           res.should.have.status(200);
           res.body.should.be.an('array');
           res.body.length.should.be.eql(2);
-        }).catch((err) => {throw err;});
+        }).catch((err) => { throw err; });
     });
   });
   describe('/GET person', () => {
-    it('Should return 404 when person does not exist',  (done) => {
+    it('Should return 404 when person does not exist', (done) => {
       chai.request(server)
-      .get(`${BASE_URL}/${dbIdExample[0]}`)
-      .end((err, res) => {
-        err.should.exist;
-        res.should.have.status(404);
-        const errMsg = res.text;
-        errMsg.should.be.equal(`Cannot find person with ID: ${dbIdExample[0]}`);
-        done();
-      });
+        .get(`${BASE_URL}/${dbIdExample[0]}`)
+        .end((err, res) => {
+          err.should.exist;
+          res.should.have.status(404);
+          const errMsg = res.text;
+          errMsg.should.be.equal(`Cannot find person with ID: ${dbIdExample[0]}`);
+          done();
+        });
     });
-    it('Should return a person according to "_id"', async() => {
+    it('Should return a person according to "_id"', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
         .get(`${BASE_URL}/${person.id}`)
@@ -159,7 +159,7 @@ describe('Person', () => {
           res.body.should.have.property('lastName', personExamples[0].lastName);
         }).catch((err) => { throw err; });
     });
-    it('Should return a person according to "personalNumber"', async() => {
+    it('Should return a person according to "personalNumber"', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
         .get(`${BASE_URL}/personalNumber/${person.personalNumber}`)
@@ -171,7 +171,7 @@ describe('Person', () => {
           res.body.should.have.property('lastName', personExamples[0].lastName);
         }).catch((err) => { throw err; });
     });
-    it('Should return a person according to "identityCard"', async() => {
+    it('Should return a person according to "identityCard"', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await chai.request(server)
         .get(`${BASE_URL}/identityCard/${person.identityCard}`)
@@ -183,29 +183,50 @@ describe('Person', () => {
           res.body.should.have.property('lastName', personExamples[0].lastName);
         }).catch((err) => { throw err; });
     });
-
+    it.only('Should return a person according to "identityCard" or "personalNumber"', async () => {
+      const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      await chai.request(server)
+        .get(`${BASE_URL}/identifier/${person1.identityCard}`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.exist;
+          res.body.should.have.property('personalNumber', personExamples[0].personalNumber);
+          res.body.should.have.property('firstName', personExamples[0].firstName);
+          res.body.should.have.property('lastName', personExamples[0].lastName);
+        }).catch((err) => { throw err; });
+      await chai.request(server)
+        .get(`${BASE_URL}/identifier/${person2.personalNumber}`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.exist;
+          res.body.should.have.property('identityCard', personExamples[1].identityCard);
+          res.body.should.have.property('firstName', personExamples[1].firstName);
+          res.body.should.have.property('lastName', personExamples[1].lastName);
+        }).catch((err) => { throw err; });
+    });
     it('should return the person by it\'s domain user', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .then((res) => {
-        const person = res.body;
-        return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ 
-          personId: person.id,
-          uniqueID: userStringEx,
-          isPrimary: true,
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/domainUser`)
+            .send({
+              personId: person.id,
+              uniqueID: userStringEx,
+              isPrimary: true,
+            });
+        })
+        .then(res => chai.request(server).get(`${BASE_URL}/domainUser/${userStringEx}`))
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.exist;
+          const person = res.body;
+          person.should.exist;
+          person.should.have.property('primaryDomainUser');
+          const user = person.primaryDomainUser;
+          user.should.have.property('uniqueID', userStringEx);
+          user.should.have.property('adfsUID', adfsUIDEx);
         });
-      })
-      .then(res => chai.request(server).get(`${BASE_URL}/domainUser/${userStringEx}`))
-      .then((res) => {
-        res.should.have.status(200);
-        res.should.exist;
-        const person = res.body;
-        person.should.exist;
-        person.should.have.property('primaryDomainUser');
-        const user = person.primaryDomainUser;        
-        user.should.have.property('uniqueID', userStringEx);
-        user.should.have.property('adfsUID', adfsUIDEx);
-      });
     });
   });
   describe('/GET updated persons', () => {
@@ -223,20 +244,20 @@ describe('Person', () => {
     it('Should return the updated persons from a certain date', async () => {
       const clock = sinon.useFakeTimers();
       await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      clock.tick(1000); 
+      clock.tick(1000);
       const from = Date.now();
       clock.tick(1000);
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
       clock.tick(1000);
 
       await chai.request(server)
-            .get(`${BASE_URL}/getUpdated/${from}`)
-            .then((res) => {
-              res.should.have.status(200);
-              const persons = res.body;
-              persons.should.have.lengthOf(1);
-              persons[0].should.have.property('identityCard', personExamples[1].identityCard);
-            }).catch((err) => { throw err; });
+        .get(`${BASE_URL}/getUpdated/${from}`)
+        .then((res) => {
+          res.should.have.status(200);
+          const persons = res.body;
+          persons.should.have.lengthOf(1);
+          persons[0].should.have.property('identityCard', personExamples[1].identityCard);
+        }).catch((err) => { throw err; });
       clock.restore();
     });
   });
@@ -263,13 +284,13 @@ describe('Person', () => {
         });
     });
     it('should return error when sending unexpected fields', (done) => {
-      chai.request(server).post(BASE_URL).send({ ...personExamples[0], eyeColor:'blue' })
-      .end((err, res) => {
-        err.should.exist;
-        err.should.have.status(400);
-        const errMsg = res.text;
-        done();
-      });
+      chai.request(server).post(BASE_URL).send({ ...personExamples[0], eyeColor: 'blue' })
+        .end((err, res) => {
+          err.should.exist;
+          err.should.have.status(400);
+          const errMsg = res.text;
+          done();
+        });
     });
     it('Should return the created person', (done) => {
       chai.request(server)
@@ -290,80 +311,80 @@ describe('Person', () => {
   describe('/POST person/domainUser', () => {
     it('should return the person with the newly created primary domainUser', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .then((res) => {
-        const person = res.body;
-        return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ 
-          personId: person.id,
-          uniqueID: userStringEx,
-          isPrimary: true,
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/domainUser`)
+            .send({
+              personId: person.id,
+              uniqueID: userStringEx,
+              isPrimary: true,
+            });
+        })
+        .then((res) => {
+          res.should.exist;
+          res.should.have.status(200);
+          const updatedPerson = res.body;
+          updatedPerson.should.have.property('primaryDomainUser');
         });
-      })
-      .then((res) => {
-        res.should.exist;
-        res.should.have.status(200);
-        const updatedPerson = res.body;
-        updatedPerson.should.have.property('primaryDomainUser');
-      });
     });
 
     it('should return the person with the newly created secondary domainUser', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .then((res) => {
-        const person = res.body;
-        return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ 
-          personId: person.id,
-          uniqueID: userStringEx,
-          isPrimary: false,
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/domainUser`)
+            .send({
+              personId: person.id,
+              uniqueID: userStringEx,
+              isPrimary: false,
+            });
+        })
+        .then((res) => {
+          res.should.exist;
+          res.should.have.status(200);
+          const updatedPerson = res.body;
+          updatedPerson.should.have.property('secondaryDomainUsers');
+          updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
         });
-      })
-      .then((res) => {
-        res.should.exist;
-        res.should.have.status(200);
-        const updatedPerson = res.body;
-        updatedPerson.should.have.property('secondaryDomainUsers');
-        updatedPerson.secondaryDomainUsers.should.have.lengthOf(1);
-      });
     });
 
     it('should return error when the domain user string is invalid', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .then((res) => {
-        const person = res.body;
-        return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, uniqueID: `${userStringEx}@`, isPrimary: true });
-      })
-      .catch((err) => {
-        err.should.exist;
-      });
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/domainUser`)
+            .send({ personId: person.id, uniqueID: `${userStringEx}@`, isPrimary: true });
+        })
+        .catch((err) => {
+          err.should.exist;
+        });
     });
     it('should return error when the domain user is\'t recognaized', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .then((res) => {
-        const person = res.body;
-        return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, uniqueID: `abc@wrong`, isPrimary: true });
-      })
-      .catch((err) => {
-        err.should.exist;
-      });
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/domainUser`)
+            .send({ personId: person.id, uniqueID: `abc@wrong`, isPrimary: true });
+        })
+        .catch((err) => {
+          err.should.exist;
+        });
     });
     it('should return error when the domain user already exists', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-      .then((res) => {
-        const person = res.body;
-        return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, uniqueID: userStringEx, isPrimary: true });
-      })
-      .then((res) => {
-        const person = res.body;
-        return chai.request(server).post(`${BASE_URL}/domainUser`)
-        .send({ personId: person.id, uniqueID: userStringEx, isPrimary: false });
-      })
-      .catch((err) => {
-        err.should.exist;
-      });
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/domainUser`)
+            .send({ personId: person.id, uniqueID: userStringEx, isPrimary: true });
+        })
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/domainUser`)
+            .send({ personId: person.id, uniqueID: userStringEx, isPrimary: false });
+        })
+        .catch((err) => {
+          err.should.exist;
+        });
     });
   });
 
@@ -397,7 +418,7 @@ describe('Person', () => {
       it('should return error when trying to update non-updatable field', async () => {
         const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
         await chai.request(server).put(`${BASE_URL}/${person.id}`)
-          .send({ personalNumber:'1234567' })
+          .send({ personalNumber: '1234567' })
           .then()
           .catch((err) => {
             err.should.exist;
@@ -439,8 +460,8 @@ describe('Person', () => {
             res.should.exist;
             expect(res.body.directGroup.toString() === group.id.toString()).to.be.ok;
             res.body.should.have.property('hierarchy');
-            res.body.hierarchy.should.have.ordered.members([group.name]);           
-          }).catch((err) => { throw err; }); 
+            res.body.hierarchy.should.have.ordered.members([group.name]);
+          }).catch((err) => { throw err; });
       });
     });
   });
