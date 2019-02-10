@@ -183,7 +183,7 @@ describe('Person', () => {
           res.body.should.have.property('lastName', personExamples[0].lastName);
         }).catch((err) => { throw err; });
     });
-    it.only('Should return a person according to "identityCard" or "personalNumber"', async () => {
+    it('Should return a person according to "identityCard" or "personalNumber"', async () => {
       const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await chai.request(server)

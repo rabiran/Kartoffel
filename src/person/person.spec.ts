@@ -266,7 +266,7 @@ describe('Persons', () => {
         const createdPerson = await Person.createPerson(person);
         should.not.exist(createdPerson.rank);
       });
-      it.only('Should throw an error when Identity Card is not valid', async () => {
+      it('Should throw an error when Identity Card is not valid', async () => {
         const person = { ...personExamples[1] };
         person.identityCard = '1234567890';
         await expectError(Person.createPerson, [person]);
