@@ -10,6 +10,7 @@ import { IDomainUser } from '../domainUser/domainUser.interface';
 import * as utils from '../utils.js';
 import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
+import  * as consts  from '../config/db-enums';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -43,12 +44,17 @@ export class Person {
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
-    let person: IPerson = (await Person._personRepository.findOne(cond));
+    let person: IPerson = await Person._personRepository.findOne(cond);
     if (!person) return Promise.reject(new Error(`Cannot find person with ${nameField}: '${identityValue}'`));
     person = filterPersonDomainUsers(person);
-    return <IPerson>person;
+    return person;
   }
-
+  static async getPersonByIdentifier(nameFields: string[], identityValue: string) {
+    let person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
+    if (!person) return Promise.reject(new Error(`Cannot find person with identityValue: '${identityValue}'`));
+    person = filterPersonDomainUsers(person);
+    return person;
+  }
   static async getUpdatedFrom(from: Date, to: Date) {
     const persons = await Person._personRepository.getUpdatedFrom(from, to);
     return <IPerson[]>persons;
@@ -96,9 +102,22 @@ export class Person {
     // check that 'directGroup' field exists
     if (!person.directGroup) {
       throw new Error('a person must have a direct group');
-    }
+    }  
     // delete empty or null field that are not necessary
     utils.filterEmptyField(person, ['rank', 'phone', 'mobilePhone', 'address', 'job']);
+    
+    // Chack some validation
+    // Check if personalNumber equal to identityCard
+    if (person.personalNumber && person.identityCard && person.personalNumber === person.identityCard) {
+      throw new Error('The personal number and identity card with the same value');
+    }
+    // Checks if there is a rank for the person who needs to
+    if (person.entityType === consts.ENTITY_TYPE[1] && !person.rank) person.rank = consts.RANK[0];
+    // Checks whether the value in personalNumber or identityNumber exists in one of them
+    // Checks value that exist
+    const existValue = [person.personalNumber, person.identityCard].filter(x => x != null);
+    const result = await Person._personRepository.findOr(['personalNumber', 'identityCard'], existValue);
+    if (result.length > 0) throw new Error('The personal number or identity card exists');
     // get direct group - will throw error if the group doesn`t exist
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
