@@ -360,7 +360,7 @@ describe('Persons', () => {
       });
       it('should throw error when service type is invalid', async () => {
         const person = { ...personExamples[1] };
-        person.serviceType = serviceTypes[3] + '_bullshit';
+        person.serviceType = serviceTypes[3] + 'bcd';
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when clearance is invalid', async () => {
