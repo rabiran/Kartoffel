@@ -3,9 +3,9 @@ import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 
-
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const serviceType : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(consts.SERVICE_TYPE)));
 
 const schemaOptions = {
   toObject: {
@@ -65,6 +65,10 @@ export const PersonSchema = new mongoose.Schema(
       type: String,
       enum: consts.ENTITY_TYPE,
       required: [true, 'You must enter entity type'],
+    },
+    serviceType: {
+      type: String,
+      enum: { values: [...serviceType.keys()], message: 'The "{VALUE}" is not a recognized service type' },
     },
     firstName: {
       type: String,
@@ -143,8 +147,8 @@ export const PersonSchema = new mongoose.Schema(
       enum: consts.RANK,
       required: [function () {
         // In update the mongo does not keep the document in "this" 
-        const srvcTyp = typeof this.getUpdate !== 'function' ? this.entityType : this.getUpdate().$set.entityType;       
-        return srvcTyp === consts.ENTITY_TYPE[1];
+        const entyTyp = typeof this.getUpdate !== 'function' ? this.entityType : this.getUpdate().$set.entityType;       
+        return entyTyp === consts.ENTITY_TYPE[1];
       },
         'You must enter a rank!'],
     },
