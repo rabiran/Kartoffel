@@ -10,10 +10,9 @@ const opts: StrategyOptions = {
   secretOrKeyProvider: getJWTPublicKey,
 };
 
-const jwtStrategy = new JwtStrategy(opts, (jwt_payload, done) => {
-  // console.log('jwt_payload:', JSON.stringify(jwt_payload));
+const jwtStrategy = new JwtStrategy(opts, (jwtPayload, done) => {
   // for now just pass the payload 
-  done(null, jwt_payload);
+  done(null, jwtPayload);
 });
 
 export const Strategy = jwtStrategy;
