@@ -68,7 +68,7 @@ export const PersonSchema = new mongoose.Schema(
     },
     serviceType: {
       type: String,
-      enum: { values: [...serviceType.keys()], message: 'The "{VALUE}" is not a recognized domain' },
+      enum: { values: [...serviceType.keys()], message: 'The "{VALUE}" is not a recognized service type' },
     },
     firstName: {
       type: String,
