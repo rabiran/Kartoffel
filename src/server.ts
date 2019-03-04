@@ -8,11 +8,10 @@ import * as logger        from 'morgan';
 import * as path          from 'path';
 import * as mongo         from 'connect-mongo'; // ToUse?
 import * as mongoose      from 'mongoose';
-import * as passport      from 'passport';
 import * as _             from 'lodash';
 import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
-
+import * as auth from './auth/auth';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 
@@ -58,6 +57,18 @@ if (process.env.NODE_ENV !== 'test') {
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(auth.initialize());
+
+// use the auth middleware 
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api', auth.middlewares);
+} else { // add auth test routes while testing
+  console.log('app configured in test env - api routes do not require authentication, added auth test route at /test/auth');
+  app.all('/test/auth/', auth.middlewares, (req: express.Request, res: express.Response, 
+    next: express.NextFunction) => {
+    res.sendStatus(200);
+  });
+}
 
 app.use('/api/persons', personRouter);
 app.use('/api/organizationGroups', organizationGroupRouter);

@@ -1,6 +1,3 @@
-process.env.NODE_ENV = 'test';
-process.env.PORT = '8080';
-
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as server from '../server';
