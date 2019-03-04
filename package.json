@@ -8,7 +8,7 @@
     "build": "npm run delete-dist-folder && npm run tslint && npm run build-ts",
     "serve": "node -r dotenv/config dist/server.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve\"",
-    "test": " npm run build && mocha --reporter mochawesome dist/**/spec.helper.js dist/**/*.spec.js dist/**/**/*.spec.js --timeout 0",
+    "test": "npm run build && mocha --reporter mochawesome dist/**/spec.helper.js dist/**/*.spec.js dist/**/**/*.spec.js --timeout 0",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
     "build-sass": "node-sass src/public/css/main.scss dist/public/css/main.css",

@@ -61,6 +61,25 @@ describe('Auth routes', () => {
       res.should.have.status(200);
     });
   });
+  it('should return status 200 when requesting PUT with write scope', () => {
+    chai.request(server)
+    .put('/test/auth')
+    .set(AUTH_HEADER, readAndWriteScopeToken)
+    .send({ example: 'whatever' })
+    .end((err, res) => {
+      expect(err).to.be.null;
+      res.should.have.status(200);
+    });
+  });
+  it('should return status 200 when requesting DELETE with write scope', () => {
+    chai.request(server)
+    .del('/test/auth')
+    .set(AUTH_HEADER, readAndWriteScopeToken)
+    .end((err, res) => {
+      expect(err).to.be.null;
+      res.should.have.status(200);
+    });
+  });
   it('should return status 401 when requesting with invalid token', () => {
     chai.request(server)
     .get('/test/auth')
@@ -82,6 +101,26 @@ describe('Auth routes', () => {
   it('should return status 401 when requesting POST with read scope', () => {
     chai.request(server)
     .post('/test/auth')
+    .set(AUTH_HEADER, readScopeToken)
+    .send({ example: 'whatever' })    
+    .end((err, res) => {
+      expect(err).to.exist;
+      res.should.have.status(401);
+    });
+  });
+  it('should return status 401 when requesting PUT with read scope', () => {
+    chai.request(server)
+    .put('/test/auth')
+    .set(AUTH_HEADER, readScopeToken)
+    .send({ example: 'whatever' })    
+    .end((err, res) => {
+      expect(err).to.exist;
+      res.should.have.status(401);
+    });
+  });
+  it('should return status 401 when requesting DELETE with read scope', () => {
+    chai.request(server)
+    .del('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
     .end((err, res) => {
       expect(err).to.exist;

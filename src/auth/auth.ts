@@ -16,7 +16,7 @@ export enum Scope {
 // the allowed http methods for each scope
 const scopeToMethodMap = {
   [Scope.READ] : ['GET'],
-  [Scope.WRITE] : ['POST', 'PUT'],
+  [Scope.WRITE] : ['POST', 'PUT', 'DELETE'],
 };
 
 const authenticate = passport.authenticate('jwt', { session: false });

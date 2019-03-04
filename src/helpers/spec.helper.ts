@@ -1,3 +1,4 @@
+process.env.NODE_ENV = 'test';
 import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as forge from 'node-forge';
