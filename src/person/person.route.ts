@@ -38,6 +38,12 @@ persons.get('/:id', (req: Request, res: Response) => {
   }, 404)(req, res, null);
 });
 
+persons.get('/identifier/:identityValue', (req: Request, res: Response) => {
+  ch(Person.getPersonByIdentifier, (req: Request, res: Response) => {
+    return [['personalNumber', 'identityCard'], req.params.identityValue]; 
+  }, 404)(req, res, null);
+});
+
 persons.get('/personalNumber/:personalNumber', (req: Request, res: Response) => {
   ch(Person.getPerson, (req: Request, res: Response) => {
     return ['personalNumber', req.params.personalNumber]; 

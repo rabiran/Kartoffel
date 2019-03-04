@@ -55,7 +55,7 @@ paths:
             properties:
               identityCard:
                 type: string
-                pattern: '^\d{6,9}$'
+                pattern: '^\d{5,9}$'
                 example: '234567891'
               personalNumber:
                 type: string
@@ -462,6 +462,25 @@ paths:
           schema:
             items:
               $ref: '#/definitions/Person'
+  '/persons/identifier/{identifier}':
+    get:
+      tags:
+        - Person
+      summary: Returns a specific person by a identifier
+      parameters:
+        - in: path
+          name: identifier
+          required: true
+          type: string
+          description: The personal number or identity card of person 
+      responses:
+        '200':
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+        '404':
+          description: Person with the specified pesonal number or identity card doesn't exist
   '/persons/personalNumber/{personalNumber}':
     get:
       tags:

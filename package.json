@@ -20,7 +20,7 @@
     "serve-debug": "nodemon --inspect dist/server.js",
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
-  "author": "Yonatan Tal",
+  "author": "Sabag Team",
   "license": "ISC",
   "dependencies": {
     "@types/axios": "^0.14.0",
@@ -34,19 +34,18 @@
     "express": "^4.15.4",
     "express-session": "^1.15.5",
     "glob": "^7.1.2",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.11",
     "lusca": "^1.5.0",
     "mongoose": "^4.13.11",
-    "morgan": "^1.8.2",
+    "morgan": "^1.9.1",
     "passport": "^0.3.2",
     "passport-jwt": "^4.0.0",
     "passport-oauth2": "^1.4.0",
     "request": "^2.81.0",
     "rimraf": "^2.6.2",
     "shelljs": "^0.7.8",
-    "sinon": "^3.3.0",
     "swagger-tools": "^0.10.4",
-    "swagger-ui": "^3.17.6",
+    "swagger-ui": "^3.20.9",
     "tslint-config-airbnb": "^5.3.1",
     "yamljs": "^0.3.0"
   },
@@ -85,8 +84,9 @@
     "mockery": "^2.1.0",
     "node-forge": "^0.7.6",
     "node-mocks-http": "^1.7.3",
-    "node-sass": "^4.9.2",
+    "node-sass": "^4.11.0",
     "nodemon": "^1.11.0",
+    "sinon": "^7.2.5",
     "tslint": "^5.6.0",
     "typescript": "^2.4.2"
   }

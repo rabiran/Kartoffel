@@ -96,6 +96,22 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
       return (result ? result.toObject() : result);   
     });
   }
+  findOneOr(keys: string[], values: string[], populate?: string | Object, select?: string) {
+    const cond = keys.map((key) => { 
+      return { [key]: { $in: values } }; 
+    });
+
+    return this.findOne({ $or: cond }, populate, select);     
+    // return this.findOne({ $or: cond }, populateOptions, select);
+  }
+  
+  findOr(keys: string[], values: string[], populate?: string | Object, select?: string) {
+    const cond = keys.map((key) => { 
+      return { [key]: { $in: values } }; 
+    });
+
+    return this.find({ $or: cond }, populate, select);
+  }
 
   find(cond?: Object, populate?: string | Object, select?: string): Promise<T[]> {
 
