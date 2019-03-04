@@ -1,5 +1,4 @@
 import { generateCertificates, generateToken } from '../helpers/spec.helper';
-// import * as getPublicKey from './jwt/getKey';
 import * as sinon from 'sinon';
 import * as chai from 'chai';
 import * as httpMocks from 'node-mocks-http';
@@ -21,7 +20,6 @@ const invalidScopeToken = generateToken({ clientId: 'fuckfuck', scope: [Scope.RE
 // use this mock to get the public key instead of calling the auth server
 const mockGetKey = {
   getJWTPublicKey: async (request: any, rawJwtToken: string, done: (err: Error, pubKey: any) => void) => {
-    console.log('mock get JWT key');
     done(null, certs.pemPublicKey); // immedietly return the public key
   },
 };
