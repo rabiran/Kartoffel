@@ -10,6 +10,7 @@ export interface IPerson {
   primaryDomainUser?: string | Types.ObjectId | IDomainUser;
   secondaryDomainUsers?:  string[] | Types.ObjectId[] | IDomainUser[];
   entityType: string;
+  serviceType?: string;
   firstName: string;
   lastName: string;
   currentUnit?: string;

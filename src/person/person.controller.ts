@@ -104,7 +104,7 @@ export class Person {
       throw new Error('a person must have a direct group');
     }  
     // delete empty or null field that are not necessary
-    utils.filterEmptyField(person, ['rank', 'phone', 'mobilePhone', 'address', 'job']);
+    utils.filterEmptyField(person, ['rank', 'phone', 'mobilePhone', 'address', 'job', 'serviceType']);
     
     // Chack some validation
     // Check if personalNumber equal to identityCard

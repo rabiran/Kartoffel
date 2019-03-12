@@ -11,7 +11,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP } from '../config/db-enums';
+import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE } from '../config/db-enums';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -22,6 +22,7 @@ chai.use(require('chai-http'));
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34', '5b50a76713ddf90af494de35', '5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
 
 const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
+const serviceTypes : string[] = [...new Map<string, string>(JSON.parse(JSON.stringify(SERVICE_TYPE))).keys()];
 const domain = [...domainMap.keys()][2];
 const userStringEx = `nitro@${domain}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
@@ -36,6 +37,7 @@ const personExamples: IPerson[] = [
     mail: 'avi.ron@gmail.com',
     job: 'Pilot 1',
     entityType: ENTITY_TYPE[1],
+    serviceType: serviceTypes[0],
   },
   <IPerson>{
     identityCard: '234567899',
@@ -45,6 +47,7 @@ const personExamples: IPerson[] = [
     dischargeDay: new Date(2022, 11),
     job: 'parent',
     entityType: ENTITY_TYPE[0],
+    serviceType: serviceTypes[1],    
   },
   <IPerson>{
     identityCard: '123458788',
@@ -58,6 +61,7 @@ const personExamples: IPerson[] = [
     clearance: '3',
     rank: RANK[0],
     entityType: ENTITY_TYPE[0],
+    serviceType: serviceTypes[2],
   },
   <IPerson>{
     identityCard: '456789122',
@@ -183,6 +187,7 @@ describe('Persons', () => {
         primaryDomainUser: dbIdExample[3],
         secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
         entityType: ENTITY_TYPE[0],
+        serviceType: serviceTypes[5],
         mail: 'yonatan@work.com',
         phone: ['023456789', '02-3456389'],
         mobilePhone: ['054-9754999', '0541234567'],
@@ -200,6 +205,7 @@ describe('Persons', () => {
       person.should.have.property('identityCard', newPerson.identityCard);
       person.should.have.property('personalNumber', newPerson.personalNumber);
       person.should.have.property('entityType', newPerson.entityType);
+      person.should.have.property('serviceType', newPerson.serviceType);
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
       person.should.have.property('currentUnit', newPerson.currentUnit);
@@ -347,9 +353,14 @@ describe('Persons', () => {
         person.mobilePhone = ['1523645'];
         await expectError(Person.createPerson, [person]);
       });
-      it('should throw error when service type is invalid', async () => {
+      it('should throw error when entity type is invalid', async () => {
         const person = { ...personExamples[1] };
         person.entityType = ENTITY_TYPE[0] + '_bullshit';
+        await expectError(Person.createPerson, [person]);
+      });
+      it('should throw error when service type is invalid', async () => {
+        const person = { ...personExamples[1] };
+        person.serviceType = serviceTypes[3] + 'bcd';
         await expectError(Person.createPerson, [person]);
       });
       it('Should throw an error when clearance is invalid', async () => {
@@ -471,11 +482,13 @@ describe('Persons', () => {
       person.rank = RANK[0];
       person.responsibility = RESPONSIBILITY[1];
       person.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
+      person.serviceType = serviceTypes[7];
 
       const updatedPerson = await Person.updatePerson(person.id, person);
       should.exist(updatedPerson);
       expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
+      updatedPerson.should.have.property('serviceType', person.serviceType);
       updatedPerson.should.have.property('rank', person.rank);
       updatedPerson.should.have.property('job', person.job);
       updatedPerson.should.have.property('responsibility', person.responsibility);

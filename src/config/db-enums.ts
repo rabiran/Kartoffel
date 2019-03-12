@@ -6,3 +6,6 @@ export const ENTITY_TYPE = ['digimon', 'tamar'];
 export const RESPONSIBILITY = ['none', 'HR', 'SO'];
 
 export const DOMAIN_MAP = [['rabiran','rabiranuid'], ['somedomain', 'somedomainuid'], ['jello', 'jellouid']];
+// the first element is the default value
+export const SERVICE_TYPE = [['A','service A'], ['B','service B'], ['C','service C'], 
+                             ['D','service D'], ['E','service E'], ['F','service F'], ['G','service G'], ['H','service H']];
