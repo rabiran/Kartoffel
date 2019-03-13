@@ -59,10 +59,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(auth.initialize());
 
-// use the auth middleware 
-if (process.env.NODE_ENV !== 'test') {
+// use the auth middleware
+if (process.env.NODE_ENV !== 'test' && process.env.ENABLE_AUTH.toLowerCase() === 'true') {
   app.use('/api', auth.middlewares);
-} else { // add auth test routes while testing
+} else if (process.env.NODE_ENV === 'test') { // add auth test routes while testing
   console.log('app configured in test env - api routes do not require authentication, added auth test route at /test/auth');
   app.all('/test/auth/', auth.middlewares, (req: express.Request, res: express.Response, 
     next: express.NextFunction) => {
