@@ -3,6 +3,7 @@ import { IDomainUser } from './domainUser.interface';
 import { userFromString } from './domainUser.utils';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
 import { DOMAIN_MAP } from '../config/db-enums';
+import { allIndexesOf } from '../utils';
 
 const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const userFromStringIgnore = wrapIgnoreCatch(userFromString); 
@@ -30,15 +31,19 @@ export class DomainUserController {
     return user;
   }
 
+
   static async getByUniqueID(uniqueID: string): Promise<IDomainUser> {
     const userObj = userFromString(uniqueID);
+    let domains = [userObj.domain];
     // Checks if domain is adfsUID
     const adfsUIds = Array.from(domainMap.values());
     if (adfsUIds.includes(userObj.domain)) {
-      const index = adfsUIds.indexOf(userObj.domain);
-      userObj.domain = Array.from(domainMap.keys())[index];
+      // get all keys of this adfsUID
+      const indices = allIndexesOf(adfsUIds, userObj.domain);
+      domains = Array.from(domainMap.keys()).filter((val, index) => indices.includes(index));
     }
-    const user = await DomainUserController.findOne({ ...userObj });
+    
+    const user = await DomainUserController._userRepository.findOneMultipleDomains(userObj.name, domains);
     if (!user) {
       throw new Error(`domainUser ${uniqueID} does not exist`);
     }
