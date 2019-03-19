@@ -7,6 +7,13 @@ export class DomainUserRepository extends RepositoryBase<IDomainUser> {
     super(DomainUser);
   }
 
+  /**
+   * finds one domain user with the given name and one of the given domains
+   * @param name 
+   * @param domains array of possible domains
+   * @param populateOptions 
+   * @param select 
+   */
   findOneMultipleDomains(name: string, domains: string[], populateOptions?: string | Object, 
     select?: string) {
     const query = {
