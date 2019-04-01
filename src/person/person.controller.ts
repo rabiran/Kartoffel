@@ -97,6 +97,25 @@ export class Person {
     return updatedPerson;
   }
 
+  static async deleteDomainUser(personId: string, uniqueId: string) : Promise<any> {
+    const domainUser = await DomainUserController.getByUniqueID(uniqueId);    
+    // Checks if domainUser belongs to this person
+    if (domainUser.personId === personId) {
+      await DomainUserController.delete(domainUser.id);
+      return `The domain user: ${uniqueId} successfully deleted`;      
+    }
+    throw new Error(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
+  }
+
+  static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId: string, isPrimary: Boolean) : Promise<IPerson> {
+    const domainUser = await DomainUserController.getByUniqueID(oldUniqueId);    
+    // Checks if domainUser belongs to this person
+    if (domainUser.personId === personId) {
+      
+    }
+
+    return;
+  }
 
   static async createPerson(person: IPerson): Promise<IPerson> {
     // check that 'directGroup' field exists

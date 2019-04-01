@@ -28,9 +28,25 @@ persons.post('/', PermissionMiddleware.hasAdvancedPermission,
            ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.post('/domainUser', PermissionMiddleware.hasAdvancedPermission,
-            ch(Person.addNewUser, (req: Request) => {
-              return [req.body.personId, req.body.uniqueID, req.body.isPrimary];
-            }));
+  ch(Person.addNewUser, (req: Request) => {
+    return [req.body.personId, req.body.uniqueID, req.body.isPrimary];
+  }));
+
+// This is correct restApi
+/* persons.post('/:id/domainUser', PermissionMiddleware.hasAdvancedPermission,
+ch(Person.addNewUser, (req: Request) => {
+  return [req.params.id, req.body.uniqueID, req.body.isPrimary];
+})); */
+
+persons.put('/:id/domainUser/:uniqueId', PermissionMiddleware.hasAdvancedPermission,
+ch(Person.updateDomainUser, (req: Request) => {
+  return [req.params.id, req.params.uniqueId, req.body.uniqueID, req.body.isPrimary];
+}));
+
+persons.delete('/:id/domainUser/:uniqueId', PermissionMiddleware.hasAdvancedPermission,
+ch(Person.deleteDomainUser, (req: Request) => {
+  return [req.params.id, req.params.uniqueId];
+}));
 
 persons.get('/:id', (req: Request, res: Response) => {
   ch(Person.getPersonByIdWithFilter, (req: Request, res: Response) => {
