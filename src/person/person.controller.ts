@@ -11,6 +11,7 @@ import * as utils from '../utils.js';
 import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
 import  * as consts  from '../config/db-enums';
+import { ObjectId } from 'bson';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -98,12 +99,26 @@ export class Person {
   }
 
   static async deleteDomainUser(personId: string, uniqueId: string) : Promise<any> {
-    const domainUser = await DomainUserController.getByUniqueID(uniqueId);    
+    const domainUser: IDomainUser = await DomainUserController.getByUniqueID(uniqueId);    
     // Checks if domainUser belongs to this person
-    if (domainUser.personId === personId) {
+    if (String(domainUser.personId) === personId) {
+      // Update person - remove user from person
+      const person = await Person.getPersonById(personId);
+      // Checks if primary
+      if (String((<IDomainUser>person.primaryDomainUser).id) === domainUser.id) {
+        person.primaryDomainUser = undefined;
+        // Else delete user from secondaryUseres
+      } else {
+        const index = (<IDomainUser[]>person.secondaryDomainUsers).map(item => item.id).indexOf(domainUser.id);
+        person.secondaryDomainUsers.splice(index, 1);
+      }
+      // update person record
+      Person.updatePerson(person.id, person);
+      // Delete domainUser
       await DomainUserController.delete(domainUser.id);
-      return `The domain user: ${uniqueId} successfully deleted`;      
+      return `The domain user: ${uniqueId} successfully deleted`;            
     }
+    // If domain user dont belong specific person
     throw new Error(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
   }
 

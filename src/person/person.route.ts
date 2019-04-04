@@ -38,12 +38,12 @@ ch(Person.addNewUser, (req: Request) => {
   return [req.params.id, req.body.uniqueID, req.body.isPrimary];
 })); */
 
-persons.put('/:id/domainUser/:uniqueId', PermissionMiddleware.hasAdvancedPermission,
+persons.put('/:id/domainUsers/:uniqueId', PermissionMiddleware.hasAdvancedPermission,
 ch(Person.updateDomainUser, (req: Request) => {
   return [req.params.id, req.params.uniqueId, req.body.uniqueID, req.body.isPrimary];
 }));
 
-persons.delete('/:id/domainUser/:uniqueId', PermissionMiddleware.hasAdvancedPermission,
+persons.delete('/:id/domainUsers/:uniqueId', PermissionMiddleware.hasAdvancedPermission,
 ch(Person.deleteDomainUser, (req: Request) => {
   return [req.params.id, req.params.uniqueId];
 }));
