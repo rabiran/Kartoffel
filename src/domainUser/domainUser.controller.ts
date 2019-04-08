@@ -53,6 +53,13 @@ export class DomainUserController {
     return res.result;
   }
 
+  static async update(userId: string, user: IDomainUser): Promise<IDomainUser> {
+    if (await DomainUserController.exists(user)) {
+      throw new Error(`user with name: ${user.name} and domain: ${user.domain} already exists`);
+    }
+    return DomainUserController._userRepository.update(userId, user);
+  } 
+
   static async create(user: IDomainUser): Promise<IDomainUser> {
     if (await DomainUserController.exists(user)) {
       throw new Error(`user with name: ${user.name} and domain: ${user.domain} already exists`);

@@ -158,6 +158,9 @@ export class OrganizationGroup {
   }
 
   static async updateOrganizationGroup(id: string, updateTo: Partial<IOrganizationGroup>): Promise<IOrganizationGroup> {
+     // The timestamps update the "updatedAt" field only in "update()" and "findOneAndUpdate()" 
+    // and we used in "findByIdAndUpdate()"
+    updateTo['updatedAt'] = new Date();
     const updated = await OrganizationGroup._organizationGroupRepository.update(id, updateTo);
     if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + id));
     return updated;

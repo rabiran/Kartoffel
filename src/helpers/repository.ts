@@ -57,9 +57,10 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
   }
 
   update(_id: any, item: Partial<T>, populateOptions?: string | Object): Promise<T> {
-    item['updatedAt'] = new Date();
+    // item['updatedAt'] = new Date();
     const opts = { new: true, runValidators: true, context: 'query' };
-    let updateQuery = this._model.findByIdAndUpdate({ _id }, item, opts);
+    // let updateQuery = this._model.findByIdAndUpdate({ _id }, item, opts);
+    let updateQuery = this._model.findOneAndUpdate({ _id }, item, opts);
     if (populateOptions) {
       updateQuery = updateQuery.populate(populateOptions);
     }

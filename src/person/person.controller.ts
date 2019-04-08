@@ -121,15 +121,49 @@ export class Person {
     // If domain user dont belong specific person
     throw new Error(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
   }
-
+  /**
+   * Update domainUser fields (name and\or primary)
+   * @param personId 
+   * @param oldUniqueId the current uniqueId
+   * @param newUniqueId the uniqueId to change
+   * @param isPrimary change primary to secondary and vice versa
+   */
   static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId: string, isPrimary: Boolean) : Promise<IPerson> {
-    const domainUser = await DomainUserController.getByUniqueID(oldUniqueId);    
+    const domainUser: IDomainUser = await DomainUserController.getByUniqueID(oldUniqueId);        
     // Checks if domainUser belongs to this person
-    if (domainUser.personId === personId) {
-      
+    if (String(domainUser.personId) === personId) {  
+      const person: IPerson = await Person.getPersonById(personId);
+      // Checks if there is something to change     
+      if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) return Promise.reject(new Error(`You have not entered a parameter to change`));
+      // Change name of uniqueId
+      if (newUniqueId) {
+        const userUpdate = userFromString(newUniqueId);
+        if (userUpdate.domain !== domainUser.domain) return Promise.reject(new Error(`Can't change domain of user`));
+        domainUser.name = userUpdate.name;
+        await DomainUserController.update(domainUser.id, domainUser);
+      }
+      // If get 'isPrimary' field
+      if (isPrimary !== null && isPrimary !== undefined) {        
+        // Checks if user should be primary and is not 
+        if (isPrimary && (!(<IDomainUser>person.primaryDomainUser) || ((<IDomainUser>person.primaryDomainUser) && domainUser.id !== String((<IDomainUser>person.primaryDomainUser).id)))) {
+          // If a user already exsit in primary, it transfers it to a secondary
+          if (person.primaryDomainUser) {
+            (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);            
+          }
+          // Remove user from secondary and puts it in primary
+          const index = (<IDomainUser[]>person.secondaryDomainUsers).map(item => item.id).indexOf(domainUser.id);
+          const primaryUser = person.secondaryDomainUsers.splice(index, 1);
+          person.primaryDomainUser = primaryUser[0];          
+          // If the user does not have to be in primary, he transfers to a secondary
+        } else if (!isPrimary && (<IDomainUser>person.primaryDomainUser) && domainUser.id === String((<IDomainUser>person.primaryDomainUser).id)) {          
+          (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);
+          person.primaryDomainUser = undefined;        
+        }       
+      }
+      await Person.updatePerson(person.id, person);
     }
-
-    return;
+    // If domain user dont belong specific person
+    throw new Error(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
   }
 
   static async createPerson(person: IPerson): Promise<IPerson> {
@@ -200,6 +234,9 @@ export class Person {
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
+    // The timestamps update the "updatedAt" field only in "update()" and "findOneAndUpdate()" 
+    // and we used in "findByIdAndUpdate()"
+    change['updatedAt'] = new Date();
     let updatedPerson = await Person._personRepository.update(id, change, 'primaryDomainUser secondaryDomainUsers');
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     updatedPerson = filterPersonDomainUsers(updatedPerson);
