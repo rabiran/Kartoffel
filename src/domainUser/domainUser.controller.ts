@@ -52,10 +52,10 @@ export class DomainUserController {
 
   static async delete(id: string): Promise<any> {
     const res = await DomainUserController._userRepository.delete(id);
-    if (res.result.n === 0) {
+    if (res.deletedCount === 0) {
       throw new Error(`domainUser with id: ${id} is not found`);
     }
-    return res.result;
+    return res;
   }
 
   static async create(user: IDomainUser): Promise<IDomainUser> {

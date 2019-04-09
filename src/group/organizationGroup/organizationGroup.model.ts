@@ -86,12 +86,12 @@ OrganizationGroupSchema.post('find', postFind);
 //   return this._id;
 // });   
 
-OrganizationGroupSchema.pre('save', function (next) {
+OrganizationGroupSchema.pre('save', (next) => {
   this.isALeaf = (this.children.length === 0);
   next();
 });
 
-OrganizationGroupSchema.pre('update', function () {
+OrganizationGroupSchema.pre('update', () => {
   this.update({}, { $set: { updatedAt: new Date() } });
 });
 

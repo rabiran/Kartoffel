@@ -9,7 +9,7 @@ import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
 import { ENTITY_TYPE } from '../../config/db-enums';
 import { Mongoose } from 'mongoose';
-import { BSON } from 'bson';
+
 
 const should = chai.should();
 const expect = chai.expect;
