@@ -416,7 +416,7 @@ describe('Persons', () => {
       const res = await Person.removePerson(person.id);
       should.exist(res);
       res.should.have.property('ok', 1);
-      res.should.have.property('n', 1);
+      res.should.have.property('deletedCount', 1);
       await expectError(Person.getPerson, [person.id]);
     });
     it('Should update the person\'s group after that the person is removed', async () => {

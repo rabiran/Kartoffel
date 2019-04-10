@@ -184,10 +184,10 @@ describe('OrganizationGroup API', () => {
         });
     });
     it('Should return the updated groups from a certain date', async () => {
-      const clock = sinon.useFakeTimers();
+      const clock = sinon.useFakeTimers();     
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_1' });
       clock.tick(1000);
-      const from = Date.now();
+      const from = clock.Date().toISOString();      
       clock.tick(1000);
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2' });
 
@@ -195,7 +195,7 @@ describe('OrganizationGroup API', () => {
         .get(BASE_URL + '/getUpdated/' + from)
         .then((res) => {
           res.should.have.status(200);
-          const groups = res.body;
+          const groups = res.body;          
           groups.should.have.lengthOf(1);
           groups[0].should.have.property('name', 'group_2');
         }).catch((err) => { throw err; });

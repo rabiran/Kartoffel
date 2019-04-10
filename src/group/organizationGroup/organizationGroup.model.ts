@@ -86,12 +86,11 @@ OrganizationGroupSchema.post('find', postFind);
 //   return this._id;
 // });   
 
-OrganizationGroupSchema.pre('save', (next) => {
+OrganizationGroupSchema.pre<mongoose.Document & IOrganizationGroup>('save', async function () {
   this.isALeaf = (this.children.length === 0);
-  next();
 });
 
-OrganizationGroupSchema.pre('update', () => {
+OrganizationGroupSchema.pre('update', function () {
   this.update({}, { $set: { updatedAt: new Date() } });
 });
 
