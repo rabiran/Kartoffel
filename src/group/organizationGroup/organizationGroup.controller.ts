@@ -238,7 +238,7 @@ export class OrganizationGroup {
     if (parentID) {
       await OrganizationGroup.disownChild(parentID, groupID);
     }
-    return res.result;
+    return res;
   }
 
   private static async updateChildrenHierarchy(parentID: string, childrenIDs: string[] = []): Promise<void> {

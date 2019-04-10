@@ -229,8 +229,8 @@ export class Person {
   }
 
   static async removePerson(personID: string): Promise<any> {
-    const res = await Person._personRepository.delete(personID);
-    return res.result.n > 0 ? res.result : Promise.reject(new Error('Cannot find person with ID: ' + personID));
+    const result = await Person._personRepository.delete(personID);
+    return result.deletedCount > 0 ? result : Promise.reject(new Error('Cannot find person with ID: ' + personID));
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {

@@ -86,9 +86,8 @@ OrganizationGroupSchema.post('find', postFind);
 //   return this._id;
 // });   
 
-OrganizationGroupSchema.pre('save', function (next) {
+OrganizationGroupSchema.pre<mongoose.Document & IOrganizationGroup>('save', async function () {
   this.isALeaf = (this.children.length === 0);
-  next();
 });
 
 OrganizationGroupSchema.pre('update', function () {

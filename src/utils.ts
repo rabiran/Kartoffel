@@ -26,6 +26,19 @@ export function sortObjectsByIDArray(objects: Object[], array: string[]) : Objec
   return newObjects;
 }
 
+/**
+ * Returns all indices of a value in the array
+ * @param arr Array to search in
+ * @param val The value to find
+ */
+export function allIndexesOf(arr: any[], val: any) {
+  const indices: number[] = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === val) indices.push(i);
+  }
+  return indices;
+}
+
 export function reflectPromise<T>(p: Promise<T>, putNull = false): Promise<{ v?: T, e?: any, status: string }> {
   return p.then(v => ({ v, status: 'fulfilled' }),
     e => (putNull ? null : { e, status: 'rejected' }));
