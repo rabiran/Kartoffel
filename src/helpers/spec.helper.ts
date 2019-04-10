@@ -123,11 +123,11 @@ async function cleanDatabase(modelNames: string[]) {
 
 async function removeAllDocuments(modelNames: string[]) {
   await Promise.all(modelNames.map(modelName =>
-    mongoose.model(modelName).remove({}).exec()));
+    mongoose.model(modelName).deleteMany({}).exec()));
 }
 
 before(async () => {
-  await mongoose.connect(process.env.MONGODB_TEST_URI, { useMongoClient: true });
+  await mongoose.connect(process.env.MONGODB_TEST_URI, { useNewUrlParser: true });
   const modelNames: string[] = mongoose.modelNames();
   await cleanDatabase(modelNames);
 });

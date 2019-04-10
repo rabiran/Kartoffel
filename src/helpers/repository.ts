@@ -69,7 +69,7 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
   }
 
   delete(_id: any): Promise<any> {
-    return this._model.remove({ _id }).exec();
+    return this._model.deleteMany({ _id }).exec();
   }
 
   findById(_id: any, populateOptions?: string | Object): Promise<T> {

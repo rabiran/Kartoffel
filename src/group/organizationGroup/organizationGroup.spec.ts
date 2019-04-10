@@ -9,7 +9,7 @@ import { IPerson } from '../../person/person.interface';
 import { expectError } from '../../helpers/spec.helper';
 import { ENTITY_TYPE } from '../../config/db-enums';
 import { Mongoose } from 'mongoose';
-import { BSON } from 'bson';
+
 
 const should = chai.should();
 const expect = chai.expect;
@@ -404,7 +404,7 @@ describe('Strong Groups', () => {
       const res = await OrganizationGroup.deleteGroup(group.id);
       res.should.exist;
       res.should.have.property('ok', 1);
-      res.should.have.property('n', 1);
+      res.should.have.property('deletedCount', 1);
       await expectError(OrganizationGroup.getOrganizationGroup, [group.id]);
     });
     it('Should not remove a group with children', async () => {

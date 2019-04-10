@@ -242,7 +242,7 @@ describe('Person', () => {
       const clock = sinon.useFakeTimers();
       await Person.createPerson(<IPerson>{ ...personExamples[0] });
       clock.tick(1000);
-      const from = Date.now();
+      const from = clock.Date().toISOString();
       clock.tick(1000);
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
       clock.tick(1000);
