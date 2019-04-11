@@ -137,4 +137,28 @@ describe('DomainUsers', () => {
       res.should.have.property('deletedCount', 1);
     });
   });
+
+  describe('#update', () => {
+    it('should update the name of user', async () => {
+      const createdUser = await Users.create(userExample);
+      createdUser.name = 'david';
+      const res = await Users.update(createdUser.id, createdUser);
+      res.should.have.property('name', 'david');
+      res.should.have.property('domain', [...domainMap.keys()][0]);
+    });
+    it('should throw error if name to change it is an used', async () => {
+      const createdUser = await Users.create(userExample);
+      await Users.create({ name: 'david', domain: [...domainMap.keys()][0] });
+      createdUser.name = 'david';
+      let isError = false;
+      try {
+        await Users.update(createdUser.id, createdUser);        
+      } catch (err) {
+        err.should.exist;
+        err.should.have.property('message', `user with name: ${createdUser.name} and domain: ${createdUser.domain} already exists`);        
+        isError = true;
+      }
+      isError.should.be.true;      
+    });
+  });
 });

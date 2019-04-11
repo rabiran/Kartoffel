@@ -98,6 +98,11 @@ export class Person {
     return updatedPerson;
   }
 
+  /**
+   * Delete domain user from person
+   * @param personId Person to delete from him
+   * @param uniqueId The domain user to delete
+   */
   static async deleteDomainUser(personId: string, uniqueId: string) : Promise<any> {
     const domainUser: IDomainUser = await DomainUserController.getByUniqueID(uniqueId);    
     // Checks if domainUser belongs to this person
@@ -105,7 +110,7 @@ export class Person {
       // Update person - remove user from person
       const person = await Person.getPersonById(personId);
       // Checks if primary
-      if (String((<IDomainUser>person.primaryDomainUser).id) === domainUser.id) {
+      if (person.primaryDomainUser && (String((<IDomainUser>person.primaryDomainUser).id) === domainUser.id)) {
         person.primaryDomainUser = undefined;
         // Else delete user from secondaryUseres
       } else {
@@ -115,12 +120,13 @@ export class Person {
       // update person record
       Person.updatePerson(person.id, person);
       // Delete domainUser
-      await DomainUserController.delete(domainUser.id);
-      return `The domain user: ${uniqueId} successfully deleted`;            
+      const result = await DomainUserController.delete(domainUser.id);
+      return result.deletedCount > 0 ? `The domain user: ${uniqueId} successfully deleted from person with id: ${personId}` : Promise.reject(new Error('There was an error deleting the domain user'));        
     }
     // If domain user dont belong specific person
     throw new Error(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
   }
+
   /**
    * Update domainUser fields (name and\or primary)
    * @param personId 
@@ -128,7 +134,7 @@ export class Person {
    * @param newUniqueId the uniqueId to change
    * @param isPrimary change primary to secondary and vice versa
    */
-  static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId: string, isPrimary: Boolean) : Promise<IPerson> {
+  static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId?: string, isPrimary?: Boolean) : Promise<IPerson> {
     const domainUser: IDomainUser = await DomainUserController.getByUniqueID(oldUniqueId);        
     // Checks if domainUser belongs to this person
     if (String(domainUser.personId) === personId) {  
@@ -146,7 +152,7 @@ export class Person {
       if (isPrimary !== null && isPrimary !== undefined) {        
         // Checks if user should be primary and is not 
         if (isPrimary && (!(<IDomainUser>person.primaryDomainUser) || ((<IDomainUser>person.primaryDomainUser) && domainUser.id !== String((<IDomainUser>person.primaryDomainUser).id)))) {
-          // If a user already exsit in primary, it transfers it to a secondary
+          // If a another user already exsit in primary, it transfers it to a secondary
           if (person.primaryDomainUser) {
             (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);            
           }
@@ -160,7 +166,7 @@ export class Person {
           person.primaryDomainUser = undefined;        
         }       
       }
-      await Person.updatePerson(person.id, person);
+      return await Person.updatePerson(person.id, person);      
     }
     // If domain user dont belong specific person
     throw new Error(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
