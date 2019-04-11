@@ -11,7 +11,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import * as mongoose from 'mongoose';
 import { IDomainUser } from '../domainUser/domainUser.interface';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE } from '../config/db-enums';
+import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT } from '../config/db-enums';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -28,7 +28,7 @@ const userStringEx = `nitro@${domain}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [
-  <IPerson>{
+  <IPerson>{ // person that requires currentUnit
     identityCard: '123456782',
     personalNumber: '2345671',
     firstName: 'Avi',
@@ -38,6 +38,7 @@ const personExamples: IPerson[] = [
     job: 'Pilot 1',
     entityType: ENTITY_TYPE[1],
     serviceType: serviceTypes[0],
+    currentUnit: CURRENT_UNIT[0],
   },
   <IPerson>{
     identityCard: '234567899',
@@ -198,6 +199,7 @@ describe('Persons', () => {
         responsibilityLocation: new Types.ObjectId(dbIdExample[3]),
         clearance: '5',
         alive: true,
+        currentUnit: CURRENT_UNIT[0],
       };
 
       const person = await Person.createPerson(newPerson);
@@ -209,7 +211,7 @@ describe('Persons', () => {
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
       person.should.have.property('currentUnit', newPerson.currentUnit);
-      person.should.have.property('dischargeDay', newPerson.dischargeDay);
+      expect(person.dischargeDay.getTime() === newPerson.dischargeDay.getTime());
       person.should.have.property('hierarchy');
       person.hierarchy.should.have.ordered.members([dummyGroup.name]);
       person.should.have.property('job', newPerson.job);
@@ -264,6 +266,7 @@ describe('Persons', () => {
       it('Add rank auto when rank is missing (with the specific service type)', async () => {
         const person = { ...personExamples[1] };
         person.entityType = ENTITY_TYPE[1];
+        person.currentUnit = CURRENT_UNIT[0];
         const createdPerson = await Person.createPerson(person);
         createdPerson.should.have.property('rank', RANK[0]);
       });
@@ -380,6 +383,11 @@ describe('Persons', () => {
         await Person.createPerson(<IPerson>{ ...personExamples[1] });
         const person = { ...personExamples[3] };
         person.personalNumber = personExamples[1].personalNumber;
+        await expectError(Person.createPerson, [person]);
+      });
+      it('should throw an error when currentUnit is missing for a specific entity type', async () => {
+        const person = { ...personExamples[0] };
+        delete person.currentUnit;
         await expectError(Person.createPerson, [person]);
       });
     });
@@ -544,6 +552,16 @@ describe('Persons', () => {
       updatedPerson.should.have.property('responsibility', person.responsibility);
       expect(String(updatedPerson.responsibilityLocation) ===
         String(person.responsibilityLocation)).to.be.true;
+    });
+    it('should update the person when changing entity type and adding the required field for it (currentUnit field)', async () => {
+      const person = await Person.createPerson({ ...personExamples[1] });
+      const updatedPerson = await Person.updatePerson(person.id, { entityType: ENTITY_TYPE[1], currentUnit: CURRENT_UNIT[0] });
+      updatedPerson.should.have.property('entityType', ENTITY_TYPE[1]);
+      updatedPerson.should.have.property('currentUnit', CURRENT_UNIT[0]);
+    });
+    it('should throw error when trying to change service type without adding a required field for it (currentUnit field)', async () => {
+      const person = await Person.createPerson({ ...personExamples[1] });
+      await expectError(Person.updatePerson, [person.id, { entityType: ENTITY_TYPE[1] }]);
     });
   });
   describe('Person Staffing', () => {

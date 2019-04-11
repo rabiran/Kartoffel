@@ -1,4 +1,6 @@
-import { RESPONSIBILITY } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE } from '../config/db-enums';
+import { IPerson } from './person.interface';
+import { ValidatorObj } from '../types/validation';
 
 export class ModelValidate {
   static stringNotEmpty(str: string) {
@@ -68,5 +70,51 @@ export class PersonValidate extends ModelValidate {
   public static responsibilityLocation(responsibilityLocation: string, responsibility: string) {
     return (responsibility !== RESPONSIBILITY[0]);
   }
+
+  // multifield validators returns false when the person is invalid (and thus the field is required!)
+
+  public static currentUnitMultiValidator(person: IPerson) {
+    return !!person.currentUnit || person.entityType !== ENTITY_TYPE[1];
+  }
+
+  public static identityCardMultiValidator(person: IPerson) {
+    return !(!person.identityCard && person.entityType === ENTITY_TYPE[0]);
+  }
+
+  public static personalNumberMultiValidator(person: IPerson) {
+    return !(!person.personalNumber && person.entityType === ENTITY_TYPE[1]);
+  }
+
+  public static rankMultiFieldValidator(person: IPerson) {
+    return !(person.entityType === ENTITY_TYPE[1] && !person.rank);
+  }
+
+  public static responsibilityLocationMultiValidator(person: IPerson) {
+    return ( // there is responsibility(not "none") and responsibilityLocation
+      person.responsibilityLocation && person.responsibility 
+      && person.responsibility !== RESPONSIBILITY[0]) ||
+      // there is not responsibilityLocation and responsibility is "none" (or undefined) 
+      (!person.responsibilityLocation && (!person.responsibility || 
+        person.responsibility === RESPONSIBILITY[0]));
+  }
+
+  public static multiFieldValidators: ValidatorObj[] = [
+    {
+      validator: PersonValidate.currentUnitMultiValidator,
+      message: `currentUnit is required for entity type ${ENTITY_TYPE[1]}`,
+    },
+    {
+      validator: PersonValidate.identityCardMultiValidator,
+      message: `identityCard is required for entityType ${ENTITY_TYPE[0]}`,
+    },
+    {
+      validator: PersonValidate.personalNumberMultiValidator,
+      message: `personalNumber is required for entityType ${ENTITY_TYPE[1]}`,
+    },
+    {
+      validator: PersonValidate.responsibilityLocationMultiValidator,
+      message: 'responsibilityLocation is required for responsibilty {VALUE.responsibility}',
+    },
+  ];
 
 }
