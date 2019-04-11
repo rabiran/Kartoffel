@@ -127,7 +127,7 @@ async function removeAllDocuments(modelNames: string[]) {
 }
 
 before(async () => {
-  await mongoose.connect(process.env.MONGODB_TEST_URI, { useNewUrlParser: true, useFindAndModify: false });
+  await mongoose.connect(process.env.MONGODB_TEST_URI, { useNewUrlParser: true, useFindAndModify: false, useCreateIndex: true });
   const modelNames: string[] = mongoose.modelNames();
   await cleanDatabase(modelNames);
 });
