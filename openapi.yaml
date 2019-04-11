@@ -909,24 +909,25 @@ paths:
                 example: 3
         '500':
           description: domain user doesn't exist or illegal string
-  /persons/domainUser:
+  '/persons/{id}/domainUsers':
     post:
       tags:
         - Person
       summary: Add domain user to person
       parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The person's id
         - in: body
           name: body
           required: true
           schema:
             type: object
-            required:
-              - personId
+            required:          
               - uniqueID
-            properties:
-              personId:
-                type: string
-                example: 5b50a76713ddf90af494de32
+            properties:             
               uniqueID:
                 type: string
                 format: email
@@ -941,6 +942,191 @@ paths:
           description: >-
             person does't exist or domain user already exists or illegal full
             string
+  '/persons/{id}domainUsers/{uniqueID}':
+    put:
+      tags:
+        - Person
+      summary: Change domain user in person (If change domain user to primary, the current primary pass to secondary array)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The person's id
+        - in: path
+          name: uniqueID
+          required: true
+          type: string
+          format: email
+          description: The uniqueID's domainUser
+        - in: body
+          name: request body
+          required: true
+          schema:
+            type: object           
+            properties:              
+              uniqueID:
+                type: string
+                format: email
+              isPrimary:
+                type: boolean
+      responses:
+        '200':
+          description: A Person object with the changes
+          schema:
+            type: object
+            required:
+              - firstName
+              - identityCard
+              - entityType
+              - lastName
+              - directGroup
+              - job
+            properties:
+              id:
+                type: string
+                example: 5b50a76713ddf90af494de32
+              identityCard:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '234567891'
+              personalNumber:
+                type: string
+                pattern: '^\d{6,9}$'
+                example: '3456712'
+              primaryDomainUser:
+                type: object
+                properties:
+                  uniqueID: 
+                    type: string
+                    example: 'newName@jello'
+                  adfsUID: 
+                    type: string
+                    example: 'newName@jellouid'
+              secondaryDomainUsers:
+                type: array
+                items:
+                  type: object
+                  example:                   
+                  - uniqueID: nitro@somedomain
+                    adfsUID: nitro@somedomainuid
+              entityType:
+                type: string
+                enum:
+                  - a
+                  - b
+                example: a
+              firstName:
+                type: string
+                example: Avi
+              lastName:
+                type: string
+                example: Ron
+              currentUnit:
+                type: string
+                example: Pilots Guild
+              dischargeDay:
+                type: string
+                format: date
+                example: '2022-11-30T22:00:00.000Z'
+              hierarchy:
+                type: array
+                items:
+                  type: string
+                example:
+                  - ElAl
+                  - Pilots Guild
+                  - Captains
+              directGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              managedGroup:
+                type: string
+                example: 5b50a76713ddf90af494dadc
+              rank:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: b
+              updatedAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:20:13.129Z'
+              createdAt:
+                type: string
+                format: date
+                example: '2018-10-24T07:17:07.372Z'
+              job:
+                type: string
+                example: 'Pilot 2'
+              mail:
+                type: string
+                format: email
+              phone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{1,2}-?\d{6,7}$'
+                example:
+                  - 02-123456
+                  - 03456789
+              mobilePhone:
+                type: array
+                items:
+                  type: string
+                  pattern: '^\d{2,3}-?\d{7}$'
+                example:
+                  - 052-1234567
+                  - 048456789
+              address:
+                type: string
+                example: 'Alexander 2, Jerusalem, Israel'
+              responsibility:
+                type: string
+                enum:
+                  - a
+                  - b
+                  - c
+                example: c
+              responsibilityLocation:
+                type: string
+                example: 5b50a76713ddf90af494dabc
+              clearance:
+                type: string
+                example: 3
+        '500':
+          description: You have not entered a parameter to change
+        '500':
+          description: Can't change domain of user
+        '500':
+          description: The domain user {uniqueID} doesn't belong to person with id {personId}
+        '500':
+          description: user with name {name} and domain {domain} already exists
+    delete:
+      tags:
+        - Person
+      summary: Delete a specific domain user from a person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: The person's id
+        - in: path
+          name: uniqueID
+          required: true
+          type: string
+          format: email
+          description: The uniqueID's domainUser
+      responses:
+        '200':
+          description: The domain user {uniqueID} successfully deleted from person with id {personId}          
+        '500':
+          description: There was an error deleting the domain user
+        '500':
+          description: The domain user {uniqueId} doesn't belong to person with id {personId}
   '/organizationGroups/{id}':
     get:
       summary: Get organization Group by id
