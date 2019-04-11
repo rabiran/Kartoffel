@@ -43,7 +43,7 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
   }
 
   findAndUpdateSome(ids: string[], set: Object): Promise<T[]> {
-    return this._model.update({ _id: { $in: ids } }, { $set: set }, { multi: true }).exec();
+    return this._model.updateMany({ _id: { $in: ids } }, { $set: set }).exec();
   }
 
   // TODO: Check why it doesn't work with throw (It doesn't get caught).
@@ -57,7 +57,7 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
   }
 
   update(_id: any, item: Partial<T>, populateOptions?: string | Object): Promise<T> {
-    // item['updatedAt'] = new Date();
+    if (item['updatedAt'])  item['updatedAt'] = undefined;
     const opts = { new: true, runValidators: true, context: 'query' };
     // let updateQuery = this._model.findByIdAndUpdate({ _id }, item, opts);
     let updateQuery = this._model.findOneAndUpdate({ _id }, item, opts);

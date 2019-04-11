@@ -39,7 +39,7 @@ dotenv.config({ path: '.env' });
 (<any>mongoose).Promise = Promise;
 
 if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true })
+  mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useFindAndModify: false })
   .then(() => console.log('successfully connected to the database'))
   .catch(err => console.error(err));
 }

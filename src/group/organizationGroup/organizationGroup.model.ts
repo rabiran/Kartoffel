@@ -90,8 +90,4 @@ OrganizationGroupSchema.pre<mongoose.Document & IOrganizationGroup>('save', asyn
   this.isALeaf = (this.children.length === 0);
 });
 
-OrganizationGroupSchema.pre('update', function () {
-  this.update({}, { $set: { updatedAt: new Date() } });
-});
-
 export const OrganizationGroupModel = mongoose.model<IOrganizationGroup & mongoose.Document>('OrganizationGroup', OrganizationGroupSchema);

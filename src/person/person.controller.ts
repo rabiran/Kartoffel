@@ -234,9 +234,6 @@ export class Person {
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    // The timestamps update the "updatedAt" field only in "update()" and "findOneAndUpdate()" 
-    // and we used in "findByIdAndUpdate()"
-    change['updatedAt'] = new Date();
     let updatedPerson = await Person._personRepository.update(id, change, 'primaryDomainUser secondaryDomainUsers');
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     updatedPerson = filterPersonDomainUsers(updatedPerson);
