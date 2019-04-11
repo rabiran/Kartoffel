@@ -27,16 +27,10 @@ persons.post('/', PermissionMiddleware.hasAdvancedPermission,
            validatorMiddleware(atCreateFieldCheck),
            ch(Person.createPerson, (req: Request) => [req.body]));
 
-persons.post('/domainUsers', PermissionMiddleware.hasAdvancedPermission,
-  ch(Person.addNewUser, (req: Request) => {
-    return [req.body.personId, req.body.uniqueID, req.body.isPrimary];
-  }));
-
-// This is correct restApi
-/* persons.post('/:id/domainUsers', PermissionMiddleware.hasAdvancedPermission,
+persons.post('/:id/domainUsers', PermissionMiddleware.hasAdvancedPermission,
 ch(Person.addNewUser, (req: Request) => {
   return [req.params.id, req.body.uniqueID, req.body.isPrimary];
-})); */
+}));
 
 persons.put('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
 ch(Person.updateDomainUser, (req: Request) => {
