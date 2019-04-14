@@ -430,13 +430,15 @@ describe('Person', () => {
               isPrimary: true,
             });
         })        
-        .then((res) => {
+        .then(async (res) => {
           const person = res.body;
-          return chai.request(server).del(`${BASE_URL}/${person.id}/domainUsers/${userStringEx}`);
+          person.primaryDomainUser.should.have.property('uniqueID', userStringEx);
+          await chai.request(server).del(`${BASE_URL}/${person.id}/domainUsers/${userStringEx}`);
+          return chai.request(server).get(`${BASE_URL}/${person.id}`);
         })           
         .then((res) => {
-          res.should.exist;
-          res.should.have.status(200);          
+          const person = res.body;
+          expect(person.primaryDomainUser).to.be.null;    
         }).catch((err) => { throw err; });
     });
   });

@@ -942,7 +942,7 @@ paths:
           description: >-
             person does't exist or domain user already exists or illegal full
             string
-  '/persons/{id}domainUsers/{uniqueID}':
+  '/persons/{id}/domainUsers/{uniqueID}':
     put:
       tags:
         - Person

@@ -11,7 +11,6 @@ import * as utils from '../utils.js';
 import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
 import  * as consts  from '../config/db-enums';
-import { ObjectId } from 'bson';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();

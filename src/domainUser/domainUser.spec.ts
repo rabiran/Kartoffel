@@ -146,7 +146,7 @@ describe('DomainUsers', () => {
       res.should.have.property('name', 'david');
       res.should.have.property('domain', [...domainMap.keys()][0]);
     });
-    it('should throw error if name to change it is an used', async () => {
+    it('should throw error when the domainUser\'s name is already in use', async () => {
       const createdUser = await Users.create(userExample);
       await Users.create({ name: 'david', domain: [...domainMap.keys()][0] });
       createdUser.name = 'david';
