@@ -421,25 +421,15 @@ describe('Person', () => {
 
   describe('/DELETE person/:id/domainUsers/:domainUser', () => {
     it('should delete the domain user of person', async () => {
-      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
-        .then((res) => {
-          const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
-            .send({            
-              uniqueID: userStringEx,
-              isPrimary: true,
-            });
-        })        
-        .then(async (res) => {
-          const person = res.body;
-          person.primaryDomainUser.should.have.property('uniqueID', userStringEx);
-          await chai.request(server).del(`${BASE_URL}/${person.id}/domainUsers/${userStringEx}`);
-          return chai.request(server).get(`${BASE_URL}/${person.id}`);
-        })           
-        .then((res) => {
-          const person = res.body;
-          expect(person.primaryDomainUser).to.be.null;    
-        }).catch((err) => { throw err; });
+      const person = (await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })).body;      
+      let updatePerson = (await chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`).send({            
+        uniqueID: userStringEx,
+        isPrimary: true,
+      })).body;
+      updatePerson.primaryDomainUser.should.have.property('uniqueID', userStringEx);
+      await chai.request(server).del(`${BASE_URL}/${person.id}/domainUsers/${userStringEx}`);
+      updatePerson = (await chai.request(server).get(`${BASE_URL}/${person.id}`)).body;                 
+      expect(updatePerson.primaryDomainUser).to.be.null;    
     });
   });
 
