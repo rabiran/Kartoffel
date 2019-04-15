@@ -103,7 +103,7 @@ function evalStringWithValue(str: string, value: any, valueToMatch: string = 'VA
     const keys = match.split('.');
     if (keys.length === 0 || keys[0] !== valueToMatch) { return match; }
     const nestedKeys = keys.slice(1);
-    let v = value;
+    let v = typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
     for (const k of nestedKeys) {
       v = v[k];
     }
