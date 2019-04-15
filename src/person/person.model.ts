@@ -33,24 +33,12 @@ export const PersonSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
       validate: { validator: PersonValidate.identityCard, message: '{VALUE} is an invalid identity card!' },
-      required: [function () {
-        // In update the mongo does not keep the document in "this" 
-        const entityType = typeof this.getUpdate !== 'function' ? this.entityType : this.getUpdate().$set.entityType;        
-        return entityType === consts.ENTITY_TYPE[0];
-      },
-        `You must enter a identityCard to ${consts.ENTITY_TYPE[0]}!`],
     },
     personalNumber: {
       type: String,
       unique: true,
       sparse: true,
       validate: { validator: PersonValidate.personalNumber, message: '{VALUE} is an invalid personal number!' },
-      required: [function () {
-        // In update the mongo does not keep the document in "this" 
-        const entityType = typeof this.getUpdate !== 'function' ? this.entityType : this.getUpdate().$set.entityType;        
-        return entityType === consts.ENTITY_TYPE[1];
-      },
-        `You must enter a personalNumber to ${consts.ENTITY_TYPE[1]}!`],
     },
     primaryDomainUser: {
       type: ObjectId,
@@ -112,20 +100,6 @@ export const PersonSchema = new mongoose.Schema(
     },
     responsibilityLocation: {
       type: ObjectId,
-      required: [function () {
-        // In update the mongo does not keep the document in "this" 
-        const res = typeof this.getUpdate !== 'function' ? this.responsibility : this.getUpdate().$set.responsibility;        
-        return res && res !== consts.RESPONSIBILITY[0];
-      },
-        'You must enter a responsibility location!'],
-      validate: {
-        validator(v: string) {
-          // In update the mongo does not keep the document in "this"
-          const res = typeof this.getUpdate !== 'function' ? this.responsibility : this.getUpdate().$set.responsibility;        
-          return PersonValidate.responsibilityLocation(v, res);
-        },
-        message: '{VALUE} is not consumed or invalid responsibility location',
-      },
     },
 
     mail: {
@@ -144,12 +118,6 @@ export const PersonSchema = new mongoose.Schema(
     rank: {
       type: String,
       enum: consts.RANK,
-      required: [function () {
-        // In update the mongo does not keep the document in "this" 
-        const entyTyp = typeof this.getUpdate !== 'function' ? this.entityType : this.getUpdate().$set.entityType;       
-        return entyTyp === consts.ENTITY_TYPE[1];
-      },
-        'You must enter a rank!'],
     },
     address: String,
 

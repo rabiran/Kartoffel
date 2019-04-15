@@ -1,3 +1,5 @@
+import { ValidatorObj } from './types/validation';
+
 export const DomainSeperator = '@';
 
 export function filterObjectByKeys(object: Object, allowedKeys: string[]): Object {
@@ -74,4 +76,37 @@ export function filterEmptyField(obj: object, array: string[]) {
       }
     }
   }
+}
+
+/**
+ * Runs the given validators on the given value, returns an object with the following signature:
+ * isValid - true if all validators passed, false otherwise.
+ * messages - string array of error messages from the validators
+ * @param validatorObjects 
+ * @param valueToValidate 
+ */
+export function validatorRunner(validatorObjects: Iterable<ValidatorObj>, valueToValidate: any) {
+  const messages = [];
+  let allPassed = true;
+  for (const validatorObj of validatorObjects) {
+    if (!validatorObj.validator(valueToValidate)) {
+      allPassed = false;
+      const msg = evalStringWithValue(validatorObj.message, valueToValidate);
+      messages.push(msg);
+    }
+  }
+  return { messages, isValid: allPassed };
+}
+
+function evalStringWithValue(str: string, value: any, valueToMatch: string = 'VALUE') {
+  return str.replace(/\{(([^{])+)\}/g, (_: string, match: string) => {
+    const keys = match.split('.');
+    if (keys.length === 0 || keys[0] !== valueToMatch) { return match; }
+    const nestedKeys = keys.slice(1);
+    let v = typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
+    for (const k of nestedKeys) {
+      v = v[k];
+    }
+    return typeof v === 'object' ? JSON.stringify(v) : v;
+  });
 }
