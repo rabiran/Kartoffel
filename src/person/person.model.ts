@@ -5,7 +5,6 @@ import  * as consts  from '../config/db-enums';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
-const serviceType : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(consts.SERVICE_TYPE)));
 
 const schemaOptions = {
   toObject: {
@@ -56,7 +55,7 @@ export const PersonSchema = new mongoose.Schema(
     },
     serviceType: {
       type: String,
-      enum: { values: [...serviceType.keys()], message: 'The "{VALUE}" is not a recognized service type' },
+      enum: { values: consts.SERVICE_TYPE , message: 'The "{VALUE}" is not a recognized service type' },
     },
     firstName: {
       type: String,
