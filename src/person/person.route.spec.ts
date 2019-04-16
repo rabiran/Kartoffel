@@ -14,8 +14,8 @@ chai.use(require('chai-http'));
 const expect = chai.expect;
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
-
 const domainMap: Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
+const domains = [...domainMap.keys()];
 const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
@@ -208,9 +208,8 @@ describe('Person', () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
         .then((res) => {
           const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/domainUser`)
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
             .send({
-              personId: person.id,
               uniqueID: userStringEx,
               isPrimary: true,
             });
@@ -307,14 +306,13 @@ describe('Person', () => {
     });
   });
 
-  describe('/POST person/domainUser', () => {
+  describe('/POST person/:id/domainUsers', () => {
     it('should return the person with the newly created primary domainUser', async () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
         .then((res) => {
           const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/domainUser`)
-            .send({
-              personId: person.id,
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({              
               uniqueID: userStringEx,
               isPrimary: true,
             });
@@ -331,9 +329,8 @@ describe('Person', () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
         .then((res) => {
           const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/domainUser`)
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
             .send({
-              personId: person.id,
               uniqueID: userStringEx,
               isPrimary: false,
             });
@@ -351,8 +348,8 @@ describe('Person', () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
         .then((res) => {
           const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/domainUser`)
-            .send({ personId: person.id, uniqueID: `${userStringEx}@`, isPrimary: true });
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({ uniqueID: `${userStringEx}@`, isPrimary: true });
         })
         .catch((err) => {
           err.should.exist;
@@ -362,8 +359,8 @@ describe('Person', () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
         .then((res) => {
           const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/domainUser`)
-            .send({ personId: person.id, uniqueID: `abc@wrong`, isPrimary: true });
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({ uniqueID: `abc@wrong`, isPrimary: true });
         })
         .catch((err) => {
           err.should.exist;
@@ -373,17 +370,68 @@ describe('Person', () => {
       await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
         .then((res) => {
           const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/domainUser`)
-            .send({ personId: person.id, uniqueID: userStringEx, isPrimary: true });
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({ uniqueID: userStringEx, isPrimary: true });
         })
         .then((res) => {
           const person = res.body;
-          return chai.request(server).post(`${BASE_URL}/domainUser`)
-            .send({ personId: person.id, uniqueID: userStringEx, isPrimary: false });
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({ uniqueID: userStringEx, isPrimary: false });
         })
         .catch((err) => {
           err.should.exist;
         });
+    });
+  });
+
+  describe('/PUT person/:id/domainUsers/:domainUser', () => {
+    it('should return the person with changes', async () => {
+      await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({   
+              uniqueID: userStringEx,
+              isPrimary: true,
+            });
+        })
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`)
+          .send({            
+            uniqueID: `david@${domains[0]}`,
+            isPrimary: false,
+          });
+        })
+        .then((res) => {
+          const person = res.body;
+          return chai.request(server).put(`${BASE_URL}/${person.id}/domainUsers/david@${domains[0]}`)
+            .send({
+              newUniqueID: `newDavid@${domains[0]}`,
+              isPrimary: true,
+            });          
+        })
+        .then(((res) => {
+          res.should.exist;
+          res.should.have.status(200);
+          const updatedPerson = res.body;
+          updatedPerson.primaryDomainUser.should.have.property('uniqueID', `newDavid@${domains[0]}`);
+          updatedPerson.secondaryDomainUsers[0].should.have.property('uniqueID', userStringEx);
+        }));
+    });
+  });
+
+  describe('/DELETE person/:id/domainUsers/:domainUser', () => {
+    it('should delete the domain user of person', async () => {
+      const person = (await chai.request(server).post(BASE_URL).send({ ...personExamples[0] })).body;      
+      let updatePerson = (await chai.request(server).post(`${BASE_URL}/${person.id}/domainUsers`).send({            
+        uniqueID: userStringEx,
+        isPrimary: true,
+      })).body;
+      updatePerson.primaryDomainUser.should.have.property('uniqueID', userStringEx);
+      await chai.request(server).del(`${BASE_URL}/${person.id}/domainUsers/${userStringEx}`);
+      updatePerson = (await chai.request(server).get(`${BASE_URL}/${person.id}`)).body;                 
+      expect(updatePerson.primaryDomainUser).to.be.null;    
     });
   });
 

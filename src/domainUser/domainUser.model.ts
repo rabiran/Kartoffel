@@ -40,7 +40,6 @@ export const DomainUserSchema = new mongoose.Schema({
   },
 }, schemaOptions);
 
-// don't know if this is a good solution:
 DomainUserSchema.index({ name: 1, domain: 1 }, { unique: true });
 
 DomainUserSchema.virtual('uniqueID').get(function () {
