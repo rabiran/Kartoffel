@@ -11,6 +11,7 @@ import * as utils from '../utils.js';
 import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
 import  * as consts  from '../config/db-enums';
+import { PersonValidate } from './person.validate';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -186,6 +187,11 @@ export class Person {
     }
     // Checks if there is a rank for the person who needs to
     if (person.entityType === consts.ENTITY_TYPE[1] && !person.rank) person.rank = consts.RANK[0];
+    // run validators
+    const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, person);
+    if (!validatorsResult.isValid) {
+      throw new Error(validatorsResult.messages.toString());
+    }
     // Checks whether the value in personalNumber or identityNumber exists in one of them
     // Checks value that exist
     const existValue = [person.personalNumber, person.identityCard].filter(x => x != null);
@@ -239,7 +245,17 @@ export class Person {
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    let updatedPerson = await Person._personRepository.update(id, change, 'primaryDomainUser secondaryDomainUsers');
+    // first find the person
+    const person = await Person._personRepository.findById(id);
+    // merge with the changes
+    const mergedPerson = { ...person, ...change };
+    // validate the merged object
+    const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
+    if (!validatorsResult.isValid) {
+      throw new Error(validatorsResult.messages.toString());
+    }
+    // perform the actual update
+    let updatedPerson = await Person._personRepository.update(id, mergedPerson, 'primaryDomainUser secondaryDomainUsers');
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     updatedPerson = filterPersonDomainUsers(updatedPerson);
     return <IPerson>updatedPerson;

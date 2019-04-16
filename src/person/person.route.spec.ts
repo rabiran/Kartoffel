@@ -5,7 +5,7 @@ import { Person } from './person.controller';
 import { IPerson } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK, DOMAIN_MAP } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, DOMAIN_MAP, CURRENT_UNIT, SERVICE_TYPE } from '../config/db-enums';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 
 
@@ -27,7 +27,9 @@ const personExamples: IPerson[] = [
     lastName: 'Tov',
     dischargeDay: new Date(2022, 11),
     job: 'parent',
-    entityType: ENTITY_TYPE[0],
+    entityType: ENTITY_TYPE[1],
+    currentUnit: CURRENT_UNIT[0],
+    serviceType: SERVICE_TYPE[0],
   },
   <IPerson>{
     identityCard: '567891239',
