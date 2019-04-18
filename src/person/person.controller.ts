@@ -174,8 +174,10 @@ export class Person {
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
     // first find the person
     const person = await Person._personRepository.findById(id);
+    // fix changes
+    const fixedChange = Person.fixUpdatedFields(person, change);
     // merge with the changes
-    const mergedPerson = { ...person, ...change };
+    const mergedPerson = { ...person, ...fixedChange };
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
@@ -186,6 +188,15 @@ export class Person {
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     updatedPerson = filterPersonDomainUsers(updatedPerson);
     return <IPerson>updatedPerson;
+  }
+
+  private static fixUpdatedFields(current: IPerson, change: Partial<IPerson>) {
+    const fixedChange = { ...change };
+    if (current.entityType === consts.ENTITY_TYPE[1] && change.entityType === consts.ENTITY_TYPE[0]) {
+      fixedChange.rank = null;
+      fixedChange.currentUnit = null;
+    }
+    return fixedChange;
   }
 
   static async updateTeam(personID: string, newTeamID: string): Promise<IPerson> {

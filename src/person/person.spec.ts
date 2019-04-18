@@ -562,6 +562,15 @@ describe('Persons', () => {
       const person = await Person.createPerson({ ...personExamples[1] });
       await expectError(Person.updatePerson, [person.id, { entityType: ENTITY_TYPE[1] }]);
     });
+    it('should update the person and auto remove currentUnit and rank fields when updating entityType', async () => {
+      const person = await Person.createPerson({ ...personExamples[0] });
+      person.entityType = ENTITY_TYPE[0];
+      await Person.updatePerson(person.id, person);
+      const updatedPerson = await Person.getPersonById(person.id);
+      expect(updatedPerson.entityType === ENTITY_TYPE[0]);
+      updatedPerson.should.not.have.property('rank');
+      updatedPerson.should.not.have.property('currentUnit');
+    });
   });
   describe('Person Staffing', () => {
     it('Should throw an error if the person does not exist', async () => {

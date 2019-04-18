@@ -74,7 +74,8 @@ export class PersonValidate extends ModelValidate {
   // multifield validators returns false when the person is invalid (and thus the field is required!)
 
   public static currentUnitMultiValidator(person: IPerson) {
-    return !!person.currentUnit || person.entityType !== ENTITY_TYPE[1];
+    return (!!person.currentUnit && person.entityType === ENTITY_TYPE[1]) || 
+      (!person.currentUnit && person.entityType === ENTITY_TYPE[0]);
   }
 
   public static identityCardMultiValidator(person: IPerson) {
@@ -86,7 +87,8 @@ export class PersonValidate extends ModelValidate {
   }
 
   public static rankMultiFieldValidator(person: IPerson) {
-    return !(person.entityType === ENTITY_TYPE[1] && !person.rank);
+    return (!!person.rank && person.entityType === ENTITY_TYPE[1]) || 
+      (!person.rank && person.entityType === ENTITY_TYPE[0]);
   }
 
   public static responsibilityLocationMultiValidator(person: IPerson) {
@@ -101,7 +103,7 @@ export class PersonValidate extends ModelValidate {
   public static multiFieldValidators: ValidatorObj[] = [
     {
       validator: PersonValidate.currentUnitMultiValidator,
-      message: `currentUnit is required for entity type ${ENTITY_TYPE[1]}`,
+      message: `currentUnit is required only for entity type ${ENTITY_TYPE[1]}`,
     },
     {
       validator: PersonValidate.identityCardMultiValidator,
