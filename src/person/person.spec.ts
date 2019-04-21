@@ -198,7 +198,6 @@ describe('Persons', () => {
         responsibilityLocation: new Types.ObjectId(dbIdExample[3]),
         clearance: '5',
         alive: true,
-        currentUnit: CURRENT_UNIT[0],
       };
 
       const person = await Person.createPerson(newPerson);
@@ -209,7 +208,6 @@ describe('Persons', () => {
       person.should.have.property('serviceType', newPerson.serviceType);
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
-      person.should.have.property('currentUnit', newPerson.currentUnit);
       expect(person.dischargeDay.getTime() === newPerson.dischargeDay.getTime());
       person.should.have.property('hierarchy');
       person.hierarchy.should.have.ordered.members([dummyGroup.name]);
@@ -568,8 +566,8 @@ describe('Persons', () => {
       await Person.updatePerson(person.id, person);
       const updatedPerson = await Person.getPersonById(person.id);
       expect(updatedPerson.entityType === ENTITY_TYPE[0]);
-      updatedPerson.should.not.have.property('rank');
-      updatedPerson.should.not.have.property('currentUnit');
+      expect(updatedPerson.rank === null || updatedPerson.rank === undefined);
+      expect(updatedPerson.currentUnit === null || updatedPerson.currentUnit === undefined);
     });
   });
   describe('Person Staffing', () => {
