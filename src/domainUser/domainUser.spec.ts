@@ -105,6 +105,28 @@ describe('DomainUsers', () => {
       await Users.create(userExample);
       await expectError(Users.getByUniqueID, [`other@domain`]);
     });
+
+    it('should get the user by full string where the domain is an adfsUID (one possible domain)', async () => {
+      await Users.create(userExample);
+      const user = await Users.getByUniqueID(`${userExample.name}@${domainMap.get(userExample.domain)}`);
+      user.should.exist;
+      user.should.have.property('name', userExample.name); 
+      user.should.have.property('domain', userExample.domain);
+      user.should.have.property('adfsUID', `${userExample.name}@${domainMap.get(userExample.domain)}`);
+    });
+
+    it('should get the user by full string where the domain is an adfsUID (multiple possible domains)', async () => {
+      const userMultiDomain: IDomainUser = {
+        name: 'haim',
+        domain: [...domainMap.keys()][2], // there is one more domain with the same adfsUID
+      };
+      await Users.create(userMultiDomain);
+      const user = await Users.getByUniqueID(`${userMultiDomain.name}@${domainMap.get(userMultiDomain.domain)}`);
+      user.should.exist;
+      user.should.have.property('name', userMultiDomain.name); 
+      user.should.have.property('domain', userMultiDomain.domain);
+      user.should.have.property('adfsUID', `${userMultiDomain.name}@${domainMap.get(userMultiDomain.domain)}`);
+    });
   });
 
   describe('#delete', () => {
@@ -112,7 +134,31 @@ describe('DomainUsers', () => {
       const createdUser = await Users.create(userExample);
       const res = await Users.delete(createdUser.id);
       res.should.have.property('ok', 1);
-      res.should.have.property('n', 1);
+      res.should.have.property('deletedCount', 1);
+    });
+  });
+
+  describe('#update', () => {
+    it('should update the name of user', async () => {
+      const createdUser = await Users.create(userExample);
+      createdUser.name = 'david';
+      const res = await Users.update(createdUser.id, createdUser);
+      res.should.have.property('name', 'david');
+      res.should.have.property('domain', [...domainMap.keys()][0]);
+    });
+    it('should throw error when the domainUser\'s name is already in use', async () => {
+      const createdUser = await Users.create(userExample);
+      await Users.create({ name: 'david', domain: [...domainMap.keys()][0] });
+      createdUser.name = 'david';
+      let isError = false;
+      try {
+        await Users.update(createdUser.id, createdUser);        
+      } catch (err) {
+        err.should.exist;
+        err.should.have.property('message', `user with name: ${createdUser.name} and domain: ${createdUser.domain} already exists`);        
+        isError = true;
+      }
+      isError.should.be.true;      
     });
   });
 });

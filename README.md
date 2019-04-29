@@ -1,4 +1,4 @@
-# Kartoffel - 0.2.2
+# Kartoffel - 0.3
 
 ##  CI Information
 ### Build Status
@@ -18,6 +18,17 @@
 
 ### Running the server without compilation
         npm run serve
+
+### Run on Docker
+#### Build an Image
+        docker build --rm -f "Dockerfile" -t kartoffel:latest .
+#### Run the image in a container
+        docker run -p 3000:3000/tcp kartoffel:latest
+        
+## Enviroment
+You should create a `.env` file like the `example.env`.
+
+If you're not working with Spike (https://github.com/rabiran/OSpike) you need change the value of `ENABLE_AUTH` to `false`.
 
 ## API Endpoints
 ### 1. User

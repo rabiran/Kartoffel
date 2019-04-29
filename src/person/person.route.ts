@@ -27,10 +27,20 @@ persons.post('/', PermissionMiddleware.hasAdvancedPermission,
            validatorMiddleware(atCreateFieldCheck),
            ch(Person.createPerson, (req: Request) => [req.body]));
 
-persons.post('/domainUser', PermissionMiddleware.hasAdvancedPermission,
-            ch(Person.addNewUser, (req: Request) => {
-              return [req.body.personId, req.body.uniqueID, req.body.isPrimary];
-            }));
+persons.post('/:id/domainUsers', PermissionMiddleware.hasAdvancedPermission,
+ch(Person.addNewUser, (req: Request) => {
+  return [req.params.id, req.body.uniqueID, req.body.isPrimary];
+}));
+
+persons.put('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
+ch(Person.updateDomainUser, (req: Request) => {
+  return [req.params.id, req.params.uniqueID, req.body.newUniqueID, req.body.isPrimary];
+}));
+
+persons.delete('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
+ch(Person.deleteDomainUser, (req: Request) => {
+  return [req.params.id, req.params.uniqueID];
+}));
 
 persons.get('/:id', (req: Request, res: Response) => {
   ch(Person.getPersonByIdWithFilter, (req: Request, res: Response) => {

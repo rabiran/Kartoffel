@@ -43,23 +43,20 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
   }
 
   findAndUpdateSome(ids: string[], set: Object): Promise<T[]> {
-    return this._model.update({ _id: { $in: ids } }, { $set: set }, { multi: true }).exec();
+    return this._model.updateMany({ _id: { $in: ids } }, { $set: set }).exec();
   }
 
   // TODO: Check why it doesn't work with throw (It doesn't get caught).
   create(item: T): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this._model.create(item, (err: any, obj: any): void => {
-        if (err) reject(err);
-        else resolve(obj);
-      });
+    return this._model.create(item).then((result) => {
+      return result ? result.toObject() : result;
     });
   }
 
   update(_id: any, item: Partial<T>, populateOptions?: string | Object): Promise<T> {
-    item['updatedAt'] = new Date();
-    const opts = { new: true, runValidators: true, context: 'query' };
-    let updateQuery = this._model.findByIdAndUpdate({ _id }, item, opts);
+    if (item['updatedAt'])  item['updatedAt'] = undefined;
+    const opts = { new: true, runValidators: true, context: 'query' };    
+    let updateQuery = this._model.findOneAndUpdate({ _id }, { $set: item }, opts);
     if (populateOptions) {
       updateQuery = updateQuery.populate(populateOptions);
     }
@@ -69,7 +66,7 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
   }
 
   delete(_id: any): Promise<any> {
-    return this._model.remove({ _id }).exec();
+    return this._model.deleteMany({ _id }).exec();
   }
 
   findById(_id: any, populateOptions?: string | Object): Promise<T> {

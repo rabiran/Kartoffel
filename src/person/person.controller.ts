@@ -11,6 +11,7 @@ import * as utils from '../utils.js';
 import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
 import  * as consts  from '../config/db-enums';
+import { PersonValidate } from './person.validate';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -97,6 +98,79 @@ export class Person {
     return updatedPerson;
   }
 
+  /**
+   * Delete domain user from person
+   * @param personId Person to delete from him
+   * @param uniqueId The domain user to delete
+   */
+  static async deleteDomainUser(personId: string, uniqueId: string) : Promise<any> {
+    const domainUser: IDomainUser = await DomainUserController.getByUniqueID(uniqueId);    
+    // Checks if domainUser belongs to this person
+    if (String(domainUser.personId) === personId) {
+      // Update person - remove user from person
+      const person = await Person.getPersonById(personId);
+      // Checks if primary
+      if (person.primaryDomainUser && (String((<IDomainUser>person.primaryDomainUser).id) === domainUser.id)) {
+        person.primaryDomainUser = undefined;
+        // Else delete user from secondaryUseres
+      } else {
+        const index = (<IDomainUser[]>person.secondaryDomainUsers).map(item => item.id).indexOf(domainUser.id);
+        person.secondaryDomainUsers.splice(index, 1);
+      }
+      // update person record
+      Person.updatePerson(person.id, person);
+      // Delete domainUser
+      const result = await DomainUserController.delete(domainUser.id);
+      return result.deletedCount > 0 ? `The domain user: ${uniqueId} successfully deleted from person with id: ${personId}` : Promise.reject(new Error('There was an error deleting the domain user'));        
+    }
+    // If domain user dont belong specific person
+    throw new Error(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
+  }
+
+  /**
+   * Update domainUser fields (name and\or primary)
+   * @param personId 
+   * @param oldUniqueId the current uniqueId
+   * @param newUniqueId the uniqueId to change
+   * @param isPrimary change primary to secondary and vice versa
+   */
+  static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId?: string, isPrimary?: Boolean) : Promise<IPerson> {
+    const domainUser: IDomainUser = await DomainUserController.getByUniqueID(oldUniqueId);        
+    // Checks if domainUser belongs to this person
+    if (String(domainUser.personId) === personId) {  
+      const person: IPerson = await Person.getPersonById(personId);
+      // Checks if there is something to change     
+      if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) return Promise.reject(new Error(`You have not entered a parameter to change`));
+      // Change name of uniqueId
+      if (newUniqueId) {
+        const userUpdate = userFromString(newUniqueId);
+        if (userUpdate.domain !== domainUser.domain) return Promise.reject(new Error(`Can't change domain of user`));
+        domainUser.name = userUpdate.name;
+        await DomainUserController.update(domainUser.id, domainUser);
+      }
+      // If get 'isPrimary' field
+      if (isPrimary !== null && isPrimary !== undefined) {        
+        // Checks if user should be primary and is not 
+        if (isPrimary && (!(<IDomainUser>person.primaryDomainUser) || ((<IDomainUser>person.primaryDomainUser) && domainUser.id !== String((<IDomainUser>person.primaryDomainUser).id)))) {
+          // If a another user already exsit in primary, it transfers it to a secondary
+          if (person.primaryDomainUser) {
+            (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);            
+          }
+          // Remove user from secondary and puts it in primary
+          const index = (<IDomainUser[]>person.secondaryDomainUsers).map(item => item.id).indexOf(domainUser.id);
+          const primaryUser = person.secondaryDomainUsers.splice(index, 1);
+          person.primaryDomainUser = primaryUser[0];          
+          // If the user does not have to be in primary, he transfers to a secondary
+        } else if (!isPrimary && (<IDomainUser>person.primaryDomainUser) && domainUser.id === String((<IDomainUser>person.primaryDomainUser).id)) {          
+          (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);
+          person.primaryDomainUser = undefined;        
+        }       
+      }
+      return await Person.updatePerson(person.id, person);      
+    }
+    // If domain user dont belong specific person
+    throw new Error(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
+  }
 
   static async createPerson(person: IPerson): Promise<IPerson> {
     // check that 'directGroup' field exists
@@ -113,6 +187,11 @@ export class Person {
     }
     // Checks if there is a rank for the person who needs to
     if (person.entityType === consts.ENTITY_TYPE[1] && !person.rank) person.rank = consts.RANK[0];
+    // run validators
+    const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, person);
+    if (!validatorsResult.isValid) {
+      throw new Error(validatorsResult.messages.toString());
+    }
     // Checks whether the value in personalNumber or identityNumber exists in one of them
     // Checks value that exist
     const existValue = [person.personalNumber, person.identityCard].filter(x => x != null);
@@ -161,12 +240,22 @@ export class Person {
   }
 
   static async removePerson(personID: string): Promise<any> {
-    const res = await Person._personRepository.delete(personID);
-    return res.result.n > 0 ? res.result : Promise.reject(new Error('Cannot find person with ID: ' + personID));
+    const result = await Person._personRepository.delete(personID);
+    return result.deletedCount > 0 ? result : Promise.reject(new Error('Cannot find person with ID: ' + personID));
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    let updatedPerson = await Person._personRepository.update(id, change, 'primaryDomainUser secondaryDomainUsers');
+    // first find the person
+    const person = await Person._personRepository.findById(id);
+    // merge with the changes
+    const mergedPerson = { ...person, ...change };
+    // validate the merged object
+    const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
+    if (!validatorsResult.isValid) {
+      throw new Error(validatorsResult.messages.toString());
+    }
+    // perform the actual update
+    let updatedPerson = await Person._personRepository.update(id, mergedPerson, 'primaryDomainUser secondaryDomainUsers');
     if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     updatedPerson = filterPersonDomainUsers(updatedPerson);
     return <IPerson>updatedPerson;
