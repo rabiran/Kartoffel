@@ -6,8 +6,9 @@ import { AuthMiddleware } from '../../middlewares/auth.middleware';
 import { OrganizationGroup } from './organizationGroup.controller';
 import { Person } from '../../person/person.controller';
 import { IOrganizationGroup, ORGANIZATION_GROUP_BASIC_FIELDS } from './organizationGroup.interface';
-import { atCreateFieldCheck } from './organizationGroup.route.validator';
+import { atCreateFieldCheck, OGRouteValidate } from './organizationGroup.route.validator';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../../helpers/route.validator';
+
 // import { body, param, check, validationResult } from 'express-validator/check';
 
 const organizationGroups = Router();
@@ -61,11 +62,11 @@ organizationGroups.get('/:id/old', validatorMiddleware(Vld.toDo, ['id'], 'params
 organizationGroups.get('/:id/members', ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
 
 organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
-  validatorMiddleware(Vld.differentParams, ['parentId', 'childId']),
+  validatorMiddleware(OGRouteValidate.adoption, ['parentId', 'childIds']),
   ch(OrganizationGroup.childrenAdoption, (req: Request, res: Response) => {
     const parentId = req.body.parentId;
-    const childId = req.body.childId;
-    return [parentId, [childId]];
+    const childIds = req.body.childIds;
+    return [parentId, childIds];
   }, 400
   ));
 
