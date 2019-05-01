@@ -168,9 +168,14 @@ export class OrganizationGroup {
   }
 
   static async childrenAdoption(parentID: string, childrenIDs: string[]): Promise<void> {
+    // Checks if the parentID is included in chldrenIDs. If it's true, 
+    // it creates "Recursive Adoption" and it will stuck the program and spam the DB.  
+    if (childrenIDs.includes(parentID)) return Promise.reject(new Error('The parentId inclueds in childrenIDs, Cannot insert organizationGroup itself'));
     // Update the children's previous parents
     const children = <IOrganizationGroup[]>(await OrganizationGroup._organizationGroupRepository.getSome(childrenIDs));
-    await Promise.all(children.map(child => OrganizationGroup.disownChild(child.ancestors[0], child.id)));
+    await asyncForEach(children, async (child: IOrganizationGroup, index: number, children: IOrganizationGroup[]) => {
+      await OrganizationGroup.disownChild(child.ancestors[0], child.id);
+    });
     // Update the parent and the children
     await Promise.all([
       OrganizationGroup.adoptChildren(parentID, childrenIDs),

@@ -1282,16 +1282,17 @@ paths:
             x-oad-type: object
             type: object
             properties:
-              childId:
-                x-oad-type: string
-                type: string
-                description: Id of the group to be transferred
+              childIds:
+                type: array
+                items:
+                  type: string
+                  format: id
+                description: Ids of the groups to be transferred
               parentId:
-                x-oad-type: string
                 type: string
                 description: Id of the new parent group
             required:
-              - childId
+              - childIds
               - parentId
           x-oad-type: parameter
     x-oad-type: operation
