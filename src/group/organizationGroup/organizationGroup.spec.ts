@@ -393,6 +393,49 @@ describe('Strong Groups', () => {
         expect(child.ancestors[0].toString() === parent.id).to.be.ok;
         expect(child.ancestors[1].toString() === grandparent_2.id).to.be.ok;
       });
+      it('Should update many childs', async () => {
+        let oldParent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'old parent' });
+        let child1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child1' }, oldParent.id);
+        let child2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child2' }, oldParent.id);
+        let child3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child3' }, oldParent.id);        
+        oldParent = await OrganizationGroup.getOrganizationGroupOld(oldParent.id);
+        oldParent.should.have.property('children');
+        oldParent.children.should.have.lengthOf(3);
+        expect(child1.ancestors[0].toString() === oldParent.id).to.be.ok;
+        expect(child2.ancestors[0].toString() === oldParent.id).to.be.ok;
+        expect(child3.ancestors[0].toString() === oldParent.id).to.be.ok;
+        let newParent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'new parent' });
+        await OrganizationGroup.childrenAdoption(newParent.id, [child1.id, child2.id, child3.id]);
+        oldParent = await OrganizationGroup.getOrganizationGroupOld(oldParent.id);
+        newParent = await OrganizationGroup.getOrganizationGroupOld(newParent.id);
+        child1 = await OrganizationGroup.getOrganizationGroupOld(child1.id);
+        child2 = await OrganizationGroup.getOrganizationGroupOld(child2.id);
+        child3 = await OrganizationGroup.getOrganizationGroupOld(child3.id);
+
+        oldParent.should.exist;
+        oldParent.should.have.property('children');
+        oldParent.children.should.have.lengthOf(0);
+        newParent.should.exist;
+        newParent.should.have.property('children');
+        newParent.children.should.have.lengthOf(3);
+        child1.should.exist;
+        expect(child1.ancestors[0].toString() === newParent.id).to.be.ok;
+        child2.should.exist;
+        expect(child2.ancestors[0].toString() === newParent.id).to.be.ok;
+        child3.should.exist;
+        expect(child3.ancestors[0].toString() === newParent.id).to.be.ok;     
+      });
+      it('Should expect error when try to insert organiztionGroup to itself', async () => {
+        const og = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'old parent' });
+        let isError = false;
+        try {
+          await OrganizationGroup.childrenAdoption(og.id, [og.id]);
+        } catch (error) {
+          expect(error.message).to.equal(`The parentId inclueds in childrenIDs, Cannot insert organizationGroup itself`);
+          isError = true;
+        }
+        isError.should.be.true;
+      });
     });
   });
   describe('#deleteOrganizationGroup', () => {
