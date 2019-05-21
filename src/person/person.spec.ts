@@ -28,7 +28,7 @@ const userStringEx = `nitro@${domain}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 
 const personExamples: IPerson[] = [
-  <IPerson>{ // person that requires currentUnit
+  <IPerson>{ // person that requires rank
     identityCard: '123456782',
     personalNumber: '2345671',
     firstName: 'Avi',
@@ -38,6 +38,7 @@ const personExamples: IPerson[] = [
     job: 'Pilot 1',
     entityType: ENTITY_TYPE[1],
     currentUnit: CURRENT_UNIT[0],
+    rank: RANK[1],
     serviceType: SERVICE_TYPE[0],
   },
   <IPerson>{
@@ -60,7 +61,6 @@ const personExamples: IPerson[] = [
     responsibility: RESPONSIBILITY[1],
     responsibilityLocation: dbIdExample[1],
     clearance: '3',
-    rank: RANK[0],
     entityType: ENTITY_TYPE[0],
     serviceType: SERVICE_TYPE[2],
   },
@@ -192,7 +192,6 @@ describe('Persons', () => {
         mail: 'yonatan@work.com',
         phone: ['023456789', '02-3456389'],
         mobilePhone: ['054-9754999', '0541234567'],
-        rank: RANK[0],
         dischargeDay: new Date(2022, 11),
         address: 'I live here',
         responsibility: RESPONSIBILITY[1],
@@ -220,7 +219,6 @@ describe('Persons', () => {
       person.phone.should.have.members(newPerson.phone);
       person.should.have.property('mobilePhone');
       person.mobilePhone.should.have.members(newPerson.mobilePhone);
-      person.should.have.property('rank', newPerson.rank);
       person.should.have.property('address', newPerson.address);
       person.should.have.property('responsibility', newPerson.responsibility);
       person.should.have.property('clearance', newPerson.clearance);
@@ -383,11 +381,6 @@ describe('Persons', () => {
         await Person.createPerson(<IPerson>{ ...personExamples[1] });
         const person = { ...personExamples[3] };
         person.personalNumber = personExamples[1].personalNumber;
-        await expectError(Person.createPerson, [person]);
-      });
-      it('should throw an error when currentUnit is missing for a specific entity type', async () => {
-        const person = { ...personExamples[0] };
-        delete person.currentUnit;
         await expectError(Person.createPerson, [person]);
       });
     });
@@ -553,15 +546,12 @@ describe('Persons', () => {
       expect(String(updatedPerson.responsibilityLocation) ===
         String(person.responsibilityLocation)).to.be.true;
     });
-    it('should update the person when changing entity type and adding the required field for it (currentUnit field)', async () => {
-      const person = await Person.createPerson({ ...personExamples[1] });
-      const updatedPerson = await Person.updatePerson(person.id, { entityType: ENTITY_TYPE[1], currentUnit: CURRENT_UNIT[0] });
-      updatedPerson.should.have.property('entityType', ENTITY_TYPE[1]);
-      updatedPerson.should.have.property('currentUnit', CURRENT_UNIT[0]);
-    });
-    it('should throw error when trying to change service type without adding a required field for it (currentUnit field)', async () => {
-      const person = await Person.createPerson({ ...personExamples[1] });
-      await expectError(Person.updatePerson, [person.id, { entityType: ENTITY_TYPE[1] }]);
+    it('should update the person rank to null', async () => {
+      const person = await Person.createPerson(personExamples[0]);
+      person.entityType = ENTITY_TYPE[0];
+      person.rank = null;
+      const updatedPerson = await Person.updatePerson(person.id, person);
+      expect(updatedPerson.rank === null || updatedPerson.rank === undefined);
     });
   });
   describe('Person Staffing', () => {

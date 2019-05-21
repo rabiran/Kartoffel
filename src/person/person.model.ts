@@ -117,7 +117,7 @@ export const PersonSchema = new mongoose.Schema(
     }],
     rank: {
       type: String,
-      enum: consts.RANK,
+      enum: consts.RANK.concat([null]),
     },
     address: String,
 
