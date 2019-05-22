@@ -86,7 +86,8 @@ export class PersonValidate extends ModelValidate {
   }
 
   public static rankMultiFieldValidator(person: IPerson) {
-    return !(person.entityType === ENTITY_TYPE[1] && !person.rank);
+    return !((person.entityType === ENTITY_TYPE[1] && !person.rank)
+              || (person.entityType === ENTITY_TYPE[0] && !!person.rank));
   }
 
   public static responsibilityLocationMultiValidator(person: IPerson) {
@@ -100,10 +101,6 @@ export class PersonValidate extends ModelValidate {
 
   public static multiFieldValidators: ValidatorObj[] = [
     {
-      validator: PersonValidate.currentUnitMultiValidator,
-      message: `currentUnit is required for entity type ${ENTITY_TYPE[1]}`,
-    },
-    {
       validator: PersonValidate.identityCardMultiValidator,
       message: `identityCard is required for entityType ${ENTITY_TYPE[0]}`,
     },
@@ -114,6 +111,10 @@ export class PersonValidate extends ModelValidate {
     {
       validator: PersonValidate.responsibilityLocationMultiValidator,
       message: 'responsibilityLocation is required for responsibilty {VALUE.responsibility}',
+    },
+    {
+      validator: PersonValidate.rankMultiFieldValidator,
+      message: `rank is required for entity type ${ENTITY_TYPE[1]} and disallowed for ${ENTITY_TYPE[0]}`,
     },
   ];
 
