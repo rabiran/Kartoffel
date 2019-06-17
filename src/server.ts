@@ -1,3 +1,5 @@
+// need to be the first import and that the env variables are already loaded
+const apm = require('elastic-apm-node').start();
 import * as express       from 'express';
 import * as session       from 'express-session';
 import * as bodyParser    from 'body-parser';
