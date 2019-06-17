@@ -15,7 +15,7 @@ persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermis
 
 persons.get('/', ch(Person.getPersons, (req: Request) => [req.query]));
 
-persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params') , 
+persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
           ch(Person.getUpdatedFrom, (req: Request) => {
             let from = req.params.from;
             if (typeof(from) === 'number') from = new Date(from);
@@ -28,55 +28,36 @@ persons.post('/', PermissionMiddleware.hasAdvancedPermission,
            ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.post('/:id/domainUsers', PermissionMiddleware.hasAdvancedPermission,
-ch(Person.addNewUser, (req: Request) => {
-  return [req.params.id, req.body.uniqueID, req.body.isPrimary];
-}));
+            ch(Person.addNewUser, (req: Request) => 
+              [req.params.id, req.body.uniqueID, req.body.isPrimary]));
 
 persons.put('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
-ch(Person.updateDomainUser, (req: Request) => {
-  return [req.params.id, req.params.uniqueID, req.body.newUniqueID, req.body.isPrimary];
-}));
+          ch(Person.updateDomainUser, (req: Request) => 
+            [req.params.id, req.params.uniqueID, req.body.newUniqueID, req.body.isPrimary]));
 
 persons.delete('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
-ch(Person.deleteDomainUser, (req: Request) => {
-  return [req.params.id, req.params.uniqueID];
-}));
+            ch(Person.deleteDomainUser, (req: Request) => 
+              [req.params.id, req.params.uniqueID]));
 
-persons.get('/:id', (req: Request, res: Response) => {
-  ch(Person.getPersonByIdWithFilter, (req: Request, res: Response) => {
-    return [req.params.id]; 
-  }, 404)(req, res, null);
-});
+persons.get('/:id', ch(Person.getPersonByIdWithFilter, (req: Request) => [req.params.id])); // 404
 
-persons.get('/identifier/:identityValue', (req: Request, res: Response) => {
-  ch(Person.getPersonByIdentifier, (req: Request, res: Response) => {
-    return [['personalNumber', 'identityCard'], req.params.identityValue]; 
-  }, 404)(req, res, null);
-});
+persons.get('/identifier/:identityValue', ch(Person.getPersonByIdentifier, (req: Request) => 
+  [['personalNumber', 'identityCard'], req.params.identityValue]
+));
 
-persons.get('/personalNumber/:personalNumber', (req: Request, res: Response) => {
-  ch(Person.getPerson, (req: Request, res: Response) => {
-    return ['personalNumber', req.params.personalNumber]; 
-  }, 404)(req, res, null);
-});
+persons.get('/personalNumber/:personalNumber', ch(Person.getPerson, (req: Request) => 
+  ['personalNumber', req.params.personalNumber]
+));
 
-persons.get('/identityCard/:identityCard', (req: Request, res: Response) => {
-  ch(Person.getPerson, (req: Request, res: Response) => {
-    return ['identityCard', req.params.identityCard]; 
-  }, 404)(req, res, null);
-});
+persons.get('/identityCard/:identityCard', ch(Person.getPerson, (req: Request) => 
+  ['identityCard', req.params.identityCard]
+));
 
 persons.get('/domainUser/:domainUser', 
-  ch(Person.getByDomainUserString, (req: Request) => {
-    return [req.params.domainUser];
-  })
-);
+  ch(Person.getByDomainUserString, (req: Request) => [req.params.domainUser]));
 
-persons.delete('/:id',
-             PermissionMiddleware.hasAdvancedPermission, 
-             ch(Person.discharge, (req: Request) => {
-               return [req.params.id];
-             }, 404));
+persons.delete('/:id', PermissionMiddleware.hasAdvancedPermission, 
+  ch(Person.discharge, (req: Request) => [req.params.id]));
 
 // persons.put('/:id/personal',
 //           PermissionMiddleware.hasPersonsPermission,
@@ -89,34 +70,23 @@ persons.delete('/:id',
 persons.put('/:id',
           PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(atUpdateFieldCheck),
-          ch(Person.updatePerson, (req: Request, res: Response) => {
-            const personId = req.params.id;
-            const fieldsToUpdate = req.body;
-            return [personId, fieldsToUpdate];
-          }, 404));
+          ch(Person.updatePerson, (req: Request) =>  [req.params.id, req.body]));
 
 persons.put('/:id/assign',
           PermissionMiddleware.hasAdvancedPermission,
-          ch(Person.assign, (req: Request, res: Response) => {
-            const personID  = req.params.id;
-            const groupID  = req.body.group;
-            return [personID, groupID];
-          }, 404));
+          ch(Person.assign, (req: Request) => [req.params.id, req.body.group]));
 
 persons.put('/:id/manage',
           PermissionMiddleware.hasAdvancedPermission,
-          ch(Person.manage, (req: Request, res: Response) => {
-            const personID  = req.params.id;
-            const groupID  = req.body.group;
-            return [personID, groupID];
-          }, 404));
+          ch(Person.manage, (req: Request) => [req.params.id, req.body.group]));
 
+// no one uses this route?
 persons.put('/:id/resign',
           PermissionMiddleware.hasAdvancedPermission,
-          ch(Person.resign, (req: Request, res: Response) => {
+          ch(Person.resign, (req: Request) => {
             const personID  = req.params.person;
             const groupID  = req.body.group;
             return [personID, groupID];
-          }, 404));
+          }));
 
 export = persons;

@@ -17,64 +17,57 @@ organizationGroups.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.has
 
 organizationGroups.get('/', ch(OrganizationGroup.getOrganizationGroups, (req: Request) => [req.query]));
 
-organizationGroups.get('/:id', (req: Request, res: Response) => {
-  ch(OrganizationGroup.getOrganizationGroup, (req: Request, res: Response) => {
-    const toPopulate = req.query.populate ? req.query.populate.split(',') : null;
-    return [req.params.id, toPopulate];
-  }, 404)(req, res, null);
-});
+organizationGroups.get('/:id', ch(OrganizationGroup.getOrganizationGroup, (req: Request) => { // 404
+  const toPopulate = req.query.populate ? req.query.populate.split(',') : null;
+  return [req.params.id, toPopulate];
+}));
 
-organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), ch(OrganizationGroup.getUpdatedFrom, (req: Request) => {
+organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
+ch(OrganizationGroup.getUpdatedFrom, (req: Request) => {
   let from = req.params.from;
   if (typeof (from) === 'number') from = new Date(from);
   return [from, new Date()];
 }));
 
-organizationGroups.get('/path/:path', ch(OrganizationGroup.getOrganizationGroupByHierarchy, (req: Request) => {
+organizationGroups.get('/path/:path', 
+ch(OrganizationGroup.getOrganizationGroupByHierarchy, (req: Request) => { // 404
   const hierarchy = req.params.path.split('/');
   const name = hierarchy.pop();
   return [name, hierarchy];
-}, 404));
+}));
 
-organizationGroups.get('/path/:path/hierarchyExistenceChecking', ch(OrganizationGroup.getIDofOrganizationGroupsInHierarchy, (req: Request) => {
+organizationGroups.get('/path/:path/hierarchyExistenceChecking', 
+ch(OrganizationGroup.getIDofOrganizationGroupsInHierarchy, (req: Request) => {
   const hierarchy = req.params.path.split('/');
   return [hierarchy];
 }));
 
-organizationGroups.post('/',
+organizationGroups.post('/', // 400
   PermissionMiddleware.hasAdvancedPermission,
   validatorMiddleware(OGRouteValidate.creation),
-  ch(OrganizationGroup.createOrganizationGroup, (req: Request, res: Response) => {
+  ch(OrganizationGroup.createOrganizationGroup, (req: Request) => {
     const organizationGroup = filterObjectByKeys(req.body, ORGANIZATION_GROUP_BASIC_FIELDS);
     const parentId = req.body.parentId;
     return [organizationGroup, parentId];
-  }, 400
-  ));
+  }));
 
+
+// delete this route ?
 organizationGroups.get('/:id/old', validatorMiddleware(Vld.toDo, ['id'], 'params'), (req: Request, res: Response) => {
   const getFunction = (req.query.populated === 'true') ? OrganizationGroup.getOrganizationGroupPopulated : OrganizationGroup.getOrganizationGroupOld;
   ch(getFunction, (req: Request, res: Response) => {
     return [req.params.id];
-  }, 404)(req, res, null);
+  })(req, res, null);
 
 });
 
 organizationGroups.get('/:id/members', ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
 
-organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
+organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission, // 400
   validatorMiddleware(OGRouteValidate.adoption, ['parentId', 'childIds']),
-  ch(OrganizationGroup.childrenAdoption, (req: Request, res: Response) => {
-    const parentId = req.body.parentId;
-    const childIds = req.body.childIds;
-    return [parentId, childIds];
-  }, 400
-  ));
+  ch(OrganizationGroup.childrenAdoption, (req: Request) => [req.body.parentId, req.body.childIds]));
 
-organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission,
-  ch(OrganizationGroup.hideGroup, (req: Request) => {
-    return [req.params.id];
-  }, 400
-  )
-);
+organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission, // 400
+  ch(OrganizationGroup.hideGroup, (req: Request) => [req.params.id]));
 
 export = organizationGroups;

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction, Router } from 'express';
+import { wrapAsync as wa } from './wrapAsync';
 
 /**
  * Handles controller execution and responds to person (API Express version).
@@ -7,16 +8,8 @@ import { Request, Response, NextFunction, Router } from 'express';
  * @param params A function (req, res, next), all of which are optional
  * that maps our desired controller parameters. I.e. (req) => [req.params.personname, ...].
  */
-export const controllerHandler = (promise: Function, params: Function, errorCode: number = 500) => async (req: Request, res: Response, next: NextFunction) => {
+export const controllerHandler = (promise: Function, params: Function) => wa(async (req: Request, res: Response, next: NextFunction) => {
   const boundParams = params ? params(req, res, next) : [];
-  try {
-    const result = await promise(...boundParams);
-    return res.json(result || { message: 'OK' });
-  } catch (error) {
-    if (error.message) {
-      error = error.message;
-    }
-    error += '';
-    return res.status(errorCode).send(error);
-  }
-};
+  const result = await promise(...boundParams);
+  return res.json(result || { message: 'OK' });
+});
