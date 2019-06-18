@@ -76,7 +76,7 @@ app.use('/api/organizationGroups', organizationGroupRouter);
 /**
  * Error Handler. Provides full stack - remove for production
  */
-app.use(errorHandler());
+// app.use(errorHandler());
 
 app.get('/status', (req, res, next) => {
   res.json({ name: 'App Name' });
@@ -84,6 +84,19 @@ app.get('/status', (req, res, next) => {
 
 app.get('/ruok', (req, res, next) => {
   res.status(204).send();
+});
+
+/**
+ * some error handling
+ */
+app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const status = error.status || 500;
+  const message = error.message || 'oops something went wrong :|';
+  const name = error.name || error.contructor.name || 'unknownError';
+  return res.status(status).json({
+    message,
+    name,
+  });
 });
 
 /**

@@ -4,6 +4,7 @@ import { userFromString } from './domainUser.utils';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
 import { DOMAIN_MAP } from '../config/db-enums';
 import { allIndexesOf } from '../utils';
+import { ApplicationError } from '../types/error';
 
 const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const userFromStringIgnore = wrapIgnoreCatch(userFromString); 
@@ -45,7 +46,7 @@ export class DomainUserController {
     
     const user = await DomainUserController._userRepository.findOneMultipleDomains(userObj.name, domains);
     if (!user) {
-      throw new Error(`domainUser ${uniqueID} does not exist`);
+      throw new ApplicationError(`domainUser ${uniqueID} does not exist`, 404);
     }
     return user;
   }

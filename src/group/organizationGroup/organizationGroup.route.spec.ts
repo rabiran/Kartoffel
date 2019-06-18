@@ -79,7 +79,7 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           err.should.exist;
           res.should.have.status(404);
-          const errMsg = res.text;
+          const errMsg = res.body.message;
           errMsg.should.be.equal('Cannot find group with ID: ' + ID_EXAMPLE);
           done();
         });
@@ -178,8 +178,8 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           err.should.exist;
           res.should.have.status(400);
-          const errMsg = res.text;
-          errMsg.should.be.equal('Did not receive a valid date ;)');
+          const errMsg = res.body.message;
+          errMsg.should.be.equal('Did not receive a valid date');
           done();
         });
     });
@@ -203,7 +203,7 @@ describe('OrganizationGroup API', () => {
     });
   });
   describe('/POST group', () => {
-    it('Should return 400 when group is null', (done) => {
+    it.only('Should return 400 when group is null', (done) => {
       chai.request(server)
         .post(BASE_URL)
         .end((err, res) => {
@@ -300,7 +300,7 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           err.should.exist;
           err.should.have.status(400);
-          const errMsg = res.text;
+          const errMsg = res.body.message;
           errMsg.should.be.equal('Cannot find group with ID: ' + ID_EXAMPLE);
           done();
         });
@@ -314,7 +314,7 @@ describe('OrganizationGroup API', () => {
         .then(() => expect.fail(undefined, undefined, 'Should not succeed!'))
         .catch((err) => {
           err.status.should.be.equal(400);
-          err.response.text.should.be.equal('Can not delete a group with sub groups!');
+          err.response.body.message.should.be.equal('Can not delete a group with sub groups!');
         });
     });
     it('Should return successful result ', async () => {
