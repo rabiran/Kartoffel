@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import * as _ from 'lodash';
-import { ApplicationError } from '../types/error';
+import { ValidationError } from '../types/error';
 
 export class RouteParamsValidate {
 
   static startsWithAnA(str: string) {
     if (str[0] !== 'A') {
-      throw new ApplicationError('Does not start with an A!', 400);
+      throw new ValidationError('Does not start with an A!');
     }
   }
 
@@ -16,13 +16,13 @@ export class RouteParamsValidate {
 
   static differentParams(param_1: any, param_2: any) {
     if (param_1 === param_2) {
-      throw new ApplicationError('Cannot receive identical parameters!', 400);
+      throw new ValidationError('Cannot receive identical parameters!', 400);
     }
   }
 
   static dateOrInt(param: any) {
     if (!(RouteParamsValidate.isValidDate(param) || RouteParamsValidate.isInt(param))) {
-      throw new ApplicationError('Did not receive a valid date', 400);
+      throw new ValidationError('Did not receive a valid date');
     }
   }
 
@@ -30,10 +30,10 @@ export class RouteParamsValidate {
     return (obj: Object) => {
       const diff = _.difference(Object.keys(obj), allowedfields);
       if (diff.length !== 0) {
-        throw new ApplicationError(`unexpected fields: ${diff}`, 400);
+        throw new ValidationError(`unexpected fields: ${diff}`);
       } else if (requireAll && allowedfields.length !== Object.keys(obj).length) {
         const missingFields = _.difference(allowedfields, Object.keys(obj));
-        throw new ApplicationError(`missing required fields: ${missingFields}`, 400);
+        throw new ValidationError(`missing required fields: ${missingFields}`);
       }
     };
   }

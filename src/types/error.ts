@@ -19,3 +19,9 @@ export class ApplicationError {
     return this.code;
   }
 }
+
+export class ValidationError extends ApplicationError {
+  constructor(message?: string, stack?: string) {
+    super(message, 400, 'ValidationError', stack);
+  }
+}

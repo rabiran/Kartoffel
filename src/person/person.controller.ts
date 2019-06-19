@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ApplicationError } from '../types/error';
+import { ApplicationError, ValidationError } from '../types/error';
 import { PersonRepository } from './person.repository';
 import { IPerson } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
@@ -72,10 +72,10 @@ export class Person {
 
   static async addNewUser(personId: string, user: IDomainUser | string, isPrimary: boolean):
     Promise<IPerson> {
-    if (!personId) throw new ApplicationError(`The system needs a personId to create a domain user ${JSON.stringify(user)}`, 400);
-    if (!user) throw new ApplicationError(`The system needs a user name and domain to create a domain user for a personId ${personId}`, 400);
+    if (!personId) throw new ValidationError(`The system needs a personId to create a domain user ${JSON.stringify(user)}`);
+    if (!user) throw new ValidationError(`The system needs a user name and domain to create a domain user for a personId ${personId}`);
     const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
-    if (!DomainUserValidate.domain(userObj.domain)) throw new ApplicationError(`'The "${userObj.domain}" is not a recognized domain'`, 400);
+    if (!DomainUserValidate.domain(userObj.domain)) throw new ValidationError(`'The "${userObj.domain}" is not a recognized domain'`);
     // get the person (it also checks that the person exists)
     const person = await Person.getPersonById(personId);
     // connect the user to the person
@@ -126,7 +126,7 @@ export class Person {
         Promise.reject(new ApplicationError('There was an error deleting the domain user'));        
     }
     // If domain user dont belong specific person
-    throw new ApplicationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`, 400);
+    throw new ValidationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
   }
 
   /**
@@ -143,12 +143,12 @@ export class Person {
       const person: IPerson = await Person.getPersonById(personId);
       // Checks if there is something to change     
       if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) {
-        return Promise.reject(new ApplicationError(`You have not entered a parameter to change`, 400));
+        return Promise.reject(new ValidationError(`You have not entered a parameter to change`));
       }
       // Change name of uniqueId
       if (newUniqueId) {
         const userUpdate = userFromString(newUniqueId);
-        if (userUpdate.domain !== domainUser.domain) return Promise.reject(new ApplicationError(`Can't change domain of user`));
+        if (userUpdate.domain !== domainUser.domain) return Promise.reject(new ValidationError(`Can't change domain of user`));
         domainUser.name = userUpdate.name;
         await DomainUserController.update(domainUser.id, domainUser);
       }
@@ -173,13 +173,13 @@ export class Person {
       return await Person.updatePerson(person.id, person);      
     }
     // If domain user dont belong specific person
-    throw new ApplicationError(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`, 400);
+    throw new ValidationError(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
   }
 
   static async createPerson(person: IPerson): Promise<IPerson> {
     // check that 'directGroup' field exists
     if (!person.directGroup) {
-      throw new ApplicationError('a person must have a direct group', 400);
+      throw new ValidationError('a person must have a direct group');
     }  
     // delete empty or null field that are not necessary
     utils.filterEmptyField(person, ['rank', 'phone', 'mobilePhone', 'address', 'job', 'serviceType']);
@@ -187,20 +187,20 @@ export class Person {
     // Chack some validation
     // Check if personalNumber equal to identityCard
     if (person.personalNumber && person.identityCard && person.personalNumber === person.identityCard) {
-      throw new ApplicationError('The personal number and identity card with the same value', 400);
+      throw new ValidationError('The personal number and identity card with the same value');
     }
     // Checks if there is a rank for the person who needs to
     if (person.entityType === consts.ENTITY_TYPE[1] && !person.rank) person.rank = consts.RANK[0];
     // run validators
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, person);
     if (!validatorsResult.isValid) {
-      throw new ApplicationError(validatorsResult.messages.toString(), 400);
+      throw new ValidationError(validatorsResult.messages.toString());
     }
     // Checks whether the value in personalNumber or identityNumber exists in one of them
     // Checks value that exist
     const existValue = [person.personalNumber, person.identityCard].filter(x => x != null);
     const result = await Person._personRepository.findOr(['personalNumber', 'identityCard'], existValue);
-    if (result.length > 0) throw new ApplicationError('The personal number or identity card exists', 400);
+    if (result.length > 0) throw new ValidationError('The personal number or identity card exists');
     // get direct group - will throw error if the group doesn`t exist
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
@@ -256,7 +256,7 @@ export class Person {
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
-      throw new ApplicationError(validatorsResult.messages.toString(), 400);
+      throw new ValidationError(validatorsResult.messages.toString());
     }
     // perform the actual update
     let updatedPerson = await Person._personRepository.update(id, mergedPerson, 'primaryDomainUser secondaryDomainUsers');
@@ -298,7 +298,7 @@ export class Person {
     const group = await OrganizationGroup.getOrganizationGroup(groupID);
 
     if (String(person.directGroup) !== String(groupID)) {
-      return Promise.reject(new ApplicationError('This person is not a member in this group, hence can not be appointed as a leaf', 400));
+      return Promise.reject(new ValidationError('This person is not a member in this group, hence can not be appointed as a leaf'));
     }
     // else
     person.managedGroup = group.id;

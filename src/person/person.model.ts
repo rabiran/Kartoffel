@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
-
+import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -137,5 +137,8 @@ PersonSchema.virtual('fullName').get(function () {
 });
 
 PersonSchema.pre('findOne', autoPopulate);
+
+registerErrorHandlingHooks(PersonSchema);
+
 
 export const PersonModel = mongoose.model<IPerson & mongoose.Document>('Person', PersonSchema);

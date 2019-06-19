@@ -7,7 +7,7 @@ import { PersonRepository } from '../../person/person.repository';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
 import { sortObjectsByIDArray, promiseAllWithFails, asyncForEach } from '../../utils';
-import { ApplicationError } from '../../types/error';
+import { ValidationError, ApplicationError } from '../../types/error';
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -175,7 +175,7 @@ export class OrganizationGroup {
     // Checks if the parentID is included in chldrenIDs. If it's true, 
     // it creates "Recursive Adoption" and it will stuck the program and spam the DB.  
     if (childrenIDs.includes(parentID)) {
-      return Promise.reject(new ApplicationError('The parentId inclueds in childrenIDs, Cannot insert organizationGroup itself', 400));
+      return Promise.reject(new ValidationError('The parentId inclueds in childrenIDs, Cannot insert organizationGroup itself'));
     }
     // Update the children's previous parents
     const children = <IOrganizationGroup[]>(await OrganizationGroup._organizationGroupRepository.getSome(childrenIDs));
@@ -199,14 +199,14 @@ export class OrganizationGroup {
 
     // Checks if the group has subgroups
     if (!group.isALeaf) {
-      return Promise.reject(new ApplicationError('Can not delete a group with sub groups!', 400));
+      return Promise.reject(new ValidationError('Can not delete a group with sub groups!'));
     }
 
     // Checks if the group has no friends
     if (group.directMembers.length === 0) {
       group.isAlive = false;
     } else {
-      return Promise.reject(new ApplicationError('Can not delete a group with members!', 400));
+      return Promise.reject(new ValidationError('Can not delete a group with members!'));
     }
 
     // Find the parent, if there is one
@@ -230,10 +230,10 @@ export class OrganizationGroup {
     const group = await OrganizationGroup.getOrganizationGroup(groupID, ['directMembers']);
 
     if (!group.isALeaf) {
-      return Promise.reject(new ApplicationError('Can not delete a group with sub groups!', 400));
+      return Promise.reject(new ValidationError('Can not delete a group with sub groups!'));
     }
     if (group.directMembers.length > 0) {
-      return Promise.reject(new ApplicationError('Can not delete a group with members!', 400));
+      return Promise.reject(new ValidationError('Can not delete a group with members!'));
     }
     // Find the parent, if there is one
     let parentID = undefined;
