@@ -1,17 +1,14 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import * as _ from 'lodash';
 import { ValidationError } from '../types/error';
+import { Types } from 'mongoose';
 
 export class RouteParamsValidate {
 
-  static startsWithAnA(str: string) {
-    if (str[0] !== 'A') {
-      throw new ValidationError('Does not start with an A!');
+  static valiMongoId(mongoId: any) {
+    if (!Types.ObjectId.isValid(mongoId)) {
+      throw new ValidationError(`invalid id: ${mongoId}`);
     }
-  }
-
-  static toDo() {
-    return;
   }
 
   static differentParams(param_1: any, param_2: any) {
