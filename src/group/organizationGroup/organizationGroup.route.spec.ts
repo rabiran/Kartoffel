@@ -203,7 +203,7 @@ describe('OrganizationGroup API', () => {
     });
   });
   describe('/POST group', () => {
-    it.only('Should return 400 when group is null', (done) => {
+    it('Should return 400 when group is null', (done) => {
       chai.request(server)
         .post(BASE_URL)
         .end((err, res) => {
@@ -253,23 +253,20 @@ describe('OrganizationGroup API', () => {
       chai.request(server)
         .put(BASE_URL + '/adoption')
         .send({ parentId: ID_EXAMPLE, childIds: [ID_EXAMPLE_2] })
-        .then(
-        () => expect.fail(undefined, undefined, 'Should not succeed!'),
-        (err) => {
+        .end((err, res) => {
+          err.should.exist;
           err.should.have.status(400);
-          done();
-        }
-        );
+        });
     });
     it('Should fail if parent and child are the same', async () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'MyGroup' });
       await chai.request(server)
         .put(BASE_URL + '/adoption')
         .send({ parentId: group.id, childIds: [group.id] })
-        .then(
-        () => expect.fail(undefined, undefined, 'Should not succeed!'),
-        err => err.should.have.status(400)
-        );
+        .end((err, res) => {
+          err.Should.exist;
+          err.should.have.status(400);
+        });  
     });
     it('Should adopt (simple)', async () => {
       let parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
