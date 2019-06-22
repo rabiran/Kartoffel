@@ -23,6 +23,16 @@ export class Person {
     this._personService = new PersonRepository();
   }
 
+  /**
+   * check whether the person exists
+   * returns the person if it exists, null otherwise
+   * @param id person's id
+   */
+  static async isExists(id: string): Promise<IPerson> {
+    const person = await Person._personRepository.findById(id);
+    return person ? person : null;
+  }
+
   static async getPersons(query?: any): Promise<IPerson[]> {
     const cond = {};
     if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['alive'] = 'true';
@@ -31,9 +41,9 @@ export class Person {
     return <IPerson[]>persons;
   }
 
-  static async getPersonById(personID: string): Promise<IPerson> {
-    const person = await Person._personRepository.findById(personID);
-    if (!person) return Promise.reject(new ApplicationError('Cannot find person with ID: ' + personID, 404));
+  static async getPersonById(personId: string): Promise<IPerson> {
+    const person = await Person.isExists(personId);
+    if (!person) return Promise.reject(new ApplicationError('Cannot find person with ID: ' + personId, 404));
     return person;
   }
 
@@ -76,8 +86,9 @@ export class Person {
     if (!user) throw new ValidationError(`The system needs a user name and domain to create a domain user for a personId ${personId}`);
     const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
     if (!DomainUserValidate.domain(userObj.domain)) throw new ValidationError(`'The "${userObj.domain}" is not a recognized domain'`);
-    // get the person (it also checks that the person exists)
-    const person = await Person.getPersonById(personId);
+    // get the person and check that the person exists)
+    const person = await Person.isExists(personId);
+    if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
     // connect the user to the person
     userObj.personId = personId;
     const newUser = await DomainUserController.create(userObj);
@@ -109,7 +120,8 @@ export class Person {
     // Checks if domainUser belongs to this person
     if (String(domainUser.personId) === personId) {
       // Update person - remove user from person
-      const person = await Person.getPersonById(personId);
+      const person = await Person.isExists(personId);
+      if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
       // Checks if primary
       if (person.primaryDomainUser && (String((<IDomainUser>person.primaryDomainUser).id) === domainUser.id)) {
         person.primaryDomainUser = undefined;
@@ -140,7 +152,8 @@ export class Person {
     const domainUser: IDomainUser = await DomainUserController.getByUniqueID(oldUniqueId);        
     // Checks if domainUser belongs to this person
     if (String(domainUser.personId) === personId) {  
-      const person: IPerson = await Person.getPersonById(personId);
+      const person = await Person.isExists(personId);
+      if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
       // Checks if there is something to change     
       if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) {
         return Promise.reject(new ValidationError(`You have not entered a parameter to change`));
@@ -234,7 +247,8 @@ export class Person {
   // }
 
   static async discharge(personID: string): Promise<any> {
-    const person = await Person.getPersonById(personID);
+    const person = await Person.isExists(personId);
+    if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
     person.alive = false;
     if (person.managedGroup) {
       person.managedGroup = null;
@@ -265,10 +279,11 @@ export class Person {
     return <IPerson>updatedPerson;
   }
 
-  static async updateTeam(personID: string, newTeamID: string): Promise<IPerson> {
-    const person = await Person.getPersonById(personID);
+  static async updateTeam(personId: string, newTeamID: string): Promise<IPerson> {
+    const person = await Person.isExists(personId);
+    if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
     person.directGroup = newTeamID;
-    return await Person.updatePerson(personID, person);
+    return await Person.updatePerson(personId, person);
   }
 
   // Will transfer person between groups automatically. Is that what we want?
@@ -293,22 +308,24 @@ export class Person {
   //   return person;
   // }
 
-  static async manage(personID: string, groupID: string) {
-    const person = await Person.getPersonById(personID);
-    const group = await OrganizationGroup.getOrganizationGroup(groupID);
+  static async manage(personId: string, groupId: string) {
+    const person = await Person.isExists(personId);
+    if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
+    const group = await OrganizationGroup.getOrganizationGroup(groupId);
 
-    if (String(person.directGroup) !== String(groupID)) {
+    if (String(person.directGroup) !== String(groupId)) {
       return Promise.reject(new ValidationError('This person is not a member in this group, hence can not be appointed as a leaf'));
     }
     // else
     person.managedGroup = group.id;
-    await Person.updatePerson(personID, person);
+    await Person.updatePerson(personId, person);
     return;
   }
 
-  static async resign(personID: string) {
-    const person = await Person.getPersonById(personID);
+  static async resign(personId: string) {
+    const person = await Person.isExists(personId);
+    if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
     person.managedGroup = undefined;
-    await Person.updatePerson(personID, person);
+    await Person.updatePerson(personId, person);
   }
 }
