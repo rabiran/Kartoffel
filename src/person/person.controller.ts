@@ -246,14 +246,13 @@ export class Person {
   //   return createdPerson;
   // }
 
-  static async discharge(personID: string): Promise<any> {
-    const person = await Person.isExists(personId);
-    if (!person) throw new ValidationError(`person with id: ${personId} does not exist`);
+  static async discharge(personId: string): Promise<any> {
+    const person = await Person.getPersonById(personId);
     person.alive = false;
     if (person.managedGroup) {
       person.managedGroup = null;
     }
-    const res = await Person.updatePerson(personID, person);
+    const res = await Person.updatePerson(personId, person);
     return res;
   }
 

@@ -18,7 +18,7 @@ organizationGroups.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.has
 organizationGroups.get('/', ch(OrganizationGroup.getOrganizationGroups, (req: Request) => [req.query]));
 
 organizationGroups.get('/:id', 
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.getOrganizationGroup, (req: Request) => { // 404
             const toPopulate = req.query.populate ? req.query.populate.split(',') : null;
             return [req.params.id, toPopulate];
@@ -64,16 +64,16 @@ organizationGroups.get('/:id/old', (req: Request, res: Response) => {
 });
 
 organizationGroups.get('/:id/members', 
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
 
 organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission, // 400
-          validatorMiddleware(Vld.valiMongoId, ['parentId', 'childIds']),
           validatorMiddleware(OGRouteValidate.adoption, ['parentId', 'childIds']),
+          validatorMiddleware(Vld.validMongoId, ['parentId', 'childIds']),
           ch(OrganizationGroup.childrenAdoption, (req: Request) => [req.body.parentId, req.body.childIds]));
 
 organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission, // 400
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.hideGroup, (req: Request) => [req.params.id]));
 
 export = organizationGroups;

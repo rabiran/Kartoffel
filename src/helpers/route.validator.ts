@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 
 export class RouteParamsValidate {
 
-  static valiMongoId(mongoId: any) {
+  static validMongoId(mongoId: any) {
     if (!Types.ObjectId.isValid(mongoId)) {
       throw new ValidationError(`invalid id: ${mongoId}`);
     }

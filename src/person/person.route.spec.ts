@@ -265,7 +265,7 @@ describe('Person', () => {
         .post(BASE_URL)
         .end((err, res) => {
           err.should.exist;
-          err.should.have.status(500); // TODO: should be 400!!!
+          err.should.have.status(400);
           const errMsg = res.text;
           done();
         });
@@ -276,7 +276,7 @@ describe('Person', () => {
         .send({ firstName: 'Avi', lastName: 'Ron' })
         .end((err, res) => {
           err.should.exist;
-          err.should.have.status(500); // TODO: should be 400!!!
+          err.should.have.status(400);
           const errMsg = res.text;
           done();
         });
@@ -437,31 +437,6 @@ describe('Person', () => {
 
   describe('/PUT person', () => {
     describe('/PUT person basic dry information', () => {
-      it('Should return 400 when person does not exist', (done) => {
-        // chai.request(server)
-        //   .put(BASE_URL + '/1234567/personal')
-        //   .end((err, res) => {
-        //     err.should.exist;
-        //     err.should.have.status(400);
-        //     const errMsg = res.text;
-        //     errMsg.should.be.equal('Person ID doesn\'t match');
-        //     done();
-        //   });
-        done();
-      });
-      it('Should return 400 when person IDs do not match', (done) => {
-        // chai.request(server)
-        //   .put(BASE_URL + '/2345678/personal')
-        //   .send(PERSON_XMPL)
-        //   .end((err, res) => {
-        //     err.should.exist;
-        //     err.should.have.status(400);
-        //     const errMsg = res.text;
-        //     errMsg.should.be.equal('Person ID doesn\'t match');
-        //     done();
-        //   });
-        done();
-      });
       it('should return error when trying to update non-updatable field', async () => {
         const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
         await chai.request(server).put(`${BASE_URL}/${person.id}`)

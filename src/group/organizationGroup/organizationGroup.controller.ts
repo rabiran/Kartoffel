@@ -68,7 +68,10 @@ export class OrganizationGroup {
   */
   static async createOrganizationGroup(organizationGroup: IOrganizationGroup, parentID: string = undefined): Promise<IOrganizationGroup> {
 
-    const parent = parentID ? await OrganizationGroup.getOrganizationGroupOld(parentID) : null;
+    const parent = parentID ? await OrganizationGroup._organizationGroupRepository.findById(parentID) : null;
+    // the parent does not exist
+    if (parentID && !parent) throw new ValidationError(`group with id: ${parentID} does not exist`);
+
     /* In case there is a parent checking that all his ancestor 
        lives and creates a hierarchy and an ancestor */
     if (parentID) {
@@ -111,8 +114,7 @@ export class OrganizationGroup {
     if (groupExists) {
       // If the group exists and is alive
       if (groupExists.isAlive) {
-        return Promise.reject(new ApplicationError(`The group with name: ${organizationGroup.name} 
-          and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`, 404));
+        return Promise.reject(new ApplicationError(`The group with name: ${organizationGroup.name} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`, 404));
         // If the group exists and is not alive, revive it and return it to its parent
       } else {
         groupExists.isAlive = true;
@@ -164,7 +166,7 @@ export class OrganizationGroup {
 
   static async updateOrganizationGroup(id: string, updateTo: Partial<IOrganizationGroup>): Promise<IOrganizationGroup> {
     const updated = await OrganizationGroup._organizationGroupRepository.update(id, updateTo);
-    if (!updated) return Promise.reject(new Error('Cannot find group with ID: ' + id));
+    if (!updated) return Promise.reject(new ApplicationError('Cannot find group with ID: ' + id, 404));
     return updated;
   }
 
@@ -172,21 +174,31 @@ export class OrganizationGroup {
     return;
   }
 
+  /**
+   * change the parent of groups (transfer them to another group)
+   * @param parentID the group to transfer into (the new parent)
+   * @param childrenIDs id list of the groups to transfer
+   */
   static async childrenAdoption(parentID: string, childrenIDs: string[]): Promise<void> {
+    // check if parent exists
+    const parent = await OrganizationGroup._organizationGroupRepository.findById(parentID);
+    if (!parent) throw new ValidationError(`group with id: ${parentID} does not exist`);
+    // filter out non existing children
+    const children = await OrganizationGroup._organizationGroupRepository.getSome(childrenIDs);
+    const existingChildrenIds = children.map(group => group.id);
     // Checks if the parentID is included in chldrenIDs. If it's true, 
     // it creates "Recursive Adoption" and it will stuck the program and spam the DB.  
     if (childrenIDs.includes(parentID)) {
       return Promise.reject(new ValidationError('The parentId inclueds in childrenIDs, Cannot insert organizationGroup itself'));
     }
     // Update the children's previous parents
-    const children = <IOrganizationGroup[]>(await OrganizationGroup._organizationGroupRepository.getSome(childrenIDs));
     await asyncForEach(children, async (child: IOrganizationGroup, index: number, children: IOrganizationGroup[]) => {
       await OrganizationGroup.disownChild(child.ancestors[0], child.id);
     });
     // Update the parent and the children
     await Promise.all([
-      OrganizationGroup.adoptChildren(parentID, childrenIDs),
-      OrganizationGroup.updateChildrenHierarchy(parentID, childrenIDs),
+      OrganizationGroup.adoptChildren(parentID, existingChildrenIds),
+      OrganizationGroup.updateChildrenHierarchy(parentID, existingChildrenIds),
     ]);
     return;
   }
@@ -250,9 +262,16 @@ export class OrganizationGroup {
     return res;
   }
 
+  /**
+   * (helper function) updates the children hierarchy and ancestors according to the new parent.
+   * recursively updates all the subgroups of the children 
+   * @param parentID new parent's id
+   * @param childrenIDs the children to update
+   */
   private static async updateChildrenHierarchy(parentID: string, childrenIDs: string[] = []): Promise<void> {
     const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
     if (childrenIDs.length === 0) {
+      // update the current children - neccessary for the recursion to work
       childrenIDs = <string[]>(parent.children);
     }
     const ancestors = await OrganizationGroup.getIDAncestors(parentID);
@@ -264,7 +283,12 @@ export class OrganizationGroup {
     return;
   }
 
-  // Update the father about his child
+  /**
+   * (helper function ) ascriנק (already existing) children to the parent group
+   * @param parentID if of the parent to update
+   * @param childrenIDs id of the children to ascribe
+   * @param parent 
+   */
   private static async adoptChildren(parentID: string, childrenIDs: string[], parent?: IOrganizationGroup): Promise<IOrganizationGroup> {
     if (!parent) {
       parent = await OrganizationGroup.getOrganizationGroupOld(parentID);

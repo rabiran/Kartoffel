@@ -256,6 +256,7 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           err.should.exist;
           err.should.have.status(400);
+          done();
         });
     });
     it('Should fail if parent and child are the same', async () => {
@@ -263,10 +264,10 @@ describe('OrganizationGroup API', () => {
       await chai.request(server)
         .put(BASE_URL + '/adoption')
         .send({ parentId: group.id, childIds: [group.id] })
-        .end((err, res) => {
-          err.Should.exist;
-          err.should.have.status(400);
-        });  
+        .then(
+          () => expect.fail(undefined, undefined, 'Should not succeed!'),
+          err => err.should.have.status(400)
+        );
     });
     it('Should adopt (simple)', async () => {
       let parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
@@ -291,12 +292,12 @@ describe('OrganizationGroup API', () => {
     });
   });
   describe('/DELETE group', () => {
-    it('Should return 400 if group does not exist', (done) => {
+    it('Should return 404 if group does not exist', (done) => {
       chai.request(server)
         .del(BASE_URL + '/' + ID_EXAMPLE)
         .end((err, res) => {
           err.should.exist;
-          err.should.have.status(400);
+          err.should.have.status(404);
           const errMsg = res.body.message;
           errMsg.should.be.equal('Cannot find group with ID: ' + ID_EXAMPLE);
           done();

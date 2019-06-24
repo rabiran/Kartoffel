@@ -28,22 +28,22 @@ persons.post('/', PermissionMiddleware.hasAdvancedPermission,
            ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.post('/:id/domainUsers', PermissionMiddleware.hasAdvancedPermission,
-            validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+            validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
             ch(Person.addNewUser, (req: Request) => 
               [req.params.id, req.body.uniqueID, req.body.isPrimary]));
 
 persons.put('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(Person.updateDomainUser, (req: Request) => 
             [req.params.id, req.params.uniqueID, req.body.newUniqueID, req.body.isPrimary]));
 
 persons.delete('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
-            validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+            validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
             ch(Person.deleteDomainUser, (req: Request) => 
               [req.params.id, req.params.uniqueID]));
 
 persons.get('/:id', 
-            validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+            validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
             ch(Person.getPersonByIdWithFilter, (req: Request) => [req.params.id])); // 404
 
 persons.get('/identifier/:identityValue', ch(Person.getPersonByIdentifier, (req: Request) => 
@@ -62,7 +62,7 @@ persons.get('/domainUser/:domainUser',
   ch(Person.getByDomainUserString, (req: Request) => [req.params.domainUser]));
 
 persons.delete('/:id', PermissionMiddleware.hasAdvancedPermission, 
-  validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+  validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
   ch(Person.discharge, (req: Request) => [req.params.id]));
 
 // persons.put('/:id/personal',
@@ -75,24 +75,24 @@ persons.delete('/:id', PermissionMiddleware.hasAdvancedPermission,
 
 persons.put('/:id',
           PermissionMiddleware.hasAdvancedPermission,
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           validatorMiddleware(atUpdateFieldCheck),
           ch(Person.updatePerson, (req: Request) =>  [req.params.id, req.body]));
 
 persons.put('/:id/assign',
           PermissionMiddleware.hasAdvancedPermission,
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(Person.assign, (req: Request) => [req.params.id, req.body.group]));
 
 persons.put('/:id/manage',
           PermissionMiddleware.hasAdvancedPermission,
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(Person.manage, (req: Request) => [req.params.id, req.body.group]));
 
 // no one uses this route?
 persons.put('/:id/resign',
           PermissionMiddleware.hasAdvancedPermission,
-          validatorMiddleware(Vld.valiMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(Person.resign, (req: Request) => {
             const personID  = req.params.person;
             const groupID  = req.body.group;
