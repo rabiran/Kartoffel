@@ -249,13 +249,13 @@ describe('OrganizationGroup API', () => {
         err => err.should.have.status(400)
         );
     });
-    it('Should return 400 if group is not found', (done) => {
+    it('Should return 404 if group is not found', (done) => {
       chai.request(server)
         .put(BASE_URL + '/adoption')
         .send({ parentId: ID_EXAMPLE, childIds: [ID_EXAMPLE_2] })
         .end((err, res) => {
           err.should.exist;
-          err.should.have.status(400);
+          err.should.have.status(404);
           done();
         });
     });

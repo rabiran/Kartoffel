@@ -7,7 +7,7 @@ import { PersonRepository } from '../../person/person.repository';
 import { Document } from 'mongoose';
 import * as _ from 'lodash';
 import { sortObjectsByIDArray, promiseAllWithFails, asyncForEach } from '../../utils';
-import { ValidationError, ApplicationError } from '../../types/error';
+import { ValidationError, ApplicationError, ResourceNotFoundError } from '../../types/error';
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -39,8 +39,7 @@ export class OrganizationGroup {
     };
     const organizationGroup = await OrganizationGroup._organizationGroupRepository.findOne(cond);
     if (!organizationGroup) {
-      return Promise.reject(new ApplicationError(`Cannot find group with name: ${name} and hierarchy: ${hierarchy.join('/')}`, 
-      404));
+      throw new ResourceNotFoundError(`Cannot find group with name: ${name} and hierarchy: ${hierarchy.join('/')}`);
     }
     return organizationGroup;
   }
@@ -70,7 +69,7 @@ export class OrganizationGroup {
 
     const parent = parentID ? await OrganizationGroup._organizationGroupRepository.findById(parentID) : null;
     // the parent does not exist
-    if (parentID && !parent) throw new ValidationError(`group with id: ${parentID} does not exist`);
+    if (parentID && !parent) throw new ResourceNotFoundError(`group with id: ${parentID} does not exist`);
 
     /* In case there is a parent checking that all his ancestor 
        lives and creates a hierarchy and an ancestor */
@@ -136,7 +135,7 @@ export class OrganizationGroup {
 
   static async getOrganizationGroupOld(organizationGroupID: string): Promise<IOrganizationGroup> {
     const organizationGroup = await OrganizationGroup._organizationGroupRepository.findById(organizationGroupID);
-    if (!organizationGroup) return Promise.reject(new ApplicationError('Cannot find group with ID: ' + organizationGroupID, 404));
+    if (!organizationGroup) throw new ResourceNotFoundError('Cannot find group with ID: ' + organizationGroupID);
     return <IOrganizationGroup>organizationGroup;
   }
 
@@ -154,7 +153,7 @@ export class OrganizationGroup {
       return { path, select };
     });
     const result = await OrganizationGroup._organizationGroupRepository.findById(organizationGroupID, populateOptions);
-    if (!result) return Promise.reject(new ApplicationError('Cannot find group with ID: ' + organizationGroupID, 404));
+    if (!result) throw new ResourceNotFoundError('Cannot find group with ID: ' + organizationGroupID);
     const organizationGroup = <IOrganizationGroup>result;
     return <IOrganizationGroup>modifyOrganizationGroupBeforeSend(organizationGroup, toPopulate);
   }
@@ -180,9 +179,8 @@ export class OrganizationGroup {
    * @param childrenIDs id list of the groups to transfer
    */
   static async childrenAdoption(parentID: string, childrenIDs: string[]): Promise<void> {
-    // check if parent exists
-    const parent = await OrganizationGroup._organizationGroupRepository.findById(parentID);
-    if (!parent) throw new ValidationError(`group with id: ${parentID} does not exist`);
+    // get parent
+    const parent = await OrganizationGroup.getOrganizationGroupOld(parentID);
     // filter out non existing children
     const children = await OrganizationGroup._organizationGroupRepository.getSome(childrenIDs);
     const existingChildrenIds = children.map(group => group.id);

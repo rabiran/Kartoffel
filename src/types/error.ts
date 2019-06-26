@@ -25,3 +25,9 @@ export class ValidationError extends ApplicationError {
     super(message, 400, 'ValidationError', stack);
   }
 }
+
+export class ResourceNotFoundError extends ApplicationError {
+  constructor(message?: string, stack?: string) {
+    super(message, 404, 'ResourceNotFoundError', stack);
+  }
+}
