@@ -69,7 +69,8 @@ organizationGroups.get('/:id/members',
 
 organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission, // 400
           validatorMiddleware(OGRouteValidate.adoption, ['parentId', 'childIds']),
-          validatorMiddleware(Vld.validMongoId, ['parentId', 'childIds']),
+          validatorMiddleware(Vld.validMongoId, ['parentId']),
+          validatorMiddleware(Vld.validMongoIdArray, ['childIds']),
           ch(OrganizationGroup.childrenAdoption, (req: Request) => [req.body.parentId, req.body.childIds]));
 
 organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission, // 400

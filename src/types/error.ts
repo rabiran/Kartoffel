@@ -1,14 +1,11 @@
-export class ApplicationError {
-  message: string;
+export class ApplicationError extends Error {
   code: number;
-  name: string;
-  stack: string;
 
-  constructor(message?: string, code?: number, name?: string, stack?: string) {
-    this.message = message || '';
-    this.name = name || 'ApplicationError';
+  constructor(message?: string, code?: number) {
+    super(message);
+    Error.captureStackTrace(this, this.constructor);
+    this.name = this.constructor.name;
     this.code = code || 500;
-    this.stack = stack;
   }
 
   get status() {
@@ -21,13 +18,13 @@ export class ApplicationError {
 }
 
 export class ValidationError extends ApplicationError {
-  constructor(message?: string, stack?: string) {
-    super(message, 400, 'ValidationError', stack);
+  constructor(message?: string) {
+    super(message, 400);
   }
 }
 
 export class ResourceNotFoundError extends ApplicationError {
-  constructor(message?: string, stack?: string) {
-    super(message, 404, 'ResourceNotFoundError', stack);
+  constructor(message?: string) {
+    super(message, 404);
   }
 }

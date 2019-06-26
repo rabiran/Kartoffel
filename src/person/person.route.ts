@@ -82,11 +82,13 @@ persons.put('/:id',
 persons.put('/:id/assign',
           PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['group']),
           ch(Person.assign, (req: Request) => [req.params.id, req.body.group]));
 
 persons.put('/:id/manage',
           PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
+          validatorMiddleware(Vld.validMongoId, ['group']),
           ch(Person.manage, (req: Request) => [req.params.id, req.body.group]));
 
 // no one uses this route?

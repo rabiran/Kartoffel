@@ -11,6 +11,10 @@ export class RouteParamsValidate {
     }
   }
 
+  static validMongoIdArray(arr: any[]) {
+    arr.map(RouteParamsValidate.validMongoId);
+  }
+
   static differentParams(param_1: any, param_2: any) {
     if (param_1 === param_2) {
       throw new ValidationError('Cannot receive identical parameters!');
