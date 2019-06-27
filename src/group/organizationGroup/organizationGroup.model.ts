@@ -23,6 +23,7 @@ export const OrganizationGroupSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      trim: true,
       required: true,
     },
     children: {

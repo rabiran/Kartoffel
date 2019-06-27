@@ -107,13 +107,13 @@ export class OrganizationGroup {
     if (groupExists) {
       // If the group exists and is alive
       if (groupExists.isAlive) {
-        return Promise.reject(new Error(`The group with name: ${organizationGroup.name} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`));
+        return Promise.reject(new Error(`The group with name: ${organizationGroup.name.trim()} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exist`));
 
         // If the group exists and is not alive, revive it and return it to its parent
       } else {
         groupExists.isAlive = true;
 
-        // Return son to parent if exsist
+        // Return son to parent if exist
         if (groupExists.ancestors[0]) await OrganizationGroup.adoptChildren(groupExists.ancestors[0], [groupExists.id]);
         return await OrganizationGroup.updateOrganizationGroup(groupExists.id, groupExists);
       }
