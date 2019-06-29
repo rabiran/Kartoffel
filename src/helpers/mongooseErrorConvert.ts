@@ -2,7 +2,7 @@ import { ValidationError } from '../types/error';
 import { Schema } from 'mongoose';
 import { MongoError } from 'mongodb';
 
-function convertValidateError(err: MongoError, res: any, next: Function) {
+function convertValidationError(err: MongoError, res: any, next: Function) {
   if (err.name === 'ValidationError') {
     next(new ValidationError(err.message));
   } else {
@@ -19,9 +19,9 @@ function convertDuplicateKey(err: MongoError, res: any, next: Function) {
 }
 
 export function registerErrorHandlingHooks(schema: Schema) {
-  // convert mongoose validation error to ours validation error
-  schema.post('validate', convertValidateError);
-  schema.post('update', convertValidateError);
+  // convert mongoose validation error to our validation error
+  schema.post('validate', convertValidationError);
+  schema.post('update', convertValidationError);
 
   // handle mongo duplicate Key error, see: http://thecodebarbarian.com/mongoose-error-handling
   schema.post('save', convertDuplicateKey);

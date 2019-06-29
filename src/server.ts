@@ -14,6 +14,7 @@ import * as YAML          from 'yamljs';
 import * as auth from './auth/auth';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
+import { ApplicationError } from './types/error';
 
 const app = express();
 
@@ -73,11 +74,6 @@ if (process.env.NODE_ENV !== 'test' && process.env.ENABLE_AUTH.toLowerCase() ===
 app.use('/api/persons', personRouter);
 app.use('/api/organizationGroups', organizationGroupRouter);
 
-/**
- * Error Handler. Provides full stack - remove for production
- */
-// app.use(errorHandler());
-
 app.get('/status', (req, res, next) => {
   res.json({ name: 'App Name' });
 });
@@ -87,12 +83,16 @@ app.get('/ruok', (req, res, next) => {
 });
 
 /**
- * some error handling
+ * error handler: if the error was not thrown intentionally - returns unknown error,
+ * otherwise - returns the error name and massage  
  */
-app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const status = error.status || 500;
-  const message = error.message || 'oops something went wrong :|';
-  const name = error.name || error.contructor.name || 'unknownError';
+app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // convert any other error to application error (to hide the real error from the user) 
+  const err = error instanceof ApplicationError ? error : new ApplicationError('unknownError');
+  const status = err.status || 500;
+  const message = err.message || 'oops something went wrong :|';
+  const name = err.name || err.constructor.name || 'unknownError';
+  // send response
   return res.status(status).json({
     message,
     name,
