@@ -113,7 +113,7 @@ export class OrganizationGroup {
     if (groupExists) {
       // If the group exists and is alive
       if (groupExists.isAlive) {
-        return Promise.reject(new ApplicationError(`The group with name: ${organizationGroup.name} and hierarchy: ${organizationGroup.hierarchy.join('\\')} exsist`, 404));
+        return Promise.reject(new ValidationError(`The group with name: ${groupExists.name} and hierarchy: ${groupExists.hierarchy.join('\\')} exist`));
         // If the group exists and is not alive, revive it and return it to its parent
       } else {
         groupExists.isAlive = true;
