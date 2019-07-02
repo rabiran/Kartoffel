@@ -15,6 +15,7 @@ import * as auth from './auth/auth';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 import { ApplicationError } from './types/error';
+import { log, LOG_LEVEL } from './helpers/logger';
 
 const app = express();
 
@@ -42,7 +43,7 @@ dotenv.config({ path: '.env' });
 if (process.env.NODE_ENV !== 'test') {
   mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => console.log('successfully connected to the database'))
-  .catch(err => console.error(err));
+  .catch(err => log(LOG_LEVEL.ERROR, err));
 }
 
 /**
@@ -80,6 +81,14 @@ app.get('/status', (req, res, next) => {
 
 app.get('/ruok', (req, res, next) => {
   res.status(204).send();
+});
+
+/**
+ * error logger
+ */
+app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const severity = error instanceof ApplicationError ? LOG_LEVEL.INFO : LOG_LEVEL.ERROR;
+  log(severity, error);
 });
 
 /**
