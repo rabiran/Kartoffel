@@ -102,38 +102,38 @@ describe('Strong Groups', () => {
 
   describe('#Get group by hierarchy', () => {
     it('Should not find the group', async () => {
-      const exsistGroups = OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
-      return exsistGroups.should.be.rejected;
+      const existGroups = OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
+      return existGroups.should.be.rejected;
     });
     it('Should return group', async () => {
       const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
       const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
       const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
       const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);
-      const exsistGroups = await OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
-      expect(exsistGroups).to.be.an('object');
-      expect(exsistGroups).to.have.property(`name`, 'group4');
-      expect(exsistGroups.hierarchy).to.have.lengthOf(3);
-      expect(exsistGroups.hierarchy).to.include.members(['group1', 'group2', 'group3']);
-      expect(exsistGroups.ancestors).to.have.lengthOf(3);    
-      expect(exsistGroups.ancestors.map(x => x.toString())).to.include.members([group3.id, group2.id, group1.id]);    
+      const existGroups = await OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
+      expect(existGroups).to.be.an('object');
+      expect(existGroups).to.have.property(`name`, 'group4');
+      expect(existGroups.hierarchy).to.have.lengthOf(3);
+      expect(existGroups.hierarchy).to.include.members(['group1', 'group2', 'group3']);
+      expect(existGroups.ancestors).to.have.lengthOf(3);    
+      expect(existGroups.ancestors.map(x => x.toString())).to.include.members([group3.id, group2.id, group1.id]);    
     });
     it('Should not find the group and have hierarchy', async () => {
       const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
       const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
       const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
-      const exsistGroups = OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
-      return exsistGroups.should.be.rejected;
+      const existGroups = OrganizationGroup.getOrganizationGroupByHierarchy('group4', ['group1', 'group2', 'group3']);
+      return existGroups.should.be.rejected;
     });
   });
 
   describe('#Get ID groups according hierarchy', () => {
     it('Should return Object that all values is null', async () => {
-      const exsistGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
-      expect(exsistGroups).to.be.an('object');
-      expect(Object.keys(exsistGroups)).to.have.lengthOf(4);
-      Object.keys(exsistGroups).forEach((name) => {
-        expect(exsistGroups[name]).to.be.null;
+      const existGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
+      expect(existGroups).to.be.an('object');
+      expect(Object.keys(existGroups)).to.have.lengthOf(4);
+      Object.keys(existGroups).forEach((name) => {
+        expect(existGroups[name]).to.be.null;
       });
     });
     it('Should return Object that all values is ID', async () => {
@@ -141,24 +141,24 @@ describe('Strong Groups', () => {
       const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
       const group3 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' }, group2.id);
       const group4 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group4' }, group3.id);      
-      const exsistGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
-      expect(exsistGroups).to.be.an('object');
-      expect(Object.keys(exsistGroups)).to.have.lengthOf(4);
-      expect(exsistGroups).to.have.property(`${group1.name}`, group1.id);
-      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}`, group2.id);
-      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/${group3.name}`, group3.id);
-      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/${group3.name}/${group4.name}`, group4.id);
+      const existGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
+      expect(existGroups).to.be.an('object');
+      expect(Object.keys(existGroups)).to.have.lengthOf(4);
+      expect(existGroups).to.have.property(`${group1.name}`, group1.id);
+      expect(existGroups).to.have.property(`${group1.name}/${group2.name}`, group2.id);
+      expect(existGroups).to.have.property(`${group1.name}/${group2.name}/${group3.name}`, group3.id);
+      expect(existGroups).to.have.property(`${group1.name}/${group2.name}/${group3.name}/${group4.name}`, group4.id);
     });
     it('Should return Object the first two values is ID and other is null', async () => {
       const group1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
       const group2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' }, group1.id);
-      const exsistGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
-      expect(exsistGroups).to.be.an('object');
-      expect(Object.keys(exsistGroups)).to.have.lengthOf(4);
-      expect(exsistGroups).to.have.property(`${group1.name}`, group1.id);
-      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}`, group2.id);
-      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/group3`, null);
-      expect(exsistGroups).to.have.property(`${group1.name}/${group2.name}/group3/group4`, null);
+      const existGroups = await OrganizationGroup.getIDofOrganizationGroupsInHierarchy(['group1', 'group2', 'group3', 'group4']);
+      expect(existGroups).to.be.an('object');
+      expect(Object.keys(existGroups)).to.have.lengthOf(4);
+      expect(existGroups).to.have.property(`${group1.name}`, group1.id);
+      expect(existGroups).to.have.property(`${group1.name}/${group2.name}`, group2.id);
+      expect(existGroups).to.have.property(`${group1.name}/${group2.name}/group3`, null);
+      expect(existGroups).to.have.property(`${group1.name}/${group2.name}/group3/group4`, null);
     });
   });
   describe('#createOrganizationGroup', () => {
@@ -170,7 +170,7 @@ describe('Strong Groups', () => {
       group.ancestors.should.be.an('array');
       group.ancestors.should.have.lengthOf(0);
       group.hierarchy.should.have.lengthOf(0);
-    });
+    });    
     it('Should throw an error when parent doesn\'t exist', async () => {
       await expectError(OrganizationGroup.createOrganizationGroup, [<IOrganizationGroup>{ name: 'Biran' }, '597053012c3b60031211a063']);
     });
@@ -203,12 +203,23 @@ describe('Strong Groups', () => {
       child.hierarchy[0].should.be.equal(grandparent.name);
       child.hierarchy[1].should.be.equal(parent.name);
     });
+    it('Should throw an error when try to create exist name with whitespace', async () => {
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'David' });
+      let isError = false;
+      try {
+        await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: '  David  ' });
+      } catch (error) {
+        expect(error.message).to.equal(`The group with name: David and hierarchy:  exist`);
+        isError = true;
+      }
+      isError.should.be.true;      
+    });
     it('Should throw an error when try to create an organizationGroup without ancestors that alredy exist', async () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[0] });
       try {
         await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[0] });
       } catch (error) {
-        expect(error.message).to.equal(`The group with name: ${GROUP_ARRAY[0].name} and hierarchy:  exsist`);
+        expect(error.message).to.equal(`The group with name: ${GROUP_ARRAY[0].name} and hierarchy:  exist`);
       }
     });
     it('Should revive organizationGroup when create organizationGroup without ancestors, that alredy exist and dead', async () => {
@@ -252,7 +263,7 @@ describe('Strong Groups', () => {
       try {
         await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[1] }, ancstr.id);
       } catch (error) {
-        expect(error.message).to.equal(`The group with name: ${GROUP_ARRAY[1].name} and hierarchy: ${orgGrp.hierarchy.join('\\')} exsist`);
+        expect(error.message).to.equal(`The group with name: ${GROUP_ARRAY[1].name} and hierarchy: ${orgGrp.hierarchy.join('\\')} exist`);
       }
     });
   });

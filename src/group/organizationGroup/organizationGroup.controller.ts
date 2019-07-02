@@ -118,7 +118,7 @@ export class OrganizationGroup {
       } else {
         groupExists.isAlive = true;
 
-        // Return son to parent if exsist
+        // Return son to parent if exist
         if (groupExists.ancestors[0]) await OrganizationGroup.adoptChildren(groupExists.ancestors[0], [groupExists.id]);
         return await OrganizationGroup.updateOrganizationGroup(groupExists.id, groupExists);
       }
