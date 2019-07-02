@@ -1,5 +1,6 @@
 export class ApplicationError extends Error {
   code: number;
+  name: string;
 
   constructor(message?: string, code?: number) {
     super(message);

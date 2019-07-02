@@ -44,7 +44,7 @@ persons.delete('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPer
 
 persons.get('/:id', 
             validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
-            ch(Person.getPersonByIdWithFilter, (req: Request) => [req.params.id])); // 404
+            ch(Person.getPersonByIdWithFilter, (req: Request) => [req.params.id]));
 
 persons.get('/identifier/:identityValue', ch(Person.getPersonByIdentifier, (req: Request) => 
   [['personalNumber', 'identityCard'], req.params.identityValue]

@@ -57,7 +57,6 @@ export const validatorMiddleware =
       const result = validator(...vars);
       next();
     } catch (err) {
-      // res.status(errStatus).send(err.message);
       next(err); // pass to the error handling middleware
     }
   };
