@@ -98,13 +98,10 @@ app.use((error: Error, req: express.Request, res: express.Response, next: expres
 app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   // convert any other error to application error (to hide the real error from the user) 
   const err = error instanceof ApplicationError ? error : new ApplicationError('unknownError');
-  const status = err.status || 500;
-  const message = err.message || 'oops something went wrong :|';
-  const name = err.name || err.constructor.name || 'unknownError';
   // send response
-  return res.status(status).json({
-    message,
-    name,
+  return res.status(err.status).json({
+    message: err.message,
+    name: err.name,
   });
 });
 

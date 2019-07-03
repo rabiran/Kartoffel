@@ -158,12 +158,12 @@ export class Person {
       const person = await Person.getPersonById(personId);
       // Checks if there is something to change     
       if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) {
-        return Promise.reject(new ValidationError(`You have not entered a parameter to change`));
+        throw new ValidationError(`You have not entered a parameter to change`);
       }
       // Change name of uniqueId
       if (newUniqueId) {
         const userUpdate = userFromString(newUniqueId);
-        if (userUpdate.domain !== domainUser.domain) return Promise.reject(new ValidationError(`Can't change domain of user`));
+        if (userUpdate.domain !== domainUser.domain) throw new ValidationError(`Can't change domain of user`);
         domainUser.name = userUpdate.name;
         await DomainUserController.update(domainUser.id, domainUser);
       }
@@ -260,7 +260,7 @@ export class Person {
 
   static async removePerson(personID: string): Promise<any> {
     const result = await Person._personRepository.delete(personID);
-    return result.deletedCount > 0 ? result : Promise.reject(new ApplicationError('Cannot find person with ID: ' + personID, 404));
+    return result.deletedCount > 0 ? result : Promise.reject(new ResourceNotFoundError('Cannot find person with ID: ' + personID));
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
@@ -306,7 +306,7 @@ export class Person {
     const group = await OrganizationGroup.getOrganizationGroup(groupId);
 
     if (String(person.directGroup) !== String(groupId)) {
-      return Promise.reject(new ValidationError('This person is not a member in this group, hence can not be appointed as a leaf'));
+      throw new ValidationError('This person is not a member in this group, hence can not be appointed as a leaf');
     } 
     // else
     person.managedGroup = group.id;
