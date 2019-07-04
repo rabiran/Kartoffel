@@ -291,7 +291,6 @@ describe('Strong Groups', () => {
         job: 'dead',
       });
       const groupWithMember = await OrganizationGroup.getOrganizationGroup(organizationGroup.id, ['directMembers']);
-      // console.log(groupWithMember);
       groupWithMember.should.have.property('directMembers');
       groupWithMember.directMembers.should.have.lengthOf(1);
       const member = groupWithMember.directMembers[0];
@@ -300,8 +299,6 @@ describe('Strong Groups', () => {
       const groupAfterdischarge = await OrganizationGroup.getOrganizationGroup(organizationGroup.id, ['directMembers']);
       groupAfterdischarge.should.have.property('directMembers');
       groupAfterdischarge.directMembers.should.have.lengthOf(0);
-      // console.log(groupWithMember);
-
     });
     it('should return the group populated', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });

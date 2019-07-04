@@ -86,10 +86,13 @@ app.get('/ruok', (req, res, next) => {
 /**
  * error logger
  */
-app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const severity = error instanceof ApplicationError ? LOG_LEVEL.INFO : LOG_LEVEL.ERROR;
-  log(severity, error);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const severity = error instanceof ApplicationError ? LOG_LEVEL.INFO : LOG_LEVEL.ERROR;
+    log(severity, error);
+    next(error);
+  });
+}
 
 /**
  * error handler: if the error was not thrown intentionally - returns unknown error,
