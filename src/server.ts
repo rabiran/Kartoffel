@@ -1,5 +1,11 @@
 // need to be the first import and that the env variables are already loaded
-const apm = require('elastic-apm-node').start();
+import * as apm from 'elastic-apm-node';
+apm.start({
+  serviceName: process.env.ELASTIC_APM_SERVICE_NAME,
+  serverUrl: process.env.ELASTIC_APM_SERVER_URL,
+  secretToken: process.env.ELASTIC_APM_SECRET_TOKEN || '',
+  active: process.env.NODE_ENV === 'production',
+});
 import * as express       from 'express';
 import * as session       from 'express-session';
 import * as bodyParser    from 'body-parser';
@@ -7,8 +13,6 @@ import * as cors          from 'cors';
 import * as dotenv        from 'dotenv';
 import * as errorHandler  from 'errorhandler';
 import * as logger        from 'morgan';
-import * as path          from 'path';
-import * as mongo         from 'connect-mongo'; // ToUse?
 import * as mongoose      from 'mongoose';
 import * as _             from 'lodash';
 import * as swaggerTools  from 'swagger-tools';
