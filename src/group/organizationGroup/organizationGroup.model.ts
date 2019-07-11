@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 import { IOrganizationGroup } from './organizationGroup.interface';
-import { PersonModel as Person } from '../../person/person.model';
 import { IPerson } from '../../person/person.interface';
+import { registerErrorHandlingHooks } from '../../helpers/mongooseErrorConvert';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -82,6 +82,8 @@ function postFind(result: mongoose.Document | IOrganizationGroup | IOrganization
 
 OrganizationGroupSchema.post('findOne', postFind);
 OrganizationGroupSchema.post('find', postFind);
+
+registerErrorHandlingHooks(OrganizationGroupSchema);
 
 // OrganizationGroupSchema.virtual('id').get(function () {
 //   return this._id;

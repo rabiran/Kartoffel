@@ -4,6 +4,7 @@ import { userFromString } from './domainUser.utils';
 import { reflectPromise, wrapIgnoreCatch } from '../helpers/utils';
 import { DOMAIN_MAP } from '../config/db-enums';
 import { allIndexesOf } from '../utils';
+import { ApplicationError, ResourceNotFoundError, ValidationError } from '../types/error';
 
 const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const userFromStringIgnore = wrapIgnoreCatch(userFromString); 
@@ -26,7 +27,7 @@ export class DomainUserController {
   static async getById(id: string): Promise<IDomainUser> {
     const user = DomainUserController._userRepository.findById(id);
     if (!user) {
-      throw new Error(`domainUser with id: ${id} is not found`);
+      throw new ResourceNotFoundError(`domainUser with id: ${id} is not found`);
     }
     return user;
   }
@@ -45,7 +46,7 @@ export class DomainUserController {
     
     const user = await DomainUserController._userRepository.findOneMultipleDomains(userObj.name, domains);
     if (!user) {
-      throw new Error(`domainUser ${uniqueID} does not exist`);
+      throw new ResourceNotFoundError(`domainUser ${uniqueID} does not exist`);
     }
     return user;
   }
@@ -53,21 +54,21 @@ export class DomainUserController {
   static async delete(id: string): Promise<any> {
     const res = await DomainUserController._userRepository.delete(id);
     if (res.deletedCount === 0) {
-      throw new Error(`domainUser with id: ${id} is not found`);
+      throw new ResourceNotFoundError(`domainUser with id: ${id} is not found`);
     }
     return res;
   }
 
   static async update(userId: string, user: IDomainUser): Promise<IDomainUser> {
     if (await DomainUserController.exists(user)) {
-      throw new Error(`user with name: ${user.name} and domain: ${user.domain} already exists`);
+      throw new ValidationError(`user with name: ${user.name} and domain: ${user.domain} already exists`);
     }
     return DomainUserController._userRepository.update(userId, user);
   } 
 
   static async create(user: IDomainUser): Promise<IDomainUser> {
     if (await DomainUserController.exists(user)) {
-      throw new Error(`user with name: ${user.name} and domain: ${user.domain} already exists`);
+      throw new ValidationError(`user with name: ${user.name} and domain: ${user.domain} already exists`);
     }
     return DomainUserController._userRepository.create(user);
   }

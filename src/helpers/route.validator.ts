@@ -1,27 +1,29 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import * as _ from 'lodash';
+import { ValidationError } from '../types/error';
+import { Types } from 'mongoose';
 
 export class RouteParamsValidate {
 
-  static startsWithAnA(str: string) {
-    if (str[0] !== 'A') {
-      throw new Error('Does not start with an A!');
+  static validMongoId(mongoId: any) {
+    if (!Types.ObjectId.isValid(mongoId)) {
+      throw new ValidationError(`invalid id: ${mongoId}`);
     }
   }
 
-  static toDo() {
-    return;
+  static validMongoIdArray(arr: any[]) {
+    arr.map(RouteParamsValidate.validMongoId);
   }
 
   static differentParams(param_1: any, param_2: any) {
     if (param_1 === param_2) {
-      throw new Error('Cannot receive identical parameters!');
+      throw new ValidationError('Cannot receive identical parameters!');
     }
   }
 
   static dateOrInt(param: any) {
     if (!(RouteParamsValidate.isValidDate(param) || RouteParamsValidate.isInt(param))) {
-      throw new Error('Did not receive a valid date ;)');
+      throw new ValidationError('Did not receive a valid date');
     }
   }
 
@@ -29,10 +31,10 @@ export class RouteParamsValidate {
     return (obj: Object) => {
       const diff = _.difference(Object.keys(obj), allowedfields);
       if (diff.length !== 0) {
-        throw new Error(`unexpected fields: ${diff}`);
+        throw new ValidationError(`unexpected fields: ${diff}`);
       } else if (requireAll && allowedfields.length !== Object.keys(obj).length) {
         const missingFields = _.difference(allowedfields, Object.keys(obj));
-        throw new Error(`missing required fields: ${missingFields}`);
+        throw new ValidationError(`missing required fields: ${missingFields}`);
       }
     };
   }
@@ -55,6 +57,6 @@ export const validatorMiddleware =
       const result = validator(...vars);
       next();
     } catch (err) {
-      res.status(errStatus).send(err.message);
+      next(err); // pass to the error handling middleware
     }
   };

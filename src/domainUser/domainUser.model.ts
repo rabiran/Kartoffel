@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import { IDomainUser } from './domainUser.interface';
 import { DomainSeperator } from '../utils';
 import { DOMAIN_MAP } from '../config/db-enums';
+import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
@@ -49,6 +50,8 @@ DomainUserSchema.virtual('uniqueID').get(function () {
 DomainUserSchema.virtual('adfsUID').get(function () {
   return `${this.name}${DomainSeperator}${domainMap.get(this.domain)}`;
 });
+
+registerErrorHandlingHooks(DomainUserSchema);
 
 /* maybe we will use it in the future
 DomainUserSchema.statics.transformToString = function (doc: any) {

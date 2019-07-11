@@ -134,10 +134,10 @@ paths:
           schema:
             $ref: '#/definitions/Person'
         '400':
-          description: unexpected parametrs
+          description: unexpected parametrs or invalid values
           x-oad-type: response
-        '500':
-          description: invalid values supplied
+        '404':
+          description: direct group not found
   '/persons/{id}':
     get:
       tags:
@@ -366,9 +366,9 @@ paths:
           schema:
             $ref: '#/definitions/Person'
         '400':
-          description: unexpected field(s)
+          description: unexpected field(s) or invalid values
         '404':
-          description: person doesn't exist or invalid field(s) value
+          description: person doesn't exist
     delete:
       tags:
         - Person
@@ -384,7 +384,9 @@ paths:
           description: The deleted Person object
           schema:
             $ref: '#/definitions/Person'
-        '400':
+        '400': 
+          description: invalid value
+        '404':
           description: person doesn't exist
   '/persons/{id}/assign':
     put:
@@ -907,8 +909,10 @@ paths:
               clearance:
                 type: string
                 example: 3
-        '500':
-          description: domain user doesn't exist or illegal string
+        '400':
+          description: illegal domainUser string
+        '404':
+          description: domain user doesn't exist
   '/persons/{id}/domainUsers':
     post:
       tags:
@@ -938,10 +942,11 @@ paths:
           description: A Person object with new domain user
           schema:
             $ref: '#/definitions/Person'
-        '500':
+        '400':
+          description: illegal domain user or already existing doamin user
+        '404':
           description: >-
-            person does't exist or domain user already exists or illegal full
-            string
+            person does't exist
   '/persons/{id}/domainUsers/{uniqueID}':
     put:
       tags:
@@ -1096,14 +1101,10 @@ paths:
               clearance:
                 type: string
                 example: 3
-        '500':
-          description: You have not entered a parameter to change
-        '500':
-          description: Can't change domain of user
-        '500':
-          description: The domain user {uniqueID} doesn't belong to person with id {personId}
-        '500':
-          description: user with name {name} and domain {domain} already exists
+        '400':
+          description: illegal domain user or different domain or personId doesn't match the domain user or the new name already taken (user already exists)
+        '404': 
+          description: person or domain user don't exists
     delete:
       tags:
         - Person
@@ -1122,11 +1123,11 @@ paths:
           description: The uniqueID's domainUser
       responses:
         '200':
-          description: The domain user {uniqueID} successfully deleted from person with id {personId}          
-        '500':
-          description: There was an error deleting the domain user
-        '500':
-          description: The domain user {uniqueId} doesn't belong to person with id {personId}
+          description: The domain user {uniqueID} successfully deleted from person with id {personId} 
+        '400': 
+          description: illegal domain user or personId doesn't match the domain user    
+        '404':
+          description: person or domain user don't exist
   '/organizationGroups/{id}':
     get:
       summary: Get organization Group by id
@@ -1208,7 +1209,7 @@ paths:
             $ref: '#/definitions/OG'
           x-oad-type: response
         '400':
-          description: One of the parameters is missing.
+          description: One of the parameters is illegal or missing.
           x-oad-type: response
       parameters:
         - name: request body
@@ -1271,7 +1272,9 @@ paths:
                 type: string
                 enum:
                   - ok
-        '400':
+        '400': 
+          description: illegal parameters
+        '404':
           description: One of the groups doesn't exist
           x-oad-type: response
       parameters:
