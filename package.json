@@ -60,7 +60,7 @@
     "@types/errorhandler": "0.0.30",
     "@types/express": "^4.0.36",
     "@types/express-session": "^1.15.2",
-    "@types/jquery": "^3.2.11",
+    "@types/jquery": "^3.3.30",
     "@types/jsonwebtoken": "^8.3.0",
     "@types/lodash": "^4.14.73",
     "@types/mocha": "^2.2.41",
@@ -88,6 +88,6 @@
     "nodemon": "^1.11.0",
     "sinon": "^7.2.5",
     "tslint": "^5.6.0",
-    "typescript": "^2.4.2"
+    "typescript": "^3.4.5"
   }
 }

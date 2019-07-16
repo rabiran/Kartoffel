@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { ApplicationError, ValidationError, ResourceNotFoundError } from '../types/error';
 import { PersonRepository } from './person.repository';
 import { IPerson } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
@@ -30,29 +31,44 @@ export class Person {
     return <IPerson[]>persons;
   }
 
-  static async getPersonById(personID: string): Promise<IPerson> {
-    const person = await Person._personRepository.findById(personID);
-    if (!person) return Promise.reject(new Error('Cannot find person with ID: ' + personID));
+  static async getPersonById(personId: string): Promise<IPerson> {
+    const person = await Person._personRepository.findById(personId);
+    if (!person) throw new ResourceNotFoundError('Cannot find person with ID: ' + personId);
     return person;
   }
 
+  /**
+   * get a person by id, filter fields from the domain user objects
+   * @param personID person's id
+   */
   static async getPersonByIdWithFilter(personID: string): Promise<IPerson> {
     let person: IPerson = await Person.getPersonById(personID);
     person = filterPersonDomainUsers(person);
     return person;
   }
 
+  /**
+   * find person by field
+   * @param nameField name of the field to find by
+   * @param identityValue the value to find
+   */
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
     let person: IPerson = await Person._personRepository.findOne(cond);
-    if (!person) return Promise.reject(new Error(`Cannot find person with ${nameField}: '${identityValue}'`));
+    if (!person) throw new ResourceNotFoundError(`Cannot find person with ${nameField}: '${identityValue}'`);
     person = filterPersonDomainUsers(person);
     return person;
   }
+
+  /**
+   * get by multiple fields, applying 'or' between the fields
+   * @param nameFields the name of the fields
+   * @param identityValue the value to find
+   */
   static async getPersonByIdentifier(nameFields: string[], identityValue: string) {
     let person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
-    if (!person) return Promise.reject(new Error(`Cannot find person with identityValue: '${identityValue}'`));
+    if (!person) return new ResourceNotFoundError(`Cannot find person with identityValue: '${identityValue}'`);
     person = filterPersonDomainUsers(person);
     return person;
   }
@@ -71,11 +87,11 @@ export class Person {
 
   static async addNewUser(personId: string, user: IDomainUser | string, isPrimary: boolean):
     Promise<IPerson> {
-    if (!personId) return Promise.reject(new Error(`The system needs a personId to create a domain user ${JSON.stringify(user)}`));
-    if (!user) return Promise.reject(new Error(`The system needs a user name and domain to create a domain user for a personId ${personId}`));
+    if (!personId) throw new ValidationError(`The system needs a personId to create a domain user ${JSON.stringify(user)}`);
+    if (!user) throw new ValidationError(`The system needs a user name and domain to create a domain user for a personId ${personId}`);
     const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
-    if (!DomainUserValidate.domain(userObj.domain)) return Promise.reject(new Error(`'The "${userObj.domain}" is not a recognized domain'`));
-    // get the person (it also checks that the person exists)
+    if (!DomainUserValidate.domain(userObj.domain)) throw new ValidationError(`'The "${userObj.domain}" is not a recognized domain'`);
+    // get the person and check that the person exists)
     const person = await Person.getPersonById(personId);
     // connect the user to the person
     userObj.personId = personId;
@@ -121,10 +137,11 @@ export class Person {
       Person.updatePerson(person.id, person);
       // Delete domainUser
       const result = await DomainUserController.delete(domainUser.id);
-      return result.deletedCount > 0 ? `The domain user: ${uniqueId} successfully deleted from person with id: ${personId}` : Promise.reject(new Error('There was an error deleting the domain user'));        
+      return result.deletedCount > 0 ? `The domain user: ${uniqueId} successfully deleted from person with id: ${personId}` : 
+        Promise.reject(new ApplicationError('There was an error deleting the domain user'));        
     }
     // If domain user dont belong specific person
-    throw new Error(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
+    throw new ValidationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
   }
 
   /**
@@ -138,13 +155,15 @@ export class Person {
     const domainUser: IDomainUser = await DomainUserController.getByUniqueID(oldUniqueId);        
     // Checks if domainUser belongs to this person
     if (String(domainUser.personId) === personId) {  
-      const person: IPerson = await Person.getPersonById(personId);
+      const person = await Person.getPersonById(personId);
       // Checks if there is something to change     
-      if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) return Promise.reject(new Error(`You have not entered a parameter to change`));
+      if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) {
+        throw new ValidationError(`You have not entered a parameter to change`);
+      }
       // Change name of uniqueId
       if (newUniqueId) {
         const userUpdate = userFromString(newUniqueId);
-        if (userUpdate.domain !== domainUser.domain) return Promise.reject(new Error(`Can't change domain of user`));
+        if (userUpdate.domain !== domainUser.domain) throw new ValidationError(`Can't change domain of user`);
         domainUser.name = userUpdate.name;
         await DomainUserController.update(domainUser.id, domainUser);
       }
@@ -163,19 +182,19 @@ export class Person {
           // If the user does not have to be in primary, he transfers to a secondary
         } else if (!isPrimary && (<IDomainUser>person.primaryDomainUser) && domainUser.id === String((<IDomainUser>person.primaryDomainUser).id)) {          
           (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);
-          person.primaryDomainUser = undefined;        
+          person.primaryDomainUser = undefined;
         }       
       }
       return await Person.updatePerson(person.id, person);      
     }
     // If domain user dont belong specific person
-    throw new Error(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
+    throw new ValidationError(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
   }
 
   static async createPerson(person: IPerson): Promise<IPerson> {
     // check that 'directGroup' field exists
     if (!person.directGroup) {
-      throw new Error('a person must have a direct group');
+      throw new ValidationError('a person must have a direct group');
     }  
     // delete empty or null field that are not necessary
     utils.filterEmptyField(person, ['rank', 'phone', 'mobilePhone', 'address', 'job', 'serviceType']);
@@ -183,20 +202,20 @@ export class Person {
     // Chack some validation
     // Check if personalNumber equal to identityCard
     if (person.personalNumber && person.identityCard && person.personalNumber === person.identityCard) {
-      throw new Error('The personal number and identity card with the same value');
+      throw new ValidationError('The personal number and identity card with the same value');
     }
     // Checks if there is a rank for the person who needs to
     if (person.entityType === consts.ENTITY_TYPE[1] && !person.rank) person.rank = consts.RANK[0];
     // run validators
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, person);
     if (!validatorsResult.isValid) {
-      throw new Error(validatorsResult.messages.toString());
+      throw new ValidationError(validatorsResult.messages.toString());
     }
     // Checks whether the value in personalNumber or identityNumber exists in one of them
     // Checks value that exist
     const existValue = [person.personalNumber, person.identityCard].filter(x => x != null);
     const result = await Person._personRepository.findOr(['personalNumber', 'identityCard'], existValue);
-    if (result.length > 0) throw new Error('The personal number or identity card exists');
+    if (result.length > 0) throw new ValidationError('The personal number or identity card exists');
     // get direct group - will throw error if the group doesn`t exist
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
@@ -229,42 +248,35 @@ export class Person {
   //   return createdPerson;
   // }
 
-  static async discharge(personID: string): Promise<any> {
-    const person = await Person.getPersonById(personID);
+  static async discharge(personId: string): Promise<any> {
+    const person = await Person.getPersonById(personId);
     person.alive = false;
     if (person.managedGroup) {
       person.managedGroup = null;
     }
-    const res = await Person.updatePerson(personID, person);
+    const res = await Person.updatePerson(personId, person);
     return res;
   }
 
   static async removePerson(personID: string): Promise<any> {
     const result = await Person._personRepository.delete(personID);
-    return result.deletedCount > 0 ? result : Promise.reject(new Error('Cannot find person with ID: ' + personID));
+    return result.deletedCount > 0 ? result : Promise.reject(new ResourceNotFoundError('Cannot find person with ID: ' + personID));
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
-    // first find the person
-    const person = await Person._personRepository.findById(id);
+    // find the person
+    const person = await Person.getPersonById(id);
     // merge with the changes
     const mergedPerson = { ...person, ...change };
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
-      throw new Error(validatorsResult.messages.toString());
+      throw new ValidationError(validatorsResult.messages.toString());
     }
     // perform the actual update
     let updatedPerson = await Person._personRepository.update(id, mergedPerson, 'primaryDomainUser secondaryDomainUsers');
-    if (!updatedPerson) return Promise.reject(new Error('Cannot find person with ID: ' + id));
     updatedPerson = filterPersonDomainUsers(updatedPerson);
     return <IPerson>updatedPerson;
-  }
-
-  static async updateTeam(personID: string, newTeamID: string): Promise<IPerson> {
-    const person = await Person.getPersonById(personID);
-    person.directGroup = newTeamID;
-    return await Person.updatePerson(personID, person);
   }
 
   // Will transfer person between groups automatically. Is that what we want?
@@ -289,22 +301,22 @@ export class Person {
   //   return person;
   // }
 
-  static async manage(personID: string, groupID: string) {
-    const person = await Person.getPersonById(personID);
-    const group = await OrganizationGroup.getOrganizationGroup(groupID);
+  static async manage(personId: string, groupId: string) {
+    const person = await Person.getPersonById(personId);
+    const group = await OrganizationGroup.getOrganizationGroup(groupId);
 
-    if (String(person.directGroup) !== String(groupID)) {
-      return Promise.reject(new Error('This person is not a member in this group, hence can not be appointed as a leaf'));
-    }
+    if (String(person.directGroup) !== String(groupId)) {
+      throw new ValidationError('This person is not a member in this group, hence can not be appointed as a leaf');
+    } 
     // else
     person.managedGroup = group.id;
-    await Person.updatePerson(personID, person);
+    await Person.updatePerson(personId, person);
     return;
   }
 
-  static async resign(personID: string) {
-    const person = await Person.getPersonById(personID);
+  static async resign(personId: string) {
+    const person = await Person.getPersonById(personId);
     person.managedGroup = undefined;
-    await Person.updatePerson(personID, person);
+    await Person.updatePerson(personId, person);
   }
 }
