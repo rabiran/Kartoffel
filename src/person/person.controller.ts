@@ -68,7 +68,7 @@ export class Person {
    */
   static async getPersonByIdentifier(nameFields: string[], identityValue: string) {
     let person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
-    if (!person) return new ResourceNotFoundError(`Cannot find person with identityValue: '${identityValue}'`);
+    if (!person) throw new ResourceNotFoundError(`Cannot find person with identityValue: '${identityValue}'`);
     person = filterPersonDomainUsers(person);
     return person;
   }
