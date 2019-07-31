@@ -2,7 +2,6 @@ import * as os from 'os';
 import * as winston from 'winston';
 import * as winstonRotateFile from 'winston-daily-rotate-file';
 const ESWinston = require('winston-elasticsearch');
-// const WinstonRotateFile = require('winston-daily-rotate-file');
 const indexTemplateMapping = require('winston-elasticsearch/index-template-mapping.json');
 
 const serviceName = process.env.SERVICE_NAME || 'kartoffel';
