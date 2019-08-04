@@ -48,6 +48,9 @@
     "swagger-tools": "^0.10.4",
     "swagger-ui": "^3.22.0",
     "tslint-config-airbnb": "^5.3.1",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^3.9.0",
+    "winston-elasticsearch": "^0.7.12",
     "yamljs": "^0.3.0"
   },
   "devDependencies": {
