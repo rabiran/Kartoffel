@@ -1,8 +1,9 @@
+import { config } from '../../config/config';
 import { AxiosRequestConfig, default as axios } from 'axios';
 import { Agent } from 'https';
 
 const instanceConfig: AxiosRequestConfig = {
-  baseURL: `${process.env.JWT_PUBLIC_KEY_BASE_URL}:${process.env.JWT_PUBLIC_KEY_PORT}`,
+  baseURL: config.auth.jwt.publicKey.baseUrl,
   httpsAgent: new Agent({ rejectUnauthorized: false }), // only for development
 };
 
@@ -21,7 +22,7 @@ export async function getJWTPublicKey(request: any, rawJwtToken: string, done: (
     return done(null, publicKey);
   }
   try { // request the public key from the auth server
-    const res: string = (await axiosInstance.get(process.env.JWT_PUBLIC_KEY_PATH)).data;
+    const res: string = (await axiosInstance.get(config.auth.jwt.publicKey.urlPath)).data;
     publicKey = res; // save it for future calls
     done(null, res);
   } catch (err) {
