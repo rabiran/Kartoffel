@@ -3,6 +3,8 @@ import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
+import { DomainSeperator } from '../utils';
+
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -21,10 +23,34 @@ const schemaOptions = {
   },
 };
 
-function autoPopulate(next: Function) {
-  this.populate('primaryDomainUser secondaryDomainUsers');
-  next();
-}
+
+const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(consts.DOMAIN_MAP)));
+const DomainUserSchema = new mongoose.Schema(
+  {
+    domain: {
+      type: String,
+      enum: { values: [...domainMap.keys()], message: 'The "{VALUE}" is not a recognized domain' },    
+      required: [true, 'User must belong to a domain'],
+      index: true,
+    },
+    name: {
+      type: String,
+      required: [true, 'User must have a name'],
+      index: true,
+    },
+  },
+  schemaOptions
+);
+DomainUserSchema.index({ domain: 1, name: 1 }, { unique: true });
+DomainUserSchema.virtual('uniqueID').get(function () {
+  return `${this.name}${DomainSeperator}${this.domain}`;
+});
+
+DomainUserSchema.virtual('adfsUID').get(function () {
+  return `${this.name}${DomainSeperator}${domainMap.get(this.domain)}`;
+});
+
+registerErrorHandlingHooks(DomainUserSchema);
 
 export const PersonSchema = new mongoose.Schema(
   {
@@ -40,14 +66,7 @@ export const PersonSchema = new mongoose.Schema(
       sparse: true,
       validate: { validator: PersonValidate.personalNumber, message: '{VALUE} is an invalid personal number!' },
     },
-    primaryDomainUser: {
-      type: ObjectId,
-      ref: 'DomainUser',
-    },
-    secondaryDomainUsers: [{
-      type: ObjectId,
-      ref: 'DomainUser',
-    }],
+    domainUsers: [DomainUserSchema],
     entityType: {
       type: String,
       enum: consts.ENTITY_TYPE,
@@ -135,8 +154,6 @@ PersonSchema.set('timestamps', true);
 PersonSchema.virtual('fullName').get(function () {
   return this.firstName + ' ' + this.lastName;
 });
-
-PersonSchema.pre('findOne', autoPopulate);
 
 registerErrorHandlingHooks(PersonSchema);
 

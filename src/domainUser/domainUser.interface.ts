@@ -7,5 +7,4 @@ export interface IDomainUser {
   name: string;
   uniqueID?: string;
   adfsUID?: string;
-  personId?: Types.ObjectId | string | IPerson;
 }

@@ -7,8 +7,7 @@ export interface IPerson {
   id?: string;
   identityCard: string;
   personalNumber?: string;
-  primaryDomainUser?: string | Types.ObjectId | IDomainUser;
-  secondaryDomainUsers?:  string[] | Types.ObjectId[] | IDomainUser[];
+  domainUsers?: IDomainUser[] | string[];
   entityType: string;
   serviceType?: string;
   firstName: string;
