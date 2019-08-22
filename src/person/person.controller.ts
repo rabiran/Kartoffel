@@ -1,13 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApplicationError, ValidationError, ResourceNotFoundError } from '../types/error';
 import { PersonRepository } from './person.repository';
-import { IPerson } from './person.interface';
+import { IPerson, IDomainUser } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
 import { userFromString, filterPersonDomainUsers, getAllPossibleDomains } from './person.utils';
-import { DomainUserController } from '../domainUser/domainUser.controller';
-import { IDomainUser } from '../domainUser/domainUser.interface';
 import * as utils from '../utils.js';
 import  * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
@@ -111,8 +109,9 @@ export class Person {
     }
     // get the person and check that the person exists
     const person = await Person.getPersonById(personId);
-    (person.domainUsers as IDomainUser[]).push(userObj); // TODO: check this push, and if this update works
-    const updatedPerson = await Person.updatePerson(personId, person);
+    const updatedPerson = await Person._personRepository.insertDomainUser(personId, userObj);
+    // (person.domainUsers as IDomainUser[]).push(userObj);
+    // const updatedPerson = await Person.updatePerson(personId, person);
     return updatedPerson;
   }
 
@@ -121,10 +120,10 @@ export class Person {
    * @param personId Person to delete from him
    * @param uniqueId The domain user to delete
    */
-  static async deleteDomainUser(personId: string, uniqueId: string) : Promise<any> {
+  static async deleteDomainUser(personId: string, uniqueId: string) : Promise<IPerson> {
     const person = await Person.getByDomainUserString(uniqueId);
     if (person.id !== personId) {
-      throw new ValidationError('the domain user to update does not belong to the given person')
+      throw new ValidationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
     }
     // if trying to remove the last domain user from a specific entity type - it's an error
     if (person.entityType === consts.ENTITY_TYPE[2] && person.domainUsers.length === 1) {
@@ -147,14 +146,18 @@ export class Person {
     // Checks if domainUser belongs to this person
     const person = await Person.getByDomainUserString(oldUniqueId);
     if (person.id !== personId) {
-      throw new ValidationError('the domain user to update does not belong to the given person')
+      throw new ValidationError(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
     }
     // check if the new domain user already exists 
     const newUserObj = userFromString(newUniqueId);
     if (await Person.isDomainUserExist(newUserObj)) {
       throw new ValidationError(`domain user: ${{ ...newUserObj }} already exists`);
     }
+    // check that the update doesn't change the domain 
     const oldUserObj = userFromString(oldUniqueId);
+    if (oldUserObj.domain !== newUserObj.domain) {
+      throw new ValidationError(`Can't change domain of user`);
+    }
     const domains = getAllPossibleDomains(oldUserObj);
     const updatedPerson = await Person._personRepository.updateMultiDomainUser(personId, oldUserObj.name, domains, newUserObj);
     return updatedPerson;
@@ -225,7 +228,7 @@ export class Person {
       throw new ValidationError(validatorsResult.messages.toString());
     }
     // perform the actual update
-    let updatedPerson = await Person._personRepository.update(id, mergedPerson, 'primaryDomainUser secondaryDomainUsers');
+    let updatedPerson = await Person._personRepository.update(id, mergedPerson);
     updatedPerson = filterPersonDomainUsers(updatedPerson);
     return <IPerson>updatedPerson;
   }

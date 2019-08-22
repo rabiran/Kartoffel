@@ -41,7 +41,7 @@ const DomainUserSchema = new mongoose.Schema(
   },
   schemaOptions
 );
-DomainUserSchema.index({ domain: 1, name: 1 }, { unique: true });
+DomainUserSchema.index({ domain: 1, name: 1 }, { unique: true, sparse: true });
 DomainUserSchema.virtual('uniqueID').get(function () {
   return `${this.name}${DomainSeperator}${this.domain}`;
 });

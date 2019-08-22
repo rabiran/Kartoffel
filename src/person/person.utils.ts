@@ -1,6 +1,5 @@
 import { filterObjectByKeys, DomainSeperator, domainMap, allIndexesOf } from '../utils';
-import { IPerson } from './person.interface';
-import { IDomainUser } from '../domainUser/domainUser.interface';
+import { IPerson, IDomainUser } from './person.interface';
 import { PersonValidate } from './person.validate';
 import { ValidationError } from '../types/error';
 

@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { IDomainUser } from '../domainUser/domainUser.interface';
 
 export interface IPerson {
 // Person's Basic information
@@ -31,6 +30,14 @@ export interface IPerson {
   responsibility?: string;
   responsibilityLocation?: string | Types.ObjectId | IOrganizationGroup;
   clearance?: string;
+}
+
+export interface IDomainUser {
+  id?: string;
+  domain: string;
+  name: string;
+  uniqueID?: string;
+  adfsUID?: string;
 }
 
 // export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];

@@ -1,8 +1,8 @@
 import { PersonModel as Person } from './person.model';
-import { IPerson } from './person.interface';
+import { IPerson, IDomainUser } from './person.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as mongoose from 'mongoose';
-import { IDomainUser } from '../domainUser/domainUser.interface';
+
 
 export class PersonRepository extends RepositoryBase<IPerson> {
   constructor() {
@@ -50,6 +50,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     let query = Person.findOneAndUpdate(
       { _id: personId, domainUsers: { $elemMatch: matchQuery } },
       { $set: { 'domainUsers.$.name': newDomainUser.name, 'domainUsers.$.domain': newDomainUser.domain } },
+      { new: true }
     );
     if (populate) query = query.populate(populate);
     if (select) query = query.select(select);
@@ -68,10 +69,12 @@ export class PersonRepository extends RepositoryBase<IPerson> {
   deleteMultiDomainUser(personId: string, domainUserName: string, domains: string[], 
     populate?: any, select?: any): Promise<IPerson> {
     const matchQuery = {
-      name: domainUserName,
-      domain: { $in: domains },
+      domainUsers: {
+        name: domainUserName,
+        domain: { $in: domains },
+      },
     };
-    let query = Person.findByIdAndUpdate({ _id: personId }, { $pull: matchQuery });
+    let query = Person.findByIdAndUpdate({ _id: personId }, { $pull: matchQuery }, { new: true });
     if (populate) query = query.populate(populate);
     if (select) query = query.select(select);
 
@@ -83,7 +86,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     * @param domainUser domain user object to insert
     */
   insertDomainUser(personId: string, domainUser: IDomainUser): Promise<IPerson> {
-    return Person.findOneAndUpdate({ _id: personId }, { $push: { domainUsers: domainUser } }).exec()
+    return Person.findOneAndUpdate({ _id: personId }, { $push: { domainUsers: domainUser } }, { new: true }).exec()
       .then(res => res ? res.toObject() : res);
   }
 }
