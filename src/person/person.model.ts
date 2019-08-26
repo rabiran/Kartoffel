@@ -3,7 +3,7 @@ import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
-import { DomainSeperator } from '../utils';
+import { DomainSeperator, filterObjectByKeys } from '../utils';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -39,7 +39,24 @@ const DomainUserSchema = new mongoose.Schema(
       index: true,
     },
   },
-  schemaOptions
+  {
+    toObject: {
+      virtuals: true,
+      versionKey: false,
+      transform:  (doc, ret, options) => {
+        const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID']);
+        return filtered;
+      },
+    },
+    toJSON: {
+      virtuals: true,
+      versionKey:false,
+    },
+    collation: {
+      locale:'en',
+      strength: 1,
+    },
+  }
 );
 DomainUserSchema.index({ domain: 1, name: 1 }, { unique: true, sparse: true });
 DomainUserSchema.virtual('uniqueID').get(function () {

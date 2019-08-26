@@ -5,7 +5,7 @@ import { IPerson, IDomainUser } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { userFromString, filterPersonDomainUsers, getAllPossibleDomains } from './person.utils';
+import { userFromString, getAllPossibleDomains } from './person.utils';
 import * as utils from '../utils.js';
 import  * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
@@ -22,9 +22,8 @@ export class Person {
   static async getPersons(query?: any): Promise<IPerson[]> {
     const cond = {};
     if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['alive'] = 'true';
-    let persons: IPerson[] = await Person._personRepository.find(cond, 'primaryDomainUser secondaryDomainUsers');
-    persons = persons.map(person => filterPersonDomainUsers(person));
-    return <IPerson[]>persons;
+    const persons: IPerson[] = await Person._personRepository.find(cond);
+    return persons;
   }
 
   static async getPersonById(personId: string): Promise<IPerson> {
@@ -38,8 +37,7 @@ export class Person {
    * @param personID person's id
    */
   static async getPersonByIdWithFilter(personID: string): Promise<IPerson> {
-    let person: IPerson = await Person.getPersonById(personID);
-    person = filterPersonDomainUsers(person);
+    const person: IPerson = await Person.getPersonById(personID);
     return person;
   }
 
@@ -51,9 +49,8 @@ export class Person {
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
-    let person: IPerson = await Person._personRepository.findOne(cond);
+    const person: IPerson = await Person._personRepository.findOne(cond);
     if (!person) throw new ResourceNotFoundError(`Cannot find person with ${nameField}: '${identityValue}'`);
-    person = filterPersonDomainUsers(person);
     return person;
   }
 
@@ -63,9 +60,8 @@ export class Person {
    * @param identityValue the value to find
    */
   static async getPersonByIdentifier(nameFields: string[], identityValue: string) {
-    let person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
+    const person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
     if (!person) throw new ResourceNotFoundError(`Cannot find person with identityValue: '${identityValue}'`);
-    person = filterPersonDomainUsers(person);
     return person;
   }
   static async getUpdatedFrom(from: Date, to: Date) {
@@ -136,11 +132,10 @@ export class Person {
   }
 
   /**
-   * Update domainUser fields (name and\or primary)
+   * Update domainUser name
    * @param personId 
    * @param oldUniqueId the current uniqueId
    * @param newUniqueId the uniqueId to change into
-   * @param isPrimary change primary to secondary and vice versa
    */
   static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId?: string) : Promise<IPerson> {
     // Checks if domainUser belongs to this person
@@ -222,14 +217,15 @@ export class Person {
     const person = await Person.getPersonById(id);
     // merge with the changes
     const mergedPerson = { ...person, ...change };
+    // remove domainUsers field from the update, for now this field have seperate update functions
+    delete mergedPerson.domainUsers;
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
       throw new ValidationError(validatorsResult.messages.toString());
     }
     // perform the actual update
-    let updatedPerson = await Person._personRepository.update(id, mergedPerson);
-    updatedPerson = filterPersonDomainUsers(updatedPerson);
+    const updatedPerson = await Person._personRepository.update(id, mergedPerson);
     return <IPerson>updatedPerson;
   }
 

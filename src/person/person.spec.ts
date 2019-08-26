@@ -169,8 +169,6 @@ describe('Persons', () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[4] });
       should.exist(person);
       person.should.have.property('personalNumber', '1234567');
-      // person.should.have.property('primaryDomainUser');
-      // expect(String(person.primaryDomainUser) === personExamples[4].primaryDomainUser).to.be.true;
       person.should.have.property('firstName', 'Yonatan');
       person.should.have.property('lastName', 'Tal');
       person.should.have.property('hierarchy');
@@ -194,13 +192,17 @@ describe('Persons', () => {
       createdPerson.should.exist;
       createdPerson.domainUsers.should.exist;
       createdPerson.domainUsers.should.have.lengthOf(1); // todo: check fields
+      const user = createdPerson.domainUsers[0] as IDomainUser;
+      expect(user.id).to.be.undefined;
+      expect(user.domain).to.be.undefined;
+      expect(user.name).to.be.undefined;      
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);     
     });
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
         ...personExamples[4],
         identityCard: '1234566',
-        primaryDomainUser: dbIdExample[3],
-        secondaryDomainUsers: [dbIdExample[0], dbIdExample[1]],
         entityType: ENTITY_TYPE[0],
         serviceType: SERVICE_TYPE[5],
         mail: 'yonatan@work.com',
@@ -737,7 +739,7 @@ describe('Persons', () => {
       user.should.have.property('uniqueID',`${userObj.name}@${userObj.domain}`);
     });
 
-    it('should throw error when trying to create illegal primary domain user', async () => {
+    it('should throw error when trying to create illegal domain user', async () => {
       const person = await Person.createPerson(personExamples[3]);
       await expectError(Person.addNewUser, [person.id, 'fff@']);
     });
@@ -794,7 +796,7 @@ describe('Persons', () => {
       await Person.addNewUser(person.id, userStringEx);
       const updatePerson = await Person.updateDomainUser(person.id, userStringEx, `david@${domain}`);
       const user = updatePerson.domainUsers[0];
-      user.should.have.property('uniqueID', `david@${domain}`);            
+      user.should.have.property('uniqueID', `david@${domain}`);         
     });
     it('should throw error when trying to change user to personId not match', async () => {
       const person = await Person.createPerson(personExamples[3]);
@@ -854,14 +856,12 @@ describe('Persons', () => {
       const person = await Person.getByDomainUserString(userStringEx);
       person.should.exist;
       expect(person.id === createdPerson.id);
-      // the person should be populated
-      // const user = <IDomainUser>person.primaryDomainUser;
-      // expect(user.id).to.be.undefined;
-      // expect(user.personId).to.be.undefined;
-      // expect(user.domain).to.be.undefined;
-      // expect(user.name).to.be.undefined;      
-      // user.should.have.property('uniqueID', userStringEx);
-      // user.should.have.property('adfsUID', adfsUIDEx);      
+      const user = person.domainUsers[0] as IDomainUser;
+      expect(user.id).to.be.undefined;
+      expect(user.domain).to.be.undefined;
+      expect(user.name).to.be.undefined;      
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);     
     });
     it('should get the person by its domain user adfsUID (one possible domain)', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);
