@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import * as sinon from 'sinon';
 import * as server from '../server';
 import { Person } from './person.controller';
-import { IPerson } from './person.interface';
+import { IPerson, IDomainUser } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { RESPONSIBILITY, ENTITY_TYPE, RANK, DOMAIN_MAP, CURRENT_UNIT, SERVICE_TYPE } from '../config/db-enums';
@@ -304,6 +304,17 @@ describe('Person', () => {
           done();
         });
     });
+
+    it('should create a person with domain users', async () => {
+      const person = { ...personExamples[0] };
+      person.domainUsers = [userStringEx];
+      const createdPerson = (await chai.request(server).post(BASE_URL).send(person)).body as IPerson;
+      createdPerson.should.exist;
+      createdPerson.domainUsers.should.have.lengthOf(1);
+      const user = createdPerson.domainUsers[0] as IDomainUser;
+      user.uniqueID.should.be.equal(userStringEx);
+    });
+
   });
 
   describe('/POST person/:id/domainUsers', () => {

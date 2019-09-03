@@ -134,7 +134,7 @@ export class PersonValidate extends ModelValidate {
     },
     {
       validator: PersonValidate.domainUsersMultiValidator,
-      message: `entityType: ${ENTITY_TYPE[2]} requires at leat 1 domainuser`,
+      message: `entityType: ${ENTITY_TYPE[2]} requires at least 1 domainuser`,
     },
   ];
 
