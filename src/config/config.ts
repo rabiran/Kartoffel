@@ -13,7 +13,7 @@ export const config = {
     host: process.env.ELASTIC_APM_SERVER_URL,
     secretToken: process.env.ELASTIC_APM_SECRET_TOKEN || '',
     active: process.env.NODE_ENV === 'production' || 
-      (process.env.ELASTIC_APM_ACTIVE && process.env.ELASTIC_APM_ACTIVE.toLocaleLowerCase() === 'true'),
+      (!!process.env.ELASTIC_APM_ACTIVE && process.env.ELASTIC_APM_ACTIVE.toLocaleLowerCase() === 'true'),
   },
   auth: {
     enabled: process.env.ENABLE_AUTH.toLocaleLowerCase() === 'true',
