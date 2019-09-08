@@ -675,8 +675,8 @@ describe('Persons', () => {
     it('should add new user with object as parameter', async () => {
       const person = await Person.createPerson(personExamples[3]);
       const userObj: IDomainUser = {
+        domain,
         name: 'elad',
-        domain: 'jello',
       };
       const updatedPerson = await Person.addNewUser(person.id, userObj, true);
       updatedPerson.should.exist;
@@ -890,7 +890,7 @@ describe('Persons', () => {
     it('should throw error when the there is no matching user', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);
       await Person.addNewUser(createdPerson.id, userStringEx, true);
-      await expectError(Person.getByDomainUserString, ['other@jello']);
+      await expectError(Person.getByDomainUserString, [`other@${domain}`]);
     });
   });
 
