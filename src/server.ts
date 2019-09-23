@@ -18,6 +18,7 @@ import * as _             from 'lodash';
 import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
 import * as auth from './auth/auth';
+import { initIndex } from './search/esInit';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 import { ApplicationError } from './types/error';
@@ -53,6 +54,12 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 /**
+ * elasticsearch init
+ */
+
+initIndex().then(() => console.log('initialized es index'));
+
+/**
  * Express configuration
  */
 app.set('port', process.env.PORT || 3000);
@@ -61,7 +68,6 @@ app.set('port', process.env.PORT || 3000);
 if (process.env.NODE_ENV !== 'test') {
   app.use('/api', logger('dev')); // Morgan
 }
-
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

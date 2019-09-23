@@ -23,6 +23,7 @@
   "author": "Sabag Team",
   "license": "ISC",
   "dependencies": {
+    "@elastic/elasticsearch": "^7.3.0",
     "@types/axios": "^0.14.0",
     "@types/passport-jwt": "^3.0.1",
     "axios": "^0.18.0",
