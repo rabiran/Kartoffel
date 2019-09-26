@@ -13,13 +13,14 @@ export const config = {
     host: process.env.ELASTIC_APM_SERVER_URL,
     secretToken: process.env.ELASTIC_APM_SECRET_TOKEN || '',
     active: process.env.NODE_ENV === 'production' || 
-      (!!process.env.ELASTIC_APM_ACTIVE && process.env.ELASTIC_APM_ACTIVE.toLocaleLowerCase() === 'true'),
+      (!!process.env.ELASTIC_APM_ACTIVE && process.env.ELASTIC_APM_ACTIVE.toLowerCase() === 'true'),
   },
   auth: {
-    enabled: process.env.ENABLE_AUTH.toLocaleLowerCase() === 'true',
+    enabled: !!process.env.ENABLE_AUTH 
+      && process.env.ENABLE_AUTH.toLowerCase() === 'true',
     jwt: {
-      audience: process.env.JWT_AUDIENCE || '',
-      issuer: process.env.JWT_ISSUER || '',
+      audience: process.env.JWT_AUDIENCE || 'testAudience',
+      issuer: process.env.JWT_ISSUER || 'testIssuer',
       publicKey: {
         // host url + port
         baseUrl: `${process.env.JWT_PUBLIC_KEY_BASE_URL}:${process.env.JWT_PUBLIC_KEY_PORT}`,
