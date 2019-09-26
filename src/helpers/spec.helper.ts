@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as forge from 'node-forge';
 import * as jwt from 'jsonwebtoken';
+import { config } from '../config/config';
 import { IPerson } from '../person/person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
@@ -74,8 +75,8 @@ export function generateCertificates() {
 
 export function generateToken(payload: any, privateKey: string) {
   return jwt.sign(payload, privateKey, {
-    issuer: process.env.JWT_ISSUER,
-    audience: process.env.JWT_AUDIENCE,
+    issuer: config.auth.jwt.issuer,
+    audience: config.auth.jwt.audience,
     expiresIn: '600000000', // take your time...
     algorithm: 'RS256',
   });

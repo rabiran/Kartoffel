@@ -1,11 +1,12 @@
 import * as os from 'os';
 import * as winston from 'winston';
 import * as winstonRotateFile from 'winston-daily-rotate-file';
+import { config } from '../config/config';
 const ESWinston = require('winston-elasticsearch');
 const indexTemplateMapping = require('winston-elasticsearch/index-template-mapping.json');
 
-const serviceName = process.env.SERVICE_NAME || 'kartoffel';
-const indexPrefix = process.env.ES_INDEX_PREFIX || serviceName;
+const serviceName = config.serviceName;
+const indexPrefix = config.logger.elasticSearch.indexPrefix || serviceName;
 indexTemplateMapping.index_patterns = `${indexPrefix}-*`; 
 
 // log levels
@@ -28,17 +29,17 @@ const format = winston.format.combine(
   }),
   winston.format.json());
 
-if (process.env.LOG_FILE_NAME) {
+if (config.logger.fileName) {
   logger.add(new winstonRotateFile({
     format,
     level: LOG_LEVEL.INFO,
     datePattern: 'YYYY-MM-DD',
-    filename: process.env.LOG_FILE_NAME,
-    dirname: process.env.LOG_FILE_DIR || '.',
+    filename: config.logger.fileName,
+    dirname: config.logger.directoryPath,
   }));
-} else if (process.env.ES_HOSTS) {
+} else if (config.logger.elasticSearch.hosts) {
   const esClientOpts = {
-    hosts: process.env.ES_HOSTS.split(','),
+    hosts: config.logger.elasticSearch.hosts,
   };
   const esTransport = new ESWinston({
     indexPrefix,
