@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+
+dotenv.config({ path: '.env' });
 const serviceName = process.env.SERVICE_NAME || 'kartoffel';
 export const config = {
   serviceName,
