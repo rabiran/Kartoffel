@@ -5,7 +5,7 @@ export const config = {
     fileName: process.env.LOG_FILE_NAME,
     directoryPath: process.env.LOG_DIRECTORY_PATH || '.',
     elasticSearch: {
-      hosts: process.env.LOGGER_ES_HOSTS.split(','),
+      hosts: (process.env.LOGGER_ES_HOSTS || '').split(','),
       indexPrefix: process.env.LOGGER_ES_INDEX_PREFIX || serviceName,
     },
   },
@@ -18,8 +18,8 @@ export const config = {
   auth: {
     enabled: process.env.ENABLE_AUTH.toLocaleLowerCase() === 'true',
     jwt: {
-      audience: process.env.JWT_AUDIENCE,
-      issuer: process.env.JWT_ISSUER,
+      audience: process.env.JWT_AUDIENCE || '',
+      issuer: process.env.JWT_ISSUER || '',
       publicKey: {
         // host url + port
         baseUrl: `${process.env.JWT_PUBLIC_KEY_BASE_URL}:${process.env.JWT_PUBLIC_KEY_PORT}`,
