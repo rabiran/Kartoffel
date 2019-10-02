@@ -19,7 +19,6 @@ import * as _             from 'lodash';
 import * as swaggerTools  from 'swagger-tools';
 import * as YAML          from 'yamljs';
 import * as auth from './auth/auth';
-import { initIndex } from './search/esInit';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 import { ApplicationError } from './types/error';
@@ -54,11 +53,6 @@ if (config.server.nodeEnv !== 'test') {
   .catch(err => log(LOG_LEVEL.ERROR, err));
 }
 
-/**
- * elasticsearch init
- */
-
-initIndex().then(() => console.log('initialized es index'));
 
 /**
  * Express configuration

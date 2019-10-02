@@ -13,6 +13,8 @@ import { filterPersonDomainUsers } from './person.utils';
 import { DomainUserValidate } from '../domainUser/domainUser.validators';
 import  * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
+import { search } from '../search/elasticsearch';
+import { config } from '../config/config';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -318,5 +320,39 @@ export class Person {
     const person = await Person.getPersonById(personId);
     person.managedGroup = undefined;
     await Person.updatePerson(personId, person);
+  }
+
+  /**
+   * Returns array of autocomplete suggestions on the "fullName" field
+   * @param partialName the text to autocomplete
+   */
+  static async autocomplete(partialName: string) {
+    const match_query = {
+      match: {
+        'fullName.autocomplete': {
+          query: partialName,
+        },
+      },
+    };
+    const match_query_fuzzy = {
+      match: {
+        'fullName.autocomplete': {
+          query: partialName,
+          fuzziness: 'AUTO',
+        },
+      },
+    };
+    const query = {
+      query: {
+        bool: {
+          should: [
+            match_query, match_query_fuzzy,
+          ],
+        },
+        
+      },
+    };
+    return await search<IPerson>('kartoffel.people', config.elasticSearch.defaultResultLimit, query);
+
   }
 }

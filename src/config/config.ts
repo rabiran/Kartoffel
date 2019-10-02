@@ -4,6 +4,10 @@ dotenv.config({ path: '.env' });
 const serviceName = process.env.SERVICE_NAME || 'kartoffel';
 export const config = {
   serviceName,
+  elasticSearch: {
+    nodes: process.env.ELASTICSEARCH_HOSTS ? process.env.ELASTICSEARCH_HOSTS.split(',') : null,
+    defaultResultLimit: 20,
+  },
   logger : {
     fileName: process.env.LOG_FILE_NAME,
     directoryPath: process.env.LOG_DIRECTORY_PATH || '.',
