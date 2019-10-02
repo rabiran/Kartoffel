@@ -1,10 +1,11 @@
+import{ config } from './config/config';
 // need to be the first import and that the env variables are already loaded
 import * as apm from 'elastic-apm-node';
 apm.start({
-  serviceName: process.env.ELASTIC_APM_SERVICE_NAME,
-  serverUrl: process.env.ELASTIC_APM_SERVER_URL,
-  secretToken: process.env.ELASTIC_APM_SECRET_TOKEN || '',
-  active: process.env.NODE_ENV === 'production',
+  serviceName: config.serviceName,
+  serverUrl: config.apm.host,
+  secretToken: config.apm.secretToken,
+  active: config.apm.active,
 });
 import * as express       from 'express';
 import * as session       from 'express-session';
@@ -47,8 +48,8 @@ dotenv.config({ path: '.env' });
  */
 (<any>mongoose).Promise = Promise;
 
-if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useFindAndModify: false, useCreateIndex: true })
+if (config.server.nodeEnv !== 'test') {
+  mongoose.connect(config.db.connectionString, { useNewUrlParser: true, useFindAndModify: false, useCreateIndex: true })
   .then(() => console.log('successfully connected to the database'))
   .catch(err => log(LOG_LEVEL.ERROR, err));
 }
@@ -62,10 +63,10 @@ initIndex().then(() => console.log('initialized es index'));
 /**
  * Express configuration
  */
-app.set('port', process.env.PORT || 3000);
+app.set('port', config.server.port);
 
 // Don't log while testing
-if (process.env.NODE_ENV !== 'test') {
+if (config.server.nodeEnv !== 'test') {
   app.use('/api', logger('dev')); // Morgan
 }
 app.use(cors());
@@ -74,9 +75,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(auth.initialize());
 
 // use the auth middleware
-if (process.env.NODE_ENV !== 'test' && process.env.ENABLE_AUTH.toLowerCase() === 'true') {
+if (config.server.nodeEnv !== 'test' && config.auth.enabled) {
   app.use('/api', auth.middlewares);
-} else if (process.env.NODE_ENV === 'test') { // add auth test routes while testing
+} else if (config.server.nodeEnv === 'test') { // add auth test routes while testing
   console.log('app configured in test env - api routes do not require authentication, added auth test route at /test/auth');
   app.all('/test/auth/', auth.middlewares, (req: express.Request, res: express.Response, 
     next: express.NextFunction) => {
@@ -98,7 +99,7 @@ app.get('/ruok', (req, res, next) => {
 /**
  * error logger
  */
-if (process.env.NODE_ENV !== 'test') {
+if (config.server.nodeEnv !== 'test') {
   app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     const severity = error instanceof ApplicationError ? LOG_LEVEL.INFO : LOG_LEVEL.ERROR;
     log(severity, error);
