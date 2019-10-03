@@ -324,9 +324,12 @@ export class Person {
 
   /**
    * Returns array of autocomplete suggestions on the "fullName" field
-   * @param partialName the text to autocomplete
+   * @param partialName the text to autocomplete, with minmum length of 2
    */
   static async autocomplete(partialName: string) {
+    if (!partialName || partialName.trim().length < 2) {
+      return [];
+    }
     const match_query = {
       match: {
         'fullName.autocomplete': {
@@ -348,11 +351,9 @@ export class Person {
           should: [
             match_query, match_query_fuzzy,
           ],
-        },
-        
+        },  
       },
     };
     return await search<IPerson>('kartoffel.people', config.elasticSearch.defaultResultLimit, query);
-
   }
 }
