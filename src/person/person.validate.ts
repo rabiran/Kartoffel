@@ -128,10 +128,10 @@ export class PersonValidate extends ModelValidate {
       validator: PersonValidate.responsibilityLocationMultiValidator,
       message: 'responsibilityLocation is required for responsibilty {VALUE.responsibility}',
     },
-    {
+    /* {
       validator: PersonValidate.rankMultiFieldValidator,
       message: `rank is required for entity type ${ENTITY_TYPE[1]} and disallowed for ${ENTITY_TYPE[0]}`,
-    },
+    }, */
     {
       validator: PersonValidate.domainUsersMultiValidator,
       message: `entityType: ${ENTITY_TYPE[2]} requires at least 1 domainuser`,

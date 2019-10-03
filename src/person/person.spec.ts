@@ -729,7 +729,7 @@ describe('Persons', () => {
       const person = await Person.createPerson(personExamples[3]);
       const userObj: IDomainUser = {
         name: 'elad',
-        domain: 'jello',
+        domain: 'jello.com',
       };
       const updatedPerson = await Person.addNewUser(person.id, userObj);
       updatedPerson.should.exist;

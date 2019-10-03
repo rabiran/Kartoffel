@@ -9,6 +9,6 @@ export const ENTITY_TYPE = ['digimon', 'agumon', 'tamar'];
 // the first element is the default value
 export const RESPONSIBILITY = ['none', 'HR', 'SO'];
 
-export const DOMAIN_MAP = [['rabiran','rabiranuid'], ['somedomain', 'somedomainuid'], ['jello', 'jellouid'], ['jello2', 'jellouid']];
+export const DOMAIN_MAP = [['rabiran.com','rabiranuid'], ['somedomain.com', 'somedomainuid'], ['jello.com', 'jellouid'], ['jello2.com', 'jellouid']];
 // the first element is the default value
 export const SERVICE_TYPE = ['A' ,'B', 'C', 'D', 'E', 'F', 'G', 'H'];
