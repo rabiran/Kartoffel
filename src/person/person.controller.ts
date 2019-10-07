@@ -69,13 +69,17 @@ export class Person {
     return <IPerson[]>persons;
   }
 
+  /**
+   * Returns whether the given domain user exists
+   * @param domainUser 
+   */
   static async isDomainUserExist(domainUser: IDomainUser): Promise<boolean> {
     const person = await Person._personRepository.findByDomainUser(domainUser, null, { id: 1 });
     return !!person;
   }
 
   /**
-   * get a person with domain user coreesponding to the given domain user string
+   * get a person with domain user corresponding to the given domain user string
    * @param userString 
    */
   static async getByDomainUserString(userString: string): Promise<IPerson> {

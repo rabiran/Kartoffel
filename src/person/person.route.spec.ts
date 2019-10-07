@@ -7,6 +7,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { RESPONSIBILITY, ENTITY_TYPE, RANK, DOMAIN_MAP, CURRENT_UNIT, SERVICE_TYPE } from '../config/db-enums';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
+import { domainMap } from '../utils';
 
 
 const should = chai.should();
@@ -14,7 +15,6 @@ chai.use(require('chai-http'));
 const expect = chai.expect;
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
-const domainMap: Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const domains = [...domainMap.keys()];
 const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;

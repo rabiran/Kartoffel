@@ -3,14 +3,6 @@ import { IPerson, IDomainUser } from './person.interface';
 import { PersonValidate } from './person.validate';
 import { ValidationError } from '../types/error';
 
-export function filterPersonDomainUsers(person: IPerson): IPerson {
-  const filterField = ['uniqueID', 'adfsUID'];
-  const changePerson = { ...person }; 
-  changePerson.domainUsers = <IDomainUser[]>(changePerson.domainUsers as IDomainUser[])
-    .map(domainUser => filterObjectByKeys(domainUser, filterField));
-  return changePerson;
-}
-
 /**
  * get all possible domains for the given domain user
  * @param domainUser domain user as a string (e.g "nitro@jello")

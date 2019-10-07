@@ -9,6 +9,7 @@ import { IPerson, IDomainUser } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
+import { domainMap } from '../utils';
 import * as mongoose from 'mongoose';
 import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT } from '../config/db-enums';
 const Types = mongoose.Types;
@@ -20,7 +21,6 @@ chai.use(require('chai-http'));
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34', '5b50a76713ddf90af494de35', '5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
 
-const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 const domains = [...domainMap.keys()]; 
 const domain = [...domainMap.keys()][2];
 const userStringEx = `nitro@${domain}`;
@@ -887,14 +887,6 @@ describe('Persons', () => {
       const person = await Person.getByDomainUserString(`nItRo@${domain}`);
       person.should.exist;
       expect(person.id === createdPerson.id);
-      // the person should be populated
-      // const user = <IDomainUser>person.primaryDomainUser;
-      // expect(user.id).to.be.undefined;
-      // expect(user.personId).to.be.undefined;
-      // expect(user.domain).to.be.undefined;
-      // expect(user.name).to.be.undefined;      
-      // user.should.have.property('uniqueID', userStringEx);
-      // user.should.have.property('adfsUID', adfsUIDEx);      
     });
     it('should throw error when the there is no matching user', async () => {
       const createdPerson = await Person.createPerson(personExamples[3]);

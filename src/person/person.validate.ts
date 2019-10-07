@@ -1,9 +1,7 @@
 import { RESPONSIBILITY, ENTITY_TYPE, DOMAIN_MAP } from '../config/db-enums';
 import { IPerson } from './person.interface';
 import { ValidatorObj } from '../types/validation';
-import { DomainSeperator } from '../utils';
-
-const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
+import { DomainSeperator, domainMap } from '../utils';
 
 export class ModelValidate {
   static stringNotEmpty(str: string) {

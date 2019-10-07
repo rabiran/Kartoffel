@@ -3,7 +3,7 @@ import { IPerson } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
-import { DomainSeperator, filterObjectByKeys } from '../utils';
+import { DomainSeperator, filterObjectByKeys, domainMap } from '../utils';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -24,7 +24,6 @@ const schemaOptions = {
 };
 
 
-const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(consts.DOMAIN_MAP)));
 const DomainUserSchema = new mongoose.Schema(
   {
     domain: {
