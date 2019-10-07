@@ -12,3 +12,5 @@ export const updateAllowedFields = _.without(createAllowedFileds, 'directGroup',
 export const atCreateFieldCheck = RPV.fieldExistanceGenerator(createAllowedFileds);
 
 export const atUpdateFieldCheck = RPV.fieldExistanceGenerator(updateAllowedFields);
+
+export const atSearchFieldCheck = RPV.fieldExistanceGenerator(['fullname'], true);

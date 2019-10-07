@@ -5,7 +5,7 @@ import { IPerson, IDomainUser } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { userFromString, getAllPossibleDomains } from './person.utils';
+import { userFromString, getAllPossibleDomains, transformDomainUser } from './person.utils';
 import * as utils from '../utils.js';
 import  * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
@@ -281,9 +281,11 @@ export class Person {
    * @param partialName the text to autocomplete, with minmum length of 2
    */
   static async autocomplete(partialName: string) {
+    // check minimum length of 2
     if (!partialName || partialName.trim().length < 2) {
       return [];
     }
+    // base match
     const match_query = {
       match: {
         'fullName.autocomplete': {
@@ -291,6 +293,7 @@ export class Person {
         },
       },
     };
+    // allow fuzzy
     const match_query_fuzzy = {
       match: {
         'fullName.autocomplete': {
@@ -299,9 +302,11 @@ export class Person {
         },
       },
     };
+    // search only for 'alive' persons
     const filter_alive = {
       term: { alive: 'true' },
     };
+    // construct the final query to send to ES
     const query = {
       query: {
         bool: {
@@ -309,10 +314,11 @@ export class Person {
             match_query, match_query_fuzzy,
           ],
           filter: filter_alive,
-          minimum_should_match: 1,
+          minimum_should_match: 1, // necessary when using filter
         },  
       },
     };
-    return await search<IPerson>('kartoffel.people', config.elasticSearch.defaultResultLimit, query);
+    const results = await search<IPerson>('kartoffel.people', config.elasticSearch.defaultResultLimit, query);
+    return results.map(p => transformDomainUser(p));
   }
 }

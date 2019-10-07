@@ -6,7 +6,7 @@ import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { Person } from './person.controller';
 // import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
-import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
+import { atCreateFieldCheck, atUpdateFieldCheck, atSearchFieldCheck } from './person.route.validator';
 
 // const person = new Person();
 const persons = Router();
@@ -15,7 +15,8 @@ persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermis
 
 persons.get('/', ch(Person.getPersons, (req: Request) => [req.query]));
 
-persons.get('/search', ch(Person.autocomplete, (req: Request) => [req.query.fullname]));
+persons.get('/search', validatorMiddleware(atSearchFieldCheck, null, 'query'),
+  ch(Person.autocomplete, (req: Request) => [req.query.fullname]));
 
 persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
           ch(Person.getUpdatedFrom, (req: Request) => {
