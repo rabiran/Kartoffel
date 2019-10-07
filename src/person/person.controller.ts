@@ -318,7 +318,7 @@ export class Person {
         },  
       },
     };
-    const results = await search<IPerson>('kartoffel.people', config.elasticSearch.defaultResultLimit, query);
+    const results = await search<IPerson>(config.elasticSearch.personsIndexName, config.elasticSearch.defaultResultLimit, query);
     return results.map(p => transformDomainUser(p));
   }
 }

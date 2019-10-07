@@ -7,6 +7,7 @@ export const config = {
   elasticSearch: {
     nodes: process.env.ELASTICSEARCH_HOSTS ? process.env.ELASTICSEARCH_HOSTS.split(',') : null,
     defaultResultLimit: 20,
+    personsIndexName: 'kartoffel.people',
   },
   logger : {
     fileName: process.env.LOG_FILE_NAME,
