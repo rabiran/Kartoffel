@@ -32,3 +32,19 @@ export function userFromString(uniqueID: string): IDomainUser {
   return user;  
 }
 
+/**
+ * Transform each domain user in the person to it's display form, 
+ * returns new person object with the transformed domain users
+ * @param person
+ * @returns new person object with the transformed domain users
+ */
+export function transformDomainUser(person: IPerson) {
+  const tPerson = { ...person };
+  if (!tPerson.domainUsers) return tPerson;
+  tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map(u => ({
+    uniqueID: `${u.name}${DomainSeperator}${u.domain}` ,
+    adfsUID: `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`,
+  } as IDomainUser));
+  return tPerson;
+}
+

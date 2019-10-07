@@ -53,6 +53,29 @@ paths:
           x-oad-type: response
         '404':
           description: direct group not found
+  '/persons/search':
+    get:
+      tags: 
+        - Person
+      summary: Search for autocomplete suggestions for persons' full name
+      description: >**For example**:  */persons/search?fullname=nitro* 
+      parameters:
+        - in: query
+          name: fullname
+          type: string
+          description: the partial fullname to search autocomplete for (min length: 2)
+          required: true
+      responses:
+        '200':
+          description: Person array - max length: 20
+          schema:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/Person'
+        '500':
+          description: server error 
+
   '/persons/{id}':
     get:
       tags:

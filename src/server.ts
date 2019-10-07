@@ -53,6 +53,7 @@ if (config.server.nodeEnv !== 'test') {
   .catch(err => log(LOG_LEVEL.ERROR, err));
 }
 
+
 /**
  * Express configuration
  */
@@ -62,7 +63,6 @@ app.set('port', config.server.port);
 if (config.server.nodeEnv !== 'test') {
   app.use('/api', logger('dev')); // Morgan
 }
-
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
