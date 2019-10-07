@@ -1,6 +1,7 @@
-import { RESPONSIBILITY, ENTITY_TYPE } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, DOMAIN_MAP } from '../config/db-enums';
 import { IPerson } from './person.interface';
 import { ValidatorObj } from '../types/validation';
+import { DomainSeperator, domainMap } from '../utils';
 
 export class ModelValidate {
   static stringNotEmpty(str: string) {
@@ -71,6 +72,15 @@ export class PersonValidate extends ModelValidate {
     return (responsibility !== RESPONSIBILITY[0]);
   }
 
+  public static isLegalUserString(uniqueID: string): boolean {
+    return !(uniqueID.startsWith(DomainSeperator) || uniqueID.endsWith(DomainSeperator) 
+            || uniqueID.split(DomainSeperator).length !== 2);
+  }
+
+  public static domain(domain: string): boolean {
+    return ([...domainMap.keys()]).includes(domain);
+  }
+  
   // multifield validators returns false when the person is invalid (and thus the field is required!)
 
   public static currentUnitMultiValidator(person: IPerson) {
@@ -99,6 +109,10 @@ export class PersonValidate extends ModelValidate {
         person.responsibility === RESPONSIBILITY[0]));
   }
 
+  public static domainUsersMultiValidator(person: IPerson) {
+    return person.entityType !== ENTITY_TYPE[2] || person.domainUsers && person.domainUsers.length !== 0;
+  }
+
   public static multiFieldValidators: ValidatorObj[] = [
     {
       validator: PersonValidate.identityCardMultiValidator,
@@ -116,6 +130,10 @@ export class PersonValidate extends ModelValidate {
       validator: PersonValidate.rankMultiFieldValidator,
       message: `rank is required for entity type ${ENTITY_TYPE[1]} and disallowed for ${ENTITY_TYPE[0]}`,
     }, */
+    {
+      validator: PersonValidate.domainUsersMultiValidator,
+      message: `entityType: ${ENTITY_TYPE[2]} requires at least 1 domainuser`,
+    },
   ];
 
 }

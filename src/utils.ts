@@ -1,5 +1,7 @@
 import { ValidatorObj } from './types/validation';
+import { DOMAIN_MAP } from './config/db-enums';
 
+export const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 export const DomainSeperator = '@';
 
 export function filterObjectByKeys(object: Object, allowedKeys: string[]): Object {
