@@ -345,12 +345,17 @@ export class Person {
         },
       },
     };
+    const filter_alive = {
+      term: { alive: 'true' },
+    };
     const query = {
       query: {
         bool: {
           should: [
             match_query, match_query_fuzzy,
           ],
+          filter: filter_alive,
+          minimum_should_match: 1,
         },  
       },
     };
