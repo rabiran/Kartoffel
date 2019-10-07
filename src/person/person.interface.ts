@@ -1,14 +1,12 @@
 import { Types } from 'mongoose';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { IDomainUser } from '../domainUser/domainUser.interface';
 
 export interface IPerson {
 // Person's Basic information
   id?: string;
   identityCard: string;
   personalNumber?: string;
-  primaryDomainUser?: string | Types.ObjectId | IDomainUser;
-  secondaryDomainUsers?:  string[] | Types.ObjectId[] | IDomainUser[];
+  domainUsers?: IDomainUser[] | string[];
   entityType: string;
   serviceType?: string;
   firstName: string;
@@ -34,7 +32,10 @@ export interface IPerson {
   clearance?: string;
 }
 
-// export const EDITABLE_FIELDS = ['job', 'mail', 'phone', 'address', 'mobilePhone'];
-// export const PERSON_FIELDS = EDITABLE_FIELDS.concat(
-//   ['primaryDomainUser', 'secondaryDomainUsers', 'serviceType', 'firstName', 'lastName', 'currentUnit', 
-//     'dischargeDay', 'hierarchy', 'directGroup', 'managedGroup', 'rank', 'alive', 'responsibility', 'responsibilityLocation', 'clearance']);
+export interface IDomainUser {
+  id?: string;
+  domain: string;
+  name: string;
+  uniqueID?: string;
+  adfsUID?: string;
+}

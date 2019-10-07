@@ -29,7 +29,9 @@ paths:
         '200':
           description: OK
           schema:
+            type: array
             items:
+              type: object
               $ref: '#/definitions/Person'
     post:
       tags:
@@ -40,94 +42,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            type: object
-            required:
-              - firstName
-              - identityCard
-              - entityType
-              - lastName
-              - directGroup
-              - job
-            properties:
-              identityCard:
-                type: string
-                pattern: '^\d{5,9}$'
-                example: '234567891'
-              personalNumber:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '3456712'
-              entityType:
-                type: string
-                enum:
-                  - a
-                  - b
-                example: a
-              firstName:
-                type: string
-                example: Avi
-              lastName:
-                type: string
-                example: Ron
-              currentUnit:
-                type: string
-                example: Pilots Guild
-              dischargeDay:
-                type: string
-                format: date
-                example: '2022-11-30T22:00:00.000Z'
-              directGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              rank:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: b
-              job:
-                type: string
-                example: Pilot 2
-              mail:
-                type: string
-                format: email
-              phone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{1,2}-?\d{6,7}$'
-                example:
-                  - 02-123456
-                  - 03456789
-              mobilePhone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{2,3}-?\d{7}$'
-                example:
-                  - 052-1234567
-                  - 048456789
-              address:
-                type: string
-                example: 'Alexander 2, Jerusalem, Israel'
-              responsibility:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: c
-              responsibilityLocation:
-                type: string
-                example: 5b50a76713ddf90af494dabc
-              clearance:
-                type: string
-                example: 3
+        - $ref: '#/parameters/createPerson'
       responses:
         '200':
           description: OK
@@ -153,131 +68,7 @@ paths:
         '200':
           description: A Person object (domain user populated)
           schema:
-            type: object
-            required:
-              - firstName
-              - identityCard
-              - entityType
-              - lastName
-              - directGroup
-              - job
-            properties:
-              id:
-                type: string
-                example: 5b50a76713ddf90af494de32
-              identityCard:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '234567891'
-              personalNumber:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '3456712'
-              primaryDomainUser:
-                type: object
-                properties:                
-                  uniqueID: 
-                    type: string
-                    example: 'nitro@jello'
-                  adfsUID: 
-                    type: string
-                    example: 'nitro@jellouid'
-              secondaryDomainUsers:
-                type: array
-                items:
-                  type: object
-                  example: 
-                  - uniqueID: nitro@jello
-                    adfsUID: nitro@jellouid
-                   
-                  - uniqueID: nitro@somedomain
-                    adfsUID: nitro@somedomainuid
-              entityType:
-                type: string
-                enum:
-                  - a
-                  - b
-                example: a
-              firstName:
-                type: string
-                example: Avi
-              lastName:
-                type: string
-                example: Ron
-              currentUnit:
-                type: string
-                example: Pilots Guild
-              dischargeDay:
-                type: string
-                format: date
-                example: '2022-11-30T22:00:00.000Z'
-              hierarchy:
-                type: array
-                items:
-                  type: string
-                example:
-                  - ElAl
-                  - Pilots Guild
-                  - Captains
-              directGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              managedGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              rank:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: b
-              updatedAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:20:13.129Z'
-              createdAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:17:07.372Z'
-              job:
-                type: string
-                example: 'Pilot 2'
-              mail:
-                type: string
-                format: email
-              phone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{1,2}-?\d{6,7}$'
-                example:
-                  - 02-123456
-                  - 03456789
-              mobilePhone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{2,3}-?\d{7}$'
-                example:
-                  - 052-1234567
-                  - 048456789
-              address:
-                type: string
-                example: 'Alexander 2, Jerusalem, Israel'
-              responsibility:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: c
-              responsibilityLocation:
-                type: string
-                example: 5b50a76713ddf90af494dabc
-              clearance:
-                type: string
-                example: 3
+            $ref: '#/definitions/Person'
         '404':
           description: Person with the specified id doesn't exist
     put:
@@ -290,76 +81,7 @@ paths:
           required: true
           type: string
           description: The Id of Person
-        - in: body
-          name: body
-          required: true
-          schema:
-            type: object
-            properties:
-              entityType:
-                type: string
-                enum:
-                  - a
-                  - b
-                example: a
-              firstName:
-                type: string
-                example: Avi
-              lastName:
-                type: string
-                example: Ron
-              currentUnit:
-                type: string
-                example: Pilots Guild
-              dischargeDay:
-                type: string
-                format: date
-                example: '2022-11-30T22:00:00.000Z'
-              rank:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: b
-              job:
-                type: string
-                example: Pilot 2
-              mail:
-                type: string
-                format: email
-              phone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{1,2}-?\d{6,7}$'
-                example:
-                  - 02-123456
-                  - 03456789
-              mobilePhone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{2,3}-?\d{7}$'
-                example:
-                  - 052-1234567
-                  - 048456789
-              address:
-                type: string
-                example: 'Alexander 2, Jerusalem, Israel'
-              responsibility:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: c
-              responsibilityLocation:
-                type: string
-                example: 5b50a76713ddf90af494dabc
-              clearance:
-                type: string
-                example: 3
+        -  $ref: '#/parameters/updatePerson'
       responses:
         '200':
           description: A Person object with the changes
@@ -498,132 +220,7 @@ paths:
         '200':
           description: A Person object (domain user populated)
           schema:
-            type: object
-            required:
-              - firstName
-              - identityCard
-              - entityType
-              - lastName
-              - directGroup
-              - job
-            properties:
-              id:
-                type: string
-                example: 5b50a76713ddf90af494de32
-              identityCard:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '234567891'
-              personalNumber:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '3456712'
-              primaryDomainUser:
-                type: object
-                properties:
-                  uniqueID: 
-                    type: string
-                    example: 'nitro@jello'
-                  adfsUID: 
-                    type: string
-                    example: 'nitro@jellouid'
-              secondaryDomainUsers:
-                type: array
-                items:
-                  type: object
-                  example: 
-                  - uniqueID: nitro@jello
-                    adfsUID: nitro@jellouid
-                   
-                  - uniqueID: nitro@somedomain
-                    adfsUID: nitro@somedomainuid
-              entityType:
-                type: string
-                enum:
-                  - a
-                  - b
-                example: a
-              firstName:
-                type: string
-                example: Avi
-              lastName:
-                type: string
-                example: Ron
-              currentUnit:
-                type: string
-                example: Pilots Guild
-              dischargeDay:
-                type: string
-                format: date
-                example: '2022-11-30T22:00:00.000Z'
-              hierarchy:
-                type: array
-                items:
-                  type: string
-                example:
-                  - ElAl
-                  - Pilots Guild
-                  - Captains
-              directGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              managedGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              rank:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: b
-              updatedAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:20:13.129Z'
-              createdAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:17:07.372Z'
-              job:
-                type: string
-                example: 'Pilot 2'
-              mail:
-                type: string
-                format: email
-              phone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{1,2}-?\d{6,7}$'
-                example:
-                  - 02-123456
-                  - 03456789
-              mobilePhone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{2,3}-?\d{7}$'
-                example:
-                  - 052-1234567
-                  - 048456789
-              address:
-                type: string
-                example: 'Alexander 2, Jerusalem, Israel'
-              responsibility:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: c
-              responsibilityLocation:
-                type: string
-                example: 5b50a76713ddf90af494dabc
-              clearance:
-                type: string
-                example: 3
-
+            $ref: '#/definitions/Person'
         '404':
           description: Person with the specified pesonal number doesn't exist
   '/persons/identityCard/{identityCard}':
@@ -641,132 +238,7 @@ paths:
         '200':
           description: A Person object (domain user populated)
           schema:
-            type: object
-            required:
-              - firstName
-              - identityCard
-              - entityType
-              - lastName
-              - directGroup
-              - job
-            properties:
-              id:
-                type: string
-                example: 5b50a76713ddf90af494de32
-              identityCard:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '234567891'
-              personalNumber:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '3456712'
-              primaryDomainUser:
-                type: object
-                properties:
-                  uniqueID: 
-                    type: string
-                    example: 'nitro@jello'
-                  adfsUID: 
-                    type: string
-                    example: 'nitro@jellouid'
-              secondaryDomainUsers:
-                type: array
-                items:
-                  type: object
-                  example: 
-                  - uniqueID: nitro@jello
-                    adfsUID: nitro@jellouid
-                   
-                  - uniqueID: nitro@somedomain
-                    adfsUID: nitro@somedomainuid
-              entityType:
-                type: string
-                enum:
-                  - a
-                  - b
-                example: a
-              firstName:
-                type: string
-                example: Avi
-              lastName:
-                type: string
-                example: Ron
-              currentUnit:
-                type: string
-                example: Pilots Guild
-              dischargeDay:
-                type: string
-                format: date
-                example: '2022-11-30T22:00:00.000Z'
-              hierarchy:
-                type: array
-                items:
-                  type: string
-                example:
-                  - ElAl
-                  - Pilots Guild
-                  - Captains
-              directGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              managedGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              rank:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: b
-              updatedAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:20:13.129Z'
-              createdAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:17:07.372Z'
-              job:
-                type: string
-                example: 'Pilot 2'
-              mail:
-                type: string
-                format: email
-              phone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{1,2}-?\d{6,7}$'
-                example:
-                  - 02-123456
-                  - 03456789
-              mobilePhone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{2,3}-?\d{7}$'
-                example:
-                  - 052-1234567
-                  - 048456789
-              address:
-                type: string
-                example: 'Alexander 2, Jerusalem, Israel'
-              responsibility:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: c
-              responsibilityLocation:
-                type: string
-                example: 5b50a76713ddf90af494dabc
-              clearance:
-                type: string
-                example: 3
-
+            $ref: '#/definitions/Person'
         '404':
           description: Person with the specified identity card doesn't exist
   '/persons/domainUser/{domainUser}':
@@ -784,131 +256,7 @@ paths:
         '200':
           description: A Person object
           schema:
-            type: object
-            required:
-              - firstName
-              - identityCard
-              - entityType
-              - lastName
-              - directGroup
-              - job
-            properties:
-              id:
-                type: string
-                example: 5b50a76713ddf90af494de32
-              identityCard:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '234567891'
-              personalNumber:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '3456712'
-              primaryDomainUser:
-                type: object
-                properties:
-                  uniqueID: 
-                    type: string
-                    example: 'nitro@jello'
-                  adfsUID: 
-                    type: string
-                    example: 'nitro@jellouid'
-              secondaryDomainUsers:
-                type: array
-                items:
-                  type: object
-                  example: 
-                  - uniqueID: nitro@jello
-                    adfsUID: nitro@jellouid
-                   
-                  - uniqueID: nitro@somedomain
-                    adfsUID: nitro@somedomainuid
-              entityType:
-                type: string
-                enum:
-                  - a
-                  - b
-                example: a
-              firstName:
-                type: string
-                example: Avi
-              lastName:
-                type: string
-                example: Ron
-              currentUnit:
-                type: string
-                example: Pilots Guild
-              dischargeDay:
-                type: string
-                format: date
-                example: '2022-11-30T22:00:00.000Z'
-              hierarchy:
-                type: array
-                items:
-                  type: string
-                example:
-                  - ElAl
-                  - Pilots Guild
-                  - Captains
-              directGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              managedGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              rank:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: b
-              updatedAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:20:13.129Z'
-              createdAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:17:07.372Z'
-              job:
-                type: string
-                example: 'Pilot 2'
-              mail:
-                type: string
-                format: email
-              phone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{1,2}-?\d{6,7}$'
-                example:
-                  - 02-123456
-                  - 03456789
-              mobilePhone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{2,3}-?\d{7}$'
-                example:
-                  - 052-1234567
-                  - 048456789
-              address:
-                type: string
-                example: 'Alexander 2, Jerusalem, Israel'
-              responsibility:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: c
-              responsibilityLocation:
-                type: string
-                example: 5b50a76713ddf90af494dabc
-              clearance:
-                type: string
-                example: 3
+            $ref: '#/definitions/Person'
         '400':
           description: illegal domainUser string
         '404':
@@ -935,8 +283,7 @@ paths:
               uniqueID:
                 type: string
                 format: email
-              isPrimary:
-                type: boolean
+                example: nitro@jello
       responses:
         '200':
           description: A Person object with new domain user
@@ -951,7 +298,7 @@ paths:
     put:
       tags:
         - Person
-      summary: Change domain user in person (If change domain user to primary, the current primary pass to secondary array)
+      summary: Update domain user's name
       parameters:
         - in: path
           name: id
@@ -973,134 +320,12 @@ paths:
               uniqueID:
                 type: string
                 format: email
-              isPrimary:
-                type: boolean
+                example: newName@domain
       responses:
         '200':
           description: A Person object with the changes
           schema:
-            type: object
-            required:
-              - firstName
-              - identityCard
-              - entityType
-              - lastName
-              - directGroup
-              - job
-            properties:
-              id:
-                type: string
-                example: 5b50a76713ddf90af494de32
-              identityCard:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '234567891'
-              personalNumber:
-                type: string
-                pattern: '^\d{6,9}$'
-                example: '3456712'
-              primaryDomainUser:
-                type: object
-                properties:
-                  uniqueID: 
-                    type: string
-                    example: 'newName@jello'
-                  adfsUID: 
-                    type: string
-                    example: 'newName@jellouid'
-              secondaryDomainUsers:
-                type: array
-                items:
-                  type: object
-                  example:                   
-                  - uniqueID: nitro@somedomain
-                    adfsUID: nitro@somedomainuid
-              entityType:
-                type: string
-                enum:
-                  - a
-                  - b
-                example: a
-              firstName:
-                type: string
-                example: Avi
-              lastName:
-                type: string
-                example: Ron
-              currentUnit:
-                type: string
-                example: Pilots Guild
-              dischargeDay:
-                type: string
-                format: date
-                example: '2022-11-30T22:00:00.000Z'
-              hierarchy:
-                type: array
-                items:
-                  type: string
-                example:
-                  - ElAl
-                  - Pilots Guild
-                  - Captains
-              directGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              managedGroup:
-                type: string
-                example: 5b50a76713ddf90af494dadc
-              rank:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: b
-              updatedAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:20:13.129Z'
-              createdAt:
-                type: string
-                format: date
-                example: '2018-10-24T07:17:07.372Z'
-              job:
-                type: string
-                example: 'Pilot 2'
-              mail:
-                type: string
-                format: email
-              phone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{1,2}-?\d{6,7}$'
-                example:
-                  - 02-123456
-                  - 03456789
-              mobilePhone:
-                type: array
-                items:
-                  type: string
-                  pattern: '^\d{2,3}-?\d{7}$'
-                example:
-                  - 052-1234567
-                  - 048456789
-              address:
-                type: string
-                example: 'Alexander 2, Jerusalem, Israel'
-              responsibility:
-                type: string
-                enum:
-                  - a
-                  - b
-                  - c
-                example: c
-              responsibilityLocation:
-                type: string
-                example: 5b50a76713ddf90af494dabc
-              clearance:
-                type: string
-                example: 3
+            $ref: '#/definitions/Person'
         '400':
           description: illegal domain user or different domain or personId doesn't match the domain user or the new name already taken (user already exists)
         '404': 
@@ -1163,6 +388,7 @@ paths:
             type: array
             description: Array of groups
             items:
+              type: object
               $ref: '#/definitions/OG'
           x-oad-type: response
       parameters:
@@ -1325,6 +551,7 @@ paths:
           type: string
           x-oad-type: parameter
     x-oad-type: operation
+
 parameters:
   createOG:
     name: Organization Group
@@ -1361,6 +588,175 @@ parameters:
           type: string
           description: Id of the new parent group
     x-oad-type: parameter
+  createPerson:
+    name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - firstName
+        - entityType
+        - lastName
+        - directGroup
+      properties:
+        identityCard:
+          type: string
+          pattern: '^\d{6,9}$'
+          example: '234567891'
+        personalNumber:
+          type: string
+          pattern: '^\d{6,9}$'
+          example: '3456712'
+        domainUsers:
+          type: array
+          items:
+            type: string
+          example: 
+            - nitro@jello
+            - nitro@somedomain
+        entityType:
+          type: string
+          enum:
+            - a
+            - b
+          example: a
+        firstName:
+          type: string
+          example: Avi
+        lastName:
+          type: string
+          example: Ron
+        currentUnit:
+          type: string
+          example: Pilots Guild
+        dischargeDay:
+          type: string
+          format: date
+          example: '2022-11-30T22:00:00.000Z'
+        directGroup:
+          type: string
+          example: 5b50a76713ddf90af494dadc
+        managedGroup:
+          type: string
+          example: 5b50a76713ddf90af494dadc
+        rank:
+          type: string
+          enum:
+            - a
+            - b
+            - c
+          example: b
+        job:
+          type: string
+          example: 'Pilot 2'
+        mail:
+          type: string
+          format: email
+        phone:
+          type: array
+          items:
+            type: string
+            pattern: '^\d{1,2}-?\d{6,7}$'
+          example:
+            - 02-123456
+            - 03456789
+        mobilePhone:
+          type: array
+          items:
+            type: string
+            pattern: '^\d{2,3}-?\d{7}$'
+          example:
+            - 052-1234567
+            - 048456789
+        address:
+          type: string
+          example: 'Alexander 2, Jerusalem, Israel'
+        responsibility:
+          type: string
+          enum:
+            - a
+            - b
+            - c
+          example: c
+        responsibilityLocation:
+          type: string
+          example: 5b50a76713ddf90af494dabc
+        clearance:
+          type: string
+          example: 3
+  updatePerson:
+    name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Avi
+        lastName:
+          type: string
+          example: Ron
+        currentUnit:
+          type: string
+          example: Pilots Guild
+        dischargeDay:
+          type: string
+          format: date
+          example: '2022-11-30T22:00:00.000Z'
+        entityType:
+          type: string
+          enum:
+            - a
+            - b
+          example: a
+        rank:
+          type: string
+          enum:
+            - a
+            - b
+            - c
+          example: b
+        job:
+          type: string
+          example: Pilot 2
+        mail:
+          type: string
+          format: email
+        phone:
+          type: array
+          items:
+            type: string
+            pattern: '^\d{1,2}-?\d{6,7}$'
+          example:
+            - 02-123456
+            - 03456789
+        mobilePhone:
+          type: array
+          items:
+            type: string
+            pattern: '^\d{2,3}-?\d{7}$'
+          example:
+            - 052-1234567
+            - 048456789
+        address:
+          type: string
+          example: 'Alexander 2, Jerusalem, Israel'
+        responsibility:
+          type: string
+          enum:
+            - a
+            - b
+            - c
+          example: c
+        responsibilityLocation:
+          type: string
+          example: 5b50a76713ddf90af494dabc
+        clearance:
+          type: string
+          example: 3
+
 responses:
   hierarchyExistenceCheckingOG:
     description: Success
@@ -1380,16 +776,15 @@ responses:
           type: string
           title: groupName2
     x-oad-type: response
+
 definitions:
   Person:
     type: object
     required:
       - firstName
-      - identityCard
       - entityType
       - lastName
       - directGroup
-      - job
     properties:
       id:
         type: string
@@ -1402,23 +797,13 @@ definitions:
         type: string
         pattern: '^\d{6,9}$'
         example: '3456712'
-      primaryDomainUser:
-        type: object
-        properties:                
-          uniqueID: 
-            type: string
-            example: 'nitro@jello'
-          adfsUID: 
-            type: string
-            example: 'nitro@jellouid'        
-      secondaryDomainUsers:
+      domainUsers:
         type: array
         items:
           type: object
         example: 
           - uniqueID: nitro@jello
-            adfsUID: nitro@jellouid
-            
+            adfsUID: nitro@jellouid  
           - uniqueID: nitro@somedomain
             adfsUID: nitro@somedomainuid
       entityType:
@@ -1576,3 +961,5 @@ definitions:
         type: boolean
         title: isALeaf
         description: whether the group has direct children
+  
+ 

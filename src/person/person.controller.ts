@@ -1,16 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApplicationError, ValidationError, ResourceNotFoundError } from '../types/error';
 import { PersonRepository } from './person.repository';
-import { IPerson } from './person.interface';
+import { IPerson, IDomainUser } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { userFromString } from '../domainUser/domainUser.utils';
-import { DomainUserController } from '../domainUser/domainUser.controller';
-import { IDomainUser } from '../domainUser/domainUser.interface';
+import { userFromString, getAllPossibleDomains } from './person.utils';
 import * as utils from '../utils.js';
-import { filterPersonDomainUsers } from './person.utils';
-import { DomainUserValidate } from '../domainUser/domainUser.validators';
 import  * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
 import { search } from '../search/elasticsearch';
@@ -28,9 +24,8 @@ export class Person {
   static async getPersons(query?: any): Promise<IPerson[]> {
     const cond = {};
     if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['alive'] = 'true';
-    let persons: IPerson[] = await Person._personRepository.find(cond, 'primaryDomainUser secondaryDomainUsers');
-    persons = persons.map(person => filterPersonDomainUsers(person));
-    return <IPerson[]>persons;
+    const persons: IPerson[] = await Person._personRepository.find(cond);
+    return persons;
   }
 
   static async getPersonById(personId: string): Promise<IPerson> {
@@ -44,8 +39,7 @@ export class Person {
    * @param personID person's id
    */
   static async getPersonByIdWithFilter(personID: string): Promise<IPerson> {
-    let person: IPerson = await Person.getPersonById(personID);
-    person = filterPersonDomainUsers(person);
+    const person: IPerson = await Person.getPersonById(personID);
     return person;
   }
 
@@ -57,9 +51,8 @@ export class Person {
   static async getPerson(nameField: string, identityValue: string): Promise<IPerson> {
     const cond = {};
     cond[nameField] = identityValue;
-    let person: IPerson = await Person._personRepository.findOne(cond);
+    const person: IPerson = await Person._personRepository.findOne(cond);
     if (!person) throw new ResourceNotFoundError(`Cannot find person with ${nameField}: '${identityValue}'`);
-    person = filterPersonDomainUsers(person);
     return person;
   }
 
@@ -69,9 +62,8 @@ export class Person {
    * @param identityValue the value to find
    */
   static async getPersonByIdentifier(nameFields: string[], identityValue: string) {
-    let person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
+    const person: IPerson = await Person._personRepository.findOneOr(nameFields, [identityValue]);
     if (!person) throw new ResourceNotFoundError(`Cannot find person with identityValue: '${identityValue}'`);
-    person = filterPersonDomainUsers(person);
     return person;
   }
   static async getUpdatedFrom(from: Date, to: Date) {
@@ -79,40 +71,49 @@ export class Person {
     return <IPerson[]>persons;
   }
 
-  static async getByDomainUserString(userString: string): Promise<IPerson> {
-    const user = await DomainUserController.getByUniqueID(userString);
-    if (user && user.personId) {
-      return await Person.getPersonByIdWithFilter(<string>user.personId);
-    }
-    return null;
+  /**
+   * Returns whether the given domain user exists
+   * @param domainUser 
+   */
+  static async isDomainUserExist(domainUser: IDomainUser): Promise<boolean> {
+    const person = await Person._personRepository.findByDomainUser(domainUser, null, { id: 1 });
+    return !!person;
   }
 
-  static async addNewUser(personId: string, user: IDomainUser | string, isPrimary: boolean):
+  /**
+   * get a person with domain user corresponding to the given domain user string
+   * @param userString 
+   */
+  static async getByDomainUserString(userString: string): Promise<IPerson> {
+    const userObj = userFromString(userString);
+    const domains = getAllPossibleDomains(userObj);
+    const person = await Person._personRepository.findByMultiDomainUser(userObj.name, domains);
+    if (!person) {
+      throw new ResourceNotFoundError(`person with domainUser: ${userString} does not exist`);
+    }
+    return person;
+  }
+
+  /**
+   * Add new domain user to an existing person
+   * @param personId 
+   * @param user user object or string representation of a user
+   */
+  static async addNewUser(personId: string, user: IDomainUser | string):
     Promise<IPerson> {
     if (!personId) throw new ValidationError(`The system needs a personId to create a domain user ${JSON.stringify(user)}`);
     if (!user) throw new ValidationError(`The system needs a user name and domain to create a domain user for a personId ${personId}`);
     const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
-    if (!DomainUserValidate.domain(userObj.domain)) throw new ValidationError(`'The "${userObj.domain}" is not a recognized domain'`);
-    // get the person and check that the person exists)
-    const person = await Person.getPersonById(personId);
-    // connect the user to the person
-    userObj.personId = personId;
-    const newUser = await DomainUserController.create(userObj);
-    // connect the person to the user
-    if (isPrimary) {
-      // if the person already has primary user - make it secondary
-      if (person.primaryDomainUser) {
-        // the primary user is populated 
-        (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);
-      }
-      person.primaryDomainUser = newUser;
-    } else {
-      // fuck you mongoose! I am using copy only because of your stupid 'push'
-      const copy: IDomainUser[] = <IDomainUser[]>person.secondaryDomainUsers.slice();
-      copy.push(newUser);
-      person.secondaryDomainUsers = copy;
+    if (!PersonValidate.domain(userObj.domain)) throw new ValidationError(`'The "${userObj.domain}" is not a recognized domain'`);
+    // check user existance 
+    if (await Person.isDomainUserExist(userObj)) {
+      throw new ValidationError(`domain user: ${{ ...userObj }} already exists`);
     }
-    const updatedPerson = await Person.updatePerson(personId, person);
+    // get the person and check that the person exists
+    const person = await Person.getPersonById(personId);
+    const updatedPerson = await Person._personRepository.insertDomainUser(personId, userObj);
+    // (person.domainUsers as IDomainUser[]).push(userObj);
+    // const updatedPerson = await Person.updatePerson(personId, person);
     return updatedPerson;
   }
 
@@ -121,76 +122,46 @@ export class Person {
    * @param personId Person to delete from him
    * @param uniqueId The domain user to delete
    */
-  static async deleteDomainUser(personId: string, uniqueId: string) : Promise<any> {
-    const domainUser: IDomainUser = await DomainUserController.getByUniqueID(uniqueId);    
-    // Checks if domainUser belongs to this person
-    if (String(domainUser.personId) === personId) {
-      // Update person - remove user from person
-      const person = await Person.getPersonById(personId);
-      // Checks if primary
-      if (person.primaryDomainUser && (String((<IDomainUser>person.primaryDomainUser).id) === domainUser.id)) {
-        person.primaryDomainUser = undefined;
-        // Else delete user from secondaryUseres
-      } else {
-        const index = (<IDomainUser[]>person.secondaryDomainUsers).map(item => item.id).indexOf(domainUser.id);
-        person.secondaryDomainUsers.splice(index, 1);
-      }
-      // update person record
-      Person.updatePerson(person.id, person);
-      // Delete domainUser
-      const result = await DomainUserController.delete(domainUser.id);
-      return result.deletedCount > 0 ? `The domain user: ${uniqueId} successfully deleted from person with id: ${personId}` : 
-        Promise.reject(new ApplicationError('There was an error deleting the domain user'));        
+  static async deleteDomainUser(personId: string, uniqueId: string) : Promise<IPerson> {
+    const person = await Person.getByDomainUserString(uniqueId);
+    if (person.id !== personId) {
+      throw new ValidationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
     }
-    // If domain user dont belong specific person
-    throw new ValidationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
+    // if trying to remove the last domain user from a specific entity type - it's an error
+    if (person.entityType === consts.ENTITY_TYPE[2] && person.domainUsers.length === 1) {
+      throw new ValidationError(`entityType: ${consts.ENTITY_TYPE[2]} requires at leat 1 domainuser`);
+    }
+    const userObj = userFromString(uniqueId);
+    const domains = getAllPossibleDomains(userObj);
+    const updatedPerson = await Person._personRepository.deleteMultiDomainUser(personId, userObj.name, domains);
+    return updatedPerson;
   }
 
   /**
-   * Update domainUser fields (name and\or primary)
+   * Update domainUser name
    * @param personId 
    * @param oldUniqueId the current uniqueId
-   * @param newUniqueId the uniqueId to change
-   * @param isPrimary change primary to secondary and vice versa
+   * @param newUniqueId the uniqueId to change into
    */
-  static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId?: string, isPrimary?: Boolean) : Promise<IPerson> {
-    const domainUser: IDomainUser = await DomainUserController.getByUniqueID(oldUniqueId);        
+  static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId?: string) : Promise<IPerson> {
     // Checks if domainUser belongs to this person
-    if (String(domainUser.personId) === personId) {  
-      const person = await Person.getPersonById(personId);
-      // Checks if there is something to change     
-      if (!newUniqueId && (isPrimary === null || isPrimary === undefined)) {
-        throw new ValidationError(`You have not entered a parameter to change`);
-      }
-      // Change name of uniqueId
-      if (newUniqueId) {
-        const userUpdate = userFromString(newUniqueId);
-        if (userUpdate.domain !== domainUser.domain) throw new ValidationError(`Can't change domain of user`);
-        domainUser.name = userUpdate.name;
-        await DomainUserController.update(domainUser.id, domainUser);
-      }
-      // If get 'isPrimary' field
-      if (isPrimary !== null && isPrimary !== undefined) {        
-        // Checks if user should be primary and is not 
-        if (isPrimary && (!(<IDomainUser>person.primaryDomainUser) || ((<IDomainUser>person.primaryDomainUser) && domainUser.id !== String((<IDomainUser>person.primaryDomainUser).id)))) {
-          // If a another user already exsit in primary, it transfers it to a secondary
-          if (person.primaryDomainUser) {
-            (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);            
-          }
-          // Remove user from secondary and puts it in primary
-          const index = (<IDomainUser[]>person.secondaryDomainUsers).map(item => item.id).indexOf(domainUser.id);
-          const primaryUser = person.secondaryDomainUsers.splice(index, 1);
-          person.primaryDomainUser = primaryUser[0];          
-          // If the user does not have to be in primary, he transfers to a secondary
-        } else if (!isPrimary && (<IDomainUser>person.primaryDomainUser) && domainUser.id === String((<IDomainUser>person.primaryDomainUser).id)) {          
-          (<IDomainUser[]>person.secondaryDomainUsers).push(<IDomainUser>person.primaryDomainUser);
-          person.primaryDomainUser = undefined;
-        }       
-      }
-      return await Person.updatePerson(person.id, person);      
+    const person = await Person.getByDomainUserString(oldUniqueId);
+    if (person.id !== personId) {
+      throw new ValidationError(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
     }
-    // If domain user dont belong specific person
-    throw new ValidationError(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
+    // check if the new domain user already exists 
+    const newUserObj = userFromString(newUniqueId);
+    if (await Person.isDomainUserExist(newUserObj)) {
+      throw new ValidationError(`domain user: ${{ ...newUserObj }} already exists`);
+    }
+    // check that the update doesn't change the domain 
+    const oldUserObj = userFromString(oldUniqueId);
+    if (oldUserObj.domain !== newUserObj.domain) {
+      throw new ValidationError(`Can't change domain of user`);
+    }
+    const domains = getAllPossibleDomains(oldUserObj);
+    const updatedPerson = await Person._personRepository.updateMultiDomainUser(personId, oldUserObj.name, domains, newUserObj);
+    return updatedPerson;
   }
 
   static async createPerson(person: IPerson): Promise<IPerson> {
@@ -213,6 +184,7 @@ export class Person {
     if (!validatorsResult.isValid) {
       throw new ValidationError(validatorsResult.messages.toString());
     }
+
     // Checks whether the value in personalNumber or identityNumber exists in one of them
     // Checks value that exist
     const existValue = [person.personalNumber, person.identityCard].filter(x => x != null);
@@ -222,33 +194,14 @@ export class Person {
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
     person.hierarchy = directGroup.hierarchy.concat(directGroup.name);
+    // create domainUser Objects
+    if (person.domainUsers) {
+      const domainUsers = person.domainUsers as string[];
+      person.domainUsers = domainUsers.map(userString => userFromString(userString));
+    }
     const newPerson = await Person._personRepository.create(person);
     return newPerson;
   }
-
-  /**
-   * maybe in the future we will support creating the person and it's users at the same time
-   */
-  // static async createPerson(person: IPerson): Promise<IPerson> {
-  //   const { primaryDomainUser, secondaryDomainUsers, ...toCreate } = person;
-  //   const tmpPerson = await Person._personRepository.create(toCreate);
-  //   // create the domain users while ignoring illegals
-  //   const domainUsers = [primaryDomainUser, ...secondaryDomainUsers];
-  //   const [primaryUser, ...secondaryUsers] = await DomainUserController
-  //     .createManyFromString(<string[]>domainUsers, tmpPerson.id);
-  //   const SecondaryUsersIds = secondaryUsers.filter(u => u ? true : false).map(u => u.id);
-  //   const primaryUserId = primaryUser? primaryUser.id : null;
-  //   // add the created domain users to the person
-  //   let update: Partial<IPerson> = {};
-  //   if (SecondaryUsersIds.length !== 0) {
-  //     update.secondaryDomainUsers = SecondaryUsersIds;
-  //   }
-  //   if (primaryUserId) {
-  //     update.primaryDomainUser = primaryUserId;
-  //   }
-  //   const createdPerson = await Person.updatePerson(tmpPerson.id, update);
-  //   return createdPerson;
-  // }
 
   static async discharge(personId: string): Promise<any> {
     const person = await Person.getPersonById(personId);
@@ -270,14 +223,15 @@ export class Person {
     const person = await Person.getPersonById(id);
     // merge with the changes
     const mergedPerson = { ...person, ...change };
+    // remove domainUsers field from the update, for now this field have seperate update functions
+    delete mergedPerson.domainUsers;
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
       throw new ValidationError(validatorsResult.messages.toString());
     }
     // perform the actual update
-    let updatedPerson = await Person._personRepository.update(id, mergedPerson, 'primaryDomainUser secondaryDomainUsers');
-    updatedPerson = filterPersonDomainUsers(updatedPerson);
+    const updatedPerson = await Person._personRepository.update(id, mergedPerson);
     return <IPerson>updatedPerson;
   }
 
