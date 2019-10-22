@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 COPY --from=BASE /usr/src/app/package*.json ./ 
 RUN npm install --silent --progress=false --production
 COPY --from=BASE /usr/src/app/dist/ ./dist/
-COPY --from=BASE /usr/src/app/.env /usr/src/app/openapi.yaml ./
+COPY --from=BASE /usr/src/app/openapi.yaml ./
 
 FROM node:10.13-alpine as PROD
 WORKDIR /usr/src/app

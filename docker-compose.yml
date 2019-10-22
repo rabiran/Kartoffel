@@ -1,10 +1,42 @@
-version: '2.1'
+version: '3'
 
 services:
   kartoffel:
     image: kartoffel
     build: .
-    environment:
-      NODE_ENV: production
+    env_file: docker-compose.env
     ports:
       - 3000:3000
+    depends_on:
+      - mongo-primary
+      - mongo-secondary
+      - mongo-replicator
+      - elasticsearch
+
+  mongo-primary:
+    image: mongo
+    command: --replSet rs0 --bind_ip_all
+    ports:
+      - 27017:27017
+
+  mongo-secondary:
+    image: mongo
+    command: --replSet rs0 --bind_ip_all
+    ports:
+      - 27018:27017
+    depends_on: 
+      - mongo-primary
+  
+  mongo-replicator:
+    image: eladex/mongo-replicator
+    depends_on:
+      - mongo-primary
+      - mongo-secondary
+      
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+  
