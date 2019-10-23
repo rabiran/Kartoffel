@@ -10,33 +10,58 @@ services:
     depends_on:
       - mongo-primary
       - mongo-secondary
-      - mongo-replicator
+      # - mongo-replicator
       - elasticsearch
+      - es_init
 
   mongo-primary:
-    image: mongo
-    command: --replSet rs0 --bind_ip_all
+    image: bitnami/mongodb:latest
+    environment: 
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_ROOT_PASSWORD=nitro123
     ports:
       - 27017:27017
 
   mongo-secondary:
-    image: mongo
-    command: --replSet rs0 --bind_ip_all
+    image: bitnami/mongodb:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_PRIMARY_HOST=mongo-primary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_REPLICA_SET_NAME=rs0
     ports:
       - 27018:27017
     depends_on: 
       - mongo-primary
   
-  mongo-replicator:
-    image: eladex/mongo-replicator
-    depends_on:
-      - mongo-primary
-      - mongo-secondary
-      
+  # mongo-replicator:
+  #   image: eladex/mongo-replicator
+  #   depends_on:
+  #     - mongo-primary
+  #     - mongo-secondary
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
     environment:
       - discovery.type=single-node
     ports:
       - 9200:9200
+
+  monstache:
+    image: eladex/monstache-wrapper
+    depends_on: 
+      - mongo-primary
+      - mongo-secondary
+      - elasticsearch
+      - es_init
+  es_init:
+    image: eladex/kartoffel-es-init
+    depends_on: 
+      - elasticsearch
+    environment: 
+      - ES_HOSTS=http://elasticsearch:9200
+      - INDEX_NAME=kartoffel.people
+
   

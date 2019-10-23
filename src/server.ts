@@ -1,4 +1,4 @@
-import{ config } from './config/config';
+import { config } from './config/config';
 // need to be the first import and that the env variables are already loaded
 import * as apm from 'elastic-apm-node';
 apm.start({
