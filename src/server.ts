@@ -23,6 +23,7 @@ import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
 import { ApplicationError } from './types/error';
 import { log, LOG_LEVEL } from './helpers/logger';
+import { proxyCaseInsensitive } from './utils';
 
 const app = express();
 
@@ -67,6 +68,11 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(auth.initialize());
+// make query case insensitive 
+app.use((req, res, next) => {
+  req.query = proxyCaseInsensitive(req.query);
+  next();
+});
 
 // use the auth middleware
 if (config.server.nodeEnv !== 'test' && config.auth.enabled) {
