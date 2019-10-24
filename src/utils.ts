@@ -115,7 +115,7 @@ function evalStringWithValue(str: string, value: any, valueToMatch: string = 'VA
 
 /**
  * Returns a proxy object with the same values of the original object,
- * but with case insensitive key lookup.
+ * but with case insensitive key lookup, and lowercases all keys in Object.keys()
  * @param originalObj original object
  * @returns proxy object
  */
@@ -123,5 +123,6 @@ export function proxyCaseInsensitive(originalObj: Object) {
   return new Proxy(originalObj, {
     get: (target, name: string) => target[Object.keys(target)
       .find(k => k.toLowerCase() === name.toLowerCase())],
+    ownKeys: target => Object.keys(target).map(k => k.toLowerCase()),
   });
 }

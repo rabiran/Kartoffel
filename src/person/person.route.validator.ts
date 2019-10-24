@@ -13,4 +13,4 @@ export const atCreateFieldCheck = RPV.fieldExistanceGenerator(createAllowedFiled
 
 export const atUpdateFieldCheck = RPV.fieldExistanceGenerator(updateAllowedFields);
 
-export const atSearchFieldCheck = RPV.fieldExistanceGenerator(['fullname', 'fullName']);
+export const atSearchFieldCheck = RPV.fieldExistanceGenerator(['fullname'], true);
