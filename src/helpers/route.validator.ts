@@ -29,11 +29,11 @@ export class RouteParamsValidate {
 
   static fieldExistanceGenerator(allowedfields: string[], requireAll: boolean = false) {
     return (obj: Object) => {
-      const diff = _.difference(Object.getOwnPropertyNames(obj), allowedfields);
+      const diff = _.difference(Object.keys(obj), allowedfields);
       if (diff.length !== 0) {
         throw new ValidationError(`unexpected fields: ${diff}`);
-      } else if (requireAll && allowedfields.length !== Object.getOwnPropertyNames(obj).length) {
-        const missingFields = _.difference(allowedfields, Object.getOwnPropertyNames(obj));
+      } else if (requireAll && allowedfields.length !== Object.keys(obj).length) {
+        const missingFields = _.difference(allowedfields, Object.keys(obj));
         throw new ValidationError(`missing required fields: ${missingFields}`);
       }
     };
