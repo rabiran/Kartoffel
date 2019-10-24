@@ -115,7 +115,7 @@ function evalStringWithValue(str: string, value: any, valueToMatch: string = 'VA
 
 /**
  * Returns a proxy object with the same values of the original object,
- * but with case insensitive key lookup, and lowercases all keys in Object.keys()
+ * but with case insensitive key lookup, and lowercases all keys in Object.getOwnPropertyNames()
  * @param originalObj original object
  * @returns proxy object
  */
