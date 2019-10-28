@@ -18,19 +18,23 @@ services:
     image: bitnami/mongodb:latest
     environment: 
       - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ADVERTISED_HOSTNAME=mongo-primary
       - MONGODB_REPLICA_SET_NAME=rs0
       - MONGODB_ROOT_PASSWORD=nitro123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
     ports:
       - 27017:27017
 
   mongo-secondary:
     image: bitnami/mongodb:latest
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_ADVERTISED_HOSTNAME=mongo-secondary
       - MONGODB_PRIMARY_HOST=mongo-primary
       - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=nitro123
       - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
     ports:
       - 27018:27017
     depends_on: 
