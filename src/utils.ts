@@ -127,3 +127,4 @@ export function proxyCaseInsensitive(originalObj: Object) {
     getOwnPropertyDescriptor: k => ({ enumerable: true, configurable: true }),
   });
 }
+

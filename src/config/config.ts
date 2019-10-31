@@ -1,11 +1,33 @@
 import * as dotenv from 'dotenv';
+import * as path  from 'path';
+import * as fs from 'fs';
+
+/**
+ * Returns true if the given environment variable name exists and contain 
+ * the value 'true' (case-insensitive), otherwise returns false
+ * @param envVariable environment variable name to check
+ */
+function envAsBool(envVariable: string): Boolean {
+  return !!process.env[envVariable] && process.env[envVariable].toLowerCase() === 'true';
+}
 
 dotenv.config({ path: '.env' });
+console.log('certs path:', path.resolve(`../certs/${process.env.ELASTICSEARCH_CA_FILE}`));
 const serviceName = process.env.SERVICE_NAME || 'kartoffel';
 export const config = {
   serviceName,
   elasticSearch: {
     nodes: process.env.ELASTICSEARCH_HOSTS ? process.env.ELASTICSEARCH_HOSTS.split(',') : null,
+    auth: {
+      username: process.env.ELASTICSEARCH_USERNAME,
+      password: process.env.ELASTICSEARCH_PASSWORD,
+    },
+    ssl: {
+      enabled: envAsBool('ELASTICSEARCH_SSL_ENABLED'),
+      ca: envAsBool('ELASTICSEARCH_SSL_ENABLED') && !envAsBool('ELASTICSEARCH_SSL_REJECT_UNAUTHORIZED') ? 
+        fs.readFileSync(path.resolve(`../certs/${process.env.ELASTICSEARCH_CA_FILE}`)) : '',
+      rejectUnauthorized: envAsBool('ELASTICSEARCH_SSL_REJECT_UNAUTHORIZED'),
+    },
     defaultResultLimit: 20,
     personsIndexName: 'kartoffel.people',
   },
@@ -20,12 +42,10 @@ export const config = {
   apm: {
     host: process.env.ELASTIC_APM_SERVER_URL,
     secretToken: process.env.ELASTIC_APM_SECRET_TOKEN || '',
-    active: process.env.NODE_ENV === 'production' || 
-      (!!process.env.ELASTIC_APM_ACTIVE && process.env.ELASTIC_APM_ACTIVE.toLowerCase() === 'true'),
+    active: process.env.NODE_ENV === 'production' || envAsBool('ELASTIC_APM_ACTIVE'),
   },
   auth: {
-    enabled: !!process.env.ENABLE_AUTH 
-      && process.env.ENABLE_AUTH.toLowerCase() === 'true',
+    enabled: envAsBool('ENABLE_AUTH'),
     jwt: {
       audience: process.env.JWT_AUDIENCE || 'testAudience',
       issuer: process.env.JWT_ISSUER || 'testIssuer',
