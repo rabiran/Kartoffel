@@ -1,8 +1,16 @@
 import { Client, ApiResponse } from '@elastic/elasticsearch';
 import { config } from '../config/config';
+import { personsIndexSettings } from './indexSettings';
+
 
 const client = new Client({
   nodes: config.elasticSearch.nodes,
+  ssl: config.elasticSearch.ssl.enabled ? {
+    ca: config.elasticSearch.ssl.ca,
+    rejectUnauthorized: config.elasticSearch.ssl.rejectUnauthorized,
+  } : null,
+  auth: config.elasticSearch.auth.username 
+    ? config.elasticSearch.auth : null,
 });
 
 interface ShardsResponse {
@@ -61,4 +69,17 @@ export async function search<T>(index: string, size: number ,query: Object) {
     return res.body.hits.hits.map(hit => hit._source);
   }
   return [];
+}
+
+/**
+ * initiallize the indexes needed to perform the search
+ */
+export async function initIndex() {
+  if ((await client.indices.exists({ 
+    index: config.elasticSearch.personsIndexName })).statusCode === 404) {
+    await client.indices.create({
+      index: config.elasticSearch.personsIndexName,
+      body: personsIndexSettings,
+    });
+  }
 }
