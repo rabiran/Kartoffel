@@ -41,7 +41,7 @@ export const config = {
     connectionString: process.env.MONGODB_URI,
   },
   server: {
-    port: +(process.env.port || 3000),
+    port: +(process.env.PORT || 3000),
     sessionSecret: process.env.SESSION_SECRET,
     nodeEnv: process.env.NODE_ENV,
   },
