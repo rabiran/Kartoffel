@@ -12,7 +12,6 @@ function envAsBool(envVariable: string): boolean {
 }
 
 dotenv.config({ path: '.env' });
-console.log('certs path:', path.resolve(`../certs/${process.env.ELASTICSEARCH_CA_FILE}`));
 const serviceName = process.env.SERVICE_NAME || 'kartoffel';
 export const config = {
   serviceName,
@@ -24,9 +23,21 @@ export const config = {
     },
     ssl: {
       enabled: envAsBool('ELASTICSEARCH_SSL_ENABLED'),
-      ca: envAsBool('ELASTICSEARCH_SSL_ENABLED') && !envAsBool('ELASTICSEARCH_SSL_REJECT_UNAUTHORIZED') ? 
-        fs.readFileSync(path.resolve(`../certs/${process.env.ELASTICSEARCH_CA_FILE}`)) : '',
+      ca: envAsBool('ELASTICSEARCH_SSL_ENABLED') && envAsBool('ELASTICSEARCH_SSL_REJECT_UNAUTHORIZED') 
+        && process.env.ELASTICSEARCH_SSL_CA_FILE ? 
+        fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_CA_FILE}`)) : null,
       rejectUnauthorized: envAsBool('ELASTICSEARCH_SSL_REJECT_UNAUTHORIZED'),
+      cert: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_CERT_FILE 
+        && process.env.ELASTICSEARCH_SSL_KEY_FILE ? 
+        fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_CERT_FILE}`)) : null,
+      key: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_CERT_FILE 
+        && process.env.ELASTICSEARCH_SSL_KEY_FILE
+        ? fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_KEY_FILE}`)) : null,
+      pfx: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_PFX_FILE ? 
+        fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_PFX_FILE}`)) : null,
+      passphrase: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_PASSPHRASE 
+        ? process.env.ELASTICSEARCH_SSL_PASSPHRASE : null,
+
     },
     defaultResultLimit: 20,
     personsIndexName: 'kartoffel.people',
