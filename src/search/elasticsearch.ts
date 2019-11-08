@@ -25,6 +25,10 @@ function getClientOpts(): ClientOptions {
       sslOpts.cert = config.elasticSearch.ssl.cert;
       if (config.elasticSearch.ssl.key) sslOpts.key = config.elasticSearch.ssl.key;
     }
+    // check whether to disable server identity check
+    if (config.elasticSearch.ssl.disableServerIdenityCheck) {
+      sslOpts.checkServerIdentity = (host, cert) => undefined;
+    }
     opts.ssl = sslOpts;
   }
   // add auth opts

@@ -7,7 +7,8 @@ import * as fs from 'fs';
  * the value 'true' (case-insensitive), otherwise returns false
  * @param envVariable environment variable name to check
  */
-function envAsBool(envVariable: string): boolean {
+function envAsBool(envVariable: string
+  ): boolean {
   return !!process.env[envVariable] && process.env[envVariable].toLowerCase() === 'true';
 }
 
@@ -25,18 +26,19 @@ export const config = {
       enabled: envAsBool('ELASTICSEARCH_SSL_ENABLED'),
       ca: envAsBool('ELASTICSEARCH_SSL_ENABLED') && envAsBool('ELASTICSEARCH_SSL_REJECT_UNAUTHORIZED') 
         && process.env.ELASTICSEARCH_SSL_CA_FILE ? 
-        fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_CA_FILE}`)) : null,
+        fs.readFileSync(path.resolve(`${process.env.ELASTICSEARCH_SSL_CA_FILE}`)) : null,
       rejectUnauthorized: envAsBool('ELASTICSEARCH_SSL_REJECT_UNAUTHORIZED'),
       cert: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_CERT_FILE 
         && process.env.ELASTICSEARCH_SSL_KEY_FILE ? 
-        fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_CERT_FILE}`)) : null,
+        fs.readFileSync(path.resolve(`${process.env.ELASTICSEARCH_SSL_CERT_FILE}`)) : null,
       key: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_CERT_FILE 
         && process.env.ELASTICSEARCH_SSL_KEY_FILE
-        ? fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_KEY_FILE}`)) : null,
+        ? fs.readFileSync(path.resolve(`${process.env.ELASTICSEARCH_SSL_KEY_FILE}`)) : null,
       pfx: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_PFX_FILE ? 
-        fs.readFileSync(path.resolve(`../${process.env.ELASTICSEARCH_SSL_PFX_FILE}`)) : null,
+        fs.readFileSync(path.resolve(`${process.env.ELASTICSEARCH_SSL_PFX_FILE}`)) : null,
       passphrase: envAsBool('ELASTICSEARCH_SSL_ENABLED') && process.env.ELASTICSEARCH_SSL_PASSPHRASE 
         ? process.env.ELASTICSEARCH_SSL_PASSPHRASE : null,
+      disableServerIdenityCheck: envAsBool('ELASTICSEARCH_SSL_DISABLE_SERVER_IDENTITY_CHECK'),
 
     },
     defaultResultLimit: 20,
