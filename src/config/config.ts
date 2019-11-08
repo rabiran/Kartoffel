@@ -7,8 +7,7 @@ import * as fs from 'fs';
  * the value 'true' (case-insensitive), otherwise returns false
  * @param envVariable environment variable name to check
  */
-function envAsBool(envVariable: string
-  ): boolean {
+function envAsBool(envVariable: string): boolean {
   return !!process.env[envVariable] && process.env[envVariable].toLowerCase() === 'true';
 }
 
