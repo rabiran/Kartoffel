@@ -18,13 +18,13 @@ function getClientOpts(): ClientOptions {
     // add ca
     if (config.elasticSearch.ssl.ca) sslOpts.ca = config.elasticSearch.ssl.ca;
     // add pfx OR cert (priority to PFX)
-    if (config.elasticSearch.ssl.pfx) {
-      sslOpts.pfx = config.elasticSearch.ssl.pfx;
-      if (config.elasticSearch.ssl.passphrase) sslOpts.passphrase = config.elasticSearch.ssl.passphrase;
-    } else if (config.elasticSearch.ssl.cert) {
+    if (config.elasticSearch.ssl.pfx) sslOpts.pfx = config.elasticSearch.ssl.pfx;
+    else if (config.elasticSearch.ssl.cert) {
       sslOpts.cert = config.elasticSearch.ssl.cert;
       if (config.elasticSearch.ssl.key) sslOpts.key = config.elasticSearch.ssl.key;
     }
+    // add passphrase
+    if (config.elasticSearch.ssl.passphrase) sslOpts.passphrase = config.elasticSearch.ssl.passphrase;
     // check whether to disable server identity check
     if (config.elasticSearch.ssl.disableServerIdenityCheck) {
       sslOpts.checkServerIdentity = (host, cert) => undefined;
