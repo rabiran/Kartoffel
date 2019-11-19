@@ -16,6 +16,7 @@ const serviceName = process.env.SERVICE_NAME || 'kartoffel';
 export const config = {
   serviceName,
   elasticSearch: {
+    indexInitRetries: 3,
     nodes: process.env.ELASTICSEARCH_HOSTS ? process.env.ELASTICSEARCH_HOSTS.split(',') : null,
     auth: {
       username: process.env.ELASTICSEARCH_USERNAME,
@@ -71,6 +72,7 @@ export const config = {
   },
   db: {
     connectionString: process.env.MONGODB_URI,
+    firstConnectionRetries: 3,
   },
   server: {
     port: +(process.env.port || 3000),

@@ -3,6 +3,46 @@ import { config } from '../config/config';
 import { personsIndexSettings } from './indexSettings';
 import { ConnectionOptions } from 'tls';
 
+interface ShardsResponse {
+  total: number;
+  successful: number;
+  failed: number;
+  skipped: number;
+}
+
+interface Explanation {
+  value: number;
+  description: string;
+  details: Explanation[];
+}
+
+interface SearchResponse<T> {
+  took: number;
+  timed_out: boolean;
+  _scroll_id?: string;
+  _shards: ShardsResponse;
+  hits: {
+    total: number;
+    max_score: number;
+    hits: {
+      _index: string;
+      _type: string;
+      _id: string;
+      _score: number;
+      _source: T;
+      _version?: number;
+      _explanation?: Explanation;
+      fields?: any;
+      highlight?: any;
+      inner_hits?: any;
+      matched_queries?: string[];
+      sort?: string[];
+    }[];
+  };
+  aggregations?: any;
+}
+
+
 /**
  * returns es client options 
  */
@@ -42,45 +82,12 @@ function getClientOpts(): ClientOptions {
 }
 
 const client = new Client(getClientOpts());
-
-interface ShardsResponse {
-  total: number;
-  successful: number;
-  failed: number;
-  skipped: number;
-}
-
-interface Explanation {
-  value: number;
-  description: string;
-  details: Explanation[];
-}
-
-interface SearchResponse<T> {
-  took: number;
-  timed_out: boolean;
-  _scroll_id?: string;
-  _shards: ShardsResponse;
-  hits: {
-    total: number;
-    max_score: number;
-    hits: {
-      _index: string;
-      _type: string;
-      _id: string;
-      _score: number;
-      _source: T;
-      _version?: number;
-      _explanation?: Explanation;
-      fields?: any;
-      highlight?: any;
-      inner_hits?: any;
-      matched_queries?: string[];
-      sort?: string[];
-    }[];
-  };
-  aggregations?: any;
-}
+client.on('resurrect', (err, result) => {
+  console.log('resurectttt-------------------------------------------------------------------------');
+  console.log('res:', result);
+  console.log('error:', err);
+  console.log('after init index');
+});
 
 /**
  * perform elasticsearch search

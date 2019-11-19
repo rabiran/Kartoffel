@@ -25,7 +25,7 @@ const mockGetKey = {
 };
 
 // server to perform request on - imported later
-let server: Express = null;
+let app: Express = null;
 
 describe('Auth routes', () => {
   before(() => {
@@ -34,7 +34,7 @@ describe('Auth routes', () => {
     mockery.registerMock('./getKey', mockGetKey);
 
     // important to import after enabling the mock
-    server = require('../server');
+    app = require('../server').app;
   });
 
   after(() => {
@@ -43,7 +43,7 @@ describe('Auth routes', () => {
   });
 
   it('should return status 200 when requesting GET with read scope', () => {
-    chai.request(server)
+    chai.request(app)
     .get('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
     .end((err, res) => {
@@ -52,7 +52,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 200 when requesting POST with write scope', () => {
-    chai.request(server)
+    chai.request(app)
     .post('/test/auth')
     .set(AUTH_HEADER, readAndWriteScopeToken)
     .send({ example: 'whatever' })
@@ -62,7 +62,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 200 when requesting PUT with write scope', () => {
-    chai.request(server)
+    chai.request(app)
     .put('/test/auth')
     .set(AUTH_HEADER, readAndWriteScopeToken)
     .send({ example: 'whatever' })
@@ -72,7 +72,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 200 when requesting DELETE with write scope', () => {
-    chai.request(server)
+    chai.request(app)
     .del('/test/auth')
     .set(AUTH_HEADER, readAndWriteScopeToken)
     .end((err, res) => {
@@ -81,7 +81,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 401 when requesting with invalid token', () => {
-    chai.request(server)
+    chai.request(app)
     .get('/test/auth')
     .set(AUTH_HEADER, 'shitty_token')
     .end((err, res) => {
@@ -90,7 +90,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 401 when requesting with invalid scope', () => {
-    chai.request(server)
+    chai.request(app)
     .get('/test/auth')
     .set(AUTH_HEADER, invalidScopeToken)
     .end((err, res) => {
@@ -99,7 +99,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 401 when requesting POST with read scope', () => {
-    chai.request(server)
+    chai.request(app)
     .post('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
     .send({ example: 'whatever' })    
@@ -109,7 +109,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 401 when requesting PUT with read scope', () => {
-    chai.request(server)
+    chai.request(app)
     .put('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
     .send({ example: 'whatever' })    
@@ -119,7 +119,7 @@ describe('Auth routes', () => {
     });
   });
   it('should return status 401 when requesting DELETE with read scope', () => {
-    chai.request(server)
+    chai.request(app)
     .del('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
     .end((err, res) => {
