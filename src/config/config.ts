@@ -13,7 +13,8 @@ export const config = {
     fileName: process.env.LOG_FILE_NAME,
     directoryPath: process.env.LOG_DIRECTORY_PATH || '.',
     elasticSearch: {
-      hosts: (process.env.LOGGER_ES_HOSTS || '').split(','),
+      hosts: process.env.LOGGER_ES_HOSTS ? 
+        process.env.LOGGER_ES_HOSTS.split(',') : null,
       indexPrefix: process.env.LOGGER_ES_INDEX_PREFIX || serviceName,
     },
   },
