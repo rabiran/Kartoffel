@@ -15,7 +15,8 @@
                 "src/types/*"
             ]
         },
-        "suppressImplicitAnyIndexErrors": true
+        "suppressImplicitAnyIndexErrors": true,
+        // "allowSyntheticDefaultImports": true
     },
     "include": [
         "src/**/*"

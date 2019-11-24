@@ -11,7 +11,6 @@ services:
       - mongo-primary
       - mongo-secondary
       - elasticsearch
-      - es_init
 
   mongo-primary:
     image: bitnami/mongodb:latest
@@ -57,17 +56,6 @@ services:
       - mongo-primary
       - mongo-secondary
       - elasticsearch
-      - es_init
     volumes:
       - ./docker-compose-config/monstache/config/config.toml:/app/config.toml
       - ./docker-compose-config/monstache/config/scripts:/app/scripts
-
-  es_init:
-    image: eladex/kartoffel-es-init
-    depends_on: 
-      - elasticsearch
-    environment: 
-      - ES_HOSTS=http://elasticsearch:9200
-      - INDEX_NAME=kartoffel.people
-
-  
