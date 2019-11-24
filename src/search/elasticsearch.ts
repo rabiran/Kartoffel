@@ -82,12 +82,6 @@ function getClientOpts(): ClientOptions {
 }
 
 const client = new Client(getClientOpts());
-client.on('resurrect', (err, result) => {
-  console.log('resurectttt-------------------------------------------------------------------------');
-  console.log('res:', result);
-  console.log('error:', err);
-  console.log('after init index');
-});
 
 /**
  * perform elasticsearch search
