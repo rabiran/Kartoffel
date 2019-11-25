@@ -24,6 +24,7 @@ import * as organizationGroupRouter from './group/organizationGroup/organization
 import { ApplicationError } from './types/error';
 import { log, LOG_LEVEL } from './helpers/logger';
 import { proxyCaseInsensitive } from './utils';
+import { initIndex } from './search/elasticsearch';
 
 const app = express();
 
@@ -54,6 +55,11 @@ if (config.server.nodeEnv !== 'test') {
   .catch(err => log(LOG_LEVEL.ERROR, err));
 }
 
+/**
+ * initiallize es index
+ */
+initIndex().then(() => console.log('successfully initiallized es index'))
+  .catch(err => log(LOG_LEVEL.ERROR, err));
 
 /**
  * Express configuration
