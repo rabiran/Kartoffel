@@ -38,7 +38,7 @@
     "glob": "^7.1.2",
     "lodash": "^4.17.15",
     "lusca": "^1.5.0",
-    "mongoose": "^5.7.11",
+    "mongoose": "^5.7.12",
     "morgan": "^1.9.1",
     "passport": "^0.3.2",
     "passport-jwt": "^4.0.0",
