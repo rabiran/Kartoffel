@@ -16,7 +16,6 @@
             ]
         },
         "suppressImplicitAnyIndexErrors": true,
-        // "allowSyntheticDefaultImports": true
     },
     "include": [
         "src/**/*"
