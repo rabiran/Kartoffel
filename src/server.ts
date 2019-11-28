@@ -16,9 +16,6 @@ import * as organizationGroupRouter from './group/organizationGroup/organization
 import { ApplicationError } from './types/error';
 import { log, LOG_LEVEL } from './helpers/logger';
 import { proxyCaseInsensitive } from './utils';
-// import { initIndex } from './search/elasticsearch';
-
-// export const app = express();
 
 class Server {
   public app: express.Application;
@@ -31,7 +28,7 @@ class Server {
     this.configureErrorHandlers();
   }
 
-  start() {
+  public start() {
     this.app.listen(config.server.port, () => {
       console.log(('  App is running at http://localhost:%d in %s mode'), config.server.port, config.server.nodeEnv);
       console.log('  Press CTRL-C to stop\n');

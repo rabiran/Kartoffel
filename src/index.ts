@@ -11,7 +11,7 @@ import promiseRetry = require('promise-retry');
 import server from './server';
 import * as mongoose from 'mongoose';
 import { log, LOG_LEVEL } from './helpers/logger';
-import { initIndex } from './search/elasticsearch';
+import { initIndex, initEsClient } from './search/elasticsearch';
 
 (async () => {
   (<any>mongoose).Promise = Promise;
@@ -44,6 +44,8 @@ import { initIndex } from './search/elasticsearch';
   } catch (err) {
     log(LOG_LEVEL.ERROR, err);
   }
+  /* Initiallize the ES client */
+  initEsClient();
   /* Initiallize the ES index */
   try {
     await promiseRetry((retry, num) => {

@@ -42,6 +42,7 @@ interface SearchResponse<T> {
   aggregations?: any;
 }
 
+let client: Client = null;
 
 /**
  * returns es client options 
@@ -81,13 +82,9 @@ function getClientOpts(): ClientOptions {
   return opts;
 }
 
-const client = new Client(getClientOpts());
-client.on('resurrect', (err, result) => {
-  console.log('resurectttt-------------------------------------------------------------------------');
-  console.log('res:', result);
-  console.log('error:', err);
-  console.log('after init index');
-});
+export function initEsClient() {
+  client = new Client(getClientOpts());
+}
 
 /**
  * perform elasticsearch search
