@@ -1,10 +1,61 @@
-version: '2.1'
+version: '3'
 
 services:
   kartoffel:
     image: kartoffel
     build: .
-    environment:
-      NODE_ENV: production
+    env_file: docker-compose.env
     ports:
       - 3000:3000
+    depends_on:
+      - mongo-primary
+      - mongo-secondary
+      - elasticsearch
+
+  mongo-primary:
+    image: bitnami/mongodb:latest
+    environment: 
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ADVERTISED_HOSTNAME=mongo-primary
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_ROOT_PASSWORD=nitro123
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+      - MONGODB_USERNAME=nitro
+      - MONGODB_PASSWORD=password123
+      - MONGODB_DATABASE=kartoffel
+    ports:
+      - 27017:27017
+
+  mongo-secondary:
+    image: bitnami/mongodb:latest
+    environment:
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_ADVERTISED_HOSTNAME=mongo-secondary
+      - MONGODB_PRIMARY_HOST=mongo-primary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=nitro123
+      - MONGODB_REPLICA_SET_NAME=rs0
+      - MONGODB_REPLICA_SET_KEY=replicasetkey123
+    ports:
+      - 27018:27017
+    depends_on: 
+      - mongo-primary
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+
+  monstache:
+    image: rwynn/monstache:rel6
+    command: -f ./config.toml
+    working_dir: /app
+    depends_on: 
+      - mongo-primary
+      - mongo-secondary
+      - elasticsearch
+    volumes:
+      - ./docker-compose-config/monstache/config/config.toml:/app/config.toml
+      - ./docker-compose-config/monstache/config/scripts:/app/scripts
