@@ -2,6 +2,7 @@ import { RouteParamsValidate as RPV } from '../../helpers/route.validator';
 import { ValidationError } from '../../types/error';
 
 export const createAllowedFileds = ['name', 'parentId'];
+export const updateAllowedFileds = ['name', 'akaUnit'];
 
 export class OGRouteValidate {
   static adoption(parentId: any, childrenIds: any) {
@@ -9,4 +10,5 @@ export class OGRouteValidate {
     if (!Array.isArray(childrenIds)) throw new ValidationError('The childrenIds need to be array');
   }
   static creation = RPV.fieldExistanceGenerator(createAllowedFileds);
+  static update = RPV.fieldExistanceGenerator(updateAllowedFileds);
 }

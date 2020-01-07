@@ -51,8 +51,14 @@ organizationGroups.post('/',
     const organizationGroup = filterObjectByKeys(req.body, ORGANIZATION_GROUP_BASIC_FIELDS);
     const parentId = req.body.parentId;
     return [organizationGroup, parentId];
-  }));
+}));
 
+organizationGroups.put('/:id',
+  PermissionMiddleware.hasAdvancedPermission,
+  validatorMiddleware(OGRouteValidate.update),
+  ch(OrganizationGroup.updateOrganizationGroup, (req: Request) => {
+    return [req.body]
+}));
 
 // delete this route ?
 organizationGroups.get('/:id/old', (req: Request, res: Response) => {
