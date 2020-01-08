@@ -37,13 +37,19 @@ const DomainUserSchema = new mongoose.Schema(
       required: [true, 'User must have a name'],
       index: true,
     },
+    dataSource: {
+      type: String,
+      required: [true, 'DataSource is required for domainUser'],
+      enum: { values: consts.DATA_SOURCE , message: '"{VALUE}" is not a valid dataSource' },
+      index: true,
+    }
   },
   {
     toObject: {
       virtuals: true,
       versionKey: false,
       transform:  (doc, ret, options) => {
-        const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID']);
+        const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID', 'dataSource']);
         return filtered;
       },
     },

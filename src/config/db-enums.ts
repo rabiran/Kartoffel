@@ -12,3 +12,5 @@ export const RESPONSIBILITY = ['none', 'HR', 'SO'];
 export const DOMAIN_MAP = [['rabiran.com','rabiranuid'], ['somedomain.com', 'somedomainuid'], ['jello.com', 'jellouid'], ['jello2.com', 'jellouid']];
 // the first element is the default value
 export const SERVICE_TYPE = ['A' ,'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+export const DATA_SOURCE = ['dataSource1', 'dataSource2'];
