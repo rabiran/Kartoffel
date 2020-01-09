@@ -24,6 +24,7 @@ export class Person {
   static async getPersons(query?: any): Promise<IPerson[]> {
     const cond = {};
     if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['alive'] = 'true';
+    if (query && query['domainUser.dataSource']) cond['domainUser.dataSource'] = query['domainUser.dataSource'];
     const persons: IPerson[] = await Person._personRepository.find(cond);
     return persons;
   }
