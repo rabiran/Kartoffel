@@ -10,7 +10,7 @@ import { ValidationError } from '../types/error';
 export function getAllPossibleDomains(domainUser: IDomainUser): string[] {
   let domains = [domainUser.domain];
   // Checks if domain is adfsUID
-  const adfsUIds = Array.from(domainMap.values());
+  const adfsUIds = Array.from(domainMap.values()).filter(v => v !== '');
   if (adfsUIds.includes(domainUser.domain)) {
     // get all keys of this adfsUID
     const indices = allIndexesOf(adfsUIds, domainUser.domain);
@@ -41,10 +41,13 @@ export function userFromString(uniqueID: string): IDomainUser {
 export function transformDomainUser(person: IPerson) {
   const tPerson = { ...person };
   if (!tPerson.domainUsers) return tPerson;
-  tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map(u => ({
-    uniqueID: `${u.name}${DomainSeperator}${u.domain}` ,
-    adfsUID: `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`,
-  } as IDomainUser));
+  tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map((u) => {
+    const user = {};
+    (<IDomainUser>user).uniqueID = `${u.name}${DomainSeperator}${u.domain}`;
+    domainMap.get(u.domain) && ((<IDomainUser>user).adfsUID = `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`);
+    (<IDomainUser>user).dataSource = u.dataSource;
+    return user as IDomainUser;    
+  });
   return tPerson;
 }
 
