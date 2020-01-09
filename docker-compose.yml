@@ -1,16 +1,16 @@
 version: '3'
 
 services:
-  # kartoffel:
-  #   image: kartoffel
-  #   build: .
-  #   env_file: docker-compose.env
-  #   ports:
-  #     - 3000:3000
-  #   depends_on:
-  #     - mongo-primary
-  #     - mongo-secondary
-  #     - elasticsearch
+  kartoffel:
+    image: kartoffel
+    build: .
+    env_file: docker-compose.env
+    ports:
+      - 3000:3000
+    depends_on:
+      - mongo-primary
+      - mongo-secondary
+      - elasticsearch
 
   mongo-primary:
     image: bitnami/mongodb:latest
