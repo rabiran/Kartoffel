@@ -1,5 +1,5 @@
 import { PersonModel as Person } from './person.model';
-import { IPerson, IDomainUser } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
@@ -14,7 +14,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     return this.find({ directGroup: { $in: organizationGroupsIDS } });
   }
 
-  findByDomainUser(domainUser: IDomainUser, populate?: any, select?: any): Promise<IPerson> {
+  findByDomainUser(domainUser: IDomainUserIdentifier, populate?: any, select?: any): Promise<IPerson> {
     return this.findOne({ domainUsers: { $elemMatch: { name: domainUser.name, domain: domainUser.domain } } }, populate, select);
   }
 

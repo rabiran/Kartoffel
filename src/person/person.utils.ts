@@ -1,11 +1,11 @@
 import { filterObjectByKeys, DomainSeperator, domainMap, allIndexesOf } from '../utils';
-import { IPerson, IDomainUser } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
 import { PersonValidate } from './person.validate';
 import { ValidationError } from '../types/error';
 
 /**
  * get all possible domains for the given domain 
- * @param domain domain part string (after "@")
+ * @param domain domain part string (after seperator)
  */
 export function getAllPossibleDomains(domain: string): string[] {
   let domains = [domain];
@@ -21,11 +21,11 @@ export function getAllPossibleDomains(domain: string): string[] {
 
 /**
  * Extracts name and domain strings from domain user uniqueId string.
- * throws an error if the given string is illegal
- * returns an object with "name" and "domain" keys
+ ** throws an error if the given string is illegal
  * @param uniqueID domain user uniqueId string
+ * @returns returns an 'identifier' object with "name" and "domain" keys
  */
-export function userFromString(uniqueID: string): { name: string, domain: string } {
+export function userFromString(uniqueID: string): IDomainUserIdentifier {
   if (!PersonValidate.isLegalUserString(uniqueID)) {
     throw new ValidationError(`${uniqueID} is illegal user representation`);
   }

@@ -32,10 +32,15 @@ export interface IPerson {
   clearance?: string;
 }
 
-export interface IDomainUser {
-  id?: string;
-  domain: string;
+export interface IDomainUserIdentifier {
   name: string;
+  domain: string;
+}
+
+export interface IDomainUser extends IDomainUserIdentifier{
+  // id?: string;
+  // domain: string;
+  // name: string;
   dataSource: string;
   uniqueID?: string;
   adfsUID?: string;
