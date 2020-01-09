@@ -86,9 +86,9 @@ export class Person {
    * @param userString 
    */
   static async getByDomainUserString(userString: string): Promise<IPerson> {
-    const userIdentifier = userFromString(userString);
-    const domains = getAllPossibleDomains(userIdentifier.domain);
-    const person = await Person._personRepository.findByMultiDomainUser(userIdentifier.name, domains);
+    const { name, domain } = userFromString(userString);
+    const domains = getAllPossibleDomains(domain);
+    const person = await Person._personRepository.findByMultiDomainUser(name, domains);
     if (!person) {
       throw new ResourceNotFoundError(`person with domainUser: ${userString} does not exist`);
     }
