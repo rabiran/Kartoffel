@@ -1,6 +1,7 @@
 import { PersonModel as Person } from './person.model';
 import { IPerson, IDomainUser } from './person.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
+import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
 
 
@@ -35,21 +36,22 @@ export class PersonRepository extends RepositoryBase<IPerson> {
   /**
    * updates a domain user for a specific person, with many possible domains 
    * @param personId person id
-   * @param domainUserOldName the (old) name part of the domain user to be updated
+   * @param domainUseName the name part of the domain user to be updated
    * @param domains the possible domains of the domain user to be updated
-   * @param newDomainUser domain user object with the new name and domain to set
+   * @param updateFields domain user fields with the new values to set
    * @param populate 
    * @param select 
    */
-  updateMultiDomainUser(personId: string, domainUserOldName: string, domains: string[], 
-    newDomainUser: IDomainUser, populate?: any, select?: any): Promise<IPerson> {
+  updateMultiDomainUser(personId: string, domainUseName: string, domains: string[], 
+    updateFields: Partial<IDomainUser>, populate?: any, select?: any): Promise<IPerson> {
+    const querySet = _.mapKeys(updateFields, (v, k) => `domainUsers.$.${k}`);
     const matchQuery = {
-      name: domainUserOldName,
+      name: domainUseName,
       domain: { $in: domains },
     };
     let query = Person.findOneAndUpdate(
       { _id: personId, domainUsers: { $elemMatch: matchQuery } },
-      { $set: { 'domainUsers.$.name': newDomainUser.name, 'domainUsers.$.domain': newDomainUser.domain } },
+      { $set: { ...querySet } },
       { new: true }
     );
     if (populate) query = query.populate(populate);

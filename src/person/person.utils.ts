@@ -4,32 +4,34 @@ import { PersonValidate } from './person.validate';
 import { ValidationError } from '../types/error';
 
 /**
- * get all possible domains for the given domain user
- * @param domainUser domain user as a string (e.g "nitro@jello")
+ * get all possible domains for the given domain 
+ * @param domain domain part string (after "@")
  */
-export function getAllPossibleDomains(domainUser: IDomainUser): string[] {
-  let domains = [domainUser.domain];
+export function getAllPossibleDomains(domain: string): string[] {
+  let domains = [domain];
   // Checks if domain is adfsUID
   const adfsUIds = Array.from(domainMap.values());
-  if (adfsUIds.includes(domainUser.domain)) {
+  if (adfsUIds.includes(domain)) {
     // get all keys of this adfsUID
-    const indices = allIndexesOf(adfsUIds, domainUser.domain);
+    const indices = allIndexesOf(adfsUIds, domain);
     domains = Array.from(domainMap.keys()).filter((_, index) => indices.includes(index));
   }
   return domains;
 }
 
-export function userFromString(uniqueID: string): IDomainUser {
+/**
+ * Extracts name and domain strings from domain user uniqueId string.
+ * throws an error if the given string is illegal
+ * returns an object with "name" and "domain" keys
+ * @param uniqueID domain user uniqueId string
+ */
+export function userFromString(uniqueID: string): { name: string, domain: string } {
   if (!PersonValidate.isLegalUserString(uniqueID)) {
     throw new ValidationError(`${uniqueID} is illegal user representation`);
   }
   const splitted = uniqueID.split(DomainSeperator);
   const name = splitted[0], domain = splitted[1];
-  const user: IDomainUser = {
-    name,
-    domain,
-  };
-  return user;  
+  return { name, domain };  
 }
 
 /**
@@ -44,6 +46,7 @@ export function transformDomainUser(person: IPerson) {
   tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map(u => ({
     uniqueID: `${u.name}${DomainSeperator}${u.domain}` ,
     adfsUID: `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`,
+    dataSource: u.dataSource,
   } as IDomainUser));
   return tPerson;
 }
