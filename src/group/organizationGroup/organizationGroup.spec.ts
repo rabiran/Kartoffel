@@ -163,7 +163,7 @@ describe('Strong Groups', () => {
   });
   describe('#createOrganizationGroup', () => {
     it('Should create a simple group', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Biran' ,akaUnit: 'haha'});
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Biran' ,akaUnit: 'haha' });
       group.should.exist;
       group.should.have.property('name', 'Biran');
       group.should.have.property('akaUnit', 'haha');
@@ -325,8 +325,8 @@ describe('Strong Groups', () => {
         await expectError(OrganizationGroup.updateOrganizationGroup, [ID_EXAMPLE, <IOrganizationGroup>{ name: 'newName' }]);
       });
       it('Should update the group', async () => {
-        const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myTeam' ,akaUnit: 'coolunit'});
-        const updated = await OrganizationGroup.updateOrganizationGroup(organizationGroup.id, <IOrganizationGroup>{ name: 'newName', akaUnit: 'newUnit'});
+        const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myTeam' ,akaUnit: 'coolunit' });
+        const updated = await OrganizationGroup.updateOrganizationGroup(organizationGroup.id, <IOrganizationGroup>{ name: 'newName', akaUnit: 'newUnit' });
 
         updated.should.exist;
         updated.should.have.property('name', 'newName');

@@ -1,7 +1,7 @@
 import { RouteParamsValidate as RPV } from '../../helpers/route.validator';
 import { ValidationError } from '../../types/error';
 
-export const createAllowedFileds = ['name', 'parentId'];
+export const createAllowedFileds = ['name', 'parentId', 'akaUnit'];
 export const updateAllowedFileds = ['name', 'akaUnit'];
 
 export class OGRouteValidate {

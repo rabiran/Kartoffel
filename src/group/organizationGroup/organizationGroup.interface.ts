@@ -7,7 +7,7 @@ export interface IOrganizationGroup extends IGroup {
   ancestors?: string[];
   children?: IOrganizationGroup[] | string[];
   hierarchy?: string[];
-  akaUnit?: string,
+  akaUnit?: string;
   isALeaf?: boolean;
   isAlive?: boolean;
 }

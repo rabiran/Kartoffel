@@ -51,14 +51,7 @@ organizationGroups.post('/',
     const organizationGroup = filterObjectByKeys(req.body, ORGANIZATION_GROUP_BASIC_FIELDS);
     const parentId = req.body.parentId;
     return [organizationGroup, parentId];
-}));
-
-organizationGroups.put('/:id',
-  PermissionMiddleware.hasAdvancedPermission,
-  validatorMiddleware(OGRouteValidate.update),
-  ch(OrganizationGroup.updateOrganizationGroup, (req: Request) => {
-    return [req.body]
-}));
+  }));
 
 // delete this route ?
 organizationGroups.get('/:id/old', (req: Request, res: Response) => {
@@ -78,6 +71,13 @@ organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(Vld.validMongoId, ['parentId']),
           validatorMiddleware(Vld.validMongoIdArray, ['childIds']),
           ch(OrganizationGroup.childrenAdoption, (req: Request) => [req.body.parentId, req.body.childIds]));
+
+organizationGroups.put('/:id',
+  PermissionMiddleware.hasAdvancedPermission,
+  validatorMiddleware(OGRouteValidate.update),
+  ch(OrganizationGroup.updateOrganizationGroup, (req: Request) => {
+    return [req.params.id, req.body];
+  }));
 
 organizationGroups.delete('/:id', PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
