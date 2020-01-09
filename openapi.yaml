@@ -302,11 +302,15 @@ paths:
             type: object
             required:          
               - uniqueID
-            properties:             
+              - dataSource
+            properties:  
               uniqueID:
                 type: string
                 format: email
                 example: nitro@jello
+              dataSource:
+                type: string                
+                example: dataSource1
       responses:
         '200':
           description: A Person object with new domain user
@@ -344,6 +348,9 @@ paths:
                 type: string
                 format: email
                 example: newName@domain
+              dataSource:
+                type: string                
+                example: dataSource1
       responses:
         '200':
           description: A Person object with the changes
@@ -826,9 +833,11 @@ definitions:
           type: object
         example: 
           - uniqueID: nitro@jello
-            adfsUID: nitro@jellouid  
+            adfsUID: nitro@jellouid 
+            dataSource: dataSource1 
           - uniqueID: nitro@somedomain
             adfsUID: nitro@somedomainuid
+            dataSource: dataSource2
       entityType:
         type: string
         enum:
