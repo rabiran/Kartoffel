@@ -5,7 +5,7 @@ import { Person } from './person.controller';
 import { IPerson, IDomainUser } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK, DOMAIN_MAP, CURRENT_UNIT, SERVICE_TYPE } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE } from '../config/db-enums';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 
@@ -17,6 +17,7 @@ const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c'];
 const domains = [...domainMap.keys()];
 const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
+const dataSourceExample = DATA_SOURCE[0];
 
 const personExamples: IPerson[] = [
   <IPerson>{
@@ -210,6 +211,7 @@ describe('Person', () => {
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
             .send({
               uniqueID: userStringEx,
+              dataSource: dataSourceExample,
             });
         })
         .then(res => chai.request(app).get(`${BASE_URL}/domainUser/${userStringEx}`))
@@ -303,16 +305,16 @@ describe('Person', () => {
           done();
         });
     });
-
-    it('should create a person with domain users', async () => {
-      const person = { ...personExamples[0] };
-      person.domainUsers = [userStringEx];
-      const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
-      createdPerson.should.exist;
-      createdPerson.domainUsers.should.have.lengthOf(1);
-      const user = createdPerson.domainUsers[0] as IDomainUser;
-      user.uniqueID.should.be.equal(userStringEx);
-    });
+    /** currently we don't support creating person with domain user */
+    // it('should create a person with domain users', async () => {
+    //   const person = { ...personExamples[0] };
+    //   person.domainUsers = [userStringEx];
+    //   const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
+    //   createdPerson.should.exist;
+    //   createdPerson.domainUsers.should.have.lengthOf(1);
+    //   const user = createdPerson.domainUsers[0] as IDomainUser;
+    //   user.uniqueID.should.be.equal(userStringEx);
+    // });
 
   });
 
@@ -324,6 +326,7 @@ describe('Person', () => {
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
             .send({              
               uniqueID: userStringEx,
+              dataSource: dataSourceExample,
             });
         })
         .then((res) => {
@@ -340,7 +343,7 @@ describe('Person', () => {
         .then((res) => {
           const person = res.body;
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
-            .send({ uniqueID: `${userStringEx}@` });
+            .send({ uniqueID: `${userStringEx}@`, dataSource: dataSourceExample });
         })
         .catch((err) => {
           err.should.exist;
@@ -351,7 +354,7 @@ describe('Person', () => {
         .then((res) => {
           const person = res.body;
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
-            .send({ uniqueID: `abc@wrong` });
+            .send({ uniqueID: `abc@wrong`, dataSource: dataSourceExample });
         })
         .catch((err) => {
           err.should.exist;
@@ -362,15 +365,25 @@ describe('Person', () => {
         .then((res) => {
           const person = res.body;
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
-            .send({ uniqueID: userStringEx });
+            .send({ uniqueID: userStringEx, dataSource: dataSourceExample });
         })
         .then((res) => {
           const person = res.body;
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
-            .send({ uniqueID: userStringEx });
+            .send({ uniqueID: userStringEx, dataSource: dataSourceExample });
         })
         .catch((err) => {
           err.should.exist;
+        });
+    });
+
+    it('should return an error when the domain user dataSource is invalid', async () => {
+      const person = await Person.createPerson(personExamples[0]);
+      await chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
+        .then(() => expect.fail(undefined, undefined, 'request should fail'))
+        .catch((err) => {
+          err.should.exist;
+          err.should.have.status(400);
         });
     });
   });
@@ -383,6 +396,7 @@ describe('Person', () => {
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
             .send({   
               uniqueID: userStringEx,
+              dataSource: dataSourceExample,
             });
         })
         .then((res) => {
@@ -390,13 +404,14 @@ describe('Person', () => {
           return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
           .send({            
             uniqueID: `david@${domains[0]}`,
+            dataSource: dataSourceExample,
           });
         })
         .then((res) => {
           const person = res.body;
           return chai.request(app).put(`${BASE_URL}/${person.id}/domainUsers/david@${domains[0]}`)
             .send({
-              newUniqueID: `newDavid@${domains[0]}`,
+              uniqueID: `newDavid@${domains[0]}`,
             });          
         })
         .then(((res) => {
@@ -415,6 +430,7 @@ describe('Person', () => {
       const person = (await chai.request(app).post(BASE_URL).send({ ...personExamples[0] })).body;      
       let updatePerson = (await chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`).send({            
         uniqueID: userStringEx,
+        dataSource: dataSourceExample,
       })).body;
       updatePerson.domainUsers[0].should.have.property('uniqueID', userStringEx);
       await chai.request(app).del(`${BASE_URL}/${person.id}/domainUsers/${userStringEx}`);

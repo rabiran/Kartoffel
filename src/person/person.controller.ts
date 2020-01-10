@@ -98,7 +98,7 @@ export class Person {
   /**
    * Add new domain user to an existing person
    * @param personId 
-   * @param user domain user object of shape: { uniqueId, dataSource } to add
+   * @param user domain user object of shape: { uniqueID, dataSource } to add
    */
   static async addNewUser(personId: string, user: Partial<IDomainUser>):
     Promise<IPerson> {
