@@ -44,6 +44,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
    */
   updateMultiDomainUser(personId: string, domainUseName: string, domains: string[], 
     updateFields: Partial<IDomainUser>, populate?: any, select?: any): Promise<IPerson> {
+    const opts = { new: true, runValidators: true, context: 'query' };    
     const querySet = _.mapKeys(updateFields, (v, k) => `domainUsers.$.${k}`);
     const matchQuery = {
       name: domainUseName,
@@ -52,7 +53,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     let query = Person.findOneAndUpdate(
       { _id: personId, domainUsers: { $elemMatch: matchQuery } },
       { $set: { ...querySet } },
-      { new: true }
+      opts
     );
     if (populate) query = query.populate(populate);
     if (select) query = query.select(select);
@@ -82,13 +83,14 @@ export class PersonRepository extends RepositoryBase<IPerson> {
 
     return query.exec().then(res => res ? res.toObject() : res);
   }
-   /**
-    * inserts new domain user to a specific person
-    * @param personId person id
-    * @param domainUser domain user object to insert
-    */
+  /**
+  * inserts new domain user to a specific person
+  * @param personId person id
+  * @param domainUser domain user object to insert
+  */
   insertDomainUser(personId: string, domainUser: IDomainUser): Promise<IPerson> {
-    return Person.findOneAndUpdate({ _id: personId }, { $push: { domainUsers: domainUser } }, { new: true }).exec()
+    const opts = { new: true, runValidators: true, context: 'query' };    
+    return Person.findOneAndUpdate({ _id: personId }, { $push: { domainUsers: domainUser } }, opts).exec()
       .then(res => res ? res.toObject() : res);
   }
 }
