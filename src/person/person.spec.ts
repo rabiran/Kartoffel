@@ -82,14 +82,14 @@ const personExamples: IPerson[] = [
     job: 'Programmer',
     entityType: ENTITY_TYPE[0],
   },
-  // <IPerson>{ // person that requires a domain user
-  //   identityCard: '312571458',
-  //   personalNumber: '2345676',
-  //   firstName: 'blue',
-  //   lastName: 'nitroo',
-  //   entityType: ENTITY_TYPE[2],
-  //   domainUsers: [userStringEx],
-  // },
+  <IPerson>{ // person that requires a domain user
+    identityCard: '312571458',
+    personalNumber: '2345676',
+    firstName: 'blue',
+    lastName: 'nitroo',
+    entityType: ENTITY_TYPE[2],
+    domainUsers: [newUserExample],
+  },
 ];
 
 describe('Persons', () => {
@@ -188,19 +188,19 @@ describe('Persons', () => {
       newPerson.should.have.property('hierarchy');
       newPerson.hierarchy.should.have.ordered.members([parent.name, dummyGroup.name]);
     });
-    // it('Should create a person with domain user', async () => { // todo: not supported
-    //   const createdPerson = await Person.createPerson({ ...personExamples[5] });
-    //   // person exists and have domain users
-    //   createdPerson.should.exist;
-    //   createdPerson.domainUsers.should.exist;
-    //   createdPerson.domainUsers.should.have.lengthOf(1);
-    //   const user = createdPerson.domainUsers[0] as IDomainUser;
-    //   expect(user.id).to.be.undefined;
-    //   expect(user.domain).to.be.undefined;
-    //   expect(user.name).to.be.undefined;      
-    //   user.should.have.property('uniqueID', userStringEx);
-    //   user.should.have.property('adfsUID', adfsUIDEx);     
-    // });
+    it('Should create a person with domain user', async () => {
+      const createdPerson = await Person.createPerson({ ...personExamples[5] });
+      // person exists and have domain users
+      createdPerson.should.exist;
+      createdPerson.domainUsers.should.exist;
+      createdPerson.domainUsers.should.have.lengthOf(1);
+      const user = createdPerson.domainUsers[0] as IDomainUser;
+      expect(user.id).to.be.undefined;
+      expect(user.domain).to.be.undefined;
+      expect(user.name).to.be.undefined;      
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);     
+    });
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
         ...personExamples[4],
@@ -273,11 +273,11 @@ describe('Persons', () => {
         delete person.entityType;
         await expectError(Person.createPerson, [person]);
       });
-      // it('should throw error when domainUser is missing for specific entity type', async () => { //todo: transfer to addDomainUser
-      //   const person = { ...personExamples[5] };
-      //   person.domainUsers = [];
-      //   await expectError(Person.createPerson, [person]);
-      // });
+      it('should throw error when domainUser is missing for specific entity type', async () => {
+        const person = { ...personExamples[5] };
+        person.domainUsers = [];
+        await expectError(Person.createPerson, [person]);
+      });
       // it('should throw error when domainUser string is illegal representation', async () => { //todo: transfer to addDomainUser
       //   const illegalString1 = 'withoutSeperator', illegalString2 = 'two@shit@seperators',
       //     illegalString3 = '@noName', illegalString4 = 'noDomain@';

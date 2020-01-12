@@ -6,7 +6,7 @@ import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface'
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { userFromString, getAllPossibleDomains, transformDomainUser } from './person.utils';
+import { userFromString, getAllPossibleDomains, transformDomainUser, createDomainUserObject } from './person.utils';
 import * as utils from '../utils.js';
 import  * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
@@ -114,7 +114,7 @@ export class Person {
     }
     // get the person and check that the person exists
     const person = await Person.getPersonById(personId);
-    const userObj: IDomainUser = { ...userIdentifier, dataSource: user.dataSource };
+    const userObj: IDomainUser = createDomainUserObject(user);
     const updatedPerson = await Person._personRepository.insertDomainUser(personId, userObj);
     // (person.domainUsers as IDomainUser[]).push(userObj);
     // const updatedPerson = await Person.updatePerson(personId, person);
@@ -145,7 +145,7 @@ export class Person {
    * Update domainUser name
    * @param personId 
    * @param uniqueId the uniqueId string of the domain user to be updated
-   * @param updateObj object of shape { uniqueId?, dataSource? } with the values to update
+   * @param updateObj object of shape { uniqueID?, dataSource? } with the values to update
    */
   static async updateDomainUser(personId: string, uniqueId: string, updateObj: Partial<IDomainUser>) : Promise<IPerson> {
     // Checks if domainUser belongs to this person
@@ -209,12 +209,10 @@ export class Person {
     const directGroup = await OrganizationGroup.getOrganizationGroup(<string>person.directGroup);
     // create the person's hierarchy
     person.hierarchy = directGroup.hierarchy.concat(directGroup.name);
-    /* currently we are not allowing it because of 'dataSource' field in domain user
     // create domainUser Objects
     if (person.domainUsers) {
-      const domainUsers = person.domainUsers as string[];
-      person.domainUsers = domainUsers.map(userString => userFromString(userString));
-    } */
+      person.domainUsers = person.domainUsers.map(userString => createDomainUserObject(userString));
+    } 
     const newPerson = await Person._personRepository.create(person);
     return newPerson;
   }

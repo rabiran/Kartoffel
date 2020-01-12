@@ -20,6 +20,15 @@ export function getAllPossibleDomains(domain: string): string[] {
 }
 
 /**
+ * creates domain User Object - ready to be inserted to the DB
+ * @param user object in format {uniqueID, dataSource} (probably sent by API)
+ * @returns new Domain User object
+ */
+export function createDomainUserObject(user: Partial<IDomainUser>): IDomainUser {
+  return { ...userFromString(user.uniqueID), dataSource: user.dataSource };
+}
+
+/**
  * Extracts name and domain strings from domain user uniqueId string.
  ** throws an error if the given string is illegal
  * @param uniqueID domain user uniqueId string

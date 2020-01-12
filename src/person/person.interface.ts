@@ -6,7 +6,7 @@ export interface IPerson {
   id?: string;
   identityCard: string;
   personalNumber?: string;
-  domainUsers?: IDomainUser[] | string[];
+  domainUsers?: Partial<IDomainUser>[];
   entityType: string;
   serviceType?: string;
   firstName: string;

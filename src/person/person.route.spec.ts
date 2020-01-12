@@ -18,6 +18,7 @@ const domains = [...domainMap.keys()];
 const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 const dataSourceExample = DATA_SOURCE[0];
+const newUserExample = { uniqueID: userStringEx, dataSource: dataSourceExample };
 
 const personExamples: IPerson[] = [
   <IPerson>{
@@ -305,16 +306,15 @@ describe('Person', () => {
           done();
         });
     });
-    /** currently we don't support creating person with domain user */
-    // it('should create a person with domain users', async () => {
-    //   const person = { ...personExamples[0] };
-    //   person.domainUsers = [userStringEx];
-    //   const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
-    //   createdPerson.should.exist;
-    //   createdPerson.domainUsers.should.have.lengthOf(1);
-    //   const user = createdPerson.domainUsers[0] as IDomainUser;
-    //   user.uniqueID.should.be.equal(userStringEx);
-    // });
+    it('should create a person with domain users', async () => {
+      const person = { ...personExamples[0] };
+      person.domainUsers = [newUserExample];
+      const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
+      createdPerson.should.exist;
+      createdPerson.domainUsers.should.have.lengthOf(1);
+      const user = createdPerson.domainUsers[0] as IDomainUser;
+      user.uniqueID.should.be.equal(userStringEx);
+    });
 
   });
 
