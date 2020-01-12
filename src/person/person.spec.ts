@@ -139,6 +139,37 @@ describe('Persons', () => {
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });
+    it.only('Should get persons with specific dataSource of domain users', async () => {
+      const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      const person3 = await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      await Person.addNewUser(person1.id, {});  // add datasource and user
+      await Person.addNewUser(person2.id, {});  // add datasource and user
+      await Person.addNewUser(person2.id, {}); // add datasource and user
+      await Person.addNewUser(person3.id, {}); // add datasource and user  
+
+      const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1' });
+      persons.should.be.a('array');
+      persons.should.have.lengthOf(2);      
+      persons.should.to.deep.include({ id: person1.id });
+      persons.should.to.deep.include({ id: person2.id });
+      persons.should.to.not.deep.include({ id: person3.id });
+    });
+    it.only('Should get persons with specific dataSource of domain users and only person is live', async () => {
+      const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      const person3 = await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      await Person.addNewUser(person1.id, {});  // add datasource and user
+      await Person.addNewUser(person2.id, {});  // add datasource and user
+      await Person.addNewUser(person2.id, {}); // add datasource and user
+      await Person.addNewUser(person3.id, {}); // add datasource and user  
+      await Person.discharge(person2.id);
+
+      const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1' });
+      persons.should.be.a('array');
+      persons.should.have.lengthOf(1);
+      persons.should.to.deep.include({ id: person1.id });
+    });
   });
   describe('#get updated persons a from given date', () => {
     it('Should get the current persons', async () => {
@@ -717,6 +748,16 @@ describe('Persons', () => {
       const user = <IDomainUser>updatedPerson.domainUsers[0];
       user.should.have.property('uniqueID', userStringEx);
       user.should.have.property('adfsUID', adfsUIDEx);
+    });
+    it.only('should add new domain user, without adfsUId in enums, to the person', async () => {
+      const person = await Person.createPerson(personExamples[3]);
+      const updatedPerson = await Person.addNewUser(person.id, userStringEx); // Replace to object with datasource and domain without adfsUId
+      updatedPerson.should.exist;
+      updatedPerson.domainUsers.should.exist;
+      updatedPerson.domainUsers.should.have.lengthOf(1);
+      const user = <IDomainUser>updatedPerson.domainUsers[0];
+      user.should.have.property('uniqueID', userStringEx); // Change accordingly   
+      user.should.not.have.property('adfsUID');
     });
     it('should add new domain user to a person that already have domain user', async () => {
       const person = await Person.createPerson(personExamples[5]);

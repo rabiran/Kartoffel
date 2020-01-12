@@ -132,6 +132,25 @@ describe('Person', () => {
           res.body.length.should.be.eql(2);
         }).catch((err) => { throw err; });
     });
+    it.only('Should get only persons which one datasource`s domainUsers is eql to query', async () => {
+      const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      const person3 = await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      await Person.addNewUser(person1.id, {});  // add datasource and user
+      await Person.addNewUser(person2.id, {});  // add datasource and user
+      await Person.addNewUser(person2.id, {}); // add datasource and user
+      await Person.addNewUser(person3.id, {}); // add datasource and user      
+      await chai.request(app)
+        .get(`${BASE_URL}?domainUsers.dataSource=dataSource1`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.be.eql(2);
+          res.body.should.to.deep.include({ id: person1.id });
+          res.body.should.to.deep.include({ id: person2.id });
+          res.body.should.to.not.deep.include({ id: person3.id });
+        }).catch((err) => { throw err; });
+    });
   });
   describe('/GET person', () => {
     it('Should return 404 when person does not exist', (done) => {
