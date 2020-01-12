@@ -42,10 +42,10 @@ export function transformDomainUser(person: IPerson) {
   const tPerson = { ...person };
   if (!tPerson.domainUsers) return tPerson;
   tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map((u) => {
-    const user = {};
-    (<IDomainUser>user).uniqueID = `${u.name}${DomainSeperator}${u.domain}`;
-    domainMap.get(u.domain) && ((<IDomainUser>user).adfsUID = `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`);
-    (<IDomainUser>user).dataSource = u.dataSource;
+    const user: Partial<IDomainUser> = {};
+    user.uniqueID = `${u.name}${DomainSeperator}${u.domain}`;
+    domainMap.get(u.domain) && (user.adfsUID = `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`);
+    user.dataSource = u.dataSource;
     return user as IDomainUser;    
   });
   return tPerson;
