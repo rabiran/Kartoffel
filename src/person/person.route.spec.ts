@@ -378,7 +378,7 @@ describe('Person', () => {
     });
 
     it('should return an error when the domain user dataSource is invalid', async () => {
-      const person = await Person.createPerson(personExamples[0]);
+      const person = await Person.createPerson({ ...personExamples[0] });
       await chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
         .then(() => expect.fail(undefined, undefined, 'request should fail'))
         .catch((err) => {
