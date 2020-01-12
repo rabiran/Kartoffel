@@ -304,11 +304,11 @@ paths:
               - uniqueID
               - dataSource
             properties:             
-              - uniqueID:
+              uniqueID:
                 type: string
                 format: email
                 example: nitro@jello
-              - dataSource:
+              dataSource:
                 type: string
       responses:
         '200':
@@ -343,11 +343,11 @@ paths:
           schema:
             type: object           
             properties:              
-              - uniqueID:
+              uniqueID:
                 type: string
                 format: email
                 example: newName@domain
-              - dataSource:
+              dataSource:
                 type: string
       responses:
         '200':
