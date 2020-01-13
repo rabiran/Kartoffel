@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { IPerson } from './person.interface';
+import { IPerson, IDomainUser } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
@@ -37,13 +37,20 @@ const DomainUserSchema = new mongoose.Schema(
       required: [true, 'User must have a name'],
       index: true,
     },
+    dataSource: {
+      type: String,
+      required: [true, 'DataSource is required for domainUser'],
+      enum: { values: consts.DATA_SOURCE , message: '"{VALUE}" is not a valid dataSource' },
+      index: true,
+    },
   },
   {
     toObject: {
       virtuals: true,
       versionKey: false,
       transform:  (doc, ret, options) => {
-        const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID']);
+        const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID', 'dataSource']);
+        !PersonValidate.isLegalUserString((<IDomainUser>filtered).adfsUID) && delete (<IDomainUser>filtered).adfsUID;
         return filtered;
       },
     },
@@ -172,6 +179,5 @@ PersonSchema.virtual('fullName').get(function () {
 });
 
 registerErrorHandlingHooks(PersonSchema);
-
 
 export const PersonModel = mongoose.model<IPerson & mongoose.Document>('Person', PersonSchema);

@@ -33,12 +33,12 @@ persons.post('/', PermissionMiddleware.hasAdvancedPermission,
 persons.post('/:id/domainUsers', PermissionMiddleware.hasAdvancedPermission,
             validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
             ch(Person.addNewUser, (req: Request) => 
-              [req.params.id, req.body.uniqueID]));
+              [req.params.id, req.body]));
 
 persons.put('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(Person.updateDomainUser, (req: Request) => 
-            [req.params.id, req.params.uniqueID, req.body.newUniqueID]));
+            [req.params.id, req.params.uniqueID, req.body]));
 
 persons.delete('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPermission,
             validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
