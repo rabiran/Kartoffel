@@ -10,6 +10,12 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     super(Person);
   }
 
+  /**
+   * Get persons according to urlQuery
+   * @param queryFields Object that keys is a fields in person object that need to filter
+   * @param populate 
+   * @param select 
+   */
   getPersonsByQuery(queryFields: any = {}, populate?: any, select?: any): Promise<IPerson[]> {
     const cond = {};
     if (!(queryFields.alsoDead && queryFields.alsoDead === 'true')) cond['alive'] = 'true';
