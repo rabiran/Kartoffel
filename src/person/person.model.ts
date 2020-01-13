@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { IPerson } from './person.interface';
+import { IPerson, IDomainUser } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
@@ -50,6 +50,7 @@ const DomainUserSchema = new mongoose.Schema(
       versionKey: false,
       transform:  (doc, ret, options) => {
         const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID', 'dataSource']);
+        !PersonValidate.isLegalUserString((<IDomainUser>filtered).adfsUID) && delete (<IDomainUser>filtered).adfsUID;
         return filtered;
       },
     },

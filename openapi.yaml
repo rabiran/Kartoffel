@@ -309,7 +309,8 @@ paths:
                 format: email
                 example: nitro@jello
               dataSource:
-                type: string
+                type: string                
+                example: dataSource1
       responses:
         '200':
           description: A Person object with new domain user
@@ -348,7 +349,8 @@ paths:
                 format: email
                 example: newName@domain
               dataSource:
-                type: string
+                type: string                
+                example: dataSource1
       responses:
         '200':
           description: A Person object with the changes

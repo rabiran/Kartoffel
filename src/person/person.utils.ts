@@ -10,7 +10,7 @@ import { ValidationError } from '../types/error';
 export function getAllPossibleDomains(domain: string): string[] {
   let domains = [domain];
   // Checks if domain is adfsUID
-  const adfsUIds = Array.from(domainMap.values());
+  const adfsUIds = Array.from(domainMap.values()).filter(v => v !== '');
   if (adfsUIds.includes(domain)) {
     // get all keys of this adfsUID
     const indices = allIndexesOf(adfsUIds, domain);
@@ -52,11 +52,13 @@ export function userFromString(uniqueID: string): IDomainUserIdentifier {
 export function transformDomainUser(person: IPerson) {
   const tPerson = { ...person };
   if (!tPerson.domainUsers) return tPerson;
-  tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map(u => ({
-    uniqueID: `${u.name}${DomainSeperator}${u.domain}` ,
-    adfsUID: `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`,
-    dataSource: u.dataSource,
-  } as IDomainUser));
+  tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map((u) => {
+    const user: Partial<IDomainUser> = {};
+    user.uniqueID = `${u.name}${DomainSeperator}${u.domain}`;
+    domainMap.get(u.domain) && (user.adfsUID = `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`);
+    user.dataSource = u.dataSource;
+    return user as IDomainUser;    
+  });
   return tPerson;
 }
 

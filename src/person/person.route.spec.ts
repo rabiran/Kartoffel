@@ -20,6 +20,32 @@ const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 const dataSourceExample = DATA_SOURCE[0];
 const newUserExample = { uniqueID: userStringEx, dataSource: dataSourceExample };
 
+const DomainUserExamples: Partial<IDomainUser>[] = [
+  {
+    uniqueID: `matanel@rabiran.com`,
+    dataSource: `dataSource1`,
+  },
+  {
+    uniqueID: `biran@rabiran.com`,
+    dataSource: `dataSource1`,
+  },
+  {
+    uniqueID: `shaked@somedomain.com`,
+    dataSource: `dataSource2`,
+  },
+  {
+    uniqueID: `micha@jello.com`,
+    dataSource: `dataSource2`,
+  },
+  {
+    uniqueID: `david@jello2.com`,
+    dataSource: `dataSource2`,
+  },
+  {
+    uniqueID: `eli@yuda.sw`, // without adfsuid
+    dataSource: `dataSource1`,
+  },
+];
 const personExamples: IPerson[] = [
   <IPerson>{
     identityCard: '234567899',
@@ -132,6 +158,24 @@ describe('Person', () => {
           res.should.have.status(200);
           res.body.should.be.an('array');
           res.body.length.should.be.eql(2);
+        }).catch((err) => { throw err; });
+    });
+    it('Should get only persons which one datasource`s domainUsers is eql to query', async () => {
+      const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      const person3 = await Person.createPerson(<IPerson>{ ...personExamples[2] });
+      await Person.addNewUser(person1.id, { ...DomainUserExamples[0] });
+      await Person.addNewUser(person2.id, { ...DomainUserExamples[1] });
+      await Person.addNewUser(person2.id, { ...DomainUserExamples[2] });
+      await Person.addNewUser(person3.id, { ...DomainUserExamples[3] }); 
+      await chai.request(app)
+        .get(`${BASE_URL}?domainUsers.dataSource=dataSource1`)
+        .then((res) => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+          res.body.length.should.to.be.eql(2);
+          res.body[0].should.to.have.property('identityCard',  person1.identityCard);
+          res.body[1].should.to.have.property('identityCard',  person2.identityCard);          
         }).catch((err) => { throw err; });
     });
   });

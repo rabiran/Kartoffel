@@ -11,7 +11,7 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
   }
 
   /**
-   * return array of offspring שccording to the condition
+   * return array of offspring according to the condition
    * @param ancestor_id ID of ancestor
    * @param selectField fields to select
    * @param cond condition
