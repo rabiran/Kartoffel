@@ -27,7 +27,32 @@ const userStringEx = `nitro@${domain}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 const newUserExample = { uniqueID: userStringEx, dataSource: DATA_SOURCE[0] };
 
-
+const DomainUserExamples: Partial<IDomainUser>[] = [
+  {
+    uniqueID: `matanel@rabiran.com`,
+    dataSource: `dataSource1`,
+  },
+  {
+    uniqueID: `biran@rabiran.com`,
+    dataSource: `dataSource1`,
+  },
+  {
+    uniqueID: `shaked@somedomain.com`,
+    dataSource: `dataSource2`,
+  },
+  {
+    uniqueID: `micha@jello.com`,
+    dataSource: `dataSource2`,
+  },
+  {
+    uniqueID: `david@jello2.com`,
+    dataSource: `dataSource2`,
+  },
+  {
+    uniqueID: `eli@yuda.sw`, // without adfsuid
+    dataSource: `dataSource1`,
+  },
+];
 const personExamples: IPerson[] = [
   <IPerson>{ // person that requires rank
     identityCard: '123456782',
@@ -141,36 +166,35 @@ describe('Persons', () => {
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });
-    it.only('Should get persons with specific dataSource of domain users', async () => {
+    it('Should get persons with specific dataSource of domain users', async () => {
       const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       const person3 = await Person.createPerson(<IPerson>{ ...personExamples[2] });
-      await Person.addNewUser(person1.id, {});  // add datasource and user
-      await Person.addNewUser(person2.id, {});  // add datasource and user
-      await Person.addNewUser(person2.id, {}); // add datasource and user
-      await Person.addNewUser(person3.id, {}); // add datasource and user  
+      await Person.addNewUser(person1.id, { ...DomainUserExamples[0] });
+      await Person.addNewUser(person2.id, { ...DomainUserExamples[1] });
+      await Person.addNewUser(person2.id, { ...DomainUserExamples[2] });
+      await Person.addNewUser(person3.id, { ...DomainUserExamples[3] }); 
 
       const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1' });
       persons.should.be.a('array');
-      persons.should.have.lengthOf(2);      
-      persons.should.to.deep.include({ id: person1.id });
-      persons.should.to.deep.include({ id: person2.id });
-      persons.should.to.not.deep.include({ id: person3.id });
+      persons.should.have.lengthOf(2);   
+      persons[0].should.to.have.property('identityCard',  person1.identityCard);
+      persons[1].should.to.have.property('identityCard',  person2.identityCard);                   
     });
-    it.only('Should get persons with specific dataSource of domain users and only person is live', async () => {
+    it('Should get persons with specific dataSource of domain users and only person is live', async () => {
       const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       const person3 = await Person.createPerson(<IPerson>{ ...personExamples[2] });
-      await Person.addNewUser(person1.id, {});  // add datasource and user
-      await Person.addNewUser(person2.id, {});  // add datasource and user
-      await Person.addNewUser(person2.id, {}); // add datasource and user
-      await Person.addNewUser(person3.id, {}); // add datasource and user  
+      await Person.addNewUser(person1.id, { ...DomainUserExamples[0] });
+      await Person.addNewUser(person2.id, { ...DomainUserExamples[1] });
+      await Person.addNewUser(person2.id, { ...DomainUserExamples[2] });
+      await Person.addNewUser(person3.id, { ...DomainUserExamples[3] });
       await Person.discharge(person2.id);
 
       const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1' });
       persons.should.be.a('array');
       persons.should.have.lengthOf(1);
-      persons.should.to.deep.include({ id: person1.id });
+      persons[0].should.to.have.property('identityCard',  person1.identityCard);      
     });
   });
   describe('#get updated persons a from given date', () => {
@@ -726,14 +750,14 @@ describe('Persons', () => {
       user.should.have.property('adfsUID', adfsUIDEx);
       user.should.have.property('dataSource', newUserExample.dataSource);
     });
-    it.only('should add new domain user, without adfsUId in enums, to the person', async () => {
+    it('should add new domain user, without adfsUId in enums, to the person', async () => {
       const person = await Person.createPerson(personExamples[3]);
-      const updatedPerson = await Person.addNewUser(person.id, userStringEx); // Replace to object with datasource and domain without adfsUId
+      const updatedPerson = await Person.addNewUser(person.id, { ...DomainUserExamples[5] });
       updatedPerson.should.exist;
       updatedPerson.domainUsers.should.exist;
       updatedPerson.domainUsers.should.have.lengthOf(1);
       const user = <IDomainUser>updatedPerson.domainUsers[0];
-      user.should.have.property('uniqueID', userStringEx); // Change accordingly   
+      user.should.have.property('uniqueID', DomainUserExamples[5].uniqueID);
       user.should.not.have.property('adfsUID');
     });
     it('should add new domain user to a person that already have domain user', async () => {

@@ -10,7 +10,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     super(Person);
   }
 
-  getPersonsByQuery(queryFields: any, populate?: any, select?: any): Promise<IPerson[]> {
+  getPersonsByQuery(queryFields: any = {}, populate?: any, select?: any): Promise<IPerson[]> {
     const cond = {};
     if (!(queryFields.alsoDead && queryFields.alsoDead === 'true')) cond['alive'] = 'true';
     if (queryFields['domainUsers.dataSource']) cond['domainUsers.dataSource'] = queryFields['domainUsers.dataSource'];

@@ -23,7 +23,7 @@ export class Person {
   }
 
   static async getPersons(query?: any): Promise<IPerson[]> {    
-    const persons: IPerson[] = await Person._personRepository.getPersonsByQuery(query = {});
+    const persons: IPerson[] = await Person._personRepository.getPersonsByQuery(query);
     if (!persons) throw new ResourceNotFoundError('An unexpected error occurred while fetching people');
     return persons;
   }
