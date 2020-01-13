@@ -12,7 +12,8 @@ export class PersonRepository extends RepositoryBase<IPerson> {
 
   /**
    * Get persons according to urlQuery
-   * @param queryFields Object that keys is a fields in person object that need to filter
+   * @param queryFields Object, it's key-value pairs are person fields and the corresponding values to find.
+   * nested fields are expressed with dot notation. e.g: "domainUsers.dataSource".
    * @param populate 
    * @param select 
    */
