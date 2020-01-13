@@ -303,7 +303,7 @@ paths:
             required:          
               - uniqueID
               - dataSource
-            properties:  
+            properties:             
               uniqueID:
                 type: string
                 format: email
@@ -325,7 +325,7 @@ paths:
     put:
       tags:
         - Person
-      summary: Update domain user's name
+      summary: Update person's domain user
       parameters:
         - in: path
           name: id
@@ -641,10 +641,12 @@ parameters:
         domainUsers:
           type: array
           items:
-            type: string
+            type: object
           example: 
-            - nitro@jello
-            - nitro@somedomain
+            - uniqueID: nitro@jello
+              dataSource: dataSource1
+            - uniqueID: nitro@somedomain
+              dataSource: dataSource2
         entityType:
           type: string
           enum:
@@ -833,8 +835,8 @@ definitions:
           type: object
         example: 
           - uniqueID: nitro@jello
-            adfsUID: nitro@jellouid 
-            dataSource: dataSource1 
+            adfsUID: nitro@jellouid
+            dataSource: dataSource1
           - uniqueID: nitro@somedomain
             adfsUID: nitro@somedomainuid
             dataSource: dataSource2

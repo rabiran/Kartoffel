@@ -22,6 +22,7 @@ export function registerErrorHandlingHooks(schema: Schema) {
   // convert mongoose validation error to our validation error
   schema.post('validate', convertValidationError);
   schema.post('update', convertValidationError);
+  schema.post('findOneAndUpdate', convertValidationError);
 
   // handle mongo duplicate Key error, see: http://thecodebarbarian.com/mongoose-error-handling
   schema.post('save', convertDuplicateKey);

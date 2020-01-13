@@ -6,7 +6,7 @@ export interface IPerson {
   id?: string;
   identityCard: string;
   personalNumber?: string;
-  domainUsers?: IDomainUser[] | string[];
+  domainUsers?: Partial<IDomainUser>[];
   entityType: string;
   serviceType?: string;
   firstName: string;
@@ -32,10 +32,13 @@ export interface IPerson {
   clearance?: string;
 }
 
-export interface IDomainUser {
-  id?: string;
-  domain: string;
+export interface IDomainUserIdentifier {
   name: string;
+  domain: string;
+}
+
+export interface IDomainUser extends IDomainUserIdentifier{
+  id?: string;
   dataSource: string;
   uniqueID?: string;
   adfsUID?: string;
