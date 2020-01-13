@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+import * as _ from 'lodash';
 import { ApplicationError, ValidationError, ResourceNotFoundError } from '../types/error';
 import { PersonRepository } from './person.repository';
-import { IPerson, IDomainUser } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { userFromString, getAllPossibleDomains, transformDomainUser } from './person.utils';
+import { userFromString, getAllPossibleDomains, transformDomainUser, createDomainUserObject } from './person.utils';
 import * as utils from '../utils.js';
 import  * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
@@ -73,10 +74,10 @@ export class Person {
 
   /**
    * Returns whether the given domain user exists
-   * @param domainUser 
+   * @param domainUserIdentifier 
    */
-  static async isDomainUserExist(domainUser: IDomainUser): Promise<boolean> {
-    const person = await Person._personRepository.findByDomainUser(domainUser, null, { id: 1 });
+  static async isDomainUserExist(domainUserIdentifier: IDomainUserIdentifier): Promise<boolean> {
+    const person = await Person._personRepository.findByDomainUser(domainUserIdentifier, null, { id: 1 });
     return !!person;
   }
 
@@ -85,9 +86,9 @@ export class Person {
    * @param userString 
    */
   static async getByDomainUserString(userString: string): Promise<IPerson> {
-    const userObj = userFromString(userString);
-    const domains = getAllPossibleDomains(userObj);
-    const person = await Person._personRepository.findByMultiDomainUser(userObj.name, domains);
+    const { name, domain } = userFromString(userString);
+    const domains = getAllPossibleDomains(domain);
+    const person = await Person._personRepository.findByMultiDomainUser(name, domains);
     if (!person) {
       throw new ResourceNotFoundError(`person with domainUser: ${userString} does not exist`);
     }
@@ -97,23 +98,24 @@ export class Person {
   /**
    * Add new domain user to an existing person
    * @param personId 
-   * @param user user object or string representation of a user
+   * @param user domain user object of shape: { uniqueID, dataSource } to add
    */
-  static async addNewUser(personId: string, user: IDomainUser | string):
+  static async addNewUser(personId: string, user: Partial<IDomainUser>):
     Promise<IPerson> {
     if (!personId) throw new ValidationError(`The system needs a personId to create a domain user ${JSON.stringify(user)}`);
     if (!user) throw new ValidationError(`The system needs a user name and domain to create a domain user for a personId ${personId}`);
-    const userObj: IDomainUser = typeof user === 'string' ? userFromString(user) : user;
-    if (!PersonValidate.domain(userObj.domain)) throw new ValidationError(`'The "${userObj.domain}" is not a recognized domain'`);
+    if (!user.uniqueID) throw new ValidationError('uniqueID must be supplied when creating domain user');
+    if (!user.dataSource) throw new ValidationError('dataSource must be supplied when creating domain user');
+    const userIdentifier = userFromString(user.uniqueID);
+    if (!PersonValidate.domain(userIdentifier.domain)) throw new ValidationError(`'The "${userIdentifier.domain}" is not a recognized domain'`);
     // check user existance 
-    if (await Person.isDomainUserExist(userObj)) {
-      throw new ValidationError(`domain user: ${{ ...userObj }} already exists`);
+    if (await Person.isDomainUserExist(userIdentifier)) {
+      throw new ValidationError(`domain user: ${{ ...userIdentifier }} already exists`);
     }
     // get the person and check that the person exists
     const person = await Person.getPersonById(personId);
+    const userObj: IDomainUser = createDomainUserObject(user);
     const updatedPerson = await Person._personRepository.insertDomainUser(personId, userObj);
-    // (person.domainUsers as IDomainUser[]).push(userObj);
-    // const updatedPerson = await Person.updatePerson(personId, person);
     return updatedPerson;
   }
 
@@ -131,36 +133,47 @@ export class Person {
     if (person.entityType === consts.ENTITY_TYPE[2] && person.domainUsers.length === 1) {
       throw new ValidationError(`entityType: ${consts.ENTITY_TYPE[2]} requires at leat 1 domainuser`);
     }
-    const userObj = userFromString(uniqueId);
-    const domains = getAllPossibleDomains(userObj);
-    const updatedPerson = await Person._personRepository.deleteMultiDomainUser(personId, userObj.name, domains);
+    const { name, domain } = userFromString(uniqueId);
+    const domains = getAllPossibleDomains(domain);
+    const updatedPerson = await Person._personRepository.deleteMultiDomainUser(personId, name, domains);
     return updatedPerson;
   }
 
   /**
    * Update domainUser name
    * @param personId 
-   * @param oldUniqueId the current uniqueId
-   * @param newUniqueId the uniqueId to change into
+   * @param uniqueId the uniqueId string of the domain user to be updated
+   * @param updateObj object of shape { uniqueID?, dataSource? } with the values to update
    */
-  static async updateDomainUser(personId: string, oldUniqueId: string, newUniqueId?: string) : Promise<IPerson> {
+  static async updateDomainUser(personId: string, uniqueId: string, updateObj: Partial<IDomainUser>) : Promise<IPerson> {
     // Checks if domainUser belongs to this person
-    const person = await Person.getByDomainUserString(oldUniqueId);
+    const person = await Person.getByDomainUserString(uniqueId);
     if (person.id !== personId) {
-      throw new ValidationError(`The domain user: ${oldUniqueId} doesn't belong to person with id: ${personId}`);
+      throw new ValidationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
     }
-    // check if the new domain user already exists 
-    const newUserObj = userFromString(newUniqueId);
-    if (await Person.isDomainUserExist(newUserObj)) {
-      throw new ValidationError(`domain user: ${{ ...newUserObj }} already exists`);
+    // current domain and name
+    const { name: currentName, domain: currentDomain } = userFromString(uniqueId);
+    let newUserIdentifier = null;
+    // in case of uniqueId update: check if the new uniqueId already exists
+    // and also that the the new uniqueId has the same domain 
+    if (updateObj.uniqueID && (updateObj.uniqueID !== uniqueId)) {
+      newUserIdentifier = userFromString(updateObj.uniqueID);
+      if (await Person.isDomainUserExist(newUserIdentifier)) { // already exists
+        throw new ValidationError(`domain user: ${{ ...newUserIdentifier }} already exists`);  
+      } else if (newUserIdentifier.domain !== currentDomain) { // change of domain
+        throw new ValidationError(`Can't change domain of user`);
+      }
     }
-    // check that the update doesn't change the domain 
-    const oldUserObj = userFromString(oldUniqueId);
-    if (oldUserObj.domain !== newUserObj.domain) {
-      throw new ValidationError(`Can't change domain of user`);
-    }
-    const domains = getAllPossibleDomains(oldUserObj);
-    const updatedPerson = await Person._personRepository.updateMultiDomainUser(personId, oldUserObj.name, domains, newUserObj);
+    const domainUserUpdatableFields = ['dataSource'];
+    const domains = getAllPossibleDomains(currentDomain);
+    // updated domain user identifier fields (name, domain)
+    const identifierUpdate = newUserIdentifier ? newUserIdentifier : {};
+    // all other fields updates
+    const restUpdate = _.pickBy(updateObj, (v, k) => domainUserUpdatableFields.includes(k));
+    // mergedUpdate
+    const mergedUpdateObjet: Partial<IDomainUser> = { ...identifierUpdate, ...restUpdate };
+    const updatedPerson = await Person._personRepository
+      .updateMultiDomainUser(personId, currentName, domains, mergedUpdateObjet);
     return updatedPerson;
   }
 
@@ -196,9 +209,8 @@ export class Person {
     person.hierarchy = directGroup.hierarchy.concat(directGroup.name);
     // create domainUser Objects
     if (person.domainUsers) {
-      const domainUsers = person.domainUsers as string[];
-      person.domainUsers = domainUsers.map(userString => userFromString(userString));
-    }
+      person.domainUsers = person.domainUsers.map(userString => createDomainUserObject(userString));
+    } 
     const newPerson = await Person._personRepository.create(person);
     return newPerson;
   }

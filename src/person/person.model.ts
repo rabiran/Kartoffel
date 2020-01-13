@@ -42,7 +42,7 @@ const DomainUserSchema = new mongoose.Schema(
       required: [true, 'DataSource is required for domainUser'],
       enum: { values: consts.DATA_SOURCE , message: '"{VALUE}" is not a valid dataSource' },
       index: true,
-    }
+    },
   },
   {
     toObject: {
@@ -178,6 +178,5 @@ PersonSchema.virtual('fullName').get(function () {
 });
 
 registerErrorHandlingHooks(PersonSchema);
-
 
 export const PersonModel = mongoose.model<IPerson & mongoose.Document>('Person', PersonSchema);
