@@ -74,10 +74,10 @@ export class Person {
 
   /**
    * Returns whether the given domain user exists
-   * @param domainUser 
+   * @param domainUserIdentifier 
    */
-  static async isDomainUserExist(domainUser: IDomainUserIdentifier): Promise<boolean> {
-    const person = await Person._personRepository.findByDomainUser(domainUser, null, { id: 1 });
+  static async isDomainUserExist(domainUserIdentifier: IDomainUserIdentifier): Promise<boolean> {
+    const person = await Person._personRepository.findByDomainUser(domainUserIdentifier, null, { id: 1 });
     return !!person;
   }
 
@@ -116,8 +116,6 @@ export class Person {
     const person = await Person.getPersonById(personId);
     const userObj: IDomainUser = createDomainUserObject(user);
     const updatedPerson = await Person._personRepository.insertDomainUser(personId, userObj);
-    // (person.domainUsers as IDomainUser[]).push(userObj);
-    // const updatedPerson = await Person.updatePerson(personId, person);
     return updatedPerson;
   }
 

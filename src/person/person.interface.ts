@@ -39,8 +39,6 @@ export interface IDomainUserIdentifier {
 
 export interface IDomainUser extends IDomainUserIdentifier{
   id?: string;
-  // domain: string;
-  // name: string;
   dataSource: string;
   uniqueID?: string;
   adfsUID?: string;

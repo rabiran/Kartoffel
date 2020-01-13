@@ -179,5 +179,4 @@ PersonSchema.virtual('fullName').get(function () {
 
 registerErrorHandlingHooks(PersonSchema);
 
-
 export const PersonModel = mongoose.model<IPerson & mongoose.Document>('Person', PersonSchema);

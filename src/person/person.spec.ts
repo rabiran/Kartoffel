@@ -278,32 +278,6 @@ describe('Persons', () => {
         person.domainUsers = [];
         await expectError(Person.createPerson, [person]);
       });
-      // it('should throw error when domainUser string is illegal representation', async () => { //todo: transfer to addDomainUser
-      //   const illegalString1 = 'withoutSeperator', illegalString2 = 'two@shit@seperators',
-      //     illegalString3 = '@noName', illegalString4 = 'noDomain@';
-      //   const person = { ...personExamples[5] };
-      //   person.domainUsers = [illegalString1];
-      //   await expectError(Person.createPerson, [person]);
-      //   person.domainUsers = [illegalString2];
-      //   await expectError(Person.createPerson, [person]);
-      //   person.domainUsers = [illegalString3];
-      //   await expectError(Person.createPerson, [person]);
-      //   person.domainUsers = [illegalString4];
-      //   await expectError(Person.createPerson, [person]);
-      // });
-      // it('should throw error when domainUser is with illegal domain', async () => { //todo: transfer to addDomainUser
-      //   const person = { ...personExamples[5] };
-      //   person.domainUsers = [`aaa@${domain}eeeee`];
-      //   await expectError(Person.createPerson, [person]);
-      // });
-      // it('it should throw error when the domain user already exists', async () => { //todo: transfer to addDomainUser
-      //   const p1 = { ...personExamples[0] };
-      //   p1.domainUsers = [userStringEx];
-      //   const createdP1 = await Person.createPerson(p1);
-      //   const p2 = { ...personExamples[1] };
-      //   p2.domainUsers = [userStringEx];
-      //   await expectError(Person.createPerson, [p2]);
-      // });
       it('should create without phone when giving empty string', async () => {
         const person = { ...personExamples[1] };
         person.phone = [''];
@@ -730,19 +704,6 @@ describe('Persons', () => {
       updatedPerson.domainUsers.should.exist;
       updatedPerson.domainUsers.should.have.lengthOf(2);
     });
-    // it('should add new user with object as parameter', async () => { accpet only specific parameter
-    //   const person = await Person.createPerson(personExamples[3]);
-    //   const userObj: IDomainUser = {
-    //     name: 'elad',
-    //     domain: 'jello.com',
-    //   };
-    //   const updatedPerson = await Person.addNewUser(person.id, userObj);
-    //   updatedPerson.should.exist;
-    //   updatedPerson.domainUsers.should.exist;
-    //   updatedPerson.domainUsers.should.have.lengthOf(1);
-    //   const user = <IDomainUser>updatedPerson.domainUsers[0];
-    //   user.should.have.property('uniqueID',`${userObj.name}@${userObj.domain}`);
-    // });
 
     it('should throw error when trying to create illegal domain user', async () => {
       const person = await Person.createPerson({ ...personExamples[3] });
@@ -768,7 +729,8 @@ describe('Persons', () => {
 
     it('should throw error when domainUser is with illegal domain', async () => {
       const person = await Person.createPerson({ ...personExamples[3] });
-      const userWithIllegalDomain: Partial<IDomainUser> = { uniqueID: userStringEx, domain: `a${domain}a` };
+      const userWithIllegalDomain: Partial<IDomainUser> = 
+      { uniqueID: `nitrooo@${domain}aaa`, dataSource: DATA_SOURCE[0] };
       await expectError(Person.addNewUser, [person.id, userWithIllegalDomain]);
     });
 
@@ -827,18 +789,6 @@ describe('Persons', () => {
       }
       isError.should.be.true;
     });
-    // it('should throw error when trying to create without personId', async () => { duplicate test
-    //   const person = await Person.createPerson(personExamples[3]);  
-    //   let isError = false;
-    //   try {
-    //     await Person.addNewUser(undefined, 'abc@dsfsd');        
-    //   } catch (err) {
-    //     err.should.exist;
-    //     err.should.have.property('message', 'The system needs a personId to create a domain user "abc@dsfsd"');        
-    //     isError = true;
-    //   }
-    //   isError.should.be.true;    
-    // });
 
     it('should throw error when trying to add existing user', async () => {
       const person = await Person.createPerson({ ...personExamples[3] });
@@ -885,7 +835,16 @@ describe('Persons', () => {
         isError = true;
       }
       isError.should.be.true;
-    }); 
+    });
+    it('should update the domain user dataSource', async () => {
+      const person = await Person.createPerson({ ...personExamples[3] });  
+      await Person.addNewUser(person.id, newUserExample);
+      const updatePerson = await Person.updateDomainUser(person.id, newUserExample.uniqueID, 
+        { dataSource: DATA_SOURCE[1] });
+      const user = updatePerson.domainUsers[0];
+      user.should.have.property('uniqueID', newUserExample.uniqueID);
+      user.should.have.property('dataSource', DATA_SOURCE[1]);
+    });
   });
   describe(`#deleteDomainUser`, async () => {
     it('should delete domain user from the person', async () => {
@@ -924,13 +883,13 @@ describe('Persons', () => {
       user.should.have.property('uniqueID', userStringEx);
       user.should.have.property('adfsUID', adfsUIDEx);     
     });
-    // it('should get the person by its domain user adfsUID (one possible domain)', async () => {
-    //   const createdPerson = await Person.createPerson(personExamples[3]);
-    //   await Person.addNewUser(createdPerson.id, userStringEx);
-    //   const person = await Person.getByDomainUserString(adfsUIDEx);
-    //   person.should.exist;
-    //   expect(person.id === createdPerson.id);
-    // }); 
+    it('should get the person by its domain user adfsUID (one possible domain)', async () => {
+      const createdPerson = await Person.createPerson({ ...personExamples[3] });
+      await Person.addNewUser(createdPerson.id, newUserExample);
+      const person = await Person.getByDomainUserString(adfsUIDEx);
+      person.should.exist;
+      expect(person.id === createdPerson.id);
+    }); 
     it('should get the person by it\'s domain user adfsUID (multiple possible domains)', async () => {
       const userName = 'haim';
       // there is one more domain with the same adfsUID
