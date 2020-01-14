@@ -397,7 +397,30 @@ paths:
           required: true
           type: string
           x-oad-type: parameter
-    x-oad-type: operation
+      x-oad-type: operation
+    put:
+      summary: Update organization Group by id
+      tags:
+        - Organization Group
+      responses:
+        '200':
+          description: The group exists
+          schema:
+            $ref: '#/definitions/OG'
+          x-oad-type: response
+        '400':
+          description: unexpected field(s) or invalid values
+        '404':
+          description: Group with id not found
+          x-oad-type: response
+      parameters:
+        - name: id
+          in: path
+          description: The group's id
+          required: true
+          type: string
+        -  $ref: '#/parameters/updateOG'
+      x-oad-type: operation
   '/organizationGroups/getUpdated/{from}':
     get:
       summary: Get the groups that were updated from the given date
@@ -590,9 +613,24 @@ parameters:
         parentId:
           x-oad-type: string
           type: string
+        akaUnit:
+          x-oad-type: string
+          type: string
       required:
         - name
         - parentId
+    x-oad-type: parameter
+  updateOG:
+    name: Organization Group
+    in: body
+    required: true
+    schema:
+      x-oad-type: object
+      type: object
+      properties:
+        akaUnit:
+          x-oad-type: string
+          type: string
     x-oad-type: parameter
   adoptionOG:
     name: body
@@ -924,6 +962,10 @@ definitions:
         x-oad-type: string
         type: string
         title: name
+      akaUnit:
+        x-oad-type: string
+        type: string
+        title: akaUnit
       children:
         x-oad-type: array
         type: array
