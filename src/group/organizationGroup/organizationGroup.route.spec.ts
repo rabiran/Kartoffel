@@ -226,17 +226,41 @@ describe('OrganizationGroup API', () => {
     it('Should return the created group', (done) => {
       chai.request(app)
         .post(BASE_URL)
-        .send({ name: 'Biran' })
+        .send({ name: 'Biran', akaUnit: 'coolUnit' })
         .end((err, res) => {
           res.should.exist;
           res.should.have.status(200);
-          const person = res.body;
-          person.should.have.property('name', 'Biran');
+          const group = res.body;
+          group.should.have.property('name', 'Biran');
+          group.should.have.property('akaUnit', 'coolUnit');
           done();
         });
     });
   });
-  describe('Update group', () => {
+  describe('/PUT group', () => {
+    it('should return error when trying to update non-updatable field', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2' });
+      await chai.request(app).put(`${BASE_URL}/${group.id}`)
+        .send({ ancestors: ['haha'] })
+        .then()
+        .catch((err) => {
+          err.should.exist;
+          err.should.have.status(400);
+        });
+    });
+    it('Should return the updated group', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2', akaUnit: 'haha' });
+      await chai.request(app)
+        .put(`${BASE_URL}/${group.id}`)
+        .send({ akaUnit: 'coolUnit' })
+        .then((res) => {
+          res.should.exist;
+          res.should.have.status(200);
+          res.body.should.have.property('akaUnit','coolUnit');
+        }).catch((err) => { throw err; });
+    });
+
+
   });
   describe('/PUT adoption', () => {
     it('Should return 400 if null is sent', async () => {
