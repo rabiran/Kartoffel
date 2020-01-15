@@ -17,7 +17,7 @@ export const DOMAIN_MAP = [
   ['yoda.sw', ''],
   ['turtle.com', 'turtle'],
   ['donatelo.turtle.com', 'turtle'],
-  ['rafael.turtle.com', 'turtle']
+  ['rafael.turtle.com', 'turtle'],
 ];
 // the first element is the default value
 export const SERVICE_TYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
