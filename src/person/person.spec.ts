@@ -49,7 +49,7 @@ const DomainUserExamples: Partial<IDomainUser>[] = [
     dataSource: `dataSource2`,
   },
   {
-    uniqueID: `eli@yuda.sw`, // without adfsuid
+    uniqueID: `eli@yoda.sw`, // without adfsuid
     dataSource: `dataSource1`,
   },
 ];
