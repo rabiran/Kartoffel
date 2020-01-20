@@ -111,7 +111,6 @@ const personExamples: IPerson[] = [
     identityCard: '312571458',
     personalNumber: '2345676',
     firstName: 'blue',
-    lastName: 'nitroo',
     entityType: ENTITY_TYPE[2],
     domainUsers: [newUserExample],
   },

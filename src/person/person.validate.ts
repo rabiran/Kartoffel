@@ -113,6 +113,10 @@ export class PersonValidate extends ModelValidate {
     return person.entityType !== ENTITY_TYPE[2] || person.domainUsers && person.domainUsers.length !== 0;
   }
 
+  public static lastNameMultiValidator(person: IPerson) {
+    return person.entityType === ENTITY_TYPE[2] || !!person.lastName;
+  }
+
   public static multiFieldValidators: ValidatorObj[] = [
     {
       validator: PersonValidate.identityCardMultiValidator,
@@ -133,6 +137,10 @@ export class PersonValidate extends ModelValidate {
     {
       validator: PersonValidate.domainUsersMultiValidator,
       message: `entityType: ${ENTITY_TYPE[2]} requires at least 1 domainuser`,
+    },
+    {
+      validator: PersonValidate.lastNameMultiValidator,
+      message: 'lastName is rquired for entity type: {VALUE.entityType}',
     },
   ];
 
