@@ -109,7 +109,10 @@ export const PersonSchema = new mongoose.Schema(
       required: [true, 'You must enter a last name!'],
       validate: { validator: PersonValidate.namePart, message: '{VALUE} is an invalid Last Name' },
     },
-    currentUnit: String,
+    currentUnit: {
+      type: String,
+      enum: consts.CURRENT_UNIT,
+    },
     alive: {
       type: Boolean,
       default: true,

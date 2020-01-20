@@ -449,6 +449,11 @@ describe('Persons', () => {
         person.clearance = '11';
         await expectError(Person.createPerson, [person]);
       });
+      it('Should throw error when currentUnit is invalid', async () => {
+        const person = { ...personExamples[0] };
+        person.currentUnit = 'blaaaaa';
+        await expectError(Person.createPerson, [person]);
+      }),
       it('Should throw an error when existed identity card is given', async () => {
         await Person.createPerson(<IPerson>{ ...personExamples[1] });
         const person = { ...personExamples[3] };
