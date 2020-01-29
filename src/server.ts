@@ -13,7 +13,7 @@ import * as YAML          from 'yamljs';
 import * as auth from './auth/auth';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
-import { ApplicationError } from './types/error';
+import { ApplicationError, ResourceNotFoundError } from './types/error';
 import { log, LOG_LEVEL } from './helpers/logger';
 import { proxyCaseInsensitive } from './utils';
 
@@ -79,6 +79,14 @@ class Server {
   }
 
   private configureErrorHandlers() {
+    /* handle all non-existing routes - without logging */
+    this.app.all('*', (req, res) => {
+      const err = new ResourceNotFoundError(`Route: ${req.originalUrl} not found`);
+      return res.status(err.status).json({
+        message: err.message,
+        name: err.name,
+      });
+    });
     /* error logger */
     if (config.server.nodeEnv !== 'test') {
       this.app.use((error: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
