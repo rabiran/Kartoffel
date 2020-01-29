@@ -18,6 +18,13 @@ export class ApplicationError extends Error {
   }
 }
 
+export class UnauthorizedError extends ApplicationError {
+  static ERROR_MESSAGE = 'Unauthorized';
+  constructor(message?: string) {
+    super(message || UnauthorizedError.ERROR_MESSAGE, 401);
+  }
+}
+
 export class ValidationError extends ApplicationError {
   constructor(message?: string) {
     super(message, 400);

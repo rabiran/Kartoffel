@@ -97,7 +97,7 @@ describe('Auth routes', () => {
       done();
     });
   });
-  it.only('should return status 401 when requesting with invalid scope', (done) => {
+  it('should return status 401 when requesting with invalid scope', (done) => {
     chai.request(app)
     .get('/test/auth')
     .set(AUTH_HEADER, invalidScopeToken)
