@@ -7,6 +7,7 @@ import * as dotenv from 'dotenv';
 import { Request, Response, NextFunction, Express } from 'express';
 import { Scope } from './auth';
 import { AUTH_HEADER } from './jwt/jwtStrategy';
+import { UnauthorizedError } from '../types/error';
 const expect = chai.expect;
 
 
@@ -42,16 +43,17 @@ describe('Auth routes', () => {
     mockery.disable();
   });
 
-  it('should return status 200 when requesting GET with read scope', () => {
+  it('should return status 200 when requesting GET with read scope', (done) => {
     chai.request(app)
     .get('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
     .end((err, res) => {
       expect(err).to.be.null;
       res.should.have.status(200);
+      done();
     });
   });
-  it('should return status 200 when requesting POST with write scope', () => {
+  it('should return status 200 when requesting POST with write scope', (done) => {
     chai.request(app)
     .post('/test/auth')
     .set(AUTH_HEADER, readAndWriteScopeToken)
@@ -59,9 +61,10 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.be.null;
       res.should.have.status(200);
+      done();
     });
   });
-  it('should return status 200 when requesting PUT with write scope', () => {
+  it('should return status 200 when requesting PUT with write scope', (done) => {
     chai.request(app)
     .put('/test/auth')
     .set(AUTH_HEADER, readAndWriteScopeToken)
@@ -69,36 +72,44 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.be.null;
       res.should.have.status(200);
+      done();
     });
   });
-  it('should return status 200 when requesting DELETE with write scope', () => {
+  it('should return status 200 when requesting DELETE with write scope', (done) => {
     chai.request(app)
     .del('/test/auth')
     .set(AUTH_HEADER, readAndWriteScopeToken)
     .end((err, res) => {
       expect(err).to.be.null;
       res.should.have.status(200);
+      done();
     });
   });
-  it('should return status 401 when requesting with invalid token', () => {
+  it('should return status 401 when requesting with invalid token', (done) => {
     chai.request(app)
     .get('/test/auth')
     .set(AUTH_HEADER, 'shitty_token')
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
+      const errMsg = res.body.message;
+      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      done();
     });
   });
-  it('should return status 401 when requesting with invalid scope', () => {
+  it('should return status 401 when requesting with invalid scope', (done) => {
     chai.request(app)
     .get('/test/auth')
     .set(AUTH_HEADER, invalidScopeToken)
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
+      const errMsg = res.body.message;
+      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      done();
     });
   });
-  it('should return status 401 when requesting POST with read scope', () => {
+  it('should return status 401 when requesting POST with read scope', (done) => {
     chai.request(app)
     .post('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
@@ -106,9 +117,12 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
+      const errMsg = res.body.message;
+      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      done();
     });
   });
-  it('should return status 401 when requesting PUT with read scope', () => {
+  it('should return status 401 when requesting PUT with read scope', (done) => {
     chai.request(app)
     .put('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
@@ -116,15 +130,21 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
+      const errMsg = res.body.message;
+      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      done();
     });
   });
-  it('should return status 401 when requesting DELETE with read scope', () => {
+  it('should return status 401 when requesting DELETE with read scope', (done) => {
     chai.request(app)
     .del('/test/auth')
     .set(AUTH_HEADER, readScopeToken)
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
+      const errMsg = res.body.message;
+      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      done();
     });
   });
 });
