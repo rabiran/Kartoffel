@@ -16,6 +16,7 @@ import * as organizationGroupRouter from './group/organizationGroup/organization
 import { ApplicationError, ResourceNotFoundError } from './types/error';
 import { log, LOG_LEVEL } from './helpers/logger';
 import { proxyCaseInsensitive } from './utils';
+import { getDocsMiddleware } from './helpers/swaggerMiddleware';
 
 class Server {
   public app: express.Application;
@@ -36,12 +37,7 @@ class Server {
   }
 
   private configureSwagger() {
-    // load swagger docs
-    const swaggerDoc = YAML.load('openapi.yaml');
-    swaggerTools.initializeMiddleware(swaggerDoc, (middleware: any) => {
-    //  Serve the Swagger document and Swagger UI
-      this.app.use(middleware.swaggerUi());
-    });
+    this.app.use(getDocsMiddleware());
   }
 
   private configureMiddlewares() {
