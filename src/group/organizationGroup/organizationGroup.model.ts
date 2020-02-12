@@ -35,6 +35,7 @@ export const OrganizationGroupSchema = new mongoose.Schema(
       type: [ObjectId],
       ref: 'OrganizationGroup',
       default: [],
+      index: true,
     },
     hierarchy: {
       type: [String],
