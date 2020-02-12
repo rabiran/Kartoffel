@@ -6,7 +6,7 @@ export const updateAllowedFileds = ['akaUnit'];
 
 const CHILDREN_MAX_DEPTH = 10;
 
-const maxDepthRange = RPV.inRangeGenerator(0, CHILDREN_MAX_DEPTH);
+const maxDepthRange = RPV.inRangeGenerator(1, CHILDREN_MAX_DEPTH);
 
 export class OGRouteValidate {
   static adoption(parentId: any, childrenIds: any) {
@@ -20,7 +20,7 @@ export class OGRouteValidate {
   static maxDepth(val: any) {
     if (!val) return;
     if (!RPV.isInt(val) || !maxDepthRange(val)) {
-      throw new ValidationError(`maxDepth must be positive integer in range: 0 - ${CHILDREN_MAX_DEPTH}`);
+      throw new ValidationError(`maxDepth must be positive integer in range: 1 - ${CHILDREN_MAX_DEPTH}`);
     }
   }
 
