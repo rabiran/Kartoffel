@@ -221,7 +221,7 @@ describe('OrganizationGroup API', () => {
       const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
       const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
       const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
-      const tooDeepOffspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
 
       const res = (await chai.request(app).get(`${BASE_URL}/${parent.id}/subGroups?maxDepth=2`));
       expect(res).to.have.status(200);
@@ -230,6 +230,16 @@ describe('OrganizationGroup API', () => {
       const ids = depthOffsprings.map(group => group.id);
       expect(ids).to.have.members([child.id, offspring.id]);
     });
+
+    it('should throw an error if the maxDepth parameter is too big', async() => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      chai.request(app).get(`${BASE_URL}/${group.id}/subGroups?maxDepth=11`).then(
+        () => expect.fail(null, null, 'request should fail'),
+        (err) => {
+          expect(err).to.have.status(400);
+        });
+    });
+
   });
 
   describe('/POST group', () => {
