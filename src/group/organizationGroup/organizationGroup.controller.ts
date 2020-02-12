@@ -364,7 +364,19 @@ export class OrganizationGroup {
     const members = <IPerson[]>await OrganizationGroup._personRepository.getMembersOfGroups(offspringIDs);
     return members;
   }
+
+  /**
+   * Returns array of offsprings of the given group id.
+   * if `maxDepth` given, only groups of depth (relative to the given group) 
+   * less than `maxDepth` will be returned.
+   * @param id 
+   * @param maxDepth 
+   */
+  static async getOffsprings(id: string, maxDepth?: number) {
+    return OrganizationGroup._organizationGroupRepository.getOffsprings(id, maxDepth);
+  }
 }
+
 
 function modifyOrganizationGroupBeforeSend(organizationGroup: IOrganizationGroup, toPopulate: String[]): IOrganizationGroup {
   if (organizationGroup.isALeaf === undefined) {
