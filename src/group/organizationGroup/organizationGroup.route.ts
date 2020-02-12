@@ -66,6 +66,10 @@ organizationGroups.get('/:id/members',
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
 
+organizationGroups.get('/:id/subGroups', validatorMiddleware(Vld.validMongoId, ['id'], 'params'), 
+  validatorMiddleware(Vld.isInt, ['maxDepth'], 'query'),
+  ch(OrganizationGroup.getOffsprings, (req: Request) => [req.params.id, Number(req.query.maxDepth)]));
+
 organizationGroups.put('/adoption', PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(OGRouteValidate.adoption, ['parentId', 'childIds']),
           validatorMiddleware(Vld.validMongoId, ['parentId']),

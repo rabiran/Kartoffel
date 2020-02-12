@@ -43,7 +43,7 @@ export class RouteParamsValidate {
     return val instanceof Date;
   }
 
-  private static isInt(val: any): Boolean {
+  static isInt(val: any): Boolean {
     return !isNaN(val) || parseInt(Number(val) + '') === val || !isNaN(parseInt(val, 10));
   }
 }
