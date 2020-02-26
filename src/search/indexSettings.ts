@@ -33,8 +33,8 @@ const personsMappings = {
         },
       },
     },
-    alive: {
-      type: 'boolean',
+    status: {
+      type: 'text',
     },
     id: {
       enabled: false,

@@ -18,8 +18,14 @@ export class PersonRepository extends RepositoryBase<IPerson> {
    * @param select 
    */
   getPersonsByQuery(queryFields: any = {}, populate?: any, select?: any): Promise<IPerson[]> {
-    const cond = {};
-    if (!(queryFields.alsoDead && queryFields.alsoDead === 'true')) cond['alive'] = 'true';
+    let cond = {};
+    // if (!(queryFields.alsoDead && queryFields.alsoDead === 'true')) cond['status'] = 'active';
+    if (queryFields.status === 'active') cond['status'] = 'active';
+    else if (queryFields.status === 'notactive') cond['status'] = 'not active';
+    else if (queryFields.status === 'notcompleted') cond['status'] = 'not completed';
+    else if (queryFields.status === 'all') cond = {};
+    else cond['status'] = 'active';
+
     if (queryFields['domainUsers.dataSource']) cond['domainUsers.dataSource'] = queryFields['domainUsers.dataSource'];
     return this.find(cond, populate, select);
   }

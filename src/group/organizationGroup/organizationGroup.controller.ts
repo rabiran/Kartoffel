@@ -148,7 +148,7 @@ export class OrganizationGroup {
   static async getOrganizationGroup(organizationGroupID: string, toPopulate?: String[]): Promise<IOrganizationGroup> {
     toPopulate = _.intersection(toPopulate, ORGANIZATION_GROUP_OBJECT_FIELDS);
     // fields to select in the populated objects (can be groups and persons)
-    const select = ['id', 'name', 'isALeaf', 'serviceType', 'rank', 'firstName', 'lastName', 'alive'];
+    const select = ['id', 'name', 'isALeaf', 'serviceType', 'rank', 'firstName', 'lastName', 'status'];
     const populateOptions = _.flatMap(toPopulate, (path) => {
       return { path, select };
     });

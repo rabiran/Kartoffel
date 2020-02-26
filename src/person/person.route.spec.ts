@@ -153,7 +153,7 @@ describe('Person', () => {
       await Person.discharge(person.id);
 
       await chai.request(app)
-        .get(`${BASE_URL}?alsoDead=true`)
+        .get(`${BASE_URL}?status=all`)
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
@@ -555,7 +555,7 @@ describe('Person', () => {
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('alive', false);
+          res.body.should.have.property('status', 'not active');
         }).catch((err) => { throw err; });
     });
   });

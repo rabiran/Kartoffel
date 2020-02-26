@@ -12,7 +12,7 @@ export interface IPerson {
   firstName: string;
   lastName: string;
   currentUnit?: string;
-  alive?: boolean;
+  status?: string;
   dischargeDay?: Date;
   hierarchy?: string[];
   directGroup: string | Types.ObjectId | IOrganizationGroup; 
