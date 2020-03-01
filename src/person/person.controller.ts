@@ -315,7 +315,7 @@ export class Person {
     };
     // search only for 'active' persons
     const filter_active = {
-      term: { status: consts.STATUS[1] },
+      term: { status: consts.STATUS[0] },
     };
     // construct the final query to send to ES
     const query = {

@@ -5,7 +5,7 @@ import { Person } from './person.controller';
 import { IPerson, IDomainUser } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS } from '../config/db-enums';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 
@@ -153,7 +153,7 @@ describe('Person', () => {
       await Person.discharge(person.id);
 
       await chai.request(app)
-        .get(`${BASE_URL}?status=all`)
+        .get(`${BASE_URL}?status=${STATUS[3]}`)  // all
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
@@ -555,7 +555,7 @@ describe('Person', () => {
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('status', 'not active');
+          res.body.should.have.property('status', STATUS[1]);
         }).catch((err) => { throw err; });
     });
   });

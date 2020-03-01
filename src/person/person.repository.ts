@@ -3,7 +3,7 @@ import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface'
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
-
+import  * as consts  from '../config/db-enums';
 
 export class PersonRepository extends RepositoryBase<IPerson> {
   constructor() {
@@ -18,14 +18,16 @@ export class PersonRepository extends RepositoryBase<IPerson> {
    * @param select 
    */
   getPersonsByQuery(queryFields: any = {}, populate?: any, select?: any): Promise<IPerson[]> {
-    let cond = {};
-    // if (!(queryFields.alsoDead && queryFields.alsoDead === 'true')) cond['status'] = 'active';
-    if (queryFields.status === 'active') cond['status'] = 'active';
-    else if (queryFields.status === 'notactive') cond['status'] = 'not active';
-    else if (queryFields.status === 'notcompleted') cond['status'] = 'not completed';
-    else if (queryFields.status === 'all') cond = {};
-    else cond['status'] = 'active';
+    const cond = {};
 
+    let query;
+    if (queryFields.status) {
+      query = queryFields.status.toLowerCase();
+    }
+    if (query !== consts.STATUS[3]) {
+      cond['status'] = consts.STATUS.indexOf(query) > -1 ? query : consts.STATUS[0];
+    }
+    
     if (queryFields['domainUsers.dataSource']) cond['domainUsers.dataSource'] = queryFields['domainUsers.dataSource'];
     return this.find(cond, populate, select);
   }

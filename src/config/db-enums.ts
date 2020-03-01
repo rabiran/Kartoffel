@@ -3,7 +3,7 @@ export const RANK = ['unknown', 'rookie', 'champion', 'ultimate', 'mega'];
 
 export const CURRENT_UNIT = ['nitro unit', 'jelly unit'];
 
-export const STATUS = ['active', 'not active', 'not completed'];
+export const STATUS = ['active', 'inactive', 'uncomplete', 'all'];
 
 // the last element makes the 'domainUsers' field required (at least 1 value in the array)
 // the second to last element makes the 'rank' field required

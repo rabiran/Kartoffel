@@ -34,7 +34,7 @@ const personsMappings = {
       },
     },
     status: {
-      type: 'text',
+      type: 'keyword',
     },
     id: {
       enabled: false,
