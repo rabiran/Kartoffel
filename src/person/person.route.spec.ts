@@ -99,6 +99,17 @@ const personExamples: IPerson[] = [
     job: 'cosmetician 1',
     entityType: ENTITY_TYPE[0],
   },
+  <IPerson>{
+    status: STATUS[2],
+    personalNumber: '3456711',
+    firstName: 'Tipesh',
+    lastName: 'Tov',
+    dischargeDay: new Date(2025, 11),
+    job: 'horse',
+    entityType: ENTITY_TYPE[1],
+    currentUnit: CURRENT_UNIT[0],
+    serviceType: SERVICE_TYPE[0],
+  },
 ];
 
 const BASE_URL = '/api/persons';
@@ -347,6 +358,7 @@ describe('Person', () => {
           person.should.have.property('identityCard', personExamples[0].identityCard);
           person.should.have.property('firstName', personExamples[0].firstName);
           person.should.have.property('lastName', personExamples[0].lastName);
+          person.should.have.property('status', STATUS[0]);
           done();
         });
     });
@@ -358,6 +370,12 @@ describe('Person', () => {
       createdPerson.domainUsers.should.have.lengthOf(1);
       const user = createdPerson.domainUsers[0] as IDomainUser;
       user.uniqueID.should.be.equal(userStringEx);
+    });
+    it('should create a person with uncomplete status', async () => {
+      const person = { ...personExamples[5] };
+      const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
+      createdPerson.should.exist;
+      createdPerson.should.have.property('status', STATUS[2]);
     });
 
   });

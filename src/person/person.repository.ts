@@ -20,12 +20,10 @@ export class PersonRepository extends RepositoryBase<IPerson> {
   getPersonsByQuery(queryFields: any = {}, populate?: any, select?: any): Promise<IPerson[]> {
     const cond = {};
 
-    let query;
-    if (queryFields.status) {
-      query = queryFields.status.toLowerCase();
-    }
+    const query = queryFields.status ? queryFields.status.toLowerCase() : '';
+
     if (query !== consts.STATUS[3]) {
-      cond['status'] = consts.STATUS.indexOf(query) > -1 ? query : consts.STATUS[0];
+      cond['status'] = consts.STATUS.includes(query) ? query : consts.STATUS[0];
     }
     
     if (queryFields['domainUsers.dataSource']) cond['domainUsers.dataSource'] = queryFields['domainUsers.dataSource'];

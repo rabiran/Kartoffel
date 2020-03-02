@@ -5,7 +5,7 @@ import { RouteParamsValidate as RPV } from '../helpers/route.validator';
 export const createAllowedFileds =  ['address', 'clearance', 'currentUnit', 'directGroup', 
   'dischargeDay', 'domainUsers','entityType', 'firstName', 'identityCard', 'job', 'lastName', 'mail', 
   'managedGroup', 'mobilePhone', 'personalNumber', 'phone', 'rank', 'responsibility', 
-  'responsibilityLocation', 'serviceType'];
+  'responsibilityLocation', 'serviceType','status'];
 
 export const updateAllowedFields = _.without(createAllowedFileds, 'directGroup', 'identityCard', 'personalNumber');
 
