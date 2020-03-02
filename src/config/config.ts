@@ -81,6 +81,6 @@ export const config = {
     nodeEnv: process.env.NODE_ENV,
   },
   queries: {
-    all: 'all',
+    statusAll: 'all',
   },
 };

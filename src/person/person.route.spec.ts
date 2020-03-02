@@ -163,9 +163,9 @@ describe('Person', () => {
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
 
       await Person.discharge(person.id);
-      
+
       await chai.request(app)
-        .get(`${BASE_URL}?status=${config.queries.all}`)  // all
+        .get(`${BASE_URL}?status=${config.queries.statusAll}`)  // all
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');

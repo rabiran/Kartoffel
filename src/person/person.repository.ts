@@ -23,7 +23,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
 
     const query = queryFields.status ? queryFields.status.toLowerCase() : '';
 
-    if (query !== config.queries.all) {
+    if (query !== config.queries.statusAll) {
       cond['status'] = consts.STATUS.includes(query) ? query : consts.STATUS[0];
     }
     

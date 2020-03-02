@@ -162,7 +162,7 @@ describe('Persons', () => {
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons({ status: config.queries.all });
+      const persons = await Person.getPersons({ status: config.queries.statusAll });
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });
