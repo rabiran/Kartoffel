@@ -80,4 +80,7 @@ export const config = {
     sessionSecret: process.env.SESSION_SECRET,
     nodeEnv: process.env.NODE_ENV,
   },
+  queries: {
+    all: 'all',
+  },
 };

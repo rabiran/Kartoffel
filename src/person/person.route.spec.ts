@@ -6,6 +6,7 @@ import { IPerson, IDomainUser } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { config } from '../config/config';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 
@@ -162,9 +163,9 @@ describe('Person', () => {
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
 
       await Person.discharge(person.id);
-
+      
       await chai.request(app)
-        .get(`${BASE_URL}?status=${STATUS[3]}`)  // all
+        .get(`${BASE_URL}?status=${config.queries.all}`)  // all
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
@@ -371,7 +372,7 @@ describe('Person', () => {
       const user = createdPerson.domainUsers[0] as IDomainUser;
       user.uniqueID.should.be.equal(userStringEx);
     });
-    it('should create a person with uncomplete status', async () => {
+    it('should create a person with incomplete status', async () => {
       const person = { ...personExamples[5] };
       const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
       createdPerson.should.exist;

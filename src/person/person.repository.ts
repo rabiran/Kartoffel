@@ -4,6 +4,7 @@ import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
 import  * as consts  from '../config/db-enums';
+import { config } from '../config/config';
 
 export class PersonRepository extends RepositoryBase<IPerson> {
   constructor() {
@@ -22,7 +23,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
 
     const query = queryFields.status ? queryFields.status.toLowerCase() : '';
 
-    if (query !== consts.STATUS[3]) {
+    if (query !== config.queries.all) {
       cond['status'] = consts.STATUS.includes(query) ? query : consts.STATUS[0];
     }
     

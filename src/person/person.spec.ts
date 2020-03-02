@@ -12,6 +12,7 @@ import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.
 import { domainMap } from '../utils';
 import * as mongoose from 'mongoose';
 import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { config } from '../config/config';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -161,7 +162,7 @@ describe('Persons', () => {
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons({ status: STATUS[3] });
+      const persons = await Person.getPersons({ status: config.queries.all });
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });
