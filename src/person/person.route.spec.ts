@@ -5,7 +5,8 @@ import { Person } from './person.controller';
 import { IPerson, IDomainUser } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { config } from '../config/config';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 
@@ -99,6 +100,17 @@ const personExamples: IPerson[] = [
     job: 'cosmetician 1',
     entityType: ENTITY_TYPE[0],
   },
+  <IPerson>{
+    status: STATUS[2],
+    personalNumber: '3456711',
+    firstName: 'Tipesh',
+    lastName: 'Tov',
+    dischargeDay: new Date(2025, 11),
+    job: 'horse',
+    entityType: ENTITY_TYPE[1],
+    currentUnit: CURRENT_UNIT[0],
+    serviceType: SERVICE_TYPE[0],
+  },
 ];
 
 const BASE_URL = '/api/persons';
@@ -153,7 +165,7 @@ describe('Person', () => {
       await Person.discharge(person.id);
 
       await chai.request(app)
-        .get(`${BASE_URL}?alsoDead=true`)
+        .get(`${BASE_URL}?status=${config.queries.statusAll}`)  // all
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
@@ -347,6 +359,7 @@ describe('Person', () => {
           person.should.have.property('identityCard', personExamples[0].identityCard);
           person.should.have.property('firstName', personExamples[0].firstName);
           person.should.have.property('lastName', personExamples[0].lastName);
+          person.should.have.property('status', STATUS[0]);
           done();
         });
     });
@@ -358,6 +371,12 @@ describe('Person', () => {
       createdPerson.domainUsers.should.have.lengthOf(1);
       const user = createdPerson.domainUsers[0] as IDomainUser;
       user.uniqueID.should.be.equal(userStringEx);
+    });
+    it('should create a person with incomplete status', async () => {
+      const person = { ...personExamples[5] };
+      const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
+      createdPerson.should.exist;
+      createdPerson.should.have.property('status', STATUS[2]);
     });
 
   });
@@ -555,7 +574,7 @@ describe('Person', () => {
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('alive', false);
+          res.body.should.have.property('status', STATUS[1]);
         }).catch((err) => { throw err; });
     });
   });

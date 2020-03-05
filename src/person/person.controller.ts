@@ -216,7 +216,7 @@ export class Person {
 
   static async discharge(personId: string): Promise<any> {
     const person = await Person.getPersonById(personId);
-    person.alive = false;
+    person.status = consts.STATUS[1];
     if (person.managedGroup) {
       person.managedGroup = null;
     }
@@ -313,9 +313,9 @@ export class Person {
         },
       },
     };
-    // search only for 'alive' persons
-    const filter_alive = {
-      term: { alive: 'true' },
+    // search only for 'active' persons
+    const filter_active = {
+      term: { status: consts.STATUS[0] },
     };
     // construct the final query to send to ES
     const query = {
@@ -324,7 +324,7 @@ export class Person {
           should: [
             match_query, match_query_fuzzy,
           ],
-          filter: filter_alive,
+          filter: filter_active,
           minimum_should_match: 1, // necessary when using filter
         },  
       },

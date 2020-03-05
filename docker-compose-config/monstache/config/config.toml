@@ -4,6 +4,8 @@ verbose = true
 
 change-stream-namespaces = ["kartoffel.people"]
 
+direct-read-namespaces = ["kartoffel.people"]
+
 elasticsearch-retry = true
 
 enable-http-server= true

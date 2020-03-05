@@ -11,7 +11,8 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 import * as mongoose from 'mongoose';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE } from '../config/db-enums';
+import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { config } from '../config/config';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -161,7 +162,7 @@ describe('Persons', () => {
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons({ alsoDead: 'true' });
+      const persons = await Person.getPersons({ status: config.queries.statusAll });
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });
@@ -232,7 +233,7 @@ describe('Persons', () => {
       person.should.have.property('job', 'Programmer');
       person.should.have.property('responsibility', RESPONSIBILITY_DEFAULT);
       person.should.have.property('clearance', '0');
-      person.should.have.property('alive', true);
+      person.should.have.property('status', STATUS[0]);
     });
     it('should create a person with more complex hierarchy', async () => {
       const parent = await OrganizationGroup.createOrganizationGroup(<any>{ name: 'group0' });
@@ -269,7 +270,7 @@ describe('Persons', () => {
         responsibility: RESPONSIBILITY[1],
         responsibilityLocation: new Types.ObjectId(dbIdExample[3]),
         clearance: '5',
-        alive: true,
+        status: STATUS[0],
         currentUnit: CURRENT_UNIT[0],
       };
 
@@ -294,7 +295,7 @@ describe('Persons', () => {
       person.should.have.property('address', newPerson.address);
       person.should.have.property('responsibility', newPerson.responsibility);
       person.should.have.property('clearance', newPerson.clearance);
-      person.should.have.property('alive', newPerson.alive);
+      person.should.have.property('status', newPerson.status);
     });
 
     describe('Person validation', () => {
@@ -506,7 +507,7 @@ describe('Persons', () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       let group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group' });
       await Person.assign(person.id, group.id);
-
+      
       group = await OrganizationGroup.getOrganizationGroup(group.id, ['directMembers']);
       group.directMembers.should.have.lengthOf(1);
 
@@ -524,7 +525,7 @@ describe('Persons', () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const res = await Person.discharge(person.id);
       should.exist(res);
-      res.should.have.property('alive', false);
+      res.should.have.property('status', STATUS[1]);
       res.should.have.property('directGroup');
     });
     it('Should update the person\'s group and manage group after that the person is discharged', async () => {

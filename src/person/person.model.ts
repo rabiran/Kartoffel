@@ -112,16 +112,17 @@ export const PersonSchema = new mongoose.Schema(
       type: String,
       enum: consts.CURRENT_UNIT,
     },
-    alive: {
-      type: Boolean,
-      default: true,
+    status: {
+      type: String,
+      enum: consts.STATUS,
+      default: consts.STATUS[0],
     },
     dischargeDay: {
       type: Date,
     },
     hierarchy: {
       type: [String],
-      required: [function () { return this.alive === true; }, 'You must enter a hierarchy!'],
+      required: [function () { return this.status === consts.STATUS[0]; }, 'You must enter a hierarchy!'],
       default: undefined,
     },
     job: {

@@ -856,6 +856,9 @@ definitions:
       - lastName
       - directGroup
     properties:
+      status:
+        type: string
+        example: active
       id:
         type: string
         example: 5b50a76713ddf90af494de32

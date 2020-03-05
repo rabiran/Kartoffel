@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import { IOrganizationGroup } from './organizationGroup.interface';
 import { IPerson } from '../../person/person.interface';
 import { registerErrorHandlingHooks } from '../../helpers/mongooseErrorConvert';
+import  * as consts  from '../../config/db-enums';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -71,7 +72,7 @@ OrganizationGroupSchema.virtual('directMembers', {
 
 function onlyAliveMembers(group: IOrganizationGroup) {
   if (group && group.directMembers) {
-    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.alive);
+    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.status === consts.STATUS[0]);
   }
 }
 
