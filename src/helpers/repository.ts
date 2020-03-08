@@ -17,6 +17,18 @@ export interface ICollection<T> {
   totalCount: number;
 }
 
+function queryParser(queryObj: Object): any {
+  const cond = {};
+  for (const field of Object.keys(queryObj)) {
+    const value = queryObj[field];
+    if (Array.isArray(value)) {
+      cond[field] = { $in: value };
+    }
+    cond[field] = value;
+  }
+  return cond;
+}
+
 export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
 
   private _model: mongoose.Model<T & mongoose.Document>;
@@ -123,6 +135,10 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     return findPromise.exec().then((result) => {
       return (result ? result.map((mongoObject => mongoObject.toObject())) : result);
     });
+  }
+
+  findByQuery(queryObj: Object, populate?: string | Object, select?: string): Promise<T[]> {
+    return this.find(queryParser(queryObj), populate, select);
   }
 
 }
