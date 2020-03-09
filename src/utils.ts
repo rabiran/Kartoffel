@@ -4,6 +4,20 @@ import { DOMAIN_MAP } from './config/db-enums';
 export const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 export const DomainSeperator = '@';
 
+export type BasicType = boolean | string | number | any[];
+
+export interface ValueMap {
+  [key: string]: BasicType;
+}
+
+export interface KeyMap {
+  [key: string]: string;
+}
+
+export interface ObjectValueMap {
+  [key: string] : ValueMap;
+}
+
 export function filterObjectByKeys(object: Object, allowedKeys: string[]): Object {
   const filtered = Object.keys(object)
   .filter(key => allowedKeys.includes(key))
@@ -126,5 +140,49 @@ export function proxyCaseInsensitive(originalObj: Object) {
     ownKeys: target => Object.keys(target).map(k => k.toLowerCase()),
     getOwnPropertyDescriptor: k => ({ enumerable: true, configurable: true }),
   });
+}
+
+/**
+ * Transform the keys of an object, according to the given transformation map - 
+ * unspecified keys will not be changed.
+ * returns a new object.
+ * @param obj 
+ * @param t transformation map: keys are the original keys and values are the new keys
+ * @returns new object with transformed keys
+ */
+export function transformKeys(obj: object, t: KeyMap = {}): object {
+  return Object.keys(obj).reduce((curr, key) => {
+    if (key in t) {
+      // key is specified in t - new object will have a new key instead (t(key)) 
+      curr[t[key]] = obj[key];
+    } else { // copy the key as is
+      curr[key] = obj[key];
+    }
+    return curr;
+  }, {});
+}
+
+/**
+ * Transform the values of an object, only for the specified keys, 
+ * according to the given transformation map - 
+ * unspecified keys or values will not be changed.
+ * returns a new object.
+ * @param obj 
+ * @param keyMap transformation map: keys are the original keys and values are objects 
+ *               that maps value of a key to a different value.
+ * @returns a new object with transformed values
+ */
+export function transformValues(obj: object, keyMap: ObjectValueMap): object {
+  return Object.keys(obj).reduce((curr, key) => {
+    const val = obj[key];
+    if (key in keyMap && val in keyMap[key]) {
+      // key is specified in keymap and val is specified in this key's map
+      // new object will have a new value instead (keymap[key][val]) 
+      curr[key] = keyMap[key][val];
+    } else { // copy the value as is
+      curr[key] = val;
+    }
+    return curr;
+  }, {});
 }
 
