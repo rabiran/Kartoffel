@@ -17,7 +17,7 @@ export interface ICollection<T> {
   totalCount: number;
 }
 
-function queryParser(queryObj: Object): any {
+function queryParser(queryObj: object): any {
   const cond = {};
   for (const field of Object.keys(queryObj)) {
     const value = queryObj[field];
