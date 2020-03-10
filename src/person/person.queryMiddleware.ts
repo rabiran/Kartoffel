@@ -1,6 +1,7 @@
 import { KeyMap } from '../utils';
+import { STATUS as allStatuses, DATA_SOURCE } from '../config/db-enums';
 
-export const fieldsCaseMap: KeyMap = {
+export const queryParamsRenameMap: KeyMap = {
   domainusers: 'domainUsers',
   'domainusers.datasource': 'domainUsers.dataSource',
   'domainusers.uniqeid': 'domainUsers.uniqueID',
@@ -20,7 +21,22 @@ export const fieldsCaseMap: KeyMap = {
   fullname: 'fullName',
 };
 
-export const fieldsDefaults = {
+export const queryDefaults = {
   status: 'active',
+  // entityType: [],
   'domainUsers.dataSource': 'daaa',
+};
+
+export const queryAllowedFields = ['currentUnit', 'domainUsers', 'domainUsers.dataSource', 'entityType', 
+  'firstName','job', 'lastName', 'rank', 'responsibility', 'serviceType', 'status'];
+
+export const serachAllowedFields = queryAllowedFields.concat(['fullName']); 
+
+const queryValuesAliases = {
+  status: {
+    all: allStatuses,
+  },
+  'domainUsers.dataSource': {
+    nonExternals: DATA_SOURCE.slice(0, DATA_SOURCE.length - 1),
+  },
 };
