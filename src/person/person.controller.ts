@@ -8,7 +8,7 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
 import { userFromString, getAllPossibleDomains, transformDomainUser, createDomainUserObject } from './person.utils';
 import * as utils from '../utils.js';
-import  * as consts  from '../config/db-enums';
+import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
 import { search } from '../search/elasticsearch';
 import { config } from '../config/config';

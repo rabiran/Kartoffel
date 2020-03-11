@@ -19,16 +19,17 @@ export class PersonRepository extends RepositoryBase<IPerson> {
    * @param select 
    */
   getPersonsByQuery(queryFields: any = {}, populate?: any, select?: any): Promise<IPerson[]> {
-    const cond = {};
+    // const cond = {};
 
-    const query = queryFields.status ? queryFields.status.toLowerCase() : '';
+    // const query = queryFields.status ? queryFields.status.toLowerCase() : '';
 
-    if (query !== config.queries.statusAll) {
-      cond['status'] = consts.STATUS.includes(query) ? query : consts.STATUS[0];
-    }
+    // if (query !== config.queries.statusAll) {
+    //   cond['status'] = consts.STATUS.includes(query) ? query : consts.STATUS[0];
+    // }
     
-    if (queryFields['domainUsers.dataSource']) cond['domainUsers.dataSource'] = queryFields['domainUsers.dataSource'];
-    return this.find(cond, populate, select);
+    // if (queryFields['domainUsers.dataSource']) cond['domainUsers.dataSource'] = queryFields['domainUsers.dataSource'];
+    return this.findByQuery(queryFields, populate, select);
+    // return this.find(cond, populate, select);
   }
 
   getMembersOfGroups(organizationGroupsIDS: string[]): Promise<IPerson[]> {

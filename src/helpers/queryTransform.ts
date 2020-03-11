@@ -2,6 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { KeyMap, ValueMap, transformKeys, ObjectValueMap,
   transformValues, filterObjectByKeys } from '../utils';
 
+interface QueryMiddlewareOpts {
+  paramsRenameMap?: KeyMap;
+  filterParams?: string[];
+  defaults?: ValueMap;
+  valueAliases?: ObjectValueMap;
+}
 
 function transformQuery(
   originalQuery: object,
@@ -19,13 +25,19 @@ function transformQuery(
   return transformValues(tQuery, queryValuesAliases);
 }
 
-export const makeMiddleware = (
-  queryParamsRenameMap: KeyMap = {},
-  filterQueryParams: string[] = null,
-  queryDefaults: ValueMap = {}, 
-  queryValuesAliases: ObjectValueMap = {}) => 
+/**
+ * 
+ * @param middlewareOpts object with keys: 
+ * @param `middlewareOpts.paramsRenameMap` - object that maps query params original names to new names.
+ * @param `middlewareOpts.filterParams` - array of allowed query params, defaults to `null` - which is not filtering.
+ * @param `middlewareOpts.defaults` - default values for params.
+ * @param `middlewareOpts.valueAliases` - objects that maps param to it's alieses map - which is an object by itself;
+ * this object maps values of the param to a new value.
+ */
+export const makeMiddleware = (middlewareOpts: QueryMiddlewareOpts) => 
   (req: Request, res: Response, next: NextFunction) => {
-    req.query = transformQuery(req.query, queryParamsRenameMap, filterQueryParams, queryDefaults, queryValuesAliases);
+    const { paramsRenameMap, filterParams, defaults, valueAliases } = middlewareOpts;
+    req.query = transformQuery(req.query, paramsRenameMap, filterParams, defaults, valueAliases);
     next();
   };
 

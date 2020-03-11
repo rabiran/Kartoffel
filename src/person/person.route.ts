@@ -7,17 +7,14 @@ import { Person } from './person.controller';
 // import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
 import { atCreateFieldCheck, atUpdateFieldCheck, atSearchFieldCheck, queryAllowedFields } from './person.route.validator';
-
-import { makeMiddleware } from '../helpers/queryTransform';
-import { queryParamsRenameMap, queryDefaults } from './person.queryMiddleware';
-import { config } from '../config/config';
+import { queryMiddleware, searchMiddleware } from './person.queryMiddleware';
 
 // const person = new Person();
 const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
-persons.get('/', makeMiddleware(queryParamsRenameMap, queryAllowedFields, queryDefaults, config.queries.persons), ch(Person.getPersons, (req: Request) => [req.query]));
+persons.get('/', queryMiddleware, ch(Person.getPersons, (req: Request) => [req.query]));
 
 persons.get('/search', validatorMiddleware(atSearchFieldCheck, null, 'query'),
   ch(Person.autocomplete, (req: Request) => [req.query.fullname]));

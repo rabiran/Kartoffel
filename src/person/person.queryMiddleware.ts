@@ -1,7 +1,11 @@
-import { KeyMap } from '../utils';
-import { STATUS as allStatuses, DATA_SOURCE } from '../config/db-enums';
+// import { KeyMap } from '../utils';
+import { STATUS } from '../config/db-enums';
+import { makeMiddleware } from '../helpers/queryTransform';
+import { config } from '../config/config';
 
-export const queryParamsRenameMap: KeyMap = {
+const STATUS_ACTIVE = STATUS[0];
+
+export const queryParamsRenameMap = {
   domainusers: 'domainUsers',
   'domainusers.datasource': 'domainUsers.dataSource',
   'domainusers.uniqeid': 'domainUsers.uniqueID',
@@ -22,21 +26,28 @@ export const queryParamsRenameMap: KeyMap = {
 };
 
 export const queryDefaults = {
-  status: 'active',
-  // entityType: [],
-  'domainUsers.dataSource': 'daaa',
+  status: STATUS_ACTIVE,
 };
+
+const queryValuesAliases = config.queries.queryAliases.persons;
 
 export const queryAllowedFields = ['currentUnit', 'domainUsers', 'domainUsers.dataSource', 'entityType', 
   'firstName','job', 'lastName', 'rank', 'responsibility', 'serviceType', 'status'];
 
 export const serachAllowedFields = queryAllowedFields.concat(['fullName']); 
 
-const queryValuesAliases = {
-  status: {
-    all: allStatuses,
-  },
-  'domainUsers.dataSource': {
-    nonExternals: DATA_SOURCE.slice(0, DATA_SOURCE.length - 1),
-  },
-};
+
+
+export const queryMiddleware = makeMiddleware({
+  paramsRenameMap: queryParamsRenameMap,
+  filterParams: queryAllowedFields,
+  defaults: queryDefaults,
+  valueAliases: queryValuesAliases,
+});
+
+export const searchMiddleware = makeMiddleware({
+  paramsRenameMap: queryParamsRenameMap,
+  filterParams: serachAllowedFields,
+  defaults: queryDefaults,
+  valueAliases: queryValuesAliases,
+});
