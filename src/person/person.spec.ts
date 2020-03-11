@@ -15,6 +15,8 @@ import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UN
 import { config } from '../config/config';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
+const STATUS_ACTIVE = STATUS[0];
+const STATUS_INACTIVE = STATUS[1];
 
 const should = chai.should();
 const expect = chai.expect;
@@ -146,23 +148,23 @@ describe('Persons', () => {
       persons[1].should.exist;
       persons[2].should.have.property('lastName', 'Kopter');
     });
-    it('Should get persons without person that dead', async () => {
+    it('Should get only persons eith status active', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await Person.createPerson(<IPerson>{ ...personExamples[2] });
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons();
+      const persons = await Person.getPersons({ status: STATUS_ACTIVE });
       persons.should.be.a('array');
       persons.should.have.lengthOf(1);
     });
-    it('Should get persons with person that dead', async () => {
+    it('Should get persons including person with status inactive', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await Person.createPerson(<IPerson>{ ...personExamples[2] });
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons({ status: config.queries.statusAll });
+      const persons = await Person.getPersons({ status: STATUS });
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });
@@ -181,7 +183,7 @@ describe('Persons', () => {
       persons[0].should.to.have.property('identityCard',  person1.identityCard);
       persons[1].should.to.have.property('identityCard',  person2.identityCard);                   
     });
-    it('Should get persons with specific dataSource of domain users and only person is live', async () => {
+    it('Should get persons with specific dataSource of domain users and only person with status active', async () => {
       const person1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const person2 = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       const person3 = await Person.createPerson(<IPerson>{ ...personExamples[2] });
@@ -191,7 +193,7 @@ describe('Persons', () => {
       await Person.addNewUser(person3.id, { ...DomainUserExamples[3] });
       await Person.discharge(person2.id);
 
-      const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1' });
+      const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1', status: STATUS_ACTIVE });
       persons.should.be.a('array');
       persons.should.have.lengthOf(1);
       persons[0].should.to.have.property('identityCard',  person1.identityCard);      
@@ -233,7 +235,7 @@ describe('Persons', () => {
       person.should.have.property('job', 'Programmer');
       person.should.have.property('responsibility', RESPONSIBILITY_DEFAULT);
       person.should.have.property('clearance', '0');
-      person.should.have.property('status', STATUS[0]);
+      person.should.have.property('status', STATUS_ACTIVE);
     });
     it('should create a person with more complex hierarchy', async () => {
       const parent = await OrganizationGroup.createOrganizationGroup(<any>{ name: 'group0' });
@@ -270,7 +272,7 @@ describe('Persons', () => {
         responsibility: RESPONSIBILITY[1],
         responsibilityLocation: new Types.ObjectId(dbIdExample[3]),
         clearance: '5',
-        status: STATUS[0],
+        status: STATUS_ACTIVE,
         currentUnit: CURRENT_UNIT[0],
       };
 
@@ -539,12 +541,13 @@ describe('Persons', () => {
       group.directMembers.should.have.lengthOf(0);
       group.directManagers.should.have.lengthOf(0);
     });
-    it('Should not get a "dead" person with the regular get', async () => {
+    it('Should get an "inactive" person with the regular get', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await Person.discharge(person.id);
 
       const persons = await Person.getPersons();
-      persons.should.have.lengthOf(0);
+      persons.should.have.lengthOf(1);
+      expect(persons[0]).to.have.property('status', STATUS_INACTIVE);
     });
   });
   describe('#updatePerson', () => {

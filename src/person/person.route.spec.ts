@@ -158,14 +158,14 @@ describe('Person', () => {
           res.body.length.should.be.eql(1);
         }).catch((err) => { throw err; });
     });
-    it('Should get persons with person that dead', async () => {
+    it('Should get persons including person with status inactive', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
 
       await Person.discharge(person.id);
 
       await chai.request(app)
-        .get(`${BASE_URL}?status=${config.queries.statusAll}`)  // all
+        .get(`${BASE_URL}?status=all`)  // all
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
