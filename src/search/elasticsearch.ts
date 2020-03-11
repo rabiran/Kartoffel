@@ -93,7 +93,7 @@ export function initEsClient() {
  * @param size the maximum amount of results returned
  * @param query query body 
  */
-export async function search<T>(index: string, size: number ,query: Object) {
+export async function search<T>(index: string, size: number, query: Object) {
   const res: ApiResponse<SearchResponse<T>> = await client.search({
     index,
     size,
