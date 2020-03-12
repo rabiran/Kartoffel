@@ -36,7 +36,6 @@ export const queryAllowedFields = ['currentUnit', 'domainUsers', 'domainUsers.da
 
 export const serachAllowedFields = queryAllowedFields.concat(['fullName']); 
 
-
 export const queryMiddleware = makeMiddleware({
   paramsRenameMap: queryParamsRenameMap,
   filterParams: queryAllowedFields,

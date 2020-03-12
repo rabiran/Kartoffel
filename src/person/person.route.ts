@@ -16,8 +16,9 @@ persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermis
 
 persons.get('/', queryMiddleware, ch(Person.getPersons, (req: Request) => [req.query]));
 
-persons.get('/search', validatorMiddleware(atSearchFieldCheck, null, 'query'),
-  ch(Person.autocomplete, (req: Request) => [req.query.fullname]));
+persons.get('/search', searchMiddleware,
+  // validatorMiddleware(atSearchFieldCheck, null, 'query'),
+  ch(Person.searchPersons, (req: Request) => [req.query]));
 
 persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
           ch(Person.getUpdatedFrom, (req: Request) => {

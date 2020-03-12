@@ -44,6 +44,9 @@ export const config = {
     },
     defaultResultLimit: 20,
     personsIndexName: 'kartoffel.people',
+    fullTextFieldName: 'autocomplete',
+    fullTextFieldMinLength: 2,
+    defaultFuzzy: 'AUTO',
   },
   logger : {
     fileName: process.env.LOG_FILE_NAME,

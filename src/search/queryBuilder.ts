@@ -1,4 +1,5 @@
 import * as esb from 'elastic-builder';
+import { config } from '../config/config';
 
 export enum FieldType { FullText, Filter }
 
@@ -6,24 +7,33 @@ interface FieldTypeMap {
   [key: string]: FieldType;
 }
 
-function queryParser(queryObj: object, fieldMap: FieldTypeMap) {
-  const base = esb.boolQuery();
-  const fullText: esb.Query[] = [];
+const { defaultFuzzy, fullTextFieldName, fullTextFieldMinLength } = config.elasticSearch;
+
+export const queryParser = (queryObj: object, fieldMap: FieldTypeMap) => {
+  const must: esb.Query[] = [];
+  const should: esb.Query[] = [];
   const filter: esb.Query[] = [];
-  for (const field of Object.keys(queryObj)) {
-    const val = queryObj[field];
-    if (fieldMap[field] === FieldType.Filter) {
-      const termQuery = Array.isArray(val) ? esb.termsQuery() : esb.termQuery();
-      filter.push(termQuery.field(field).value(val));
-    } else {
-      const fullTextField = `${field}.autocomplete`;
-      fullText.concat([
-        esb.matchQuery(fullTextField, val).fuzziness('AUTO'),
-        esb.matchQuery(fullTextField, val),
-      ]);
+  for (const [field, val] of Object.entries(queryObj)) {
+    if (fieldMap[field] === FieldType.FullText) {
+      // ignore non string or too short fields
+      if (typeof val === 'string' && val.trim().length >= fullTextFieldMinLength) {
+        const fullTextField = getFullTextField(field);
+        should.push(esb.matchQuery(fullTextField, val));
+        must.push(esb.matchQuery(fullTextField, val).fuzziness(defaultFuzzy));
+      }
+    } else { // defaults to FieldType.Filter
+      const termQuery = Array.isArray(val) ? 
+        esb.termsQuery(field, val) : 
+        esb.termQuery(field, val);
+      filter.push(termQuery);
     }
   }
+  return esb.requestBodySearch().query(
+    esb.boolQuery()
+      .must(must)
+      .should(should)
+      .filter(filter)
+  ).toJSON();
+};
 
-}
-
-esb.requestBodySearch().query(esb.boolQuery())
+const getFullTextField = (field: string) => `${field}.${fullTextFieldName}`;

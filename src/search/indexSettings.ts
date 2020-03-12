@@ -1,3 +1,5 @@
+import { config } from '../config/config';
+
 const personsSettings = {
   analysis: {
     analyzer: {
@@ -26,7 +28,7 @@ const personsMappings = {
     fullName: {
       type: 'keyword',
       fields: {
-        autocomplete: {
+        [config.elasticSearch.fullTextFieldName]: {
           analyzer: 'autocomplete',
           search_analyzer: 'autocomplete_search',
           type: 'text',
@@ -40,7 +42,11 @@ const personsMappings = {
       enabled: false,
     },
     domainUsers: {
-      enabled: false,
+      properties: {
+        name: { type: 'keyword' },
+        domain: { type: 'keyword' },
+        dataSource: { type: 'keyword' },
+      },
     },
     identityCard: {
       enabled: false,
@@ -49,10 +55,10 @@ const personsMappings = {
       enabled: false,
     },
     entityType: {
-      enabled: false,
+      type: 'keyword',
     },
     serviceType: {
-      enabled: false,
+      type: 'keyword',
     },
     firstName: {
       enabled: false,
@@ -79,7 +85,7 @@ const personsMappings = {
       enabled: false,
     },
     responsibility: {
-      enabled: false,
+      type: 'keyword',
     },
     responsibilityLocation: {
       enabled: false,
@@ -94,7 +100,7 @@ const personsMappings = {
       enabled: false,
     },
     rank: {
-      enabled: false,
+      type: 'keyword',
     },
     address: {
       enabled: false,

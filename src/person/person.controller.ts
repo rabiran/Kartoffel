@@ -12,6 +12,7 @@ import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
 import { search } from '../search/elasticsearch';
 import { config } from '../config/config';
+import { searchQuery } from './person.elastic.repository';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -332,5 +333,9 @@ export class Person {
     };
     const results = await search<IPerson>(config.elasticSearch.personsIndexName, config.elasticSearch.defaultResultLimit, query);
     return results.map(p => transformDomainUser(p));
+  }
+
+  static async searchPersons(query: object) {
+    return searchQuery(query);
   }
 }
