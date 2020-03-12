@@ -1,20 +1,28 @@
 import * as esb from 'elastic-builder';
 import { config } from '../config/config';
 
-export enum FieldType { FullText, Filter }
+export enum FieldContext { Query, Filter }
 
-interface FieldTypeMap {
-  [key: string]: FieldType;
+interface FieldContextMap {
+  [key: string]: FieldContext;
 }
 
 const { defaultFuzzy, fullTextFieldName, fullTextFieldMinLength } = config.elasticSearch;
 
-export const queryParser = (queryObj: object, fieldMap: FieldTypeMap) => {
+/**
+ * Builds Elasticsearch query object, using the provided field map to determine in what 
+ * context each field should be used (filter or query). 
+ * Fields that are not specified in `fieldMap` will be run in Filter context by default.
+ * @param queryObj 
+ * @param fieldMap map field (keys) to its query clause context (values)
+ * @returns Elasticsearch query object
+ */
+export const queryParser = (queryObj: object, fieldMap: FieldContextMap) => {
   const must: esb.Query[] = [];
   const should: esb.Query[] = [];
   const filter: esb.Query[] = [];
   for (const [field, val] of Object.entries(queryObj)) {
-    if (fieldMap[field] === FieldType.FullText) {
+    if (fieldMap[field] === FieldContext.Query) {
       // ignore non string or too short fields
       if (typeof val === 'string' && val.trim().length >= fullTextFieldMinLength) {
         const fullTextField = getFullTextField(field);
