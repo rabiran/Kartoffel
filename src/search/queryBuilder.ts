@@ -29,7 +29,7 @@ export const queryParser = (queryObj: object, fieldMap: FieldContextMap) => {
         should.push(esb.matchQuery(fullTextField, val));
         must.push(esb.matchQuery(fullTextField, val).fuzziness(defaultFuzzy));
       }
-    } else { // defaults to FieldType.Filter
+    } else { // defaults to FieldContext.Filter
       const termQuery = Array.isArray(val) ? 
         esb.termsQuery(field, val) : 
         esb.termQuery(field, val);

@@ -68,8 +68,8 @@ export class Person {
     if (!person) throw new ResourceNotFoundError(`Cannot find person with identityValue: '${identityValue}'`);
     return person;
   }
-  static async getUpdatedFrom(from: Date, to: Date) {
-    const persons = await Person._personRepository.getUpdatedFrom(from, to);
+  static async getUpdatedFrom(from: Date, to: Date, query: object = {}) {
+    const persons = await Person._personRepository.getUpdatedFrom(from, to, query);
     return <IPerson[]>persons;
   }
 

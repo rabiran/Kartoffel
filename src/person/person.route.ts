@@ -24,7 +24,7 @@ persons.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'p
           ch(Person.getUpdatedFrom, (req: Request) => {
             let from = req.params.from;
             if (typeof(from) === 'number') from = new Date(from);
-            return [from, new Date()];
+            return [from, new Date(), req.query];
           }
 ));
 

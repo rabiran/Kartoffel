@@ -50,8 +50,8 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     return query.exec();
   }
 
-  getUpdatedFrom(from: Date, to: Date): Promise<T[]> {
-    return this._model.find({ updatedAt: { $gte: from, $lte: to } }).exec();
+  getUpdatedFrom(from: Date, to: Date, query: object = {}): Promise<T[]> {
+    return this._model.find({ ...queryParser(query), updatedAt: { $gte: from, $lte: to } }).exec();
   }
 
   findAndUpdateSome(ids: string[], set: Object): Promise<T[]> {
