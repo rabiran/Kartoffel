@@ -148,7 +148,7 @@ describe('Persons', () => {
       persons[1].should.exist;
       persons[2].should.have.property('lastName', 'Kopter');
     });
-    it('Should get only persons eith status active', async () => {
+    it('Should get only persons with status active', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[1] });
       await Person.createPerson(<IPerson>{ ...personExamples[2] });
 
