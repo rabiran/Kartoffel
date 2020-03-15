@@ -178,7 +178,7 @@ export const PersonSchema = new mongoose.Schema(
 PersonSchema.set('timestamps', true);
 
 PersonSchema.virtual('fullName').get(function () {
-  return this.firstName + ' ' + this.lastName;
+  return [this.firstName, this.lastName].filter(s => s).join(' ');
 });
 
 registerErrorHandlingHooks(PersonSchema);
