@@ -1,11 +1,11 @@
 module.exports = function(doc) {
-  var result;
+  var lastName;
 
   if (doc.lastName)
-    result = ' '+doc.lastName;
+    lastName = ' '+doc.lastName;
   else
-    result = '';
+    lastName = '';
 
-  doc.fullName = doc.firstName + result;
+  doc.fullName = doc.firstName + lastName;
   return doc;
 }
