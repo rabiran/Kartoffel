@@ -31,8 +31,8 @@ export const queryDefaults = {
 
 const queryValuesAliases = config.queries.queryAliases.persons;
 
-export const queryAllowedFields = ['currentUnit', 'domainUsers', 'domainUsers.dataSource', 'entityType', 
-  'firstName','job', 'lastName', 'rank', 'responsibility', 'serviceType', 'status'];
+export const queryAllowedFields = ['currentUnit', 'domainUsers.dataSource', 'entityType', 
+  'job', 'rank', 'responsibility', 'serviceType', 'status'];
 
 export const serachAllowedFields = queryAllowedFields.concat(['fullName']); 
 
