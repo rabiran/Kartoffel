@@ -222,6 +222,21 @@ describe('Persons', () => {
       persons[1].should.have.property('personalNumber', '3456712');
       persons[2].should.have.property('personalNumber', '4567123');
     });
+    it('should get a person from a given date and specific entity type', async () => {
+      const clock = sinon.useFakeTimers();
+      await Person.createPerson({ ... personExamples[1] }); // person with entityType[0]
+      clock.tick(1000);
+      const from = new Date();
+      await Person.createPerson({ ... personExamples[0] }); // person with entityType[1]
+      const expectedPerson = await Person.createPerson({ ... personExamples[2] }); // person with entityType[0]
+      clock.tick(1000);
+      const to = new Date();
+      const persons = await Person.getUpdatedFrom(from, to, { entityType: ENTITY_TYPE[0] });
+      clock.restore();
+
+      expect(persons).to.have.lengthOf(1);
+      expect(persons[0]).to.have.property('id', expectedPerson.id);
+    });
   });
   describe('#createPerson', () => {
     it('Should create a person with basic info', async () => {
