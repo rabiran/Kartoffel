@@ -42,8 +42,10 @@ export const config = {
       disableServerIdenityCheck: envAsBool('ELASTICSEARCH_SSL_DISABLE_SERVER_IDENTITY_CHECK'),
 
     },
+    indexNames: {
+      persons: 'kartoffel.people',
+    },
     defaultResultLimit: 20,
-    personsIndexName: 'kartoffel.people',
     fullTextFieldName: 'autocomplete',
     fullTextFieldMinLength: 2,
     defaultFuzzy: 'AUTO',

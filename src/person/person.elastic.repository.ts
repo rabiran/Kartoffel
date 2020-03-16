@@ -1,11 +1,13 @@
 import { search as _search, ElasticSearchRepository } from '../search/elasticsearch';
-import { queryParser, FieldContext } from '../search/queryBuilder';
+import { queryParser, FieldContext } from '../search/queryParser';
 import { IPerson, IDomainUser } from './person.interface';
 import { config } from '../config/config';
 import { DomainSeperator, domainMap } from '../utils';
 
 
-const { personsIndexName, defaultResultLimit, fullTextFieldName } = config.elasticSearch;
+const { indexNames, defaultResultLimit, fullTextFieldName } = config.elasticSearch;
+
+const indexName = indexNames.persons;
 
 const fieldContext = {
   fullName: FieldContext.Query,
@@ -19,12 +21,12 @@ const fieldContext = {
  */
 const search = async (queryObj: object, size: number = defaultResultLimit) => {
   const query = queryParser(queryObj, fieldContext);
-  const results = await _search<IPerson>(personsIndexName, size, query);
+  const results = await _search<IPerson>(indexName, size, query);
   return results.map(transformDomainUser);
 };
 
 const getIndexSettings = () => ({
-  name: personsIndexName,
+  name: indexName,
   settings: indexSettings,
   mappings: indexMappings,
 });
@@ -97,10 +99,10 @@ const indexMappings = {
       },
     },
     identityCard: {
-      enabled: false,
+      type: "keyword",
     },
     personalNumber: {
-      enabled: false,
+      type: "keyword",
     },
     entityType: {
       type: 'keyword',
@@ -114,14 +116,14 @@ const indexMappings = {
     lastName: {
       enabled: false,
     },
-    cuurentUnit: {
+    currentUnit: {
       enabled: false,
     },
     dischargeDay: {
-      enabled: false,
+      type: "date",
     },
     hierarchy: {
-      enabled: false,
+      type: 'keyword',
     },
     job: {
       enabled: false,
@@ -157,10 +159,10 @@ const indexMappings = {
       enabled: false,
     },
     createdAt: {
-      enabled: false,
+      type: "date",
     }, 
     updatedAt: {
-      enabled: false,
+      type: "date",
     },
   },
 };
