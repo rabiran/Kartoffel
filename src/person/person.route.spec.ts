@@ -316,6 +316,25 @@ describe('Person', () => {
         }).catch((err) => { throw err; });
       clock.restore();
     });
+
+    it('should return updated person from certain date and with entityType[0]', async () => {
+      const clock = sinon.useFakeTimers();
+      // person with EntityType[0]
+      await Person.createPerson({ ...personExamples[1] });
+      clock.tick(1000);
+      const from = clock.Date().toISOString();
+      // person with EntityType[1]
+      await Person.createPerson({ ...personExamples[0] });
+      // person with EntityType[0]
+      const expectedPerson = await Person.createPerson({ ...personExamples[2] });
+      clock.tick(1000);
+      clock.restore();
+      const res = await chai.request(app).get(`${BASE_URL}/getUpdated/${from}?entityType=${ENTITY_TYPE[0]}`);
+      expect(res).to.have.status(200);
+      const persons = res.body;
+      expect(persons).to.have.lengthOf(1);
+      expect(persons[0]).to.have.property('id', expectedPerson.id);
+    });
   });
   describe('/POST person', () => {
     it('Should return 400 when person is null', (done) => {

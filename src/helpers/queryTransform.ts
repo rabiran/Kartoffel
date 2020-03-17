@@ -15,14 +15,14 @@ function transformQuery(
   filterQueryParams: string[] = null,
   queryDefaults: ValueMap = {}, 
   queryValuesAliases: ObjectValueMap = {}) {
-  // rename query params
-  const renamed = transformKeys(originalQuery, queryParamsRenameMap);
   // filter params
-  const filtered = filterQueryParams ? filterObjectByKeys(renamed, filterQueryParams) : renamed;
+  const filtered = filterObjectByKeys(originalQuery, filterQueryParams, true);
+  // rename query params
+  const renamed = transformKeys(filtered, queryParamsRenameMap);
   // apply defaults
-  const tQuery = { ...queryDefaults, ...filtered };
+  const withDefaults = { ...queryDefaults, ...renamed };
   // apply values aliases and return 
-  return transformValues(tQuery, queryValuesAliases);
+  return transformValues(withDefaults, queryValuesAliases);
 }
 
 /**

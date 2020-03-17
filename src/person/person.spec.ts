@@ -9,9 +9,9 @@ import { IPerson, IDomainUser } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
-import { domainMap } from '../utils';
+import { domainMap, allStatuses } from '../utils';
 import * as mongoose from 'mongoose';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS, ALL_STATUS } from '../config/db-enums';
+import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS } from '../config/db-enums';
 import { config } from '../config/config';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
@@ -162,7 +162,7 @@ describe('Persons', () => {
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons({ status: ALL_STATUS });
+      const persons = await Person.getPersons({ status: allStatuses });
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });

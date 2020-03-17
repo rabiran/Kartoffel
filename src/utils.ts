@@ -1,13 +1,15 @@
 import { ValidatorObj } from './types/validation';
-import { DOMAIN_MAP } from './config/db-enums';
+import { DOMAIN_MAP, STATUS } from './config/db-enums';
+import * as _ from 'lodash'; 
 
 export const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 export const DomainSeperator = '@';
+export const allStatuses = Object.keys(STATUS).map(k => STATUS[k]);
 
-export type BasicType = boolean | string | number | any[];
+export type BasicType = boolean | string | number;
 
 export interface ValueMap {
-  [key: string]: BasicType;
+  [key: string]: BasicType | BasicType[];
 }
 
 export interface KeyMap {
@@ -18,9 +20,10 @@ export interface ObjectValueMap {
   [key: string] : ValueMap;
 }
 
-export function filterObjectByKeys(object: Object, allowedKeys: string[]): Object {
+export function filterObjectByKeys(object: Object, allowedKeys: string[], caseInsensitive: boolean = false): Object {
+  const allowed = caseInsensitive ? allowedKeys.map(k => k.toLowerCase()) : allowedKeys;
   const filtered = Object.keys(object)
-  .filter(key => allowedKeys.includes(key))
+  .filter(key => allowed.includes(caseInsensitive ? key.toLowerCase() : key))
   .reduce(
     (obj, key) => {
       obj[key] = object[key];

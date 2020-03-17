@@ -9,11 +9,6 @@ export const createAllowedFileds =  ['address', 'clearance', 'currentUnit', 'dir
 
 export const updateAllowedFields = _.without(createAllowedFileds, 'directGroup', 'identityCard', 'personalNumber');
 
-export const queryAllowedFields = ['currentUnit', 'domainUsers', 'domainUsers.dataSource', 'entityType', 
-  'firstName','job', 'lastName', 'rank', 'responsibility', 'serviceType', 'status'];
-
-export const serachAllowedFields = queryAllowedFields.concat(['fullName']); 
-
 export const atCreateFieldCheck = RPV.fieldExistanceGenerator(createAllowedFileds);
 
 export const atUpdateFieldCheck = RPV.fieldExistanceGenerator(updateAllowedFields);

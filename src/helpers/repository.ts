@@ -17,10 +17,14 @@ export interface ICollection<T> {
   totalCount: number;
 }
 
+/**
+ * Parse query object to MongoDB query.
+ * @param queryObj 
+ * @returns new MongoDB query object
+ */
 function queryParser(queryObj: object): any {
   const cond = {};
-  for (const field of Object.keys(queryObj)) {
-    const value = queryObj[field];
+  for (const [field, value] of Object.entries(queryObj)) {
     if (Array.isArray(value)) {
       cond[field] = { $in: value };
     }
