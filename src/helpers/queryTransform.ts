@@ -9,6 +9,18 @@ interface QueryMiddlewareOpts {
   valueAliases?: ObjectValueMap;
 }
 
+/**
+ * Transform the query object: 
+ * <> filter object fields
+ * <> rename object keys
+ * <> apply default values
+ * <> swap value aliases 
+ * @param originalQuery 
+ * @param queryParamsRenameMap 
+ * @param filterQueryParams 
+ * @param queryDefaults 
+ * @param queryValuesAliases 
+ */
 function transformQuery(
   originalQuery: object,
   queryParamsRenameMap: KeyMap = {},
