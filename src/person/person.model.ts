@@ -114,8 +114,8 @@ export const PersonSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: consts.STATUS,
-      default: consts.STATUS[0],
+      enum: consts.ALL_STATUS,
+      default: consts.STATUS.ACTIVE,
     },
     dischargeDay: {
       type: Date,

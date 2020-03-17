@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 import * as path  from 'path';
 import * as fs from 'fs';
-import { STATUS as allStatus, DATA_SOURCE } from './db-enums';
+import { ALL_STATUS, DATA_SOURCE } from './db-enums';
 
 /**
  * Returns true if the given environment variable name exists and contain 
@@ -90,7 +90,7 @@ export const config = {
     queryAliases: {
       persons: {
         status: {
-          all: allStatus,
+          all: ALL_STATUS,
         },
         'domainUsers.dataSource': {
           nonExternals: DATA_SOURCE.slice(0, DATA_SOURCE.length - 1),

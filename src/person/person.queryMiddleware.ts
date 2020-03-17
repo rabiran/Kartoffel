@@ -3,8 +3,6 @@ import { STATUS } from '../config/db-enums';
 import { makeMiddleware } from '../helpers/queryTransform';
 import { config } from '../config/config';
 
-const STATUS_ACTIVE = STATUS[0];
-
 export const queryParamsRenameMap = {
   domainusers: 'domainUsers',
   'domainusers.datasource': 'domainUsers.dataSource',
@@ -26,7 +24,7 @@ export const queryParamsRenameMap = {
 };
 
 export const queryDefaults = {
-  status: STATUS_ACTIVE,
+  status: STATUS.ACTIVE,
 };
 
 const queryValuesAliases = config.queries.queryAliases.persons;

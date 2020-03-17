@@ -101,7 +101,7 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[0],
   },
   <IPerson>{
-    status: STATUS[2],
+    status: STATUS.INCOMPLETE,
     personalNumber: '3456711',
     firstName: 'Tipesh',
     lastName: 'Tov',
@@ -359,7 +359,7 @@ describe('Person', () => {
           person.should.have.property('identityCard', personExamples[0].identityCard);
           person.should.have.property('firstName', personExamples[0].firstName);
           person.should.have.property('lastName', personExamples[0].lastName);
-          person.should.have.property('status', STATUS[0]);
+          person.should.have.property('status', STATUS.ACTIVE);
           done();
         });
     });
@@ -376,7 +376,7 @@ describe('Person', () => {
       const person = { ...personExamples[5] };
       const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
       createdPerson.should.exist;
-      createdPerson.should.have.property('status', STATUS[2]);
+      createdPerson.should.have.property('status', STATUS.INCOMPLETE);
     });
 
   });
@@ -574,7 +574,7 @@ describe('Person', () => {
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('status', STATUS[1]);
+          res.body.should.have.property('status', STATUS.INACTIVE);
         }).catch((err) => { throw err; });
     });
   });

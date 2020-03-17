@@ -11,12 +11,10 @@ import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 import * as mongoose from 'mongoose';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS, ALL_STATUS } from '../config/db-enums';
 import { config } from '../config/config';
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
-const STATUS_ACTIVE = STATUS[0];
-const STATUS_INACTIVE = STATUS[1];
 
 const should = chai.should();
 const expect = chai.expect;
@@ -154,7 +152,7 @@ describe('Persons', () => {
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons({ status: STATUS_ACTIVE });
+      const persons = await Person.getPersons({ status: STATUS.ACTIVE });
       persons.should.be.a('array');
       persons.should.have.lengthOf(1);
     });
@@ -164,7 +162,7 @@ describe('Persons', () => {
 
       await Person.discharge(person.id);
 
-      const persons = await Person.getPersons({ status: STATUS });
+      const persons = await Person.getPersons({ status: ALL_STATUS });
       persons.should.be.a('array');
       persons.should.have.lengthOf(2);
     });
@@ -193,7 +191,7 @@ describe('Persons', () => {
       await Person.addNewUser(person3.id, { ...DomainUserExamples[3] });
       await Person.discharge(person2.id);
 
-      const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1', status: STATUS_ACTIVE });
+      const persons = await Person.getPersons({ 'domainUsers.dataSource': 'dataSource1', status: STATUS.ACTIVE });
       persons.should.be.a('array');
       persons.should.have.lengthOf(1);
       persons[0].should.to.have.property('identityCard',  person1.identityCard);      
@@ -250,7 +248,7 @@ describe('Persons', () => {
       person.should.have.property('job', 'Programmer');
       person.should.have.property('responsibility', RESPONSIBILITY_DEFAULT);
       person.should.have.property('clearance', '0');
-      person.should.have.property('status', STATUS_ACTIVE);
+      person.should.have.property('status', STATUS.ACTIVE);
     });
     it('should create a person with more complex hierarchy', async () => {
       const parent = await OrganizationGroup.createOrganizationGroup(<any>{ name: 'group0' });
@@ -287,7 +285,7 @@ describe('Persons', () => {
         responsibility: RESPONSIBILITY[1],
         responsibilityLocation: new Types.ObjectId(dbIdExample[3]),
         clearance: '5',
-        status: STATUS_ACTIVE,
+        status: STATUS.ACTIVE,
         currentUnit: CURRENT_UNIT[0],
       };
 
@@ -542,7 +540,7 @@ describe('Persons', () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       const res = await Person.discharge(person.id);
       should.exist(res);
-      res.should.have.property('status', STATUS[1]);
+      res.should.have.property('status', STATUS.INACTIVE);
       res.should.have.property('directGroup');
     });
     it('Should update the person\'s group and manage group after that the person is discharged', async () => {
@@ -562,7 +560,7 @@ describe('Persons', () => {
 
       const persons = await Person.getPersons();
       persons.should.have.lengthOf(1);
-      expect(persons[0]).to.have.property('status', STATUS_INACTIVE);
+      expect(persons[0]).to.have.property('status', STATUS.INACTIVE);
     });
   });
   describe('#updatePerson', () => {

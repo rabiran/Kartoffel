@@ -70,17 +70,17 @@ OrganizationGroupSchema.virtual('directMembers', {
   justOne: false,
 });
 
-function onlyAliveMembers(group: IOrganizationGroup) {
+function onlyActiveMembers(group: IOrganizationGroup) {
   if (group && group.directMembers) {
-    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.status === consts.STATUS[0]);
+    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.status === consts.STATUS.ACTIVE);
   }
 }
 
 function postFind(result: mongoose.Document | IOrganizationGroup | IOrganizationGroup[]) {
   if (Array.isArray(result)) {
-    result.map(onlyAliveMembers);
+    result.map(onlyActiveMembers);
   } else {
-    onlyAliveMembers(<IOrganizationGroup>result);
+    onlyActiveMembers(<IOrganizationGroup>result);
   }
 }
 

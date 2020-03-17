@@ -99,10 +99,10 @@ const indexMappings = {
       },
     },
     identityCard: {
-      type: "keyword",
+      type: 'keyword',
     },
     personalNumber: {
-      type: "keyword",
+      type: 'keyword',
     },
     entityType: {
       type: 'keyword',
@@ -120,7 +120,7 @@ const indexMappings = {
       enabled: false,
     },
     dischargeDay: {
-      type: "date",
+      type: 'date',
     },
     hierarchy: {
       type: 'keyword',
@@ -159,10 +159,10 @@ const indexMappings = {
       enabled: false,
     },
     createdAt: {
-      type: "date",
+      type: 'date',
     }, 
     updatedAt: {
-      type: "date",
+      type: 'date',
     },
   },
 };

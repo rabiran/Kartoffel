@@ -217,7 +217,7 @@ export class Person {
 
   static async discharge(personId: string): Promise<any> {
     const person = await Person.getPersonById(personId);
-    person.status = consts.STATUS[1];
+    person.status = consts.STATUS.INACTIVE;
     if (person.managedGroup) {
       person.managedGroup = null;
     }
