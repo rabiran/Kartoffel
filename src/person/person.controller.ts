@@ -288,52 +288,6 @@ export class Person {
     await Person.updatePerson(personId, person);
   }
 
-  /**
-   * Returns array of autocomplete suggestions on the "fullName" field
-   * @param partialName the text to autocomplete, with minmum length of 2
-   */
-  // static async autocomplete(partialName: string) {
-  //   // check minimum length of 2
-  //   if (!partialName || partialName.trim().length < 2) {
-  //     return [];
-  //   }
-  //   // base match
-  //   const match_query = {
-  //     match: {
-  //       'fullName.autocomplete': {
-  //         query: partialName,
-  //       },
-  //     },
-  //   };
-  //   // allow fuzzy
-  //   const match_query_fuzzy = {
-  //     match: {
-  //       'fullName.autocomplete': {
-  //         query: partialName,
-  //         fuzziness: 'AUTO',
-  //       },
-  //     },
-  //   };
-  //   // search only for 'active' persons
-  //   const filter_active = {
-  //     term: { status: consts.STATUS[0] },
-  //   };
-  //   // construct the final query to send to ES
-  //   const query = {
-  //     query: {
-  //       bool: {
-  //         should: [
-  //           match_query, match_query_fuzzy,
-  //         ],
-  //         filter: filter_active,
-  //         minimum_should_match: 1, // necessary when using filter
-  //       },  
-  //     },
-  //   };
-  //   const results = await search<IPerson>(config.elasticSearch.personsIndexName, config.elasticSearch.defaultResultLimit, query);
-  //   return results.map(p => transformDomainUser(p));
-  // }
-
   static async searchPersons(query: object) {
     return esRepository.search(query);
   }
