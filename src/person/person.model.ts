@@ -3,7 +3,7 @@ import { IPerson, IDomainUser } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
-import { DomainSeperator, filterObjectByKeys, domainMap } from '../utils';
+import { DomainSeperator, filterObjectByKeys, domainMap, allStatuses } from '../utils';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -114,8 +114,8 @@ export const PersonSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: consts.STATUS,
-      default: consts.STATUS[0],
+      enum: allStatuses,
+      default: consts.STATUS.ACTIVE,
     },
     dischargeDay: {
       type: Date,

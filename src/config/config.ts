@@ -1,6 +1,8 @@
 import * as dotenv from 'dotenv';
 import * as path  from 'path';
 import * as fs from 'fs';
+import { DATA_SOURCE, STATUS } from './db-enums';
+import { allStatuses } from '../utils';
 
 /**
  * Returns true if the given environment variable name exists and contain 
@@ -41,8 +43,13 @@ export const config = {
       disableServerIdenityCheck: envAsBool('ELASTICSEARCH_SSL_DISABLE_SERVER_IDENTITY_CHECK'),
 
     },
+    indexNames: {
+      persons: 'kartoffel.people',
+    },
     defaultResultLimit: 20,
-    personsIndexName: 'kartoffel.people',
+    fullTextFieldName: 'autocomplete',
+    fullTextFieldMinLength: 2,
+    defaultFuzzy: 'AUTO',
   },
   logger : {
     fileName: process.env.LOG_FILE_NAME,
@@ -81,6 +88,20 @@ export const config = {
     nodeEnv: process.env.NODE_ENV,
   },
   queries: {
-    statusAll: 'all',
+    aliases: {
+      persons: {
+        status: {
+          all: allStatuses,
+        },
+        'domainUsers.dataSource': {
+          nonExternals: DATA_SOURCE.slice(0, DATA_SOURCE.length - 1),
+        },
+      },
+    },
+    defaults: {
+      persons: {
+        status: STATUS.ACTIVE,
+      },
+    },
   },
 };

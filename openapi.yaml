@@ -22,9 +22,19 @@ paths:
     get:
       tags:
         - Person
-      summary: Returns a list of all persons
+      summary: Gets persons with optional filters
+      description: >
+        In order to filter by multiple values ("or" condition), use "&" with the 
+        same parameter.
+        
+        **for example**: /persons?status=active&status=incomplete 
       produces:
         - application/json
+      parameters:
+        - $ref: '#/parameters/status'
+        - $ref: '#/parameters/entityType'
+        - $ref: '#/parameters/domainUsers.dataSource'
+        - $ref: '#/parameters/rank'
       responses:
         '200':
           description: OK
@@ -57,14 +67,17 @@ paths:
     get:
       tags: 
         - Person
-      summary: Search for autocomplete suggestions for persons' full name
-      description: >**For example**:  */persons/search?fullname=nitro* 
+      summary: 'Search for persons, with partial search support for some fields' 
+      description: >
+        Fields that support partial (autocomplete) search: **fullName**
+
+        **For example**:  */persons/search?fullname=davi&domainUsers.dataSource=dataSource1* 
       parameters:
-        - in: query
-          name: fullname
-          type: string
-          description: the partial fullname to search autocomplete for (min length: 2)
-          required: true
+        - $ref: '#/parameters/fullName'
+        - $ref: '#/parameters/status'
+        - $ref: '#/parameters/entityType'
+        - $ref: '#/parameters/domainUsers.dataSource'
+        - $ref: '#/parameters/rank'
       responses:
         '200':
           description: Person array - max length: 20
@@ -194,6 +207,7 @@ paths:
       tags:
         - Person
       summary: Returns list of persons whose last update was after the specified date
+      description: 'optionally add filters to the result'
       parameters:
         - in: path
           name: from
@@ -201,8 +215,13 @@ paths:
           type: string
           format: date
           description: >-
-            The date of last update. The date looks like this:
-            "2018-10-23T1:13:00.503Z"
+            The date of last update.
+
+            **For example**: "2018-10-23T1:13:00.503Z"
+        - $ref: '#/parameters/status'
+        - $ref: '#/parameters/entityType'
+        - $ref: '#/parameters/domainUsers.dataSource'
+        - $ref: '#/parameters/rank'
       responses:
         '200':
           description: OK
@@ -606,6 +625,44 @@ paths:
     x-oad-type: operation
 
 parameters:
+  entityType:
+    in: query
+    name: entityType
+    description: filter by entityType
+    type: string
+    collectionFormat: multi
+
+  domainUsers.dataSource:
+    in: query
+    name: domainUsers.dataSource
+    description: filter by dataSource of domainUsers
+    type: string
+
+  status:
+    in: query
+    name: status
+    description: > 
+      filter by status, allowed values:
+
+        * active
+        * inactive
+        * incomplete
+
+      default value: active
+    type: string
+
+  fullName:
+    in: query
+    name: fullName
+    description: 'partial fullname to search autocomplete for (min length: 2)'
+    type: string
+
+  rank: 
+    in: query
+    name: rank
+    description: filter by rank
+    type: string
+
   createOG:
     name: Organization Group
     in: body

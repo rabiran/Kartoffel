@@ -3,8 +3,6 @@ export const RANK = ['unknown', 'rookie', 'champion', 'ultimate', 'mega'];
 
 export const CURRENT_UNIT = ['nitro unit', 'jelly unit'];
 
-export const STATUS = ['active', 'inactive', 'incomplete'];
-
 // the last element makes the 'domainUsers' field required (at least 1 value in the array)
 // the second to last element makes the 'rank' field required
 export const ENTITY_TYPE = ['digimon', 'agumon', 'tamar'];
@@ -25,3 +23,5 @@ export const DOMAIN_MAP = [
 export const SERVICE_TYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const DATA_SOURCE = ['dataSource1', 'dataSource2','aka', 'es_name', 'ads_name', 'adNN_name', 'nvSQL_name', 'lmn_name', 'mdn_name', 'mm_name', 'city_name'];
+
+export enum STATUS { ACTIVE = 'active', INACTIVE = 'inactive', INCOMPLETE = 'incomplete' }

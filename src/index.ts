@@ -10,8 +10,13 @@ apm.start({
 import promiseRetry = require('promise-retry');
 import server from './server';
 import * as mongoose from 'mongoose';
+import personElastic from './person/person.elastic.repository';
 import { log, LOG_LEVEL } from './helpers/logger';
-import { initIndex, initEsClient } from './search/elasticsearch';
+import { initIndex, initClient } from './search/elasticsearch';
+
+async function initElasticSearchIndexes() {
+  await initIndex(personElastic.getIndexSettings());
+}
 
 (async () => {
   (<any>mongoose).Promise = Promise;
@@ -45,11 +50,11 @@ import { initIndex, initEsClient } from './search/elasticsearch';
     log(LOG_LEVEL.ERROR, err);
   }
   /* Initiallize the ES client */
-  initEsClient();
+  initClient();
   /* Initiallize the ES index */
   try {
     await promiseRetry((retry, num) => {
-      return initIndex().catch(retry);
+      return initElasticSearchIndexes().catch(retry);
     }, { retries: config.elasticSearch.indexInitRetries });
     console.log('[ES] initiallized index successfully');
   } catch (err) {
