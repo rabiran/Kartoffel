@@ -1,6 +1,5 @@
 import { ValidatorObj } from './types/validation';
 import { DOMAIN_MAP, STATUS } from './config/db-enums';
-import * as _ from 'lodash'; 
 
 export const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 export const DomainSeperator = '@';
