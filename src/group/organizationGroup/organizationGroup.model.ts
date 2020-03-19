@@ -43,6 +43,8 @@ export const OrganizationGroupSchema = new mongoose.Schema(
     },
     akaUnit: {
       type: String,
+      unique: true,
+      sparse: true,
     },
     isAlive: {
       type: Boolean,
