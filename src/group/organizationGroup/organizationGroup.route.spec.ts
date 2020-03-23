@@ -202,6 +202,18 @@ describe('OrganizationGroup API', () => {
       clock.restore();
     });
   });
+  describe('/GET group with akaUnit as given by param', () => {
+    it('Should return 200 when finding by akaUnit', async () => {
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_3', akaUnit: 'coolunit2' });
+      chai.request(app)
+        .get(BASE_URL + '/akaUnit/' + 'coolunit2')
+        .then((res) => {
+          res.should.have.status(200);
+          const group = res.body;
+          group.should.have.property('akaUnit', 'coolunit2');
+        }).catch((err) => { throw err; });
+    });
+  });
   describe('/POST group', () => {
     it('Should return 400 when group is null', (done) => {
       chai.request(app)
@@ -226,13 +238,13 @@ describe('OrganizationGroup API', () => {
     it('Should return the created group', (done) => {
       chai.request(app)
         .post(BASE_URL)
-        .send({ name: 'Biran', akaUnit: 'coolUnit' })
+        .send({ name: 'Biran', akaUnit: 'haha4' })
         .end((err, res) => {
           res.should.exist;
           res.should.have.status(200);
           const group = res.body;
           group.should.have.property('name', 'Biran');
-          group.should.have.property('akaUnit', 'coolUnit');
+          group.should.have.property('akaUnit', 'haha4');
           done();
         });
     });
@@ -249,14 +261,14 @@ describe('OrganizationGroup API', () => {
         });
     });
     it('Should return the updated group', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2', akaUnit: 'haha' });
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2', akaUnit: 'haha5' });
       await chai.request(app)
         .put(`${BASE_URL}/${group.id}`)
-        .send({ akaUnit: 'coolUnit' })
+        .send({ akaUnit: 'haha6' })
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('akaUnit','coolUnit');
+          res.body.should.have.property('akaUnit','haha6');
         }).catch((err) => { throw err; });
     });
 

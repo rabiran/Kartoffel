@@ -238,7 +238,7 @@ export class OrganizationGroup {
 
     // Update the group
     const res = await OrganizationGroup.updateOrganizationGroup(group.id, group);
-
+    
     // Inform the parent about his child's death
     if (parentID) {
       await OrganizationGroup.disownChild(parentID, groupID);
@@ -391,6 +391,6 @@ function modifyOrganizationGroupBeforeSend(organizationGroup: IOrganizationGroup
 
 function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
   const copy = {} as Pick<T, K>;
-  keys.forEach(key => copy[key] = obj[key]);
+  keys.forEach(key => key in obj ? copy[key] = obj[key] : null);
   return copy;
 }
