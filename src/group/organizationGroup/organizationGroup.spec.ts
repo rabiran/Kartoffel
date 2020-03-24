@@ -168,6 +168,7 @@ describe('Strong Groups', () => {
     });
     it('Should find the group', async () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1', akaUnit: 'coolunit3' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group5' });
       const existGroups = await OrganizationGroup.getOrganizationGroupByAkaUnit('coolunit3');
       expect(existGroups).to.be.an('object');
       expect(existGroups).to.have.property(`name`, 'group1');

@@ -205,6 +205,7 @@ describe('OrganizationGroup API', () => {
   describe('/GET group with akaUnit as given by param', () => {
     it('Should return 200 when finding by akaUnit', async () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_3', akaUnit: 'coolunit2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_2' });
       chai.request(app)
         .get(BASE_URL + '/akaUnit/' + 'coolunit2')
         .then((res) => {
