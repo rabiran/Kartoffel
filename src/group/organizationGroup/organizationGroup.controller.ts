@@ -61,6 +61,19 @@ export class OrganizationGroup {
   }
 
   /**
+   * return group that has the following akaUnit.
+   * @param akaUnit akaUnit of group to get
+   */
+  static async getOrganizationGroupByAkaUnit(akaUnit: string) {
+    const cond = { akaUnit };
+    const organizationGroup = await OrganizationGroup._organizationGroupRepository.findOne(cond);
+    if (!organizationGroup) {
+      throw new ResourceNotFoundError(`Cannot find group with akaUnit: ${akaUnit}`);
+    }
+    return organizationGroup;
+  }
+
+  /**
   * Add organizationGroup
   * @param organizationGroup The object with details to create organizationGroup 
   * @param parentID ID of parent of organizationGroup to insert 
@@ -159,8 +172,8 @@ export class OrganizationGroup {
   }
 
   static async getUpdatedFrom(from: Date, to: Date) {
-    const persons = await OrganizationGroup._organizationGroupRepository.getUpdatedFrom(from, to);
-    return <IOrganizationGroup[]>persons;
+    const groups = await OrganizationGroup._organizationGroupRepository.getUpdatedFrom(from, to);
+    return <IOrganizationGroup[]>groups;
   }
 
   static async updateOrganizationGroup(id: string, updateTo: Partial<IOrganizationGroup>): Promise<IOrganizationGroup> {
@@ -225,7 +238,7 @@ export class OrganizationGroup {
 
     // Update the group
     const res = await OrganizationGroup.updateOrganizationGroup(group.id, group);
-
+    
     // Inform the parent about his child's death
     if (parentID) {
       await OrganizationGroup.disownChild(parentID, groupID);
@@ -378,6 +391,6 @@ function modifyOrganizationGroupBeforeSend(organizationGroup: IOrganizationGroup
 
 function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
   const copy = {} as Pick<T, K>;
-  keys.forEach(key => copy[key] = obj[key]);
+  keys.forEach(key => key in obj ? copy[key] = obj[key] : null);
   return copy;
 }

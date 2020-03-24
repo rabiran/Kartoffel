@@ -44,6 +44,12 @@ ch(OrganizationGroup.getIDofOrganizationGroupsInHierarchy, (req: Request) => {
   return [hierarchy];
 }));
 
+organizationGroups.get('/akaUnit/:akaUnit', 
+ch(OrganizationGroup.getOrganizationGroupByAkaUnit, (req: Request) => {
+  const akaUnit = req.params.akaUnit;
+  return [akaUnit];
+}));
+
 organizationGroups.post('/',
   PermissionMiddleware.hasAdvancedPermission,
   validatorMiddleware(OGRouteValidate.creation),
