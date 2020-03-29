@@ -1,7 +1,17 @@
 import { Client, ApiResponse, ClientOptions } from '@elastic/elasticsearch';
 import { config } from '../config/config';
-import { personsIndexSettings } from './indexSettings';
 import { ConnectionOptions } from 'tls';
+
+export interface ElasticSearchRepository<T> {
+  search(query: object, size?: number): Promise<T[]>;
+  getIndexSettings(): IndexSettings; 
+}
+
+interface IndexSettings {
+  name: string;
+  settings?: object;
+  mappings?: object;
+}
 
 interface ShardsResponse {
   total: number;
@@ -48,41 +58,43 @@ let client: Client = null;
  * returns es client options 
  */
 function getClientOpts(): ClientOptions {
+  const { nodes, ssl, auth } = config.elasticSearch;
   const opts: ClientOptions = {
-    nodes: config.elasticSearch.nodes,
+    nodes,
   };
+
   // add ssl opt
-  if (config.elasticSearch.ssl.enabled) {
+  if (ssl.enabled) {
     const sslOpts: ConnectionOptions = {
-      rejectUnauthorized: config.elasticSearch.ssl.rejectUnauthorized,
+      rejectUnauthorized: ssl.rejectUnauthorized,
     };
     // add ca
-    if (config.elasticSearch.ssl.ca) sslOpts.ca = config.elasticSearch.ssl.ca;
+    if (ssl.ca) sslOpts.ca = ssl.ca;
     // add pfx OR cert (priority to PFX)
-    if (config.elasticSearch.ssl.pfx) sslOpts.pfx = config.elasticSearch.ssl.pfx;
-    else if (config.elasticSearch.ssl.cert) {
-      sslOpts.cert = config.elasticSearch.ssl.cert;
-      if (config.elasticSearch.ssl.key) sslOpts.key = config.elasticSearch.ssl.key;
+    if (ssl.pfx) sslOpts.pfx = ssl.pfx;
+    else if (ssl.cert) {
+      sslOpts.cert = ssl.cert;
+      if (ssl.key) sslOpts.key = ssl.key;
     }
     // add passphrase
-    if (config.elasticSearch.ssl.passphrase) sslOpts.passphrase = config.elasticSearch.ssl.passphrase;
+    if (ssl.passphrase) sslOpts.passphrase = ssl.passphrase;
     // check whether to disable server identity check
-    if (config.elasticSearch.ssl.disableServerIdenityCheck) {
+    if (ssl.disableServerIdenityCheck) {
       sslOpts.checkServerIdentity = (host, cert) => undefined;
     }
     opts.ssl = sslOpts;
   }
   // add auth opts
-  if (config.elasticSearch.auth.username) {
+  if (auth.username) {
     opts.auth = {
-      username: config.elasticSearch.auth.username,
-      password: config.elasticSearch.auth.password,
+      username: auth.username,
+      password: auth.password,
     };
   }
   return opts;
 }
 
-export function initEsClient() {
+export function initClient() {
   client = new Client(getClientOpts());
 }
 
@@ -93,7 +105,7 @@ export function initEsClient() {
  * @param size the maximum amount of results returned
  * @param query query body 
  */
-export async function search<T>(index: string, size: number ,query: Object) {
+export async function search<T>(index: string, size: number, query: Object) {
   const res: ApiResponse<SearchResponse<T>> = await client.search({
     index,
     size,
@@ -106,14 +118,17 @@ export async function search<T>(index: string, size: number ,query: Object) {
 }
 
 /**
- * initiallize the indexes needed to perform the search
+ * initiallize an index specified in the index settings
+ * needed to perform the search
+ * @param indexSettings index name and ElasticSearch 
+ * settings (such as: Mappings, analyzers ... etc.)
  */
-export async function initIndex() {
-  if ((await client.indices.exists({ 
-    index: config.elasticSearch.personsIndexName })).statusCode === 404) {
+export async function initIndex(indexSettings: IndexSettings) {
+  const { name, settings = {}, mappings = {} } = indexSettings;
+  if ((await client.indices.exists({ index: name })).statusCode === 404) {
     await client.indices.create({
-      index: config.elasticSearch.personsIndexName,
-      body: personsIndexSettings,
+      index: name,
+      body: { settings, mappings },
     });
   }
 }

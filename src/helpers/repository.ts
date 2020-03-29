@@ -17,6 +17,22 @@ export interface ICollection<T> {
   totalCount: number;
 }
 
+/**
+ * Parse query object to MongoDB query.
+ * @param queryObj 
+ * @returns new MongoDB query object
+ */
+function queryParser(queryObj: object): any {
+  const cond = {};
+  for (const [field, value] of Object.entries(queryObj)) {
+    if (Array.isArray(value)) {
+      cond[field] = { $in: value };
+    }
+    cond[field] = value;
+  }
+  return cond;
+}
+
 export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
 
   private _model: mongoose.Model<T & mongoose.Document>;
@@ -38,8 +54,8 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     return query.exec();
   }
 
-  getUpdatedFrom(from: Date, to: Date): Promise<T[]> {
-    return this._model.find({ updatedAt: { $gte: from, $lte: to } }).exec();
+  getUpdatedFrom(from: Date, to: Date, query: object = {}): Promise<T[]> {
+    return this._model.find({ ...queryParser(query), updatedAt: { $gte: from, $lte: to } }).exec();
   }
 
   findAndUpdateSome(ids: string[], set: Object): Promise<T[]> {
@@ -123,6 +139,10 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     return findPromise.exec().then((result) => {
       return (result ? result.map((mongoObject => mongoObject.toObject())) : result);
     });
+  }
+
+  findByQuery(queryObj: Object, populate?: string | Object, select?: string): Promise<T[]> {
+    return this.find(queryParser(queryObj), populate, select);
   }
 
 }

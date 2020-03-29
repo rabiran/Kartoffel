@@ -5,7 +5,8 @@ import { Person } from './person.controller';
 import { IPerson, IDomainUser } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { config } from '../config/config';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 
@@ -99,6 +100,17 @@ const personExamples: IPerson[] = [
     job: 'cosmetician 1',
     entityType: ENTITY_TYPE[0],
   },
+  <IPerson>{
+    status: STATUS.INCOMPLETE,
+    personalNumber: '3456711',
+    firstName: 'Tipesh',
+    lastName: 'Tov',
+    dischargeDay: new Date(2025, 11),
+    job: 'horse',
+    entityType: ENTITY_TYPE[1],
+    currentUnit: CURRENT_UNIT[0],
+    serviceType: SERVICE_TYPE[0],
+  },
 ];
 
 const BASE_URL = '/api/persons';
@@ -146,14 +158,14 @@ describe('Person', () => {
           res.body.length.should.be.eql(1);
         }).catch((err) => { throw err; });
     });
-    it('Should get persons with person that dead', async () => {
+    it('Should get persons including person with status inactive', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await Person.createPerson(<IPerson>{ ...personExamples[1] });
 
       await Person.discharge(person.id);
 
       await chai.request(app)
-        .get(`${BASE_URL}?alsoDead=true`)
+        .get(`${BASE_URL}?status=all`)  // all
         .then((res) => {
           res.should.have.status(200);
           res.body.should.be.an('array');
@@ -304,6 +316,25 @@ describe('Person', () => {
         }).catch((err) => { throw err; });
       clock.restore();
     });
+
+    it('should return updated person from certain date and with entityType[0]', async () => {
+      const clock = sinon.useFakeTimers();
+      // person with EntityType[0]
+      await Person.createPerson({ ...personExamples[1] });
+      clock.tick(1000);
+      const from = clock.Date().toISOString();
+      // person with EntityType[1]
+      await Person.createPerson({ ...personExamples[0] });
+      // person with EntityType[0]
+      const expectedPerson = await Person.createPerson({ ...personExamples[2] });
+      clock.tick(1000);
+      clock.restore();
+      const res = await chai.request(app).get(`${BASE_URL}/getUpdated/${from}?entityType=${ENTITY_TYPE[0]}`);
+      expect(res).to.have.status(200);
+      const persons = res.body;
+      expect(persons).to.have.lengthOf(1);
+      expect(persons[0]).to.have.property('id', expectedPerson.id);
+    });
   });
   describe('/POST person', () => {
     it('Should return 400 when person is null', (done) => {
@@ -347,6 +378,7 @@ describe('Person', () => {
           person.should.have.property('identityCard', personExamples[0].identityCard);
           person.should.have.property('firstName', personExamples[0].firstName);
           person.should.have.property('lastName', personExamples[0].lastName);
+          person.should.have.property('status', STATUS.ACTIVE);
           done();
         });
     });
@@ -358,6 +390,12 @@ describe('Person', () => {
       createdPerson.domainUsers.should.have.lengthOf(1);
       const user = createdPerson.domainUsers[0] as IDomainUser;
       user.uniqueID.should.be.equal(userStringEx);
+    });
+    it('should create a person with incomplete status', async () => {
+      const person = { ...personExamples[5] };
+      const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
+      createdPerson.should.exist;
+      createdPerson.should.have.property('status', STATUS.INCOMPLETE);
     });
 
   });
@@ -555,7 +593,7 @@ describe('Person', () => {
         .then((res) => {
           res.should.exist;
           res.should.have.status(200);
-          res.body.should.have.property('alive', false);
+          res.body.should.have.property('status', STATUS.INACTIVE);
         }).catch((err) => { throw err; });
     });
   });

@@ -2,6 +2,7 @@ import * as mongoose from 'mongoose';
 import { IOrganizationGroup } from './organizationGroup.interface';
 import { IPerson } from '../../person/person.interface';
 import { registerErrorHandlingHooks } from '../../helpers/mongooseErrorConvert';
+import  * as consts  from '../../config/db-enums';
 
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -43,6 +44,8 @@ export const OrganizationGroupSchema = new mongoose.Schema(
     },
     akaUnit: {
       type: String,
+      unique: true,
+      sparse: true,
     },
     isAlive: {
       type: Boolean,
@@ -70,17 +73,17 @@ OrganizationGroupSchema.virtual('directMembers', {
   justOne: false,
 });
 
-function onlyAliveMembers(group: IOrganizationGroup) {
+function onlyActiveMembers(group: IOrganizationGroup) {
   if (group && group.directMembers) {
-    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.alive);
+    group.directMembers = (<IPerson[]>group.directMembers).filter(p => p.status === consts.STATUS.ACTIVE);
   }
 }
 
 function postFind(result: mongoose.Document | IOrganizationGroup | IOrganizationGroup[]) {
   if (Array.isArray(result)) {
-    result.map(onlyAliveMembers);
+    result.map(onlyActiveMembers);
   } else {
-    onlyAliveMembers(<IOrganizationGroup>result);
+    onlyActiveMembers(<IOrganizationGroup>result);
   }
 }
 

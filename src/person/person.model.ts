@@ -3,7 +3,7 @@ import { IPerson, IDomainUser } from './person.interface';
 import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
-import { DomainSeperator, filterObjectByKeys, domainMap } from '../utils';
+import { DomainSeperator, filterObjectByKeys, domainMap, allStatuses } from '../utils';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -112,16 +112,17 @@ export const PersonSchema = new mongoose.Schema(
       type: String,
       enum: consts.CURRENT_UNIT,
     },
-    alive: {
-      type: Boolean,
-      default: true,
+    status: {
+      type: String,
+      enum: allStatuses,
+      default: consts.STATUS.ACTIVE,
     },
     dischargeDay: {
       type: Date,
     },
     hierarchy: {
       type: [String],
-      required: [function () { return this.alive === true; }, 'You must enter a hierarchy!'],
+      required: [function () { return this.status === consts.STATUS[0]; }, 'You must enter a hierarchy!'],
       default: undefined,
     },
     job: {
@@ -177,7 +178,7 @@ export const PersonSchema = new mongoose.Schema(
 PersonSchema.set('timestamps', true);
 
 PersonSchema.virtual('fullName').get(function () {
-  return this.firstName + ' ' + this.lastName;
+  return [this.firstName, this.lastName].filter(s => s).join(' ');
 });
 
 registerErrorHandlingHooks(PersonSchema);

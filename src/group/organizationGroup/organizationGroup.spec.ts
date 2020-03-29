@@ -187,12 +187,26 @@ describe('Strong Groups', () => {
     });
   });
 
+  describe('#Get group by akaUnit', () => {
+    it('Should not find the group', async () => {
+      const existGroups = OrganizationGroup.getOrganizationGroupByAkaUnit('coolunit');
+      return existGroups.should.be.rejected;
+    });
+    it('Should find the group', async () => {
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1', akaUnit: 'coolunit3' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group5' });
+      const existGroups = await OrganizationGroup.getOrganizationGroupByAkaUnit('coolunit3');
+      expect(existGroups).to.be.an('object');
+      expect(existGroups).to.have.property(`name`, 'group1');
+      expect(existGroups).to.have.property(`akaUnit`, 'coolunit3');    
+    });
+  });
   describe('#createOrganizationGroup', () => {
     it('Should create a simple group', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Biran' ,akaUnit: 'haha' });
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Biran' ,akaUnit: 'haha1' });
       group.should.exist;
       group.should.have.property('name', 'Biran');
-      group.should.have.property('akaUnit', 'haha');
+      group.should.have.property('akaUnit', 'haha1');
       group.should.have.property('ancestors');
       group.ancestors.should.be.an('array');
       group.ancestors.should.have.lengthOf(0);
@@ -262,10 +276,12 @@ describe('Strong Groups', () => {
       const ancstr2: IOrganizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[1] }, ancstr1.id);
       const ancstr3: IOrganizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[2] }, ancstr2.id);
       const orgGrp: IOrganizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[3] }, ancstr3.id);
+
       const hideOrgGrp = await OrganizationGroup.hideGroup(orgGrp.id);
       const hideAncstr3 = await OrganizationGroup.hideGroup(ancstr3.id);
       const hideAncstr2 = await OrganizationGroup.hideGroup(ancstr2.id);
       const hideAncstr1 = await OrganizationGroup.getOrganizationGroupOld(ancstr1.id);
+
       expect(hideAncstr2.isAlive).to.be.false;
       expect(hideAncstr3.isAlive).to.be.false;
       expect(hideOrgGrp.isAlive).to.be.false;
@@ -351,12 +367,12 @@ describe('Strong Groups', () => {
         await expectError(OrganizationGroup.updateOrganizationGroup, [ID_EXAMPLE, <IOrganizationGroup>{ name: 'newName' }]);
       });
       it('Should update the group', async () => {
-        const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'newName' ,akaUnit: 'coolunit' });
-        const updated = await OrganizationGroup.updateOrganizationGroup(organizationGroup.id, <IOrganizationGroup>{ akaUnit: 'newUnit' });
+        const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'newName' ,akaUnit: 'haha2' });
+        const updated = await OrganizationGroup.updateOrganizationGroup(organizationGroup.id, <IOrganizationGroup>{ akaUnit: 'haha3' });
 
         updated.should.exist;
         updated.should.have.property('name', 'newName');
-        updated.should.have.property('akaUnit', 'newUnit');
+        updated.should.have.property('akaUnit', 'haha3');
       });
 
 

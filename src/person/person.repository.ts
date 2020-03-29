@@ -3,25 +3,12 @@ import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface'
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
-
+import  * as consts  from '../config/db-enums';
+import { config } from '../config/config';
 
 export class PersonRepository extends RepositoryBase<IPerson> {
   constructor() {
     super(Person);
-  }
-
-  /**
-   * Get persons according to urlQuery
-   * @param queryFields Object, it's key-value pairs are person fields and the corresponding values to find.
-   * nested fields are expressed with dot notation. e.g: "domainUsers.dataSource".
-   * @param populate 
-   * @param select 
-   */
-  getPersonsByQuery(queryFields: any = {}, populate?: any, select?: any): Promise<IPerson[]> {
-    const cond = {};
-    if (!(queryFields.alsoDead && queryFields.alsoDead === 'true')) cond['alive'] = 'true';
-    if (queryFields['domainUsers.dataSource']) cond['domainUsers.dataSource'] = queryFields['domainUsers.dataSource'];
-    return this.find(cond, populate, select);
   }
 
   getMembersOfGroups(organizationGroupsIDS: string[]): Promise<IPerson[]> {
