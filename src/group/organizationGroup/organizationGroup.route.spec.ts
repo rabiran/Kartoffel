@@ -14,6 +14,7 @@ const expect = chai.expect;
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const ID_EXAMPLE_2 = '59a56d577bedba18504298de';
 const BASE_URL = '/api/organizationGroups';
+const CHILDREN_ROUTE = 'children';
 
 describe('OrganizationGroup API', () => {
   describe('/GET all groups', () => {
@@ -209,7 +210,7 @@ describe('OrganizationGroup API', () => {
       const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
       const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
 
-      const res = (await chai.request(app).get(`${BASE_URL}/${parent.id}/subGroups`));
+      const res = (await chai.request(app).get(`${BASE_URL}/${parent.id}/${CHILDREN_ROUTE}`));
       expect(res).to.have.status(200);
       const allOffsprings = res.body as IOrganizationGroup[];
       expect(allOffsprings).to.have.lengthOf(2);
@@ -223,7 +224,7 @@ describe('OrganizationGroup API', () => {
       const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
 
-      const res = (await chai.request(app).get(`${BASE_URL}/${parent.id}/subGroups?maxDepth=2`));
+      const res = (await chai.request(app).get(`${BASE_URL}/${parent.id}/${CHILDREN_ROUTE}?maxDepth=2`));
       expect(res).to.have.status(200);
       const depthOffsprings = res.body as IOrganizationGroup[];
       expect(depthOffsprings).to.have.lengthOf(2);
@@ -233,7 +234,7 @@ describe('OrganizationGroup API', () => {
 
     it('should throw an error if the maxDepth parameter is too big', async() => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
-      chai.request(app).get(`${BASE_URL}/${group.id}/subGroups?maxDepth=11`).then(
+      chai.request(app).get(`${BASE_URL}/${group.id}/${CHILDREN_ROUTE}?maxDepth=11`).then(
         () => expect.fail(null, null, 'request should fail'),
         (err) => {
           expect(err).to.have.status(400);
