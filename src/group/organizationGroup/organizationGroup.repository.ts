@@ -11,19 +11,23 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
   }
 
   /**
-   * return array of offspring according to the condition
-   * @param ancestor_id ID of ancestor
-   * @param selectField fields to select
-   * @param cond condition
+   * Returns array of offsprings
+   * @param parentId id of the parent group
+   * @param maxDepth if given, offsprings of depth bigger than `maxDepth` will not be returned
+   * @param populate 
+   * @param select 
    */
-  getOffsprings(ancestor_id: string, selectField?: string[], cond?: object): Promise<IOrganizationGroup[]> {
-    const query = OrganizationGroup.find({ ancestors: ObjectId(ancestor_id) });
-    if (selectField) {
-      !selectField.includes('id') ? selectField.push('id') : selectField; 
-      query.select(selectField.join(' '));
+  getOffsprings(parentId: string, maxDepth?: number , populate?: string | Object, select?: string) {
+    let query;
+    if (maxDepth) {
+      query = {
+        $or: [...Array(maxDepth).keys()].map(index => 
+          ({ [`ancestors.${index}`]: ObjectId(parentId) })),
+      };
+    } else {
+      query = { ancestors: ObjectId(parentId) };
     }
-    if (cond) query.where(cond);
-    return query.exec();
+    return this.find(query, populate, select);
   }
   
   /**

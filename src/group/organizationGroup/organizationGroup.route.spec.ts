@@ -14,6 +14,7 @@ const expect = chai.expect;
 const ID_EXAMPLE = '59a56d577bedba18504298df';
 const ID_EXAMPLE_2 = '59a56d577bedba18504298de';
 const BASE_URL = '/api/organizationGroups';
+const CHILDREN_ROUTE = 'children';
 
 describe('OrganizationGroup API', () => {
   describe('/GET all groups', () => {
@@ -202,6 +203,46 @@ describe('OrganizationGroup API', () => {
       clock.restore();
     });
   });
+
+  describe('/GET group offsprings', () => {
+    it('should return all group offsprings', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
+      const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
+
+      const res = (await chai.request(app).get(`${BASE_URL}/${parent.id}/${CHILDREN_ROUTE}`));
+      expect(res).to.have.status(200);
+      const allOffsprings = res.body as IOrganizationGroup[];
+      expect(allOffsprings).to.have.lengthOf(2);
+      const ids = allOffsprings.map(group => group.id);
+      expect(ids).to.have.members([child.id, offspring.id]);
+    });
+
+    it('should return all group offsprings with maximum depth of 2', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
+      const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
+
+      const res = (await chai.request(app).get(`${BASE_URL}/${parent.id}/${CHILDREN_ROUTE}?maxDepth=2`));
+      expect(res).to.have.status(200);
+      const depthOffsprings = res.body as IOrganizationGroup[];
+      expect(depthOffsprings).to.have.lengthOf(2);
+      const ids = depthOffsprings.map(group => group.id);
+      expect(ids).to.have.members([child.id, offspring.id]);
+    });
+
+    it('should throw an error if the maxDepth parameter is too big', async() => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      chai.request(app).get(`${BASE_URL}/${group.id}/${CHILDREN_ROUTE}?maxDepth=11`).then(
+        () => expect.fail(null, null, 'request should fail'),
+        (err) => {
+          expect(err).to.have.status(400);
+        });
+    });
+
+  });
+
   describe('/GET group with akaUnit as given by param', () => {
     it('Should return 200 when finding by akaUnit', async () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group_3', akaUnit: 'coolunit2' });

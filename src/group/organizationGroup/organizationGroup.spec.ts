@@ -161,6 +161,32 @@ describe('Strong Groups', () => {
       expect(existGroups).to.have.property(`${group1.name}/${group2.name}/group3/group4`, null);
     });
   });
+
+  describe('#get group offsprings', () => {
+    it('should return all the offsprings of a group', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
+      const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
+
+      const allOffsprings = await OrganizationGroup.getOffsprings(parent.id);
+      expect(allOffsprings).to.have.lengthOf(2);
+      const ids = allOffsprings.map(group => group.id);
+      expect(ids).to.have.members([child.id, offspring.id]);
+    });
+
+    it('should return all the offsprings of a group with maximum depth of 2', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
+      const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
+
+      const depthOffsprings = await OrganizationGroup.getOffsprings(parent.id, 2);
+      expect(depthOffsprings).to.have.lengthOf(2);
+      const ids = depthOffsprings.map(group => group.id);
+      expect(ids).to.have.members([child.id, offspring.id]);
+    });
+  });
+
   describe('#Get group by akaUnit', () => {
     it('Should not find the group', async () => {
       const existGroups = OrganizationGroup.getOrganizationGroupByAkaUnit('coolunit');

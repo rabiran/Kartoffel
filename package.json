@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@types/body-parser": "^1.16.4",
-    "@types/chai": "^4.0.3",
+    "@types/chai": "^4.2.8",
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-http": "^3.0.2",
     "@types/connect-mongo": "0.0.33",

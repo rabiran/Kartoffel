@@ -575,6 +575,42 @@ paths:
           required: true
           type: string
     x-oad-type: operation
+  '/organizationGroups/{id}/children':
+    get:
+      summary: Get direct and indirect children of a group
+      description: > 
+        Can limit the depth of returned children by supplying the parameter
+        `maxDepth`
+
+        **For example:** */organizationGroups/123455/children?maxDepth=2* 
+      tags:
+        - Organization Group
+      parameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+          description: id
+        - name: maxDepth
+          in: query
+          type: number
+          description: > 
+            Number in range 1-10. 
+            Omitting this parameter will not limit the depth of returned groups
+      responses: 
+        '200':
+          description: Array of organizationGroups, may be empty
+          schema:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/OG'
+        '400':
+          description: 'Illegal parameters'
+        '404':
+          description: 'Group not found'
+    x-oad-type: operation
+
   /organizationGroups/adoption:
     put:
       summary: Transfer group to a new parent

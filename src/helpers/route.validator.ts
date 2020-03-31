@@ -27,6 +27,10 @@ export class RouteParamsValidate {
     }
   }
 
+  static inRangeGenerator(min: number, max: number) {
+    return (val: any) => !isNaN(val) && val >= min && val <= max;
+  }
+
   static fieldExistanceGenerator(allowedfields: string[], requireAll: boolean = false) {
     return (obj: Object) => {
       const diff = _.difference(Object.keys(obj), allowedfields);
@@ -43,7 +47,7 @@ export class RouteParamsValidate {
     return val instanceof Date;
   }
 
-  private static isInt(val: any): Boolean {
+  static isInt(val: any): Boolean {
     return !isNaN(val) || parseInt(Number(val) + '') === val || !isNaN(parseInt(val, 10));
   }
 }
