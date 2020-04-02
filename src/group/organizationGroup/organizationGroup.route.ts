@@ -59,15 +59,6 @@ organizationGroups.post('/',
     return [organizationGroup, parentId];
   }));
 
-// delete this route ?
-organizationGroups.get('/:id/old', (req: Request, res: Response) => {
-  const getFunction = (req.query.populated === 'true') ? OrganizationGroup.getOrganizationGroupPopulated : OrganizationGroup.getOrganizationGroupOld;
-  ch(getFunction, (req: Request, res: Response) => {
-    return [req.params.id];
-  })(req, res, null);
-
-});
-
 organizationGroups.get('/:id/members', 
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));

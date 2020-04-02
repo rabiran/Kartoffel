@@ -1007,7 +1007,7 @@ describe('Persons', () => {
 });
 
 async function printTreeHeavy(sourceID: string, deep = 0) {
-  const source = await OrganizationGroup.getOrganizationGroupOld(sourceID);
+  const source = await OrganizationGroup.getOrganizationGroup(sourceID);
   let pre = '';
   for (let i = 0; i < deep; i++) {
     pre += '  ';
