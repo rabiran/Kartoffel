@@ -6,6 +6,9 @@ import { OrganizationGroup } from './organizationGroup.controller';
 import { OrganizationGroupModel } from './organizationGroup.model';
 import { IOrganizationGroup } from './organizationGroup.interface';
 import { expectError } from '../../helpers/spec.helper';
+import { Person } from '../../person/person.controller';
+import { IPerson } from '../../person/person.interface';
+import { ENTITY_TYPE } from '../../config/db-enums';
 
 const should = chai.should();
 chai.use(require('chai-http'));
@@ -93,6 +96,31 @@ describe('OrganizationGroup API', () => {
           res.should.have.status(200);
           res.should.exist;
           res.body.should.have.property('name', organizationGroup.name);
+        }).catch((err) => { throw err; });
+    });
+    it('Should return a group populated', async () => {
+      const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
+      await Person.createPerson({
+        identityCard: '000000315',
+        personalNumber: '1000003',
+        firstName: 'tipesh',
+        lastName: 'meod',
+        entityType: ENTITY_TYPE[0],
+        dischargeDay: new Date(2022, 11),
+        directGroup: organizationGroup.id,
+        job: 'horse',
+      });
+
+      await chai.request(app)
+        .get(BASE_URL + '/' + organizationGroup.id + '/?populate=directMembers')
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.exist;
+          res.body.should.have.property('name', organizationGroup.name);
+          res.body.should.have.property('directMembers');
+          res.body.directMembers.should.have.lengthOf(1);
+          const member = res.body.directMembers[0];
+          member.should.have.property('firstName', 'tipesh');
         }).catch((err) => { throw err; });
     });
   });
@@ -358,8 +386,8 @@ describe('OrganizationGroup API', () => {
         }).catch((err) => {
           expect.fail(undefined, undefined, err.message);
         });
-      parent = await OrganizationGroup.getOrganizationGroupOld(parent.id);
-      child = await OrganizationGroup.getOrganizationGroupOld(child.id);
+      parent = await OrganizationGroup.getOrganizationGroup(parent.id);
+      child = await OrganizationGroup.getOrganizationGroup(child.id);
 
       parent.should.exist;
       parent.children.should.exist;
