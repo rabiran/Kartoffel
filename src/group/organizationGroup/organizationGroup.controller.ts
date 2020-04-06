@@ -15,7 +15,7 @@ export class OrganizationGroup {
     const cond = {};
     if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['isAlive'] = 'true'; 
     const organizationGroups = await OrganizationGroup._organizationGroupRepository.find(cond);
-    return _.flatMap(<IOrganizationGroup[]>organizationGroups, k => <IOrganizationGroup>modifyOrganizationGroupBeforeSend(k,[]));
+    return _.flatMap(<IOrganizationGroup[]>organizationGroups, group => <IOrganizationGroup>modifyOrganizationGroupBeforeSend(group, []));
   }
 
   /**
@@ -161,7 +161,6 @@ export class OrganizationGroup {
    * @param childrenIDs id list of the groups to transfer
    */
   static async childrenAdoption(parentID: string, childrenIDs: string[]): Promise<void> {
-    // get parent
     // filter out non existing children
     const children = await OrganizationGroup._organizationGroupRepository.getSome(childrenIDs);
     const existingChildrenIds = children.map(group => group.id);

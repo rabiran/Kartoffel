@@ -343,22 +343,22 @@ describe('Strong Groups', () => {
       groupAfterdischarge.should.have.property('directMembers');
       groupAfterdischarge.directMembers.should.have.lengthOf(0);
     });
-    // it('should return the group populated', async () => {
-    //   const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
-    //   const child1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 1' }, organizationGroup.id);
-    //   const child2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2' }, organizationGroup.id);
+    it('should return the group populated with children', async () => {
+      const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
+      const child1 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 1' }, organizationGroup.id);
+      const child2 = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'Child 2' }, organizationGroup.id);
 
-    //   const res = await OrganizationGroup.getOrganizationGroupPopulated(organizationGroup.id);
+      const res = await OrganizationGroup.getOrganizationGroup(organizationGroup.id, ['children']);
 
-    //   res.should.exist;
-    //   res.should.have.property('id', organizationGroup.id);
-    //   res.should.have.property('name', organizationGroup.name);
-    //   const children = <IOrganizationGroup[]>res.children;
-    //   children.should.exist;
-    //   children.should.have.lengthOf(2);
-    //   children[0].name.should.be.equal(child1.name);
-    //   children[1].name.should.be.equal(child2.name);
-    // });
+      res.should.exist;
+      res.should.have.property('id', organizationGroup.id);
+      res.should.have.property('name', organizationGroup.name);
+      const children = <IOrganizationGroup[]>res.children;
+      children.should.exist;
+      children.should.have.lengthOf(2);
+      children[0].name.should.be.equal(child1.name);
+      children[1].name.should.be.equal(child2.name);
+    });
   });
   describe('Update OrganizationGroup', () => {
     describe('#updateOrganizationGroup', () => {
