@@ -7,7 +7,7 @@ import { Person } from './person.controller';
 // import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
 import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
-import { extractFilterQueryFields, extractSearchQueryFields } from './person.queryMiddleware';
+import { extractFilterQueryFields, extractSearchQueryFields } from './person.extractQuery';
 
 // const person = new Person();
 const persons = Router();
