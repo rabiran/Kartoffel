@@ -7,23 +7,25 @@ import { Person } from './person.controller';
 // import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
 import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
-import { queryMiddleware, searchMiddleware } from './person.queryMiddleware';
+import { extractFilterQueryFields, extractSearchQueryFields } from './person.extractQuery';
 
 // const person = new Person();
 const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
-persons.get('/', queryMiddleware, ch(Person.getPersons, (req: Request) => [req.query]));
+persons.get('/', ch(Person.getPersons, (req: Request) => [extractFilterQueryFields(req.query)]));
 
-persons.get('/search', searchMiddleware, ch(Person.searchPersons, (req: Request) => [req.query]));
+persons.get('/search', ch(Person.searchPersons, 
+  (req: Request) => [extractSearchQueryFields(req.query)])
+);
 
-persons.get('/getUpdated/:from', queryMiddleware, 
+persons.get('/getUpdated/:from',  
   validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
   ch(Person.getUpdatedFrom, (req: Request) => {
     let from = req.params.from;
     if (typeof(from) === 'number') from = new Date(from);
-    return [from, new Date(), req.query];
+    return [from, new Date(), extractFilterQueryFields(req.query)];
   }
 ));
 

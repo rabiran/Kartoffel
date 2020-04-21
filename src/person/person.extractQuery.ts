@@ -1,5 +1,5 @@
 import { STATUS } from '../config/db-enums';
-import { makeMiddleware } from '../helpers/queryTransform';
+import { transformQueryFields } from '../helpers/queryTransform';
 import { config } from '../config/config';
 
 export const queryParamsRenameMap = {
@@ -29,16 +29,18 @@ export const searchQueryAllowedFields = filterQueryAllowedFields.concat(['fullNa
 
 const { aliases, defaults } = config.queries;
 
-export const queryMiddleware = makeMiddleware({
-  paramsRenameMap: queryParamsRenameMap,
-  filterParams: filterQueryAllowedFields,
-  defaults: defaults.persons,
-  valueAliases: aliases.persons,
-});
+export const extractFilterQueryFields = (query: object) => 
+  transformQueryFields(query, {
+    selectFields: filterQueryAllowedFields,
+    renameMap: queryParamsRenameMap,
+    defaults: defaults.persons,
+    valuesAliases: aliases.persons,
+  });
 
-export const searchMiddleware = makeMiddleware({
-  paramsRenameMap: queryParamsRenameMap,
-  filterParams: searchQueryAllowedFields,
-  defaults: defaults.persons,
-  valueAliases: aliases.persons,
-});
+export const extractSearchQueryFields = (query: object) => 
+  transformQueryFields(query, {
+    selectFields: searchQueryAllowedFields,
+    renameMap: queryParamsRenameMap,
+    defaults: defaults.persons,
+    valuesAliases: aliases.persons,
+  });
