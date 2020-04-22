@@ -19,6 +19,10 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     return this.findOne({ domainUsers: { $elemMatch: { name: domainUser.name, domain: domainUser.domain } } }, populate, select);
   }
 
+  findByNameOfDomainUser(nameOfDomainUser: string, populate?: any, select?: any): Promise<IPerson> {
+    return this.findOne({ 'domainUsers.name': nameOfDomainUser }, populate, select);
+  }
+
   /**
    * find a person with a domain user that have the given name and one of the given domains
    * @param domainUserName name of the domain user

@@ -38,10 +38,6 @@ export function userFromString(uniqueID: string): IDomainUserIdentifier {
   if (!PersonValidate.isLegalUserString(uniqueID)) {
     throw new ValidationError(`${uniqueID} is illegal user representation`);
   }
-  const splitted = uniqueID.split(DomainSeperator);
-  const name = splitted[0], domain = splitted[1];
+  const [name, domain] = uniqueID.split(DomainSeperator);
   return { name, domain };  
 }
-
-
-

@@ -284,6 +284,29 @@ describe('Person', () => {
           user.should.have.property('adfsUID', adfsUIDEx);
         });
     });
+    it('should return the person by it\'s name of domainUser', async () => {
+      await chai.request(app).post(BASE_URL).send({ ...personExamples[0] })
+        .then((res) => {
+          const person = res.body;
+          return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({
+              uniqueID: userStringEx,
+              dataSource: dataSourceExample,
+            });
+        })
+        .then(res => chai.request(app).get(`${BASE_URL}/domainUser/${'nitro'}`))
+        .then((res) => {
+          res.should.have.status(200);
+          res.should.exist;
+          const person = res.body;
+          person.should.exist;
+          person.should.have.property('domainUsers');
+          person.domainUsers.should.have.lengthOf(1);
+          const user = person.domainUsers[0];
+          user.should.have.property('uniqueID', userStringEx);
+          user.should.have.property('adfsUID', adfsUIDEx);
+        });
+    });    
   });
   describe('/GET updated persons', () => {
     it('Should return an 400 when given a wrong param', (done) => {
