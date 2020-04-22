@@ -8,14 +8,19 @@ import { ValidationError } from '../types/error';
  * @param domain domain part string (after seperator)
  */
 export function getAllPossibleDomains(domain: string): string[] {
-  let domains = [domain];
+  let domains: string[] = [];
   // Checks if domain is adfsUID
-  const adfsUIds = Array.from(domainMap.values()).filter(v => v !== '');
-  if (adfsUIds.includes(domain)) {
+  if (Array.from(domainMap.values()).filter(v => v !== '').includes(domain)) {
     // get all keys of this adfsUID
-    const indices = allIndexesOf(adfsUIds, domain);
-    domains = Array.from(domainMap.keys()).filter((_, index) => indices.includes(index));
+    for (const [key, value] of domainMap.entries()) {
+      if (value === domain) {
+        domains.push(key);
+      }
+    }   
   }
+  // If domain isn't adfsUID
+  else domains = [domain];
+
   return domains;
 }
 
