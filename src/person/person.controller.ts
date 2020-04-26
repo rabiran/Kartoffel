@@ -105,7 +105,7 @@ export class Person {
       return await Person.getByDomainUserString(userString);
     }
     // Check if there is person with this uniqueID
-    const person = await Person._personRepository.findByNameOfDomainUser(userString);
+    const person = await Person._personRepository.findByDomainUserName(userString);
     if (!person) {
       throw new ResourceNotFoundError(`person with name of domainUser: ${userString} does not exist`);
     }

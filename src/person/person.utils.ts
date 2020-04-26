@@ -12,11 +12,7 @@ export function getAllPossibleDomains(domain: string): string[] {
   // Checks if domain is adfsUID
   if (Array.from(domainMap.values()).filter(v => v !== '').includes(domain)) {
     // get all keys of this adfsUID
-    for (const [key, value] of domainMap.entries()) {
-      if (value === domain) {
-        domains.push(key);
-      }
-    }   
+    domains = Array.from(domainMap.keys()).filter(key => domainMap.get(key) === domain);
   }
   // If domain isn't adfsUID
   else domains = [domain];

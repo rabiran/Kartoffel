@@ -285,16 +285,9 @@ describe('Person', () => {
         });
     });
     it('should return the person by it\'s name of domainUser', async () => {
-      await chai.request(app).post(BASE_URL).send({ ...personExamples[0] })
-        .then((res) => {
-          const person = res.body;
-          return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
-            .send({
-              uniqueID: userStringEx,
-              dataSource: dataSourceExample,
-            });
-        })
-        .then(res => chai.request(app).get(`${BASE_URL}/domainUser/${'nitro'}`))
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await Person.addNewUser(person.id, { uniqueID: userStringEx, dataSource: dataSourceExample });
+      await chai.request(app).get(`${BASE_URL}/domainUser/${'nitro'}`)
         .then((res) => {
           res.should.have.status(200);
           res.should.exist;
