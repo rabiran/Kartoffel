@@ -293,16 +293,16 @@ paths:
           name: domainUser
           required: true
           type: string
-          description: The uniqueID or adfsUID of the domain user
+          description: The **uniqueID:** "nitro@jello" , **adfsUID:** "nitro@jellouid" or only **name:** "nitro" of the domain user
       responses:
         '200':
           description: A Person object
           schema:
             $ref: '#/definitions/Person'
         '400':
-          description: illegal domainUser string
+          description: illegal domainUser or name string
         '404':
-          description: domain user doesn't exist
+          description: domain user or name doesn't exist
   '/persons/{id}/domainUsers':
     post:
       tags:

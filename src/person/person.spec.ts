@@ -1003,7 +1003,33 @@ describe('Persons', () => {
       await expectError(Person.getByDomainUserString, ['other@jello']);
     });
   });
-
+  describe('#getByNameOfDomainUser', () => {    
+    it('should get the person by it\'s name of domain user', async () => {
+      const createdPerson = await Person.createPerson({ ...personExamples[3] });
+      await Person.addNewUser(createdPerson.id, newUserExample);
+      const person = await Person.getByDomainUser('nitro');
+      person.should.exist;
+      expect(person.id === createdPerson.id);
+      const user = person.domainUsers[0] as IDomainUser;
+      expect(user.id).to.be.undefined;
+      expect(user.domain).to.be.undefined;
+      expect(user.name).to.be.undefined;      
+      user.should.have.property('uniqueID', userStringEx);
+      user.should.have.property('adfsUID', adfsUIDEx);     
+    });        
+    it('should get the person by it\'s domain user string when the there is no case match', async () => {
+      const createdPerson = await Person.createPerson({ ...personExamples[3] });
+      await Person.addNewUser(createdPerson.id, newUserExample);
+      const person = await Person.getByDomainUser(`nItRo`);
+      person.should.exist;
+      expect(person.id === createdPerson.id);
+    });
+    it('should throw error when the there is no matching user', async () => {
+      const createdPerson = await Person.createPerson({ ...personExamples[3] });
+      await Person.addNewUser(createdPerson.id, newUserExample);
+      await expectError(Person.getByDomainUser, ['other']);
+    });
+  });
 });
 
 async function printTreeHeavy(sourceID: string, deep = 0) {

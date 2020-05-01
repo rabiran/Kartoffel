@@ -4,12 +4,10 @@ import { controllerHandler as ch } from '../helpers/controller.helper';
 import { PermissionMiddleware } from '../middlewares/permission.middleware';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { Person } from './person.controller';
-// import { IPerson, EDITABLE_FIELDS, PERSON_FIELDS } from './person.interface';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
 import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
 import { extractFilterQueryFields, extractSearchQueryFields } from './person.extractQuery';
 
-// const person = new Person();
 const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
@@ -65,7 +63,7 @@ persons.get('/identityCard/:identityCard', ch(Person.getPerson, (req: Request) =
 ));
 
 persons.get('/domainUser/:domainUser', 
-  ch(Person.getByDomainUserString, (req: Request) => [req.params.domainUser]));
+  ch(Person.getByDomainUser, (req: Request) => [req.params.domainUser]));
 
 persons.delete('/:id', PermissionMiddleware.hasAdvancedPermission, 
   validatorMiddleware(Vld.validMongoId, ['id'], 'params'),

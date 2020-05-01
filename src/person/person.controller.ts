@@ -96,6 +96,23 @@ export class Person {
   }
 
   /**
+   * Get person by uniqueID (without domain) or full domainUser
+   * @param userString 
+   */
+  static async getByDomainUser(userString: string): Promise<IPerson> {
+    // Check if "userString" is full domainUser
+    if (PersonValidate.isLegalUserString(userString)) {
+      return await Person.getByDomainUserString(userString);
+    }
+    // Check if there is person with this uniqueID
+    const person = await Person._personRepository.findByDomainUserName(userString);
+    if (!person) {
+      throw new ResourceNotFoundError(`person with name of domainUser: ${userString} does not exist`);
+    }
+    return person;
+  }
+
+  /**
    * Add new domain user to an existing person
    * @param personId 
    * @param user domain user object of shape: { uniqueID, dataSource } to add

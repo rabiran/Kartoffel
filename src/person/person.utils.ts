@@ -8,14 +8,15 @@ import { ValidationError } from '../types/error';
  * @param domain domain part string (after seperator)
  */
 export function getAllPossibleDomains(domain: string): string[] {
-  let domains = [domain];
+  let domains: string[] = [];
   // Checks if domain is adfsUID
-  const adfsUIds = Array.from(domainMap.values()).filter(v => v !== '');
-  if (adfsUIds.includes(domain)) {
+  if (Array.from(domainMap.values()).filter(v => v !== '').includes(domain)) {
     // get all keys of this adfsUID
-    const indices = allIndexesOf(adfsUIds, domain);
-    domains = Array.from(domainMap.keys()).filter((_, index) => indices.includes(index));
+    domains = Array.from(domainMap.keys()).filter(key => domainMap.get(key) === domain);
   }
+  // If domain isn't adfsUID
+  else domains = [domain];
+
   return domains;
 }
 
@@ -38,10 +39,6 @@ export function userFromString(uniqueID: string): IDomainUserIdentifier {
   if (!PersonValidate.isLegalUserString(uniqueID)) {
     throw new ValidationError(`${uniqueID} is illegal user representation`);
   }
-  const splitted = uniqueID.split(DomainSeperator);
-  const name = splitted[0], domain = splitted[1];
+  const [name, domain] = uniqueID.split(DomainSeperator);
   return { name, domain };  
 }
-
-
-
