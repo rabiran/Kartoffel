@@ -1,10 +1,11 @@
 import { ValidationError } from '../types/error';
 import { Schema } from 'mongoose';
 import { MongoError } from 'mongodb';
+import { ERS } from '../config/config';
 
 function convertValidationError(err: MongoError, res: any, next: Function) {
   if (err.name === 'ValidationError') {
-    next(new ValidationError(err.message));
+    next(new ValidationError(ERS.PARAM, [err.message]));
   } else {
     next(); // the call will still error out see: https://mongoosejs.com/docs/middleware.html#error-handling-middleware
   }
@@ -12,7 +13,7 @@ function convertValidationError(err: MongoError, res: any, next: Function) {
 
 function convertDuplicateKey(err: MongoError, res: any, next: Function) {
   if (err.name === 'MongoError' && err.code === 11000) {
-    next(new ValidationError('duplicate key error'));
+    next(new ValidationError(ERS.DUPLICATE_KEY));
   } else {
     next(); 
   }

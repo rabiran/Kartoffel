@@ -2,12 +2,13 @@ import { Request, Response, NextFunction, Router } from 'express';
 import * as _ from 'lodash';
 import { ValidationError } from '../types/error';
 import { Types } from 'mongoose';
+import { ERS } from '../config/config';
 
 export class RouteParamsValidate {
 
   static validMongoId(mongoId: any) {
     if (!Types.ObjectId.isValid(mongoId)) {
-      throw new ValidationError(`invalid id: ${mongoId}`);
+      throw new ValidationError(ERS.INVALID_ID, [mongoId]);
     }
   }
 
@@ -17,13 +18,13 @@ export class RouteParamsValidate {
 
   static differentParams(param_1: any, param_2: any) {
     if (param_1 === param_2) {
-      throw new ValidationError('Cannot receive identical parameters!');
+      throw new ValidationError(ERS.SAME_PARAMS);
     }
   }
 
   static dateOrInt(param: any) {
     if (!(RouteParamsValidate.isValidDate(param) || RouteParamsValidate.isInt(param))) {
-      throw new ValidationError('Did not receive a valid date');
+      throw new ValidationError(ERS.INVALID_DATE);
     }
   }
 
@@ -35,10 +36,10 @@ export class RouteParamsValidate {
     return (obj: Object) => {
       const diff = _.difference(Object.keys(obj), allowedfields);
       if (diff.length !== 0) {
-        throw new ValidationError(`unexpected fields: ${diff}`);
+        throw new ValidationError(ERS.UNEXPECTED_FIELDS, [diff.toString()]);
       } else if (requireAll && allowedfields.length !== Object.keys(obj).length) {
         const missingFields = _.difference(allowedfields, Object.keys(obj));
-        throw new ValidationError(`missing required fields: ${missingFields}`);
+        throw new ValidationError(ERS.MISSING_FIELDS, [missingFields.toString()]);
       }
     };
   }

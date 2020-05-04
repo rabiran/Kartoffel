@@ -1,3 +1,4 @@
+import { ERS } from '../../config/config';
 import { Request, Response, NextFunction } from 'express';
 import { OrganizationGroupRepository } from './organizationGroup.repository';
 import { IOrganizationGroup, ORGANIZATION_GROUP_OBJECT_FIELDS, ORGANIZATION_GROUP_KEYS } from './organizationGroup.interface';
@@ -30,7 +31,7 @@ export class OrganizationGroup {
     };
     const organizationGroup = await OrganizationGroup._organizationGroupRepository.findOne(cond);
     if (!organizationGroup) {
-      throw new ResourceNotFoundError(`Cannot find group with name: ${name} and hierarchy: ${hierarchy.join('/')}`);
+      throw new ResourceNotFoundError(ERS.GROUP_BY_HIERARCHY_NOT_FOUND, [name, hierarchy.join('/')]);
     }
     return organizationGroup;
   }
@@ -60,7 +61,7 @@ export class OrganizationGroup {
     const cond = { akaUnit };
     const organizationGroup = await OrganizationGroup._organizationGroupRepository.findOne(cond);
     if (!organizationGroup) {
-      throw new ResourceNotFoundError(`Cannot find group with akaUnit: ${akaUnit}`);
+      throw new ResourceNotFoundError(ERS.GROUP_BY_AKAUNIT_NOT_FOUND, [akaUnit]);
     }
     return organizationGroup;
   }
@@ -73,7 +74,7 @@ export class OrganizationGroup {
   static async createOrganizationGroup(organizationGroup: IOrganizationGroup, parentID: string = undefined): Promise<IOrganizationGroup> {
     const parent = parentID ? await OrganizationGroup._organizationGroupRepository.findById(parentID) : null;
     // the parent does not exist
-    if (parentID && !parent) throw new ResourceNotFoundError(`group with id: ${parentID} does not exist`);
+    if (parentID && !parent) throw new ResourceNotFoundError(ERS.GROUP_NOT_FOUND,[parentID]);
 
     /* In case there is a parent checking that all his ancestor 
        lives and creates a hierarchy and an ancestor */
@@ -116,7 +117,7 @@ export class OrganizationGroup {
     if (groupExists) {
       // If the group exists and is alive
       if (groupExists.isAlive) {
-        throw new ValidationError(`The group with name: ${groupExists.name} and hierarchy: ${groupExists.hierarchy.join('\\')} exist`);
+        throw new ValidationError(ERS.GROUP_EXISTS, [groupExists.name, groupExists.hierarchy.join('\\')]);
         // If the group exists and is not alive, revive it and return it to its parent
       } else {
         groupExists.isAlive = true;
@@ -139,7 +140,7 @@ export class OrganizationGroup {
   static async getOrganizationGroup(organizationGroupID: string, toPopulate?: String[]): Promise<IOrganizationGroup> {
     toPopulate = _.intersection(toPopulate, ORGANIZATION_GROUP_OBJECT_FIELDS);
     const result = await OrganizationGroup._organizationGroupRepository.findById(organizationGroupID, toPopulate);
-    if (!result) throw new ResourceNotFoundError('Cannot find group with ID: ' + organizationGroupID);
+    if (!result) throw new ResourceNotFoundError(ERS.GROUP_NOT_FOUND,[organizationGroupID]);
     const organizationGroup = <IOrganizationGroup>result;
     return <IOrganizationGroup>modifyOrganizationGroupBeforeSend(organizationGroup, toPopulate);
   }
@@ -151,7 +152,7 @@ export class OrganizationGroup {
 
   static async updateOrganizationGroup(id: string, updateTo: Partial<IOrganizationGroup>): Promise<IOrganizationGroup> {
     const updated = await OrganizationGroup._organizationGroupRepository.update(id, updateTo);
-    if (!updated) throw new ResourceNotFoundError('Cannot find group with ID: ' + id);
+    if (!updated) throw new ResourceNotFoundError(ERS.GROUP_NOT_FOUND,[id]);
     return updated;
   }
 
@@ -167,7 +168,7 @@ export class OrganizationGroup {
     // Checks if the parentID is included in chldrenIDs. If it's true, 
     // it creates "Recursive Adoption" and it will stuck the program and spam the DB.  
     if (childrenIDs.includes(parentID)) {
-      throw new ValidationError('The parentId includes in childrenIDs, Cannot insert organizationGroup itself');
+      throw new ValidationError(ERS.INSERTING_GROUP_IN_ITSELF);
     }
     // Update the children's previous parents
     await asyncForEach(children, async (child: IOrganizationGroup) => {
@@ -190,14 +191,14 @@ export class OrganizationGroup {
 
     // Checks if the group has subgroups
     if (!group.isALeaf) {
-      throw new ValidationError('Can not delete a group with sub groups!');
+      throw new ValidationError(ERS.DELETING_GROUP_WITH_SUB_GROUPS);
     }
 
     // Checks if the group has no friends
     if (group.directMembers.length === 0) {
       group.isAlive = false;
     } else {
-      throw new ValidationError('Can not delete a group with members!');
+      throw new ValidationError(ERS.DELETING_GROUP_WITH_MEMBERS);
     }
 
     // Find the parent, if there is one
@@ -221,10 +222,10 @@ export class OrganizationGroup {
     const group = await OrganizationGroup.getOrganizationGroup(groupID, ['directMembers']);
 
     if (!group.isALeaf) {
-      throw new ValidationError('Can not delete a group with sub groups!');
+      throw new ValidationError(ERS.DELETING_GROUP_WITH_SUB_GROUPS);
     }
     if (group.directMembers.length > 0) {
-      throw new ValidationError('Can not delete a group with members!');
+      throw new ValidationError(ERS.DELETING_GROUP_WITH_MEMBERS);
     }
     // Find the parent, if there is one
     let parentID = undefined;

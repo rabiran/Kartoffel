@@ -2,6 +2,7 @@ import { filterObjectByKeys, DomainSeperator, domainMap, allIndexesOf } from '..
 import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
 import { PersonValidate } from './person.validate';
 import { ValidationError } from '../types/error';
+import { ERS } from '../config/config';
 
 /**
  * get all possible domains for the given domain 
@@ -36,7 +37,7 @@ export function createDomainUserObject(user: Partial<IDomainUser>): IDomainUser 
  */
 export function userFromString(uniqueID: string): IDomainUserIdentifier {
   if (!PersonValidate.isLegalUserString(uniqueID)) {
-    throw new ValidationError(`${uniqueID} is illegal user representation`);
+    throw new ValidationError(ERS.ILLEGAL_PERSON_ID, [uniqueID]);
   }
   const splitted = uniqueID.split(DomainSeperator);
   const name = splitted[0], domain = splitted[1];
