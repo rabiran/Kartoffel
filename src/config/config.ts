@@ -118,30 +118,30 @@ export const config = {
       {code: 106, message: 'duplicate key error'}, 
       {code: 107, message: 'The parentId need to be type of string'}, // groups
       {code: 108, message: 'The childrenIds need to be array'},
-      {code: 109, message: 'maxDepth must be positive integer in range: 1 - {param}'},
+      {code: 109, message: 'maxDepth must be positive integer in range: 1 - {param}'}, // idk yet
       {code: 110, message: 'The group with name: {param} and hierarchy: {param} exist'},
-      {code: 111, message: 'The parentId includes in childrenIDs, Cannot insert organizationGroup itself'},
+      {code: 111, message: 'The parentId includes in childrenIDs, Cannot insert organizationGroup itself'}, // idk
       {code: 112, message: 'Can not delete a group with sub groups!'},
       {code: 113, message: 'Can not delete a group with members!'},
-      {code: 114, message: '{param} is illegal user representation'}, // persons
+      {code: 114, message: '{param} is illegal user representation'}, // persons  , idk
       {code: 115, message: 'The system needs a personId to create a domain user {param}'},
       {code: 116, message: 'The system needs a user name and domain to create a domain user for a personId {param}'},
       {code: 117, message: 'uniqueID must be supplied when creating domain user'},
       {code: 118, message: 'dataSource must be supplied when creating domain user'},
       {code: 119, message: 'The "{param}" is not a recognized domain'},
       {code: 120, message: 'domain user: {param} already exists'},
-      {code: 121, message: 'The domain user: {param} doesnt belong to person with id: {param}'},
-      {code: 122, message: 'entityType: {param} requires at leat 1 domainuser'},
-      {code: 123, message: 'Cant change domain of user'},
-      {code: 124, message: 'a person must have a direct group'},
-      {code: 125, message: 'The personal number and identity card with the same value'},
-      {code: 126, message: 'The personal number or identity card exists'},
-      {code: 127, message: 'This person is not a member in this group, hence can not be appointed as a leaf'},
+      {code: 121, message: 'The domain user: {param} doesnt belong to person with id: {param}'}, // idk
+      {code: 122, message: 'entityType: {param} requires at leat 1 domainuser'}, // idk
+      {code: 123, message: 'Cant change domain of user'}, // idk
+      {code: 124, message: 'a person must have a direct group'}, 
+      {code: 125, message: 'The personal number and identity card with the same value'}, // idk
+      {code: 126, message: 'The personal number or identity card exists'}, // idk
+      {code: 127, message: 'This person is not a member in this group, hence can not be appointed as a leaf'}, // idk
     ]},
     {name: 'ResourceNotFoundError', code: 404, errors: [
       {code: 1, message: 'Route: {param} not found'},
-      {code: 2, message: 'Cannot find group with name: {param} and hierarchy: {param}'},
-      {code: 3, message: 'Cannot find group with akaUnit: {param}'},
+      {code: 2, message: 'Cannot find group with name: {param} and hierarchy: {param}'}, // hmm
+      {code: 3, message: 'Cannot find group with akaUnit: {param}'}, // hmmm
       {code: 4, message: 'Group with id: {param} does not exist'},
       {code: 5, message: 'An unexpected error occurred while fetching people'}, // persons
       {code: 6, message: 'Cannot find person with ID: {param}'},

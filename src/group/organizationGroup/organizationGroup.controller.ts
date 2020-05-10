@@ -6,7 +6,7 @@ import { IPerson } from '../../person/person.interface';
 import { PersonRepository } from '../../person/person.repository';
 import * as _ from 'lodash';
 import { sortObjectsByIDArray, promiseAllWithFails, asyncForEach } from '../../utils';
-import { ValidationError, ResourceNotFoundError } from '../../types/error';
+import { ValidationError, ResourceNotFoundError, Validation } from '../../types/error';
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
@@ -117,7 +117,8 @@ export class OrganizationGroup {
     if (groupExists) {
       // If the group exists and is alive
       if (groupExists.isAlive) {
-        throw new ValidationError(ERS.GROUP_EXISTS, [groupExists.name, groupExists.hierarchy.join('\\')]);
+        //throw new ValidationError(ERS.GROUP_EXISTS, [groupExists.name, groupExists.hierarchy.join('\\')]);
+        throw new Validation.ResourceExists(groupExists.name, groupExists.hierarchy.join('\\'));
         // If the group exists and is not alive, revive it and return it to its parent
       } else {
         groupExists.isAlive = true;
@@ -141,6 +142,7 @@ export class OrganizationGroup {
     toPopulate = _.intersection(toPopulate, ORGANIZATION_GROUP_OBJECT_FIELDS);
     const result = await OrganizationGroup._organizationGroupRepository.findById(organizationGroupID, toPopulate);
     if (!result) throw new ResourceNotFoundError(ERS.GROUP_NOT_FOUND,[organizationGroupID]);
+    throw new GroupNotFound(organizationGroupID)
     const organizationGroup = <IOrganizationGroup>result;
     return <IOrganizationGroup>modifyOrganizationGroupBeforeSend(organizationGroup, toPopulate);
   }
@@ -223,6 +225,7 @@ export class OrganizationGroup {
 
     if (!group.isALeaf) {
       throw new ValidationError(ERS.DELETING_GROUP_WITH_SUB_GROUPS);
+      throw new Validation.DeleteError('sub groups');
     }
     if (group.directMembers.length > 0) {
       throw new ValidationError(ERS.DELETING_GROUP_WITH_MEMBERS);
