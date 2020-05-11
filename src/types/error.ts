@@ -58,30 +58,52 @@ export class ResourceNotFoundError extends ApplicationError {
 
 
 export namespace Validation {
+
+  /**
+  * @param fields  example: id, name
+  * 
+  * Error example: missing required fields: id, name
+  */
   export class MissingFields extends ApplicationError {
-    constructor(...params: any) {
+    constructor(...fields: any) {
       const code = 101;
-      const message = `Error ${code}: missing required fields: ${params}`;
+      const message = `Error ${code}: missing required fields: ${fields}`;
       super(message, 400, code);
     }
   }
 
+  /**
+  * @param fields  example: id
+  * 
+  * Error example: unexpected fields: id
+  */
   export class UnexpectedFields extends ApplicationError {
-    constructor(...params: any) {
+    constructor(...fields: any) {
       const code = 102;
-      const message = `Error ${code}: unexpected fields: ${params}`;
+      const message = `Error ${code}: unexpected fields: ${fields}`;
       super(message, 400, code);
     }
   }
 
+  /**
+  * @param fields  example: id
+  * 
+  * Error example: invalid fields: id
+  */
   export class InvalidFields extends ApplicationError {
-    constructor(...params: any) {
+    constructor(...fields: any) {
       const code = 103;
-      const message = `Error ${code}: invalid fields: ${params}`;
+      const message = `Error ${code}: invalid fields: ${fields}`;
       super(message, 400, code);
     }
   }
 
+  /**
+  * @param field  example: 'parentId'
+  * @param correctType  example: 'string'
+  * 
+  * Error example: The field needs to be of type: correctType
+  */
   export class TypeError extends ApplicationError {
     constructor(field: string, correctType: string) {
       const code = 104;
@@ -90,6 +112,11 @@ export namespace Validation {
     }
   }
 
+  /**
+  * @param fields  example: groupName, hierarchy 
+  * 
+  * Error example: The resource already exists with: groupName, hierarchy
+  */
   export class ResourceExists extends ApplicationError {
     constructor(...fields: any) {
       const code = 105;
@@ -98,6 +125,11 @@ export namespace Validation {
     }
   }
 
+  /**
+  * @param field  example: 'members'
+  * 
+  * Error example: cannot delete the resource with: field!
+  */
   export class DeleteError extends ApplicationError {
     constructor(field: string) {
       const code = 106;
@@ -107,14 +139,50 @@ export namespace Validation {
   }
 }
 
+
+
 export namespace ResourceNotFound {
-  export class _ extends ApplicationError {
+
+  /**
+  * @param field  example: '/api/haha'
+  * 
+  * Error example: cannot find route field
+  */
+  export class Route extends ApplicationError {
     constructor(field: string) {
       const code = 10;
-      const message = `Error ${code}: cannot find resource ${field}`;
+      const message = `Error ${code}: cannot find route ${field}`;
       super(message, 400, code);
     }
   }
+
+  /**
+  * @param fields  example: groupName, hierarchy
+  * 
+  * Error example: Resource not found by fields
+  */
+  export class ByFields extends ApplicationError {
+    constructor(...fields: any) {
+      const code = 11;
+      const message = `Error ${code}: Resource not found by ${fields}`;
+      super(message, 400, code);
+    }
+  }
+
+  /**
+  * @param domainUser  example: 'haha@amazing.com'* 
+  * 
+  * Error example: person with domainUser domainUser does not exist
+  */
+  export class PersonByDomainUser extends ApplicationError {
+    constructor(domainUser: string) {
+      const code = 12;
+      const message = `Error ${code}: person with domainUser ${domainUser} does not exist`;
+      super(message, 400, code);
+    }
+  }
+
+  
 }
 
 
