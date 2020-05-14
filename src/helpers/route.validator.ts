@@ -8,7 +8,7 @@ export class RouteParamsValidate {
 
   static validMongoId(mongoId: any) {
     if (!Types.ObjectId.isValid(mongoId)) {
-      throw new ValidationError(ERS.INVALID_ID, [mongoId]);
+      throw new ValidationError.InvalidFields(mongoId);
     }
   }
 
@@ -18,13 +18,13 @@ export class RouteParamsValidate {
 
   static differentParams(param_1: any, param_2: any) {
     if (param_1 === param_2) {
-      throw new ValidationError(ERS.SAME_PARAMS);
+      throw new ValidationError.InvalidFields(param_1, param_2);
     }
   }
 
   static dateOrInt(param: any) {
     if (!(RouteParamsValidate.isValidDate(param) || RouteParamsValidate.isInt(param))) {
-      throw new ValidationError(ERS.INVALID_DATE);
+      throw new ValidationError.InvalidFields(param);
     }
   }
 
@@ -36,10 +36,10 @@ export class RouteParamsValidate {
     return (obj: Object) => {
       const diff = _.difference(Object.keys(obj), allowedfields);
       if (diff.length !== 0) {
-        throw new ValidationError(ERS.UNEXPECTED_FIELDS, [diff.toString()]);
+        throw new ValidationError.UnexpectedFields(diff.toString());
       } else if (requireAll && allowedfields.length !== Object.keys(obj).length) {
         const missingFields = _.difference(allowedfields, Object.keys(obj));
-        throw new ValidationError(ERS.MISSING_FIELDS, [missingFields.toString()]);
+        throw new ValidationError.MissingFields(missingFields.toString());
       }
     };
   }

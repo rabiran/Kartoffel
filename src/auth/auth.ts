@@ -27,7 +27,7 @@ const authenticate = function (req: Request, res: Response, next: NextFunction) 
     if (err) {
       return next(err);
     } else if (!user) {
-      return next(new UnauthorizedError(ERS.UNAUTHORIZED));
+      return next(new UnauthorizedError());
     }
     req.user = user;
     return next();
@@ -43,14 +43,14 @@ const authorize = wa(async (req: Request, res: Response, next: NextFunction) => 
     req.user.scope.length === 0 ||
     // the scope contains only allowed values 
     _.without(req.user.scope, Scope.READ, Scope.WRITE).length !== 0) {
-    throw new UnauthorizedError(ERS.UNAUTHORIZED);
+    throw new UnauthorizedError();
   }
   // get all the allowed methods for this user's request
   const allowedMethods = (<[string]>req.user.scope.map((s: string) => scopeToMethodMap[s]))
     .reduce((accumulator, curr) => accumulator.concat(curr), []);
   // check that this request's method is included in the allowed methods
   if (!allowedMethods.includes(req.method)) {
-    throw new UnauthorizedError(ERS.UNAUTHORIZED);
+    throw new UnauthorizedError();
   }
   return next();
 });

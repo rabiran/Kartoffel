@@ -25,44 +25,52 @@ export class ApplicationError extends Error {
 
 
 
+// export class UnauthorizedError extends ApplicationError {
+//   static ERROR_MESSAGE = 'Unauthorized';
+//   constructor(code?: number, params?: string[]) {
+//     const message = createError(401, code, params);
+//     super(message, 401, code);
+//   }
+// }
+
 export class UnauthorizedError extends ApplicationError {
-  constructor(code?: number, params?: string[]) {
-    const message = createError(401, code, params);
-    super(message, 401, code);
+  static ERROR_MESSAGE = 'Unauthorized';
+  constructor(message?: string) {
+    super(message || UnauthorizedError.ERROR_MESSAGE, 401);
   }
 }
 
-export class ValidationError extends ApplicationError {
+// export class ValidationError extends ApplicationError {
 
-  // public missingFields = new class extends ApplicationError {
-  //   constructor(...params: any) {
-  //     const message = `missing required fields: ${params}`;
-  //     super(message, 400, 101);
-  //   }
-  // }
-  constructor(code?: number, params?: string[]) {
-    const message = createError(400, code, params);
-    super(message, 400, code);
-  }
-}
+//   // public missingFields = new class extends ApplicationError {
+//   //   constructor(...params: any) {
+//   //     const message = `missing required fields: ${params}`;
+//   //     super(message, 400, 101);
+//   //   }
+//   // }
+//   constructor(code?: number, params?: string[]) {
+//     const message = createError(400, code, params);
+//     super(message, 400, code);
+//   }
+// }
 
-export class ResourceNotFoundError extends ApplicationError {
-  constructor(code?: number, params?: string[]) {
-    const message = createError(404, code, params);
-    super(message, 404, code);
-  }
-}
-
-
+// export class ResourceNotFoundError extends ApplicationError {
+//   constructor(code?: number, params?: string[]) {
+//     const message = createError(404, code, params);
+//     super(message, 404, code);
+//   }
+// }
 
 
 
-export namespace Validation {
+
+
+export namespace ValidationError {
 
   /**
   * @param fields  example: id, name
   * 
-  * Error example: missing required fields: id, name
+  * Error example: missing required fields: 4365436, haha
   */
   export class MissingFields extends ApplicationError {
     constructor(...fields: any) {
@@ -75,7 +83,7 @@ export namespace Validation {
   /**
   * @param fields  example: id
   * 
-  * Error example: unexpected fields: id
+  * Error example: unexpected fields: 665465
   */
   export class UnexpectedFields extends ApplicationError {
     constructor(...fields: any) {
@@ -88,7 +96,7 @@ export namespace Validation {
   /**
   * @param fields  example: id
   * 
-  * Error example: invalid fields: id
+  * Error example: invalid fields: 5247457657
   */
   export class InvalidFields extends ApplicationError {
     constructor(...fields: any) {
@@ -102,7 +110,7 @@ export namespace Validation {
   * @param field  example: 'parentId'
   * @param correctType  example: 'string'
   * 
-  * Error example: The field needs to be of type: correctType
+  * Error example: The parentId needs to be of type: string
   */
   export class TypeError extends ApplicationError {
     constructor(field: string, correctType: string) {
@@ -115,7 +123,7 @@ export namespace Validation {
   /**
   * @param fields  example: groupName, hierarchy 
   * 
-  * Error example: The resource already exists with: groupName, hierarchy
+  * Error example: The resource already exists with: goodGroup, unit/nice/group2
   */
   export class ResourceExists extends ApplicationError {
     constructor(...fields: any) {
@@ -128,7 +136,7 @@ export namespace Validation {
   /**
   * @param field  example: 'members'
   * 
-  * Error example: cannot delete the resource with: field!
+  * Error example: cannot delete the resource with: members!
   */
   export class DeleteError extends ApplicationError {
     constructor(field: string) {
@@ -137,21 +145,34 @@ export namespace Validation {
       super(message, 400, code);
     }
   }
+
+  /**
+  * @param message  example: 'The personal number and identity card with the same value''
+  * 
+  * Error example: The personal number and identity card with the same value'
+  */
+  export class CustomError extends ApplicationError {
+    constructor(text: string) {
+      const code = 107;
+      const message = text;
+      super(message, 400, code);
+    }
+  }
 }
 
 
 
-export namespace ResourceNotFound {
+export namespace ResourceNotFoundError {
 
   /**
-  * @param field  example: '/api/haha'
+  * @param route  example: '/api/haha'
   * 
-  * Error example: cannot find route field
+  * Error example: cannot find route /api/haha
   */
   export class Route extends ApplicationError {
-    constructor(field: string) {
+    constructor(route: string) {
       const code = 10;
-      const message = `Error ${code}: cannot find route ${field}`;
+      const message = `Error ${code}: cannot find route ${route}`;
       super(message, 400, code);
     }
   }
@@ -159,7 +180,7 @@ export namespace ResourceNotFound {
   /**
   * @param fields  example: groupName, hierarchy
   * 
-  * Error example: Resource not found by fields
+  * Error example: Resource not found by goodGroup, unit/nice/group2
   */
   export class ByFields extends ApplicationError {
     constructor(...fields: any) {
@@ -172,7 +193,7 @@ export namespace ResourceNotFound {
   /**
   * @param domainUser  example: 'haha@amazing.com'* 
   * 
-  * Error example: person with domainUser domainUser does not exist
+  * Error example: person with haha@amazing.com domainUser does not exist
   */
   export class PersonByDomainUser extends ApplicationError {
     constructor(domainUser: string) {
@@ -182,21 +203,44 @@ export namespace ResourceNotFound {
     }
   }
 
-  
+  /**
+  * @param message  example: 'The personal number and identity card with the same value''
+  * 
+  * Error example: The personal number and identity card with the same value'
+  */
+  export class CustomError extends ApplicationError {
+    constructor(text: string) {
+      const customCode = Object.values(errors).indexOf(text);
+      const code = 150 + customCode;
+      const message = text;
+      super(message, 400, code);
+    }
+  }
 }
 
 
 
-
+export const errors = {
+  error_getting_people: 'An unexpected error occurred while fetching people',
+  cant_change_domain: 'Cant change domain of user',
+  personalNumber_equals_identityCard: 'The personal number and identity card with the same value',
+  personalNumber_or_identityCard_exists: 'The personal number or identity card exists',
+  person_not_member_of_group: 'This person is not a member in this group, hence can not be appointed as a manager',
+  domainUser_doesnt_belond_toPerson: 'The domain user doesnt belong to the person',
+  entityType_requires_more_domainUsers: 'persons entityType requires at least 1 domainuser',
+  duplicate_key: 'duplicate key error',
+  inserting_group_in_itSelf: 'The parentId includes in childrenIDs, Cannot insert organizationGroup itself',
+};
 
 function createError(httpError: number, errorCode: number, params?: string[]) {
-  const errorObj = errorsCfg.find((element)=> element.code === httpError);
-  const error = errorObj.errors.find((element)=> element.code === errorCode);
-  if(!error) 
+  const errorObj = errorsCfg.find(element => element.code === httpError);
+  const error = errorObj.errors.find(element => element.code === errorCode);
+  if (!error) {
     return errorObj.name;
-  let message = `Error ${error.code}: ${error.message}`;
-  if(params) {
-    for(let param of params) {
+  }
+  const message = `Error ${error.code}: ${error.message}`;
+  if (params) {
+    for (const param of params) {
       message.replace('{param}', param);
     }
   }

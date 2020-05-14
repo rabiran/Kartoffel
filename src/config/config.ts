@@ -105,50 +105,56 @@ export const config = {
     },
   },
   errors: [
-    {name: 'UnauthorizedError', code: 401, errors: [
-      {code: 0, message: 'Unauthorized'},
-    ]},
-    {name: 'ValidationError', code: 400, errors: [
-      {code: 100, message: 'invalid id: {param}'},
-      {code: 101, message: 'Cannot receive identical parameters!'},
-      {code: 102, message: 'Did not receive a valid date'},
-      {code: 103, message: 'unexpected fields: {param}'},
-      {code: 104, message: 'missing required fields: {param}'},
-      {code: 105, message: '{param}'},
-      {code: 106, message: 'duplicate key error'}, 
-      {code: 107, message: 'The parentId need to be type of string'}, // groups
-      {code: 108, message: 'The childrenIds need to be array'},
-      {code: 109, message: 'maxDepth must be positive integer in range: 1 - {param}'}, // idk yet
-      {code: 110, message: 'The group with name: {param} and hierarchy: {param} exist'},
-      {code: 111, message: 'The parentId includes in childrenIDs, Cannot insert organizationGroup itself'}, // idk
-      {code: 112, message: 'Can not delete a group with sub groups!'},
-      {code: 113, message: 'Can not delete a group with members!'},
-      {code: 114, message: '{param} is illegal user representation'}, // persons  , idk
-      {code: 115, message: 'The system needs a personId to create a domain user {param}'},
-      {code: 116, message: 'The system needs a user name and domain to create a domain user for a personId {param}'},
-      {code: 117, message: 'uniqueID must be supplied when creating domain user'},
-      {code: 118, message: 'dataSource must be supplied when creating domain user'},
-      {code: 119, message: 'The "{param}" is not a recognized domain'},
-      {code: 120, message: 'domain user: {param} already exists'},
-      {code: 121, message: 'The domain user: {param} doesnt belong to person with id: {param}'}, // idk
-      {code: 122, message: 'entityType: {param} requires at leat 1 domainuser'}, // idk
-      {code: 123, message: 'Cant change domain of user'}, // idk
-      {code: 124, message: 'a person must have a direct group'}, 
-      {code: 125, message: 'The personal number and identity card with the same value'}, // idk
-      {code: 126, message: 'The personal number or identity card exists'}, // idk
-      {code: 127, message: 'This person is not a member in this group, hence can not be appointed as a leaf'}, // idk
-    ]},
-    {name: 'ResourceNotFoundError', code: 404, errors: [
-      {code: 1, message: 'Route: {param} not found'},
-      {code: 2, message: 'Cannot find group with name: {param} and hierarchy: {param}'}, // hmm
-      {code: 3, message: 'Cannot find group with akaUnit: {param}'}, // hmmm
-      {code: 4, message: 'Group with id: {param} does not exist'},
-      {code: 5, message: 'An unexpected error occurred while fetching people'}, // persons
-      {code: 6, message: 'Cannot find person with ID: {param}'},
-      {code: 7, message: 'Cannot find person with {param}: \'{param}\''},
-      {code: 8, message: 'Cannot find person with identityValue: {param}'},
-      {code: 9, message: 'person with domainUser: {param} does not exist'},
-    ]},
+    {
+      name: 'UnauthorizedError', code: 401, errors: [
+          { code: 0, message: 'Unauthorized' },
+      ],
+    },
+    {
+      name: 'ValidationError', code: 400, errors: [
+          { code: 100, message: 'invalid id: {param}' },
+          { code: 101, message: 'Cannot receive identical parameters!' },
+          { code: 102, message: 'Did not receive a valid date' },
+          { code: 103, message: 'unexpected fields: {param}' },
+          { code: 104, message: 'missing required fields: {param}' },
+          { code: 105, message: '{param}' },
+          { code: 106, message: 'duplicate key error' }, // ValidationError.CustomError
+          { code: 107, message: 'The parentId need to be type of string' }, // groups, ValidationError.TypeError
+          { code: 108, message: 'The childrenIds need to be array' }, // ValidationError.TypeError
+          { code: 109, message: 'maxDepth must be positive integer in range: 1 - {param}' }, // ValidationError.CustomError
+          { code: 110, message: 'The group with name: {param} and hierarchy: {param} exist' }, // ValidationError.ResourceExists
+          { code: 111, message: 'The parentId includes in childrenIDs, Cannot insert organizationGroup itself' }, // ValidationError.CustomError
+          { code: 112, message: 'Can not delete a group with sub groups!' }, // ValidationError.DeleteError
+          { code: 113, message: 'Can not delete a group with members!' }, // ValidationError.DeleteError
+          { code: 114, message: '{param} is illegal user representation' }, // persons  , ValidationError.CustomError
+          { code: 115, message: 'The system needs a personId to create a domain user {param}' }, // ValidationError.MissingFields
+          { code: 116, message: 'The system needs a user name and domain to create a domain user for a personId {param}' }, // ValidationError.MissingFields
+          { code: 117, message: 'uniqueID must be supplied when creating domain user' }, // ValidationError.MissingFields
+          { code: 118, message: 'dataSource must be supplied when creating domain user' }, // ValidationError.MissingFields
+          { code: 119, message: 'The "{param}" is not a recognized domain' },
+          { code: 120, message: 'domain user: {param} already exists' }, // ValidationError.ResourceExists
+          { code: 121, message: 'The domain user: {param} doesnt belong to person with id: {param}' }, // ValidationError.CustomError
+          { code: 122, message: 'entityType: {param} requires at leat 1 domainuser' }, // ValidationError.CustomError
+          { code: 123, message: 'Cant change domain of user' }, // ValidationError.CustomError
+          { code: 124, message: 'a person must have a direct group' }, // ValidationError.MissingFields
+          { code: 125, message: 'The personal number and identity card with the same value' }, // ValidationError.CustomError
+          { code: 126, message: 'The personal number or identity card exists' }, // ValidationError.CustomError
+          { code: 127, message: 'This person is not a member in this group, hence can not be appointed as a leaf' }, // ValidationError.CustomError
+      ],
+    },
+    {
+      name: 'ResourceNotFoundError', code: 404, errors: [
+          { code: 1, message: 'Route: {param} not found' }, // ResourceNotFoundError.Route
+          { code: 2, message: 'Cannot find group with name: {param} and hierarchy: {param}' }, // ResourceNotFoundError.ByFields
+          { code: 3, message: 'Cannot find group with akaUnit: {param}' }, // ResourceNotFoundError.ByFields
+          { code: 4, message: 'Group with id: {param} does not exist' }, // ResourceNotFoundError.ByFields
+          { code: 5, message: 'An unexpected error occurred while fetching people' }, // ResourceNotFoundError.CustomError
+          { code: 6, message: 'Cannot find person with ID: {param}' }, // ResourceNotFoundError.ByFields
+          { code: 7, message: 'Cannot find person with {param}: \'{param}\'' }, // ResourceNotFoundError.ByFields
+          { code: 8, message: 'Cannot find person with identityValue: {param}' }, // ResourceNotFoundError.ByFields
+          { code: 9, message: 'person with domainUser: {param} does not exist' }, // ResourceNotFoundError.PersonByDomainUser
+      ],
+    },
   ],
 };
 
@@ -191,4 +197,4 @@ export enum ERS {
   PERSONALNUMBER_EQUALS_IDENTITYCARD = 125,
   PERSONALNUMBER_OR_IDENTITYCARD_EXISTS = 126,
   PERSON_NOT_MEMBER_OF_THIS_GROUP = 127,
-};
+}

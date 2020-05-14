@@ -140,7 +140,7 @@ export class PersonValidate extends ModelValidate {
     },
     {
       validator: PersonValidate.lastNameMultiValidator,
-      message: 'lastName is rquired for entity type: {VALUE.entityType}',
+      message: 'lastName is required for entity type: {VALUE.entityType}',
     },
   ];
 

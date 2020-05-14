@@ -1,5 +1,4 @@
-import { config } from './config/config';
-import { ERS } from './config/config';
+import { config, ERS } from './config/config';
 import * as express       from 'express';
 import * as session       from 'express-session';
 import * as bodyParser    from 'body-parser';
@@ -78,7 +77,7 @@ class Server {
   private configureErrorHandlers() {
     /* handle all non-existing routes - without logging */
     this.app.all('*', (req, res) => {
-      const err = new ResourceNotFoundError(ERS.ROUTE_NOT_FOUND, [req.originalUrl]);
+      const err = new ResourceNotFoundError.Route(req.originalUrl);
       return res.status(err.status).json({
         message: err.message,
         name: err.name,
