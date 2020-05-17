@@ -24,16 +24,6 @@ export class ApplicationError extends Error {
   // }
 }
 
-
-
-// export class UnauthorizedError extends ApplicationError {
-//   static ERROR_MESSAGE = 'Unauthorized';
-//   constructor(code?: number, params?: string[]) {
-//     const message = createError(401, code, params);
-//     super(message, 401, code);
-//   }
-// }
-
 export class UnauthorizedError extends ApplicationError {
   static ERROR_MESSAGE = 'Unauthorized';
   constructor(message?: string) {
@@ -41,31 +31,6 @@ export class UnauthorizedError extends ApplicationError {
     super(message || UnauthorizedError.ERROR_MESSAGE, 401, code);
   }
 }
-
-// export class ValidationError extends ApplicationError {
-
-//   // public missingFields = new class extends ApplicationError {
-//   //   constructor(...params: any) {
-//   //     const message = `missing required fields: ${params}`;
-//   //     super(message, 400, 101);
-//   //   }
-//   // }
-//   constructor(code?: number, params?: string[]) {
-//     const message = createError(400, code, params);
-//     super(message, 400, code);
-//   }
-// }
-
-// export class ResourceNotFoundError extends ApplicationError {
-//   constructor(code?: number, params?: string[]) {
-//     const message = createError(404, code, params);
-//     super(message, 404, code);
-//   }
-// }
-
-
-
-
 
 export namespace ValidationError {
 
@@ -138,7 +103,7 @@ export namespace ValidationError {
   /**
   * @param field  example: 'members'
   * 
-  * Error example: cannot delete the resource with: members!
+  * Error example: Cannot delete the resource with: members!
   */
   export class DeleteError extends ApplicationError {
     constructor(field: string) {
@@ -175,7 +140,9 @@ export namespace ValidationError {
   }
 
   /**
-  * @param message  example: 'The personal number and identity card with the same value''
+  * @param message  example: 'The personal number and identity card with the same value'
+  * 
+  * Or get ready error messages exported from error.ts as errors.
   * 
   * Error example: The personal number and identity card with the same value'
   */
@@ -196,7 +163,7 @@ export namespace ResourceNotFoundError {
   /**
   * @param route  example: '/api/haha'
   * 
-  * Error example: cannot find route /api/haha
+  * Error example: Cannot find route /api/haha
   */
   export class Route extends ApplicationError {
     constructor(route: string) {
@@ -222,7 +189,7 @@ export namespace ResourceNotFoundError {
   /**
   * @param domainUser  example: 'haha@amazing.com'* 
   * 
-  * Error example: person with haha@amazing.com domainUser does not exist
+  * Error example: Person with haha@amazing.com domainUser does not exist
   */
   export class PersonByDomainUser extends ApplicationError {
     constructor(domainUser: string) {
@@ -234,6 +201,8 @@ export namespace ResourceNotFoundError {
 
   /**
   * @param message  example: 'The personal number and identity card with the same value''
+  * 
+  * Or get ready error messages exported from error.ts as errors.
   * 
   * Error example: The personal number and identity card with the same value'
   */
@@ -247,61 +216,15 @@ export namespace ResourceNotFoundError {
   }
 }
 
-
-
 export const errors = {
   error_getting_people: 'An unexpected error occurred while fetching people',
   cant_change_domain: 'Cant change domain of user',
   personalNumber_equals_identityCard: 'The personal number and identity card with the same value',
   personalNumber_or_identityCard_exists: 'The personal number or identity card exists',
   person_not_member_of_group: 'This person is not a member in this group, hence can not be appointed as a manager',
-  domainUser_doesnt_belond_toPerson: 'The domain user doesnt belong to the person',
+  domainUser_doesnt_belong_toPerson: 'The domain user doesnt belong to the person',
   entityType_requires_more_domainUsers: 'persons entityType requires at least 1 domainuser',
   duplicate_key: 'duplicate key error',
   inserting_group_in_itSelf: 'The parentId includes in childrenIDs, Cannot insert organizationGroup itself',
 };
 
-function createError(httpError: number, errorCode: number, params?: string[]) {
-  const errorObj = errorsCfg.find(element => element.code === httpError);
-  const error = errorObj.errors.find(element => element.code === errorCode);
-  if (!error) {
-    return errorObj.name;
-  }
-  const message = `Error ${error.code}: ${error.message}`;
-  if (params) {
-    for (const param of params) {
-      message.replace('{param}', param);
-    }
-  }
-  return message;
-}
-
-// function insertParams(params: string[], message: string) {
-//   for(let param of params) {
-//     message.replace('{param}', param);
-//   }
-// }
-
-// export class KartoffelError extends ApplicationError {
-//   constructor(code: number, message?: string) {
-//     const error = config.errors.find((element)=> element.code === code);
-//     const errorMessage = message || error.message;
-//     super(errorMessage, code);
-//   }
-// }
-
-// let errors;
-
-// for(let error of config.errors) {
-//   let a = this;
-//   const name = error.error;
-//   let errorClass = class this['name'] extends ApplicationError {
-//     constructor(message?: string) {
-//       super(message || error.message, error.code);
-//     }
-//   }
-// }
-
-// export {
-//   errors
-// }

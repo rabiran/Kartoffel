@@ -102,10 +102,10 @@ export class Person {
    */
   static async addNewUser(personId: string, user: Partial<IDomainUser>):
     Promise<IPerson> {
-    if (!personId) throw new ValidationError.MissingFields(JSON.stringify(user));
-    if (!user) throw new ValidationError.MissingFields(personId);
-    if (!user.uniqueID) throw new ValidationError.MissingFields('user.uniqueID');
-    if (!user.dataSource) throw new ValidationError.MissingFields('user.dataSource');
+    if (!personId) throw new ValidationError.MissingFields('personId');
+    if (!user) throw new ValidationError.MissingFields('user');
+    if (!user.uniqueID) throw new ValidationError.MissingFields('uniqueID');
+    if (!user.dataSource) throw new ValidationError.MissingFields('dataSource');
     const userIdentifier = userFromString(user.uniqueID);
     if (!PersonValidate.domain(userIdentifier.domain)) throw new ValidationError.InvalidFields(userIdentifier.domain);
     // check user existance 
@@ -127,7 +127,7 @@ export class Person {
   static async deleteDomainUser(personId: string, uniqueId: string) : Promise<IPerson> {
     const person = await Person.getByDomainUserString(uniqueId);
     if (person.id !== personId) {
-      throw new ValidationError.CustomError(errors.domainUser_doesnt_belond_toPerson);
+      throw new ValidationError.CustomError(errors.domainUser_doesnt_belong_toPerson);
     }
     // if trying to remove the last domain user from a specific entity type - it's an error
     if (person.entityType === consts.ENTITY_TYPE[2] && person.domainUsers.length === 1) {
@@ -149,7 +149,7 @@ export class Person {
     // Checks if domainUser belongs to this person
     const person = await Person.getByDomainUserString(uniqueId);
     if (person.id !== personId) {
-      throw new ValidationError.CustomError(errors.domainUser_doesnt_belond_toPerson);
+      throw new ValidationError.CustomError(errors.domainUser_doesnt_belong_toPerson);
     }
     // current domain and name
     const { name: currentName, domain: currentDomain } = userFromString(uniqueId);
