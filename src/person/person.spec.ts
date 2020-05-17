@@ -827,7 +827,7 @@ describe('Persons', () => {
         await Person.addNewUser(person.id, undefined);        
       } catch (err) {
         err.should.exist;
-        err.should.have.property('message', `The system needs a user name and domain to create a domain user for a personId ${person.id}`);        
+        err.should.have.property('code', 101); // missing fields: name and domain
         isError = true;
       }
       isError.should.be.true;    
@@ -840,7 +840,7 @@ describe('Persons', () => {
         await Person.addNewUser(undefined, newUserExample);
       } catch (err) {
         err.should.exist;
-        err.should.have.property('message', `The system needs a personId to create a domain user ${JSON.stringify(newUserExample)}`);
+        err.should.have.property('code', 101); // missing fields: personid
         isError = true;
       }
       isError.should.be.true;    
@@ -854,7 +854,7 @@ describe('Persons', () => {
         await Person.addNewUser(person.id, userWithoutDataSource);
       } catch (err) {
         err.should.exist;
-        err.should.have.property('message', 'dataSource must be supplied when creating domain user');
+        err.should.have.property('code', 101); // missing fields: data source
         isError = true;
       }
       isError.should.be.true;
@@ -869,8 +869,9 @@ describe('Persons', () => {
         await Person.addNewUser(person.id, userWithIllegalDataSource);
       } catch (err) {
         err.should.exist;
-        err.should.have.property('message');
-        expect(err.message.includes('"bla" is not a valid dataSource'));
+        err.should.have.property('code');
+        console.log(err);
+        expect(err.code.should.be.equal(149)); // bla invalid datasource
         isError = true;
       }
       isError.should.be.true;
@@ -904,7 +905,7 @@ describe('Persons', () => {
         await Person.updateDomainUser(elsePerson.id, userStringEx, { uniqueID: `david@${domain}` });
       } catch (err) {
         err.should.exist;
-        err.should.have.property('message', `The domain user: ${userStringEx} doesn't belong to person with id: ${elsePerson.id}`);        
+        err.should.have.property('code', 155); // domain user doesnt belong to person
         isError = true;
       }
       isError.should.be.true;
@@ -917,7 +918,7 @@ describe('Persons', () => {
         await Person.updateDomainUser(person.id, userStringEx, { uniqueID: `david@${domains[0]}` });        
       } catch (err) {
         err.should.exist;
-        err.should.have.property('message', `Can't change domain of user`);        
+        err.should.have.property('code', 151); // cant change domain of user        
         isError = true;
       }
       isError.should.be.true;
@@ -949,7 +950,7 @@ describe('Persons', () => {
         await Person.deleteDomainUser(elsePerson.id, userStringEx);        
       } catch (err) {
         err.should.exist;
-        err.should.have.property('message', `The domain user: ${userStringEx} doesn't belong to person with id: ${elsePerson.id}`);        
+        err.should.have.property('code', 155); // domain user doesnt belong to person  
         isError = true;
       }
       isError.should.be.true;

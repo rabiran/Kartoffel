@@ -92,8 +92,8 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
-      const errMsg = res.body.message;
-      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      const errCode = res.body.code;
+      expect(errCode).to.equal(1);
       done();
     });
   });
@@ -104,8 +104,8 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
-      const errMsg = res.body.message;
-      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      const errCode = res.body.code;
+      expect(errCode).to.equal(1);
       done();
     });
   });
@@ -117,8 +117,8 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
-      const errMsg = res.body.message;
-      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      const errCode = res.body.code;
+      expect(errCode).to.equal(1);
       done();
     });
   });
@@ -130,8 +130,8 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
-      const errMsg = res.body.message;
-      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      const errCode = res.body.code;
+      expect(errCode).to.equal(1);
       done();
     });
   });
@@ -142,8 +142,8 @@ describe('Auth routes', () => {
     .end((err, res) => {
       expect(err).to.exist;
       res.should.have.status(401);
-      const errMsg = res.body.message;
-      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+      const errCode = res.body.code;
+      expect(errCode).to.equal(1);
       done();
     });
   });

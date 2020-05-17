@@ -9,7 +9,8 @@ export class ApplicationError extends Error {
   constructor(message?: string, status?: number, code?: number) {
     super(message);
     Error.captureStackTrace(this, this.constructor);
-    this.name = this.constructor.name;
+    const errorType = status === 400 ? 'ValidationError' : status === 404 ? 'ResourceNotFoundError' : 'Error';
+    this.name = `${errorType}.${this.constructor.name}`;
     this.status = status || 500;
     this.code = code || 0;
   }
@@ -36,7 +37,8 @@ export class ApplicationError extends Error {
 export class UnauthorizedError extends ApplicationError {
   static ERROR_MESSAGE = 'Unauthorized';
   constructor(message?: string) {
-    super(message || UnauthorizedError.ERROR_MESSAGE, 401);
+    const code = 1;
+    super(message || UnauthorizedError.ERROR_MESSAGE, 401, code);
   }
 }
 
@@ -75,7 +77,7 @@ export namespace ValidationError {
   export class MissingFields extends ApplicationError {
     constructor(...fields: any) {
       const code = 101;
-      const message = `Error ${code}: missing required fields: ${fields}`;
+      const message = `Missing required fields: ${fields}`;
       super(message, 400, code);
     }
   }
@@ -88,7 +90,7 @@ export namespace ValidationError {
   export class UnexpectedFields extends ApplicationError {
     constructor(...fields: any) {
       const code = 102;
-      const message = `Error ${code}: unexpected fields: ${fields}`;
+      const message = `Unexpected fields: ${fields}`;
       super(message, 400, code);
     }
   }
@@ -101,7 +103,7 @@ export namespace ValidationError {
   export class InvalidFields extends ApplicationError {
     constructor(...fields: any) {
       const code = 103;
-      const message = `Error ${code}: invalid fields: ${fields}`;
+      const message = `Invalid fields: ${fields}`;
       super(message, 400, code);
     }
   }
@@ -115,7 +117,7 @@ export namespace ValidationError {
   export class TypeError extends ApplicationError {
     constructor(field: string, correctType: string) {
       const code = 104;
-      const message = `Error ${code}: The ${field} needs to be of type: ${correctType}`;
+      const message = `The ${field} needs to be of type: ${correctType}`;
       super(message, 400, code);
     }
   }
@@ -128,7 +130,7 @@ export namespace ValidationError {
   export class ResourceExists extends ApplicationError {
     constructor(...fields: any) {
       const code = 105;
-      const message = `Error ${code}: The resource already exists with: ${fields}`;
+      const message = `The resource already exists with: ${fields}`;
       super(message, 400, code);
     }
   }
@@ -141,7 +143,33 @@ export namespace ValidationError {
   export class DeleteError extends ApplicationError {
     constructor(field: string) {
       const code = 106;
-      const message = `Error ${code}: cannot delete the resource with: ${field}!`;
+      const message = `Cannot delete the resource with: ${field}!`;
+      super(message, 400, code);
+    }
+  }
+
+  /**
+  * @param maxDepth  example: '10'
+  * 
+  * Error example: maxDepth must be positive integer in range: 1 - 10
+  */
+  export class MaxDepth extends ApplicationError {
+    constructor(maxDepth: string) {
+      const code = 107;
+      const message = `maxDepth must be positive integer in range: 1 - ${maxDepth}`;
+      super(message, 400, code);
+    }
+  }
+
+  /**
+  * @param domainUser  example: 'haha@haha.com'
+  * 
+  * Error example: haha@haha.com is illegal user representation
+  */
+  export class IllegalUser extends ApplicationError {
+    constructor(domainUser: string) {
+      const code = 108;
+      const message = `${domainUser} is illegal user representation`;
       super(message, 400, code);
     }
   }
@@ -153,7 +181,8 @@ export namespace ValidationError {
   */
   export class CustomError extends ApplicationError {
     constructor(text: string) {
-      const code = 107;
+      const customCode = Object.values(errors).indexOf(text);
+      const code = 150 + customCode;
       const message = text;
       super(message, 400, code);
     }
@@ -172,8 +201,8 @@ export namespace ResourceNotFoundError {
   export class Route extends ApplicationError {
     constructor(route: string) {
       const code = 10;
-      const message = `Error ${code}: cannot find route ${route}`;
-      super(message, 400, code);
+      const message = `Cannot find route ${route}`;
+      super(message, 404, code);
     }
   }
 
@@ -185,8 +214,8 @@ export namespace ResourceNotFoundError {
   export class ByFields extends ApplicationError {
     constructor(...fields: any) {
       const code = 11;
-      const message = `Error ${code}: Resource not found by ${fields}`;
-      super(message, 400, code);
+      const message = `Resource not found by ${fields}`;
+      super(message, 404, code);
     }
   }
 
@@ -198,8 +227,8 @@ export namespace ResourceNotFoundError {
   export class PersonByDomainUser extends ApplicationError {
     constructor(domainUser: string) {
       const code = 12;
-      const message = `Error ${code}: person with domainUser ${domainUser} does not exist`;
-      super(message, 400, code);
+      const message = `Person with domainUser ${domainUser} does not exist`;
+      super(message, 404, code);
     }
   }
 
@@ -211,9 +240,9 @@ export namespace ResourceNotFoundError {
   export class CustomError extends ApplicationError {
     constructor(text: string) {
       const customCode = Object.values(errors).indexOf(text);
-      const code = 150 + customCode;
+      const code = 50 + customCode;
       const message = text;
-      super(message, 400, code);
+      super(message, 404, code);
     }
   }
 }

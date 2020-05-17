@@ -250,7 +250,7 @@ describe('Strong Groups', () => {
       try {
         await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: '  David  ' });
       } catch (error) {
-        expect(error.message).to.equal(`The group with name: David and hierarchy:  exist`);
+        expect(error.code).to.equal(105); // group exists.
         isError = true;
       }
       isError.should.be.true;      
@@ -260,7 +260,7 @@ describe('Strong Groups', () => {
       try {
         await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[0] });
       } catch (error) {
-        expect(error.message).to.equal(`The group with name: ${GROUP_ARRAY[0].name} and hierarchy:  exist`);
+        expect(error.code).to.equal(105);  // group exists
       }
     });
     it('Should revive organizationGroup when create organizationGroup without ancestors, that alredy exist and dead', async () => {
@@ -306,7 +306,7 @@ describe('Strong Groups', () => {
       try {
         await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ ...GROUP_ARRAY[1] }, ancstr.id);
       } catch (error) {
-        expect(error.message).to.equal(`The group with name: ${GROUP_ARRAY[1].name} and hierarchy: ${orgGrp.hierarchy.join('\\')} exist`);
+        expect(error.code).to.equal(105); // group exists
       }
     });
   });
@@ -483,7 +483,7 @@ describe('Strong Groups', () => {
         try {
           await OrganizationGroup.childrenAdoption(og.id, [og.id]);
         } catch (error) {
-          expect(error.message).to.equal(`The parentId includes in childrenIDs, Cannot insert organizationGroup itself`);
+          expect(error.code).to.equal(158); // cant insert group into it self
           isError = true;
         }
         isError.should.be.true;

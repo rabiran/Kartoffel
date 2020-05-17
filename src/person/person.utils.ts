@@ -37,7 +37,7 @@ export function createDomainUserObject(user: Partial<IDomainUser>): IDomainUser 
  */
 export function userFromString(uniqueID: string): IDomainUserIdentifier {
   if (!PersonValidate.isLegalUserString(uniqueID)) {
-    throw new ValidationError.CustomError(`${uniqueID} is illegal user representation`);
+    throw new ValidationError.IllegalUser(uniqueID);
   }
   const splitted = uniqueID.split(DomainSeperator);
   const name = splitted[0], domain = splitted[1];

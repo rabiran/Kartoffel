@@ -198,8 +198,8 @@ describe('Person', () => {
         .end((err, res) => {
           err.should.exist;
           res.should.have.status(404);
-          const errMsg = res.body.message;
-          errMsg.should.be.equal(`Cannot find person with ID: ${dbIdExample[0]}`);
+          const errCode = res.body.code;
+          expect(errCode).to.equal(11); // person not found
           done();
         });
     });
@@ -292,8 +292,8 @@ describe('Person', () => {
         .end((err, res) => {
           err.should.exist;
           res.should.have.status(400);
-          const errMsg = res.body.message;
-          errMsg.should.be.equal('Did not receive a valid date');
+          const errCode = res.body.code;
+          expect(errCode).to.equal(103); // invalid date
           done();
         });
     });
@@ -581,8 +581,8 @@ describe('Person', () => {
         .end((err, res) => {
           err.should.exist;
           err.should.have.status(404);
-          const errMsg = res.body.message;
-          errMsg.should.be.equal(`Cannot find person with ID: ${dbIdExample[0]}`);
+          const errCode = res.body.code;
+          expect(errCode).to.equal(11); // person not found
           done();
         });
     });

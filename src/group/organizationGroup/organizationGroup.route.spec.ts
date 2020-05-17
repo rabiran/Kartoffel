@@ -83,8 +83,8 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           err.should.exist;
           res.should.have.status(404);
-          const errMsg = res.body.message;
-          errMsg.should.be.equal('Cannot find group with ID: ' + ID_EXAMPLE);
+          const errCode = res.body.code;
+          errCode.should.be.equal(11); // cant find group
           done();
         });
     });
@@ -207,8 +207,8 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           err.should.exist;
           res.should.have.status(400);
-          const errMsg = res.body.message;
-          errMsg.should.be.equal('Did not receive a valid date');
+          const errCode = res.body.code;
+          expect(errCode).to.equal(103); // invalid date
           done();
         });
     });
@@ -404,8 +404,8 @@ describe('OrganizationGroup API', () => {
         .end((err, res) => {
           err.should.exist;
           err.should.have.status(404);
-          const errMsg = res.body.message;
-          errMsg.should.be.equal('Cannot find group with ID: ' + ID_EXAMPLE);
+          const errCode = res.body.code;
+          expect(errCode).to.equal(11); // group not found
           done();
         });
     });
@@ -418,7 +418,7 @@ describe('OrganizationGroup API', () => {
         .then(() => expect.fail(undefined, undefined, 'Should not succeed!'))
         .catch((err) => {
           err.status.should.be.equal(400);
-          err.response.body.message.should.be.equal('Can not delete a group with sub groups!');
+          err.response.body.code.should.be.equal(106); // cannot delete with subgroups
         });
     });
     it('Should return successful result ', async () => {

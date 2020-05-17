@@ -20,7 +20,7 @@ export class OGRouteValidate {
   static maxDepth(val: any) {
     if (!val) return;
     if (!RPV.isInt(val) || !maxDepthRange(val)) {
-      throw new ValidationError.CustomError(`maxDepth must be positive integer in range: 1 - ${CHILDREN_MAX_DEPTH.toString()}`);
+      throw new ValidationError.MaxDepth(CHILDREN_MAX_DEPTH.toString());
     }
   }
 
