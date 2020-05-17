@@ -7,7 +7,7 @@ export const createAllowedFileds =  ['address', 'clearance', 'currentUnit', 'dir
   'managedGroup', 'mobilePhone', 'personalNumber', 'phone', 'rank', 'responsibility', 
   'responsibilityLocation', 'serviceType', 'status'];
 
-export const updateAllowedFields = _.without(createAllowedFileds, 'directGroup', 'identityCard', 'personalNumber');
+export const updateAllowedFields = _.without(createAllowedFileds, 'directGroup', 'identityCard', 'personalNumber', 'domainUsers');
 
 export const atCreateFieldCheck = RPV.fieldExistanceGenerator(createAllowedFileds);
 

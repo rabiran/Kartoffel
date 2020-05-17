@@ -252,8 +252,6 @@ export class Person {
     const person = await Person.getPersonById(id);
     // merge with the changes
     const mergedPerson = { ...person, ...change };
-    // remove domainUsers field from the update, for now this field have seperate update functions
-    delete mergedPerson.domainUsers;
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
