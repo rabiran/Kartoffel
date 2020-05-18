@@ -596,7 +596,7 @@ describe('Persons', () => {
         String(person.responsibilityLocation)).to.be.true;
     });
     it('Should return the updated person with domainUser', async () => {
-      let person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await Person.addNewUser(person.id, newUserExample);
       const updateObject: any = {};
       updateObject.job = 'Programmer';
