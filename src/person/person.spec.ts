@@ -588,12 +588,12 @@ describe('Persons', () => {
       should.exist(updatedPerson);
       expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
-      updatedPerson.should.have.property('serviceType', person.serviceType);
-      updatedPerson.should.have.property('rank', person.rank);
-      updatedPerson.should.have.property('job', person.job);
-      updatedPerson.should.have.property('responsibility', person.responsibility);
+      updatedPerson.should.have.property('serviceType', updateObject.serviceType);
+      updatedPerson.should.have.property('rank', updateObject.rank);
+      updatedPerson.should.have.property('job', updateObject.job);
+      updatedPerson.should.have.property('responsibility', updateObject.responsibility);
       expect(String(updatedPerson.responsibilityLocation) ===
-        String(person.responsibilityLocation)).to.be.true;
+        String(updateObject.responsibilityLocation)).to.be.true;
     });
     it('Should return the updated person with domainUser', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
@@ -608,11 +608,11 @@ describe('Persons', () => {
       should.exist(updatedPerson);
       expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
-      updatedPerson.should.have.property('rank', person.rank);
-      updatedPerson.should.have.property('job', person.job);
-      updatedPerson.should.have.property('responsibility', person.responsibility);
+      updatedPerson.should.have.property('rank', updateObject.rank);
+      updatedPerson.should.have.property('job', updateObject.job);
+      updatedPerson.should.have.property('responsibility', updateObject.responsibility);
       expect(String(updatedPerson.responsibilityLocation) ===
-        String(person.responsibilityLocation)).to.be.true;
+        String(updateObject.responsibilityLocation)).to.be.true;
       updatedPerson.domainUsers.should.exist;
       updatedPerson.domainUsers.should.have.lengthOf(1);
       // update function should filter domain users fields
@@ -642,11 +642,11 @@ describe('Persons', () => {
 
       expect(updatedPerson.id === person.id).to.be.true;
       updatedPerson.should.have.property('firstName', person.firstName);
-      updatedPerson.should.have.property('rank', person.rank);
-      updatedPerson.should.have.property('job', person.job);
-      updatedPerson.should.have.property('responsibility', person.responsibility);
+      updatedPerson.should.have.property('rank', updateObject.rank);
+      updatedPerson.should.have.property('job', updateObject.job);
+      updatedPerson.should.have.property('responsibility', updateObject.responsibility);
       expect(String(updatedPerson.responsibilityLocation) ===
-        String(person.responsibilityLocation)).to.be.true;
+        String(updateObject.responsibilityLocation)).to.be.true;
     });
     it('should update the person rank to null', async () => {
       const person = await Person.createPerson({ ...personExamples[0] });

@@ -10,6 +10,7 @@ import { userFromString, getAllPossibleDomains, createDomainUserObject } from '.
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
+import { allowedUpdateType } from './person.route.validator';
 import { search } from '../search/elasticsearch';
 import { config } from '../config/config';
 import esRepository from './person.elastic.repository';
@@ -257,6 +258,7 @@ export class Person {
     if (!validatorsResult.isValid) {
       throw new ValidationError(validatorsResult.messages.toString());
     }
+    delete mergedPerson.domainUsers;
     // perform the actual update
     const updatedPerson = await Person._personRepository.update(id, mergedPerson);
     return <IPerson>updatedPerson;

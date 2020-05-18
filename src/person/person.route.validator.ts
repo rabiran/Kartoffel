@@ -14,3 +14,9 @@ export const atCreateFieldCheck = RPV.fieldExistanceGenerator(createAllowedFiled
 export const atUpdateFieldCheck = RPV.fieldExistanceGenerator(updateAllowedFields);
 
 export const atSearchFieldCheck = RPV.fieldExistanceGenerator(['fullname'], true);
+
+
+export type allowedUpdateType = 'address'| 'clearance'| 'currentUnit'|  
+'dischargeDay'| 'entityType'| 'job'| 'lastName'| 'mail'| 
+'managedGroup'| 'mobilePhone'| 'phone'| 'rank'| 'responsibility'| 
+'responsibilityLocation'| 'serviceType'| 'status';
