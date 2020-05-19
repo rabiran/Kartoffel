@@ -10,7 +10,6 @@ import { userFromString, getAllPossibleDomains, createDomainUserObject } from '.
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
-import { allowedUpdateType } from './person.route.validator';
 import { search } from '../search/elasticsearch';
 import { config } from '../config/config';
 import esRepository from './person.elastic.repository';
