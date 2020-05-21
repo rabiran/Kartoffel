@@ -110,7 +110,7 @@ export function validatorRunner(validatorObjects: Iterable<ValidatorObj>, valueT
     if (!validatorObj.validator(valueToValidate)) {
       allPassed = false;
       const msg = evalStringWithValue(validatorObj.message, valueToValidate);
-      messages.push(msg);
+      messages.push({ msg, code: validatorObj.code, fields: validatorObj.fields });
     }
   }
   return { messages, isValid: allPassed };

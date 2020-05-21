@@ -36,10 +36,10 @@ export class RouteParamsValidate {
     return (obj: Object) => {
       const diff = _.difference(Object.keys(obj), allowedfields);
       if (diff.length !== 0) {
-        throw new ValidationError.UnexpectedFields(diff.toString());
+        throw new ValidationError.UnexpectedFields(diff);
       } else if (requireAll && allowedfields.length !== Object.keys(obj).length) {
         const missingFields = _.difference(allowedfields, Object.keys(obj));
-        throw new ValidationError.MissingFields(missingFields.toString());
+        throw new ValidationError.MissingFields(missingFields);
       }
     };
   }

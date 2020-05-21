@@ -5,4 +5,6 @@ export interface ValidatorFunction {
 export interface ValidatorObj {
   validator: ValidatorFunction;
   message?: string;
+  code?: number;
+  fields?: string[];
 }

@@ -121,14 +121,20 @@ export class PersonValidate extends ModelValidate {
     {
       validator: PersonValidate.identityCardMultiValidator,
       message: `identityCard is required for entityType ${ENTITY_TYPE[0]}`,
+      code: 101,
+      fields: ['identityCard'],
     },
     {
       validator: PersonValidate.personalNumberMultiValidator,
       message: `personalNumber is required for entityType ${ENTITY_TYPE[1]}`,
+      code: 101,
+      fields: ['personalNumber'],
     },
     {
       validator: PersonValidate.responsibilityLocationMultiValidator,
+      code: 101,
       message: 'responsibilityLocation is required for responsibilty {VALUE.responsibility}',
+      fields: ['responsibilityLocation'],
     },
     /* {
       validator: PersonValidate.rankMultiFieldValidator,
@@ -137,10 +143,13 @@ export class PersonValidate extends ModelValidate {
     {
       validator: PersonValidate.domainUsersMultiValidator,
       message: `entityType: ${ENTITY_TYPE[2]} requires at least 1 domainuser`,
+      code: 156,
     },
     {
       validator: PersonValidate.lastNameMultiValidator,
       message: 'lastName is required for entity type: {VALUE.entityType}',
+      code: 101,
+      fields: ['lastName'],
     },
   ];
 

@@ -3,9 +3,17 @@ import { Schema } from 'mongoose';
 import { MongoError } from 'mongodb';
 import { ERS } from '../config/config';
 
-function convertValidationError(err: MongoError, res: any, next: Function) {
+function convertValidationError(err: any, res: any, next: Function) {
+  
   if (err.name === 'ValidationError') {
-    next(new ValidationError.CustomError(err.message));
+    const field: any = <any>Object.keys(err.errors)[0];
+    const values: any = <any>Object.values(err.errors)[0];
+    const type = values.kind;
+
+    if (type === 'required') next(new ValidationError.MissingFields(field));
+    else if (type === 'user defined') next(new ValidationError.InvalidFields(field));
+    else next(new ValidationError.CustomError(err.message));
+
   } else {
     next(); // the call will still error out see: https://mongoosejs.com/docs/middleware.html#error-handling-middleware
   }

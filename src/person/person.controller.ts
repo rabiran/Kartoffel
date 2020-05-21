@@ -195,7 +195,10 @@ export class Person {
     // run validators
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, person);
     if (!validatorsResult.isValid) {
-      throw new ValidationError.CustomError(validatorsResult.messages.toString());
+      const firstResult = validatorsResult.messages[0];
+      if (firstResult.code === 101) throw new ValidationError.MissingFields(...firstResult.fields);
+      else if (firstResult.code === 156) throw new ValidationError.CustomError(errors.entityType_requires_more_domainUsers);
+      else throw new ValidationError.CustomError(firstResult.msg);
     }
 
     // Checks whether the value in personalNumber or identityNumber exists in one of them
@@ -240,7 +243,10 @@ export class Person {
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
-      throw new ValidationError.CustomError(validatorsResult.messages.toString());
+      const firstResult = validatorsResult.messages[0];
+      if (firstResult.code === 101) throw new ValidationError.MissingFields(...firstResult.fields);
+      else if (firstResult.code === 156) throw new ValidationError.CustomError(errors.entityType_requires_more_domainUsers);
+      else throw new ValidationError.CustomError(firstResult.msg);
     }
     // perform the actual update
     const updatedPerson = await Person._personRepository.update(id, mergedPerson);
