@@ -5,14 +5,18 @@ export class ApplicationError extends Error {
   status: number;
   code: number;
   name: string;
+  // description: string;
+  fields: string[];
 
-  constructor(message?: string, status?: number, code?: number) {
+  constructor(message?: string, status?: number, code?: number, fields?: string[]) {
     super(message);
     Error.captureStackTrace(this, this.constructor);
     const errorType = status === 400 ? 'ValidationError' : status === 404 ? 'ResourceNotFoundError' : 'Error';
     this.name = `${errorType}.${this.constructor.name}`;
     this.status = status || 500;
     this.code = code || 0;
+    // this.description = description || 'Error';
+    this.fields = fields;
   }
 
   // get status() {
@@ -26,8 +30,9 @@ export class ApplicationError extends Error {
 
 export class UnauthorizedError extends ApplicationError {
   static ERROR_MESSAGE = 'Unauthorized';
-  constructor(message?: string) {
+  constructor(message?: string, description?: string) {
     const code = 1;
+    // const descriptionGeneral = description || 'Get Spike token';
     super(message || UnauthorizedError.ERROR_MESSAGE, 401, code);
   }
 }
@@ -43,7 +48,7 @@ export namespace ValidationError {
     constructor(...fields: any) {
       const code = 101;
       const message = `Missing required fields: ${fields}`;
-      super(message, 400, code);
+      super(message, 400, code, fields);
     }
   }
 
@@ -56,7 +61,7 @@ export namespace ValidationError {
     constructor(...fields: any) {
       const code = 102;
       const message = `Unexpected fields: ${fields}`;
-      super(message, 400, code);
+      super(message, 400, code, fields);
     }
   }
 
@@ -69,7 +74,7 @@ export namespace ValidationError {
     constructor(...fields: any) {
       const code = 103;
       const message = `Invalid fields: ${fields}`;
-      super(message, 400, code);
+      super(message, 400, code, fields);
     }
   }
 
@@ -83,7 +88,7 @@ export namespace ValidationError {
     constructor(field: string, correctType: string) {
       const code = 104;
       const message = `The ${field} needs to be of type: ${correctType}`;
-      super(message, 400, code);
+      super(message, 400, code, [field]);
     }
   }
 
@@ -96,7 +101,7 @@ export namespace ValidationError {
     constructor(...fields: any) {
       const code = 105;
       const message = `The resource already exists with: ${fields}`;
-      super(message, 400, code);
+      super(message, 400, code, fields);
     }
   }
 
@@ -109,7 +114,7 @@ export namespace ValidationError {
     constructor(field: string) {
       const code = 106;
       const message = `Cannot delete the resource with: ${field}!`;
-      super(message, 400, code);
+      super(message, 400, code, [field]);
     }
   }
 
@@ -135,7 +140,7 @@ export namespace ValidationError {
     constructor(domainUser: string) {
       const code = 108;
       const message = `${domainUser} is illegal user representation`;
-      super(message, 400, code);
+      super(message, 400, code, [domainUser]);
     }
   }
 
@@ -169,7 +174,7 @@ export namespace ResourceNotFoundError {
     constructor(route: string) {
       const code = 10;
       const message = `Cannot find route ${route}`;
-      super(message, 404, code);
+      super(message, 404, code, [route]);
     }
   }
 
@@ -182,7 +187,7 @@ export namespace ResourceNotFoundError {
     constructor(...fields: any) {
       const code = 11;
       const message = `Resource not found by ${fields}`;
-      super(message, 404, code);
+      super(message, 404, code, fields);
     }
   }
 
@@ -195,7 +200,7 @@ export namespace ResourceNotFoundError {
     constructor(domainUser: string) {
       const code = 12;
       const message = `Person with domainUser ${domainUser} does not exist`;
-      super(message, 404, code);
+      super(message, 404, code, [domainUser]);
     }
   }
 

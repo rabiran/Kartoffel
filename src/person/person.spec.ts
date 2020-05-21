@@ -870,7 +870,6 @@ describe('Persons', () => {
       } catch (err) {
         err.should.exist;
         err.should.have.property('code');
-        console.log(err);
         expect(err.code.should.be.equal(149)); // bla invalid datasource
         isError = true;
       }

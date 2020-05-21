@@ -82,6 +82,7 @@ class Server {
         message: err.message,
         name: err.name,
         code: err.code,
+        fields: err.fields,
       });
     });
     /* error logger */
@@ -102,6 +103,8 @@ class Server {
         message: err.message,
         name: err.name,
         code: err.code,
+        // description: err.description,
+        fields: err.fields,
       });
     });
   }
