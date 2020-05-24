@@ -577,13 +577,13 @@ describe('Persons', () => {
     });
     it('Should return the updated person', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const updateObject: any = {};
-      updateObject.job = 'Programmer';
-      updateObject.rank = RANK[0];
-      updateObject.responsibility = RESPONSIBILITY[1];
-      updateObject.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
-      updateObject.serviceType = SERVICE_TYPE[7];
-
+      const updateObject: Partial<IPerson> = {
+        job: 'Programmer',
+        rank: RANK[0],
+        responsibility: RESPONSIBILITY[1],
+        responsibilityLocation: new Types.ObjectId(dbIdExample[0]),
+        serviceType: SERVICE_TYPE[7],
+      };
       const updatedPerson = await Person.updatePerson(person.id, updateObject);
       should.exist(updatedPerson);
       expect(updatedPerson.id === person.id).to.be.true;
@@ -598,12 +598,12 @@ describe('Persons', () => {
     it('Should return the updated person with domainUser', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
       await Person.addNewUser(person.id, newUserExample);
-      const updateObject: any = {};
-      updateObject.job = 'Programmer';
-      updateObject.rank = RANK[0];
-      updateObject.responsibility = RESPONSIBILITY[1];
-      updateObject.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
-
+      const updateObject: Partial<IPerson> = {
+        job: 'Programmer',
+        rank: RANK[0],
+        responsibility: RESPONSIBILITY[1],
+        responsibilityLocation: new Types.ObjectId(dbIdExample[0]),
+      };
       const updatedPerson = await Person.updatePerson(person.id, updateObject);
       should.exist(updatedPerson);
       expect(updatedPerson.id === person.id).to.be.true;
@@ -627,12 +627,12 @@ describe('Persons', () => {
     });
     it('Should save the updated person correctly', async () => {
       const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
-      const updateObject: any = {};
-      updateObject.job = 'Programmer';
-      updateObject.rank = RANK[0];
-      updateObject.responsibility = RESPONSIBILITY[1];
-      updateObject.responsibilityLocation = new Types.ObjectId(dbIdExample[0]);
-
+      const updateObject: Partial<IPerson> = {
+        job: 'Programmer',
+        rank: RANK[0],
+        responsibility: RESPONSIBILITY[1],
+        responsibilityLocation: new Types.ObjectId(dbIdExample[0]),
+      };
       await Person.updatePerson(person.id, updateObject);
       const updatedPerson = await Person.getPersonById(person.id);
 
@@ -650,10 +650,10 @@ describe('Persons', () => {
     });
     it('should update the person rank to null', async () => {
       const person = await Person.createPerson({ ...personExamples[0] });
-      const updateObject: any = {};
-      updateObject.entityType = ENTITY_TYPE[0];
-      updateObject.rank = null;
-
+      const updateObject: Partial<IPerson> = {
+        entityType: ENTITY_TYPE[0],
+        rank: null,
+      };
       const updatedPerson = await Person.updatePerson(person.id, updateObject);
       expect(updatedPerson.rank === null || updatedPerson.rank === undefined);
     });
