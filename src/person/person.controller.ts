@@ -257,6 +257,7 @@ export class Person {
     if (!validatorsResult.isValid) {
       throw new ValidationError(validatorsResult.messages.toString());
     }
+    // remove domainUsers from the actual update - this field have separate update function
     delete mergedPerson.domainUsers;
     // perform the actual update
     const updatedPerson = await Person._personRepository.update(id, mergedPerson);
