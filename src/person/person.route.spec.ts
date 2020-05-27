@@ -608,7 +608,7 @@ describe('Person', () => {
         .del(`${BASE_URL}/${person.id}`)
         .then((res) => {
           res.should.exist;
-          res.should.have.status(200);
+          res.should.have.status(205);
           res.body.should.have.property('status', STATUS.INACTIVE);
         }).catch((err) => { throw err; });
     });
