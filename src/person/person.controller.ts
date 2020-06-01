@@ -146,9 +146,9 @@ export class Person {
     if (person.id !== personId) {
       throw new ValidationError(`The domain user: ${uniqueId} doesn't belong to person with id: ${personId}`);
     }
-    // if trying to remove the last domain user from a specific entity type - it's an error
-    if (person.entityType === consts.ENTITY_TYPE[2] && person.domainUsers.length === 1) {
-      throw new ValidationError(`entityType: ${consts.ENTITY_TYPE[2]} requires at leat 1 domainuser`);
+    // if trying to remove the last domain user from a specific entity type person while he is active - it's an error
+    if (person.entityType === consts.ENTITY_TYPE[2] && person.domainUsers.length === 1 && person.status === consts.STATUS.ACTIVE) {
+      throw new ValidationError(`entityType: ${consts.ENTITY_TYPE[2]} requires at leat 1 domainuser while is active`);
     }
     const { name, domain } = userFromString(uniqueId);
     const domains = getAllPossibleDomains(domain);
