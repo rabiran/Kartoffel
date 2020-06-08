@@ -13,7 +13,7 @@ import { domainMap, allStatuses } from '../utils';
 import * as mongoose from 'mongoose';
 import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS } from '../config/db-enums';
 import { config } from '../config/config';
-import { constantScoreQuery } from 'elastic-builder';
+
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
