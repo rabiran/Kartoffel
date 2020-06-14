@@ -13,6 +13,7 @@ import { domainMap, allStatuses } from '../utils';
 import * as mongoose from 'mongoose';
 import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS } from '../config/db-enums';
 import { config } from '../config/config';
+
 const Types = mongoose.Types;
 const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 
@@ -112,6 +113,14 @@ const personExamples: IPerson[] = [
     identityCard: '312571458',
     personalNumber: '2345676',
     firstName: 'blue',
+    entityType: ENTITY_TYPE[2],
+    domainUsers: [newUserExample],
+  },
+  <IPerson>{ // [6] inactive person that requires a domain user
+    identityCard: '312571458',
+    personalNumber: '2345676',
+    firstName: 'dead',
+    status: STATUS.INACTIVE,
     entityType: ENTITY_TYPE[2],
     domainUsers: [newUserExample],
   },
@@ -955,6 +964,12 @@ describe('Persons', () => {
         isError = true;
       }
       isError.should.be.true;
+    });
+    it('should allow domainUsers to be empty on person from type tamar if the person inactive', async () => {
+      const person = await Person.createPerson({ ...personExamples[6] });
+      const deletedPerson = await Person.deleteDomainUser(person.id, userStringEx);
+      deletedPerson.domainUsers.should.exist;
+      deletedPerson.domainUsers.should.have.lengthOf(0);
     });   
   });
   describe('#getByDomainUserString', () => {
