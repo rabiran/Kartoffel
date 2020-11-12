@@ -415,11 +415,13 @@ describe('OrganizationGroup API', () => {
       await OrganizationGroup.childrenAdoption(group.id, [child.id]);
       await chai.request(app)
         .del(BASE_URL + '/' + group.id)
-        .then(() => expect.fail(undefined, undefined, 'Should not succeed!'))
-        .catch((err) => {
-          err.status.should.be.equal(400);
-          err.response.body.message.should.be.equal('Can not delete a group with sub groups!');
-        });
+        .then(
+          () => expect.fail(undefined, undefined, 'Should not succeed!'),
+          (err) => {
+            err.status.should.be.equal(400);
+            err.response.body.message.should.be.equal('Can not delete a group with sub groups!');
+          }
+        );
     });
     it('Should return successful result ', async () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ id: ID_EXAMPLE, name: 'group' });
