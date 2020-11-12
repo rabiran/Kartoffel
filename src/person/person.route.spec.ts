@@ -543,7 +543,7 @@ describe('Person', () => {
       it('should return error when trying to update non-updatable field', async () => {
         const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
         await chai.request(app).put(`${BASE_URL}/${person.id}`)
-          .send({ personalNumber: '1234567' })
+          .send({ directGroup: dbIdExample[0] })
           .then(() => expect.fail(undefined, undefined, 'response should be an error'))
           .catch((err) => {
             err.should.exist;
