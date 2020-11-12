@@ -479,11 +479,13 @@ describe('Person', () => {
       const person = await Person.createPerson({ ...personExamples[0] });
       await chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
       .send({ uniqueID: userStringEx, dataSource: 'ttrtr' })
-        .then(() => expect.fail(undefined, undefined, 'request should fail'))
-        .catch((err) => {
-          err.should.exist;
-          err.should.have.status(400);
-        });
+        .then(
+          () => expect.fail(undefined, undefined, 'request should fail'),
+          (err) => {
+            err.should.exist;
+            err.should.have.status(400);
+          }
+        );
     });
   });
 
@@ -543,12 +545,14 @@ describe('Person', () => {
       it('should return error when trying to update non-updatable field', async () => {
         const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
         await chai.request(app).put(`${BASE_URL}/${person.id}`)
-          .send({ personalNumber: '1234567' })
-          .then()
-          .catch((err) => {
-            err.should.exist;
-            err.should.have.status(400);
-          });
+          .send({ directGroup: dbIdExample[0] })
+          .then(
+            () => expect.fail(undefined, undefined, 'request should not succeed'),
+            (err) => {
+              err.should.exist;
+              err.should.have.status(400);
+            }
+          );
       });
       it('Should return the updated person', async () => {
         const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
