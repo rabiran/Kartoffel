@@ -544,7 +544,7 @@ describe('Person', () => {
         const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
         await chai.request(app).put(`${BASE_URL}/${person.id}`)
           .send({ personalNumber: '1234567' })
-          .then()
+          .then(() => expect.fail(undefined, undefined, 'response should be an error'))
           .catch((err) => {
             err.should.exist;
             err.should.have.status(400);
