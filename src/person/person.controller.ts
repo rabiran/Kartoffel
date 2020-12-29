@@ -10,14 +10,15 @@ import { userFromString, getAllPossibleDomains, createDomainUserObject } from '.
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
-import { search } from '../search/elasticsearch';
 import { config } from '../config/config';
-import esRepository from './person.elastic.repository';
+import { PersonTextSearch } from './person.textSearch.interface';
+import personElasticRepo from './person.elasticSearch';
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
   _personService: PersonRepository;
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
+  static _personTextSearch: PersonTextSearch = personElasticRepo;
 
   constructor() {
     this._personService = new PersonRepository();
@@ -306,6 +307,6 @@ export class Person {
   }
 
   static async searchPersons(query: object) {
-    return esRepository.search(query);
+    return Person._personTextSearch.searchByQuery(query);
   }
 }
