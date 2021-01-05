@@ -11,7 +11,7 @@ import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
 import { PersonTextSearch } from './person.textSearch.interface';
-import personElasticRepo from './person.elasticSearch';
+import personElasticRepo from './person.elasticSearchRepository';
 
 export type PersonFilter = {
   currentUnit: string | string[];
