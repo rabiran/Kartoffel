@@ -3,7 +3,7 @@ import { DOMAIN_MAP, STATUS } from './config/db-enums';
 
 export const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 export const DomainSeperator = '@';
-export const allStatuses = Object.keys(STATUS).map(k => STATUS[k]);
+export const allStatuses: string[] = Object.keys(STATUS).map(k => STATUS[k]);
 
 export type BasicType = boolean | string | number;
 
@@ -18,6 +18,12 @@ export interface KeyMap {
 export interface ObjectValueMap {
   [key: string] : ValueMap;
 }
+
+type ValueReplaceMap<T> = {
+  [k in keyof T]?: {
+    [v: string]: T[k]
+  }
+};
 
 export function filterObjectByKeys(object: Object, allowedKeys: string[], caseInsensitive: boolean = false): Object {
   const allowed = caseInsensitive ? allowedKeys.map(k => k.toLowerCase()) : allowedKeys;
@@ -188,3 +194,43 @@ export function transformValues(obj: object, keyMap: ObjectValueMap): object {
   }, {});
 }
 
+/**
+ * Replace the values of an object, only for the specified keys, 
+ * according to the given `replaceMap` map - 
+ * unspecified keys or values will not be changed.
+ * returns a new object.
+ * 
+ * replaceMap example:
+
+ *`{'targetKey': {
+   'oldValue': 'newValue'
+ }}`
+ * @param target
+ * @param replaceMap
+ */
+export function replaceValues<T>(target: T, replaceMap: ValueReplaceMap<T>): T {
+  const copy = { ...target };
+  for (const [key, val] of Object.entries(target)) {
+    if (key in replaceMap && val in replaceMap[key]) {
+      copy[key] = replaceMap[key][val];
+    }
+  }
+  return copy;
+}
+
+
+/**
+ * Extract the specified keys from the given object.
+ * Returns a new object with key value pairs corresponding to 
+ * the given keys and object. a key will exist in the returned object 
+ * only if it exists in the original object
+ * @param obj 
+ * @param keys 
+ */
+export function extract<T, K extends keyof T = keyof T>(obj: T, keys: K[]) {
+  const res: any = {};
+  for (const k of keys) {
+    if (k in obj) res[k] = obj[k];
+  }
+  return res as Pick<T,K>;
+}
