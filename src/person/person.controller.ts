@@ -10,9 +10,23 @@ import { userFromString, getAllPossibleDomains, createDomainUserObject } from '.
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
-import { config } from '../config/config';
 import { PersonTextSearch } from './person.textSearch.interface';
 import personElasticRepo from './person.elasticSearch';
+
+export type PersonFilter = {
+  currentUnit: string | string[];
+  'domainUsers.dataSource': string | string[];
+  rank: string | string[];
+  entityType: string | string[];
+  responsibility: string | string[];
+  serviceType: string | string[];
+  status: string | string[];
+  job: string | string[];
+};
+
+export type PersonSearchQuery = PersonFilter & {
+  fullName: string;
+};
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
@@ -306,7 +320,7 @@ export class Person {
     await Person.updatePerson(personId, person);
   }
 
-  static async searchPersons(query: object) {
+  static async searchPersons(query: Partial<PersonSearchQuery>) {
     return Person._personTextSearch.searchByQuery(query);
   }
 }
