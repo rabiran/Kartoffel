@@ -36,10 +36,7 @@ const searchFields: (keyof Query<Partial<PersonSearchQuery>>)[] = [...filterFiel
 
 
 export const extractFilterQuery = (query: Query<Partial<PersonFilter>>): Partial<PersonFilter> => 
-  applyDefaultsAndAliases(
-    extract(query, filterFields
-    )
-  );
+  applyDefaultsAndAliases(extract(query, filterFields));
 
 export const extractSearchQuery = (query: Query<Partial<PersonSearchQuery>>): Partial<PersonSearchQuery> => {
   const { fullName, ...filters } = extract(query, searchFields);
