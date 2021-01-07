@@ -14,6 +14,7 @@ export interface FieldContextMap {
 
 const { defaultFuzzy, fullTextFieldMinLength, fullTextFieldName } = config.elasticSearch;
 
+const NO_BOOST = 1;
 
 export class QueryBuilder {
   /**
@@ -32,11 +33,13 @@ export class QueryBuilder {
         // ignore non string or too short fields
         if (typeof val === 'string' && val.trim().length >= fullTextFieldMinLength) {
           const fullTextField = QueryBuilder.getFullTextField(field);
+          const boost = fieldMap.boost || NO_BOOST;
+          const exactQuery = esb.matchQuery(fullTextField, val).boost(boost);
           if (fieldMap.fuzzy) {
-            should.push(esb.matchQuery(fullTextField, val));
+            should.push(exactQuery);
             must.push(esb.matchQuery(fullTextField, val).fuzziness(defaultFuzzy));
           } else {
-            must.push(esb.matchQuery(fullTextField, val));
+            must.push(exactQuery);
           }
         }
       } else { // defaults to FieldContext.Filter
