@@ -1,10 +1,14 @@
 import { IOrganizationGroup } from './organizationGroup.interface'
 
-type GroupQuery = {
-  name: string;
-  hierarchy: string[];
+export type GroupQuery = {
+  nameAndHierarchyTerms: string | string[];
+}
+
+export type GroupFilters = {
+  hierarchySrting: string;
 }
 
 export interface OrganizationGroupTextSearch {
-  searchByName(query: Partial<GroupQuery>): Promise<IOrganizationGroup[]>
+  searchByNameAndHierarchy(query: Partial<GroupQuery>, filters?: Partial<GroupFilters>)
+    : Promise<IOrganizationGroup[]>
 }
