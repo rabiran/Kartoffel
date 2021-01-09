@@ -1,14 +1,14 @@
-import { IOrganizationGroup } from './organizationGroup.interface'
+import { IOrganizationGroup } from './organizationGroup.interface';
 
 export type GroupQuery = {
   nameAndHierarchyTerms: string | string[];
-}
+};
 
 export type GroupFilters = {
-  hierarchySrting: string;
-}
+  hierarchyString: string;
+};
 
 export interface OrganizationGroupTextSearch {
   searchByNameAndHierarchy(query: Partial<GroupQuery>, filters?: Partial<GroupFilters>)
-    : Promise<IOrganizationGroup[]>
+    : Promise<IOrganizationGroup[]>;
 }
