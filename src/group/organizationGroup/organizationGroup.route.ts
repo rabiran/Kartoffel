@@ -8,6 +8,7 @@ import { Person } from '../../person/person.controller';
 import { IOrganizationGroup, ORGANIZATION_GROUP_BASIC_FIELDS } from './organizationGroup.interface';
 import { OGRouteValidate } from './organizationGroup.route.validator';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../../helpers/route.validator';
+import { extractGroupFilters } from './organizationGroup.extractQuery';
 
 // import { body, param, check, validationResult } from 'express-validator/check';
 
@@ -16,6 +17,11 @@ const organizationGroups = Router();
 organizationGroups.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
 organizationGroups.get('/', ch(OrganizationGroup.getOrganizationGroups, (req: Request) => [req.query]));
+
+organizationGroups.get('/search', ch(
+  OrganizationGroup.searchByNameAndHierarchy,
+  (req: Request) => [req.query.nameAndHierarchy, extractGroupFilters(req.query)]
+));
 
 organizationGroups.get('/:id', 
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
@@ -62,6 +68,7 @@ organizationGroups.post('/',
 organizationGroups.get('/:id/members', 
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
+
 
 organizationGroups.get('/:id/children', validatorMiddleware(Vld.validMongoId, ['id'], 'params'), 
   validatorMiddleware(OGRouteValidate.maxDepth, ['maxDepth'], 'query'),
