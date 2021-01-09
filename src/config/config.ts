@@ -45,7 +45,7 @@ export const config = {
     },
     indexNames: {
       persons: 'kartoffel.people',
-      organizationGroups: 'kartoffel.organizationGroups',
+      organizationGroups: 'kartoffel.organizationgroups',
     },
     defaultResultLimit: 20,
     fullTextFieldName: 'autocomplete',
