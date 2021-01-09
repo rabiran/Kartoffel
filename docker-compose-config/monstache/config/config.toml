@@ -2,9 +2,9 @@ mongo-url = "mongodb://nitro:password123@mongo-primary:27017,mongo-secondary:270
 elasticsearch-urls = ["http://elasticsearch:9200"]
 verbose = true
 
-change-stream-namespaces = ["kartoffel.people"]
+change-stream-namespaces = ["kartoffel.people", "kartoffel.organizationgroups"]
 
-direct-read-namespaces = ["kartoffel.people"]
+direct-read-namespaces = ["kartoffel.people", "kartoffel.organizationgroups"]
 
 elasticsearch-retry = true
 
