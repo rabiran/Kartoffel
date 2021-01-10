@@ -146,7 +146,15 @@ export function proxyCaseInsensitive(originalObj: Object) {
     get: (target, name: string) => target[Object.keys(target)
       .find(k => k.toLowerCase() === name.toLowerCase())],
     ownKeys: target => Object.keys(target).map(k => k.toLowerCase()),
-    getOwnPropertyDescriptor: k => ({ enumerable: true, configurable: true }),
+    getOwnPropertyDescriptor: (target, prop) => {
+      const originalProp = Object.getOwnPropertyNames(target).find(
+        p => p.toLowerCase() === prop.toString().toLowerCase()
+      );
+      return Object.getOwnPropertyDescriptor(target, originalProp);
+    },
+    has: (target, key) => !!Object.keys(target).find(
+      p => p.toLowerCase() === key.toString().toLowerCase()
+    ),
   });
 }
 
