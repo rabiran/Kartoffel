@@ -22,6 +22,7 @@ export type PersonFilter = {
   serviceType: string | string[];
   status: string | string[];
   job: string | string[];
+  hierarchyPath: string;
 };
 
 export type PersonSearchQuery = PersonFilter & {

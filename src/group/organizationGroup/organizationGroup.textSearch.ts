@@ -5,7 +5,7 @@ export type GroupQuery = {
 };
 
 export type GroupFilters = {
-  hierarchyString: string;
+  hierarchyPath: string;
 };
 
 export interface OrganizationGroupTextSearch {

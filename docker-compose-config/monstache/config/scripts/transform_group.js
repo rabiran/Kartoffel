@@ -1,3 +1,5 @@
 module.exports = function(doc) {
-  return _.omit(doc, 'children', 'ancestors');
+  var hierarchyPath = doc.hierarchy.join('/');
+  doc.hierarchyPath = hierarchyPath;
+  return doc;
 }

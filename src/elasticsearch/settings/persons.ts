@@ -1,27 +1,21 @@
 import { config } from '../../config/config';
 import { IndexSettings } from './indexSettings';
+import { analyzers, tokenizers, prefix_autocomplete_field_settings } from './commonSettings';
 
 const { indexNames: { persons: indexName }, fullTextFieldName } = config.elasticSearch;
+const { autocomplete, autocomplete_search, path_hierarchy } = analyzers;
+const { edge_ngram_tokenizer, custom_path_hierarchy } = tokenizers;
 
 const settings = {
   analysis: {
     analyzer: {
-      autocomplete: {
-        filter: ['lowercase'],
-        tokenizer: 'edge_ngram_tokenizer',
-        type: 'custom',
-      },
-      autocomplete_search: {
-        tokenizer: 'lowercase',
-      },
+      autocomplete,
+      autocomplete_search,
+      path_hierarchy, 
     },
     tokenizer: {
-      edge_ngram_tokenizer: {
-        max_gram: 10,
-        min_gram: 1,
-        token_chars: ['letter'],
-        type: 'edge_ngram',
-      },
+      edge_ngram_tokenizer,
+      custom_path_hierarchy,
     },
   },
 };
@@ -31,11 +25,7 @@ const mappings = {
     fullName: {
       type: 'keyword',
       fields: {
-        [fullTextFieldName]: {
-          analyzer: 'autocomplete',
-          search_analyzer: 'autocomplete_search',
-          type: 'text',
-        },
+        [fullTextFieldName]: prefix_autocomplete_field_settings,
       },
     },
     status: {
@@ -77,6 +67,10 @@ const mappings = {
     },
     hierarchy: {
       type: 'keyword',
+    },
+    hierarchyPath: {
+      type: 'text',
+      analyzer: 'path_hierarchy',
     },
     job: {
       enabled: false,

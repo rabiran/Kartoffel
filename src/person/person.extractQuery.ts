@@ -30,17 +30,24 @@ export const queryParamsRenameMap = {
 
 const { aliases: { persons: personAliases }, defaults: { persons: personDefaults } } = config.queries;
 
-const filterFields: (keyof Query<Partial<PersonFilter>>)[] = ['currentUnit', 'domainUsers.dataSource', 
-  'entityType', 'job', 'rank', 'responsibility', 'serviceType', 'status'];
-const searchFields: (keyof Query<Partial<PersonSearchQuery>>)[] = [...filterFields, 'fullName'];
+const filterFields: (keyof PersonFilter)[] = ['currentUnit', 'domainUsers.dataSource', 
+  'entityType', 'job', 'rank', 'responsibility', 'serviceType', 'status', 'hierarchyPath'];
+const searchFields: (keyof PersonSearchQuery)[] = [...filterFields, 'fullName'];
 
 
-export const extractFilterQuery = (query: Query<Partial<PersonFilter>>): Partial<PersonFilter> => 
-  applyDefaultsAndAliases(extract(query, filterFields));
+export const extractFilterQuery = (query: Query<Partial<PersonFilter>>): Partial<PersonFilter> => {
+  const { hierarchyPath, ...rest } = applyDefaultsAndAliases(extract(query, filterFields));
+  return {
+    ...!!hierarchyPath && {
+      hierarchyPath: singleValue(hierarchyPath),
+    },
+    ...rest,
+  };
+};
 
 export const extractSearchQuery = (query: Query<Partial<PersonSearchQuery>>): Partial<PersonSearchQuery> => {
   const { fullName, ...filters } = extract(query, searchFields);
-  const filtersWithAliases = applyDefaultsAndAliases(filters);
+  const filtersWithAliases = extractFilterQuery(filters);
   return {
     ...filtersWithAliases,
     fullName: singleValue(fullName),

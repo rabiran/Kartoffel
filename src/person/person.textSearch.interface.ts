@@ -6,6 +6,7 @@ export type PersonSearchQuery = Partial<{
   'domainUsers.dataSource': string | string[];
   rank: string | string[];
   responsibility: string | string[];
+  hierarchyPath: string;
   fullName: string;
 }>;
 

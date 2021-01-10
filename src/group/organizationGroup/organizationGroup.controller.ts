@@ -10,7 +10,7 @@ import { OrganizationGroupTextSearch } from './organizationGroup.textSearch';
 import organizationGroupElasticRepository from './organizationGroup.elasticSearchRepository';
 
 export type GroupFilters = {
-  hierarchyString: string;
+  hierarchyPath: string;
 };
 
 export class OrganizationGroup {

@@ -4,12 +4,12 @@ import { extract, replaceValues } from '../../utils';
 import singleValue from '../../helpers/makeSingleValue';
 
 
-const filterKeys: (keyof GroupFilters)[] = ['hierarchyString'];
+const filterKeys: (keyof GroupFilters)[] = ['hierarchyPath'];
 
 export function extractGroupFilters(query: Query<Partial<GroupFilters>>)
 : Partial<GroupFilters> {
-  const { hierarchyString } = extract(query, filterKeys);
+  const { hierarchyPath } = extract(query, filterKeys);
   return {
-    hierarchyString: singleValue(hierarchyString),
+    ...!!hierarchyPath && { hierarchyPath: singleValue(hierarchyPath) },
   };
 }

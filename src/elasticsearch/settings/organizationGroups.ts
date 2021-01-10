@@ -1,32 +1,21 @@
 import { IndexSettings } from './indexSettings';
 import { config } from '../../config/config';
+import { analyzers, tokenizers, prefix_autocomplete_field_settings } from './commonSettings';
 const { indexNames: { organizationGroups: indexName }, fullTextFieldName } = config.elasticSearch;
 
-const prefix_autocomplete_field_settings = {
-  analyzer: 'autocomplete',
-  search_analyzer: 'autocomplete_search',
-  type: 'text',
-};
+const { autocomplete, autocomplete_search, path_hierarchy } = analyzers;
+const { custom_path_hierarchy, edge_ngram_tokenizer } = tokenizers;
 
 const settings = {
   analysis: {
     analyzer: {
-      autocomplete: {
-        filter: ['lowercase'],
-        tokenizer: 'edge_ngram_tokenizer',
-        type: 'custom',
-      },
-      autocomplete_search: {
-        tokenizer: 'lowercase',
-      },
+      autocomplete,
+      autocomplete_search,
+      path_hierarchy,
     },
     tokenizer: {
-      edge_ngram_tokenizer: {
-        max_gram: 15,
-        min_gram: 2,
-        token_chars: ['letter'],
-        type: 'edge_ngram',
-      },
+      edge_ngram_tokenizer,
+      custom_path_hierarchy,
     },
   },
 };
@@ -46,6 +35,10 @@ const mappings = {
         [fullTextFieldName]: prefix_autocomplete_field_settings,
       },
     },
+    hierarchyPath: {
+      type: 'text',
+      analyzer: 'path_hierarchy',
+    },
     akaUnit: {
       type: 'keyword',
       fields : {
@@ -57,6 +50,12 @@ const mappings = {
     },
     isALeaf: {
       type: 'boolean',
+    },
+    createdAt: {
+      type: 'date',
+    }, 
+    updatedAt: {
+      type: 'date',
     },
     children: {
       enabled: false,

@@ -6,6 +6,9 @@ import { Client } from '@elastic/elasticsearch';
 import { config } from '../config/config';
 import { DomainSeperator, domainMap } from '../utils';
 
+type PersonSource = IPerson & {
+  hierarchyPath: string;
+};
 
 const { indexNames: { persons: indexName } } = config.elasticSearch;
 
@@ -16,6 +19,14 @@ class PersonElasticSearchRepository extends ElasticSearchBaseRepository<IPerson>
   }
 
   async searchByQuery(query: PersonSearchQuery) {
+    const body = QueryBuilder.buildBoolQuery(query, {
+      fullName: {
+        context: FieldContext.Query,
+        fuzzy: true,
+      },
+    });
+    console.log(JSON.stringify(query));
+    console.log(JSON.stringify(body));
     return (await this.search(
       QueryBuilder.buildBoolQuery(query, {
         fullName: {
@@ -29,11 +40,11 @@ class PersonElasticSearchRepository extends ElasticSearchBaseRepository<IPerson>
 
   async findById(id: string) {
     const res = await super.findById(id);
-    return this.transformPersonResult(res);
+    return this.transformPersonResult(res as PersonSource);
   }
 
-  private transformPersonResult(person: IPerson): IPerson {
-    const tPerson = { ...person };
+  private transformPersonResult(person: PersonSource): IPerson {
+    const { hierarchyPath, ...tPerson } = { ...person };
     if (!tPerson.domainUsers) return tPerson;
     tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map((u) => {
       const user: Partial<IDomainUser> = {};
