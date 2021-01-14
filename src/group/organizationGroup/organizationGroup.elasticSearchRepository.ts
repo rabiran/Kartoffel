@@ -5,15 +5,11 @@ import { config } from '../../config/config';
 import { IOrganizationGroup } from './organizationGroup.interface';
 import * as esb from 'elastic-builder';
 
-type OrganizationGroupSource = IOrganizationGroup & {
-  hierarchyPath: string;
-};
-
 const { indexNames: { organizationGroups: _indexName }, defaultFuzzy, fullTextFieldName } = config.elasticSearch;
-const Name_Boost_Factor = 1.2;
+const NAME_BOOST_FACTOR = 1.2;
 
 export class OrganizationGroupElasticSearchRepository 
-  extends ElasticSearchBaseRepository<OrganizationGroupSource>
+  extends ElasticSearchBaseRepository<IOrganizationGroup>
   implements OrganizationGroupTextSearch {
 
   constructor(indexName: string = _indexName, client?: Client, queryConfig?: QueryConfig) {
@@ -21,19 +17,13 @@ export class OrganizationGroupElasticSearchRepository
   }
   
   async searchByNameAndHierarchy(query: Partial<GroupQuery>, filters: Partial<GroupFilters> = {}) {
-    const { nameAndHierarchyTerms } = query;
-    const nameHierarchyQueries = nameAndHierarchyTerms ? 
-      (Array.isArray(nameAndHierarchyTerms) ? nameAndHierarchyTerms : [nameAndHierarchyTerms]) 
-      : [];
-    const should = nameHierarchyQueries.map(term => esb.boolQuery().should([
-      esb.matchQuery(`name.${fullTextFieldName}`, term).boost(Name_Boost_Factor),
-      esb.matchQuery(`hierarchy.${fullTextFieldName}`, term),
-    ]));
-    const filter = Object.entries(filters).map(
-      ([f, value]) => Array.isArray(value) ? 
-        esb.termsQuery(f, value) : 
-        esb.termQuery(f, value)
-    );
+    const { underGroupId } = filters;
+    const { hierarchy, name } = query;
+    const should: esb.Query[] = [];
+    const filter: esb.Query[] = [];
+    if (!!name) should.push(esb.matchQuery(`name.${fullTextFieldName}`, name).boost(NAME_BOOST_FACTOR));
+    if (!!hierarchy) should.push(esb.matchQuery(`hierarchy.${fullTextFieldName}`, hierarchy));
+    if (!!underGroupId) filter.push(esb.termQuery('ancestors', underGroupId));
     const queryBody = esb.requestBodySearch().query(
       esb.boolQuery()
       .should(should)
@@ -41,12 +31,7 @@ export class OrganizationGroupElasticSearchRepository
       .minimumShouldMatch(1)
     ).toJSON();
     console.log(JSON.stringify(queryBody));
-    return (await this.search(queryBody)).map(this.mapSource);
-  }
-
-  private mapSource(source: OrganizationGroupSource): IOrganizationGroup {
-    const { hierarchyPath, ...rest } = source;
-    return rest;
+    return this.search(queryBody);
   }
 }
 
