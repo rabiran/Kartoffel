@@ -7,7 +7,7 @@ export enum FieldContext { Query, Filter }
 export interface FieldContextMap {
   [key: string]: {
     context: FieldContext,
-    fuzzy: boolean,
+    fuzzy?: boolean,
     boost?: number
   };
 }
