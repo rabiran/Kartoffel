@@ -1,4 +1,4 @@
-import { PersonTextSearch, PersonSearchQuery } from './person.textSearch.interface';
+import { PersonTextSearch, PersonFilters } from './person.textSearch.interface';
 import { ElasticSearchBaseRepository, QueryConfig } from '../elasticsearch/elasticSearchBaseRepository';
 import { IPerson, IDomainUser } from './person.interface';
 import { QueryBuilder, FieldContext } from '../elasticsearch/queryBuilder';
@@ -10,15 +10,21 @@ type PersonSource = IPerson & {
   hierarchyPath: string;
 };
 
-const { indexNames: { persons: indexName } } = config.elasticSearch;
+const { indexNames: { persons: _indexName } } = config.elasticSearch;
 
-class PersonElasticSearchRepository extends ElasticSearchBaseRepository<IPerson> implements PersonTextSearch {
+class PersonElasticSearchRepository 
+extends ElasticSearchBaseRepository<PersonSource> 
+implements PersonTextSearch {
 
-  constructor(elasticClient?: Client, queryConfig?: QueryConfig) {
+  constructor(indexName: string = _indexName, elasticClient?: Client, queryConfig?: QueryConfig) {
     super(indexName, elasticClient, queryConfig);
   }
 
-  async searchByQuery(query: PersonSearchQuery) {
+  async searchByFullName(fullName: string, filters?: Partial<PersonFilters>) {
+    const query = {
+      fullName,
+      ...filters,
+    };
     const body = QueryBuilder.buildBoolQuery(query, {
       fullName: {
         context: FieldContext.Query,
@@ -36,11 +42,6 @@ class PersonElasticSearchRepository extends ElasticSearchBaseRepository<IPerson>
       })
     ))
     .map(this.transformPersonResult);
-  }
-
-  async findById(id: string) {
-    const res = await super.findById(id);
-    return this.transformPersonResult(res as PersonSource);
   }
 
   private transformPersonResult(person: PersonSource): IPerson {
