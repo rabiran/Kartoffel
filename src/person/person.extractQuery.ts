@@ -4,50 +4,26 @@ import Query from '../types/Query';
 import { PersonFilter, PersonSearchQuery } from './person.controller';
 import singleValue from '../helpers/makeSingleValue';
 
-export const queryParamsRenameMap = {
-  domainusers: 'domainUsers',
-  'domainusers.datasource': 'domainUsers.dataSource',
-  'domainusers.uniqeid': 'domainUsers.uniqueID',
-  'domainusers.adfsuid': 'domainUsers.adfsUID',
-  identitycard: 'identityCard',
-  personalnumber: 'personalNumber',
-  entitytype: 'entityType',
-  servicetype: 'serviceType',
-  firtsname: 'firstName',
-  lastname: 'lastName',
-  currentunit: 'currentUnit',
-  dischargeday: 'dischargeDay',
-  directgroup: 'directGroup',
-  managedgroup: 'managedGroup',
-  responsibilitylocation: 'responsibilityLocation',
-  mobilephone: 'mobilePhone',
-  fullname: 'fullName',
-  rank: 'rank',
-  status: 'status',
-  responsibility: 'responsibility',
-  job: 'job',
-} as const;
-
 const { aliases: { persons: personAliases }, defaults: { persons: personDefaults } } = config.queries;
 
-const filterFields: (keyof PersonFilter)[] = ['currentUnit', 'domainUsers.dataSource', 
-  'entityType', 'job', 'rank', 'responsibility', 'serviceType', 'status', 'hierarchyPath'];
-const searchFields: (keyof PersonSearchQuery)[] = [...filterFields, 'fullName'];
+const extractFilterKeys: (keyof PersonFilter)[] = ['currentUnit', 'domainUsers.dataSource', 
+  'entityType', 'job', 'rank', 'responsibility', 'serviceType', 'status', 'underGroupId'];
+const extractSearchKeys: (keyof PersonSearchQuery)[] = [...extractFilterKeys, 'fullName'];
 
 
-export const extractFilterQuery = (query: Query<Partial<PersonFilter>>): Partial<PersonFilter> => {
-  const { hierarchyPath, ...rest } = applyDefaultsAndAliases(extract(query, filterFields));
+export const extractFilters = (query: Query<Partial<PersonFilter>>): Partial<PersonFilter> => {
+  const { underGroupId, ...rest } = applyDefaultsAndAliases(extract(query, extractFilterKeys));
   return {
-    ...!!hierarchyPath && {
-      hierarchyPath: singleValue(hierarchyPath),
+    ...!!underGroupId && {
+      hierarchyPath: singleValue(underGroupId),
     },
     ...rest,
   };
 };
 
 export const extractSearchQuery = (query: Query<Partial<PersonSearchQuery>>): Partial<PersonSearchQuery> => {
-  const { fullName, ...filters } = extract(query, searchFields);
-  const filtersWithAliases = extractFilterQuery(filters);
+  const { fullName, ...filters } = extract(query, extractSearchKeys);
+  const filtersWithAliases = extractFilters(filters);
   return {
     ...filtersWithAliases,
     fullName: singleValue(fullName),
@@ -55,6 +31,6 @@ export const extractSearchQuery = (query: Query<Partial<PersonSearchQuery>>): Pa
 };
 
 const applyDefaultsAndAliases = (query: Query<Partial<PersonFilter>>): Query<Partial<PersonFilter>> => {
-  const withDefaults = { ...personDefaults, ...query } as Query<Partial<PersonFilter>>;
+  const withDefaults = { ...personDefaults, ...query };
   return replaceValues(withDefaults, personAliases);
 };

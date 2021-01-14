@@ -5,13 +5,13 @@ import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { Person } from './person.controller';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
 import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
-import { extractFilterQuery, extractSearchQuery } from './person.extractQuery';
+import { extractFilters, extractSearchQuery } from './person.extractQuery';
 
 const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
-persons.get('/', ch(Person.getPersons, (req: Request) => [extractFilterQuery(req.query)]));
+persons.get('/', ch(Person.getPersons, (req: Request) => [extractFilters(req.query)]));
 
 persons.get('/search', ch(Person.searchPersons, 
   (req: Request) => [extractSearchQuery(req.query)])
@@ -22,7 +22,7 @@ persons.get('/getUpdated/:from',
   ch(Person.getUpdatedFrom, (req: Request) => {
     let from = req.params.from;
     if (typeof(from) === 'number') from = new Date(from);
-    return [from, new Date(), extractFilterQuery(req.query)];
+    return [from, new Date(), extractFilters(req.query)];
   }
 ));
 

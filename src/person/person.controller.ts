@@ -10,7 +10,7 @@ import { userFromString, getAllPossibleDomains, createDomainUserObject } from '.
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
-import { PersonTextSearch } from './person.textSearch.interface';
+import { PersonTextSearch, PersonFilters as PersonTextSearchFilters} from './person.textSearch.interface';
 import personElasticRepo from './person.elasticSearchRepository';
 
 export type PersonFilter = {
@@ -22,7 +22,7 @@ export type PersonFilter = {
   serviceType: string | string[];
   status: string | string[];
   job: string | string[];
-  hierarchyPath: string;
+  underGroupId: string;
 };
 
 export type PersonSearchQuery = PersonFilter & {
@@ -322,6 +322,13 @@ export class Person {
   }
 
   static async searchPersons(query: Partial<PersonSearchQuery>) {
-    return Person._personTextSearch.searchByQuery(query);
+    const { fullName, underGroupId, ...rest } = query;
+    const filters: Partial<PersonTextSearchFilters> = rest;
+    if (!fullName) return [];
+    if (!!underGroupId) {
+      const group = await Person._organizationGroupRepository.findById(underGroupId);
+      if (!!group) filters.hierarchyPath = [...group.hierarchy, group.name].join('/');
+    }
+    return Person._personTextSearch.searchByFullName(fullName, filters);
   }
 }
