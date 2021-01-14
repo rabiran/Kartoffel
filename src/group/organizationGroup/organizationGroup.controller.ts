@@ -9,8 +9,13 @@ import { ValidationError, ResourceNotFoundError } from '../../types/error';
 import { OrganizationGroupTextSearch } from './organizationGroup.textSearch';
 import organizationGroupElasticRepository from './organizationGroup.elasticSearchRepository';
 
-export type GroupFilters = {
-  hierarchyPath: string;
+type GroupFilters = {
+  underGroupId: string
+};
+
+export type GroupQuery = {
+  name: string,
+  hierarchy: string;
 };
 
 export class OrganizationGroup {
@@ -248,12 +253,10 @@ export class OrganizationGroup {
   }
 
   static async searchByNameAndHierarchy(
-    nameAndHierarchyTerms: string | string[], 
+    nameAndHierarchyQuery: Partial<GroupQuery>, 
     filters?: Partial<GroupFilters>
   ) {
-    return OrganizationGroup._organizationGroupTextSearch.searchByNameAndHierarchy({
-      nameAndHierarchyTerms,
-    }, filters);
+    return OrganizationGroup._organizationGroupTextSearch.searchByNameAndHierarchy(nameAndHierarchyQuery, filters);
   }
 
   /**

@@ -8,7 +8,7 @@ import { Person } from '../../person/person.controller';
 import { IOrganizationGroup, ORGANIZATION_GROUP_BASIC_FIELDS } from './organizationGroup.interface';
 import { OGRouteValidate } from './organizationGroup.route.validator';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../../helpers/route.validator';
-import { extractGroupFilters } from './organizationGroup.extractQuery';
+import { extractGroupQuery } from './organizationGroup.extractQuery';
 
 // import { body, param, check, validationResult } from 'express-validator/check';
 
@@ -19,8 +19,8 @@ organizationGroups.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.has
 organizationGroups.get('/', ch(OrganizationGroup.getOrganizationGroups, (req: Request) => [req.query]));
 
 organizationGroups.get('/search', ch(
-  OrganizationGroup.searchByNameAndHierarchy,
-  (req: Request) => [req.query.nameAndHierarchy, extractGroupFilters(req.query)]
+  OrganizationGroup.searchGroups,
+  (req: Request) => [extractGroupQuery(req.query)]
 ));
 
 organizationGroups.get('/:id', 
@@ -29,6 +29,14 @@ organizationGroups.get('/:id',
             const toPopulate = req.query.populate ? req.query.populate.split(',') : null;
             return [req.params.id, toPopulate];
           }));
+organizationGroups.get(
+  '/:id/search',
+  validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
+  ch(OrganizationGroup.searchGroups, (req: Request) => [
+    extractGroupQuery(req.query),
+    { underGroupId: req.params.id },
+  ])
+);
 
 organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
 ch(OrganizationGroup.getUpdatedFrom, (req: Request) => {

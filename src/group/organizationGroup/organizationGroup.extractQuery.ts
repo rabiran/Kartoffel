@@ -1,15 +1,25 @@
-import { GroupFilters } from './organizationGroup.controller';
+import { GroupQuery as GroupQueryDTO } from './organizationGroup.controller';
 import Query from '../../types/Query';
 import { extract, replaceValues } from '../../utils';
-import singleValue from '../../helpers/makeSingleValue';
+import makeSingleValue from '../../helpers/makeSingleValue';
+
+type SearchGroupQuery = GroupQueryDTO & { nameAndHierarchy: string };
 
 
-const filterKeys: (keyof GroupFilters)[] = ['hierarchyPath'];
+const extractKeys: (keyof SearchGroupQuery)[] = ['hierarchy', 'name', 'nameAndHierarchy'];
 
-export function extractGroupFilters(query: Query<Partial<GroupFilters>>)
-: Partial<GroupFilters> {
-  const { hierarchyPath } = extract(query, filterKeys);
+export function extractGroupQuery(query: Query<Partial<SearchGroupQuery>>)
+: Partial<GroupQueryDTO> {
+  const { nameAndHierarchy, name: nameQuery, hierarchy: hierarchyQuery } = extract(query, extractKeys);
+  const name = nameQuery || nameAndHierarchy;
+  const hierarchy = hierarchyQuery || nameAndHierarchy;
+
   return {
-    ...!!hierarchyPath && { hierarchyPath: singleValue(hierarchyPath) },
-  };
+    ...!!hierarchy && {
+      hierarchy: makeSingleValue(hierarchy),
+    },
+    ...!!name && {
+      name: makeSingleValue(name),
+    },
+  };  
 }
