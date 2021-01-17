@@ -4,7 +4,7 @@ import { analyzers, tokenizers, prefix_autocomplete_field_settings } from './com
 const { indexNames: { organizationGroups: indexName }, fullTextFieldName } = config.elasticSearch;
 
 const { autocomplete, autocomplete_search } = analyzers;
-const { custom_path_hierarchy, edge_ngram_tokenizer } = tokenizers;
+const { edge_ngram_tokenizer } = tokenizers;
 
 const settings = {
   analysis: {
@@ -14,7 +14,6 @@ const settings = {
     },
     tokenizer: {
       edge_ngram_tokenizer,
-      custom_path_hierarchy,
     },
   },
 };
