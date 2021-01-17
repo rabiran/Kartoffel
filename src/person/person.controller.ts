@@ -10,10 +10,10 @@ import { userFromString, getAllPossibleDomains, createDomainUserObject } from '.
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
-import { PersonTextSearch, PersonFilters as PersonTextSearchFilters} from './person.textSearch.interface';
+import { PersonTextSearch, PersonFilters as PersonTextSearchFilters } from './person.textSearch.interface';
 import personElasticRepo from './person.elasticSearchRepository';
 
-export type PersonFilter = {
+export type PersonFilters = {
   currentUnit: string | string[];
   'domainUsers.dataSource': string | string[];
   rank: string | string[];
@@ -25,7 +25,7 @@ export type PersonFilter = {
   underGroupId: string;
 };
 
-export type PersonSearchQuery = PersonFilter & {
+export type PersonSearchQuery = PersonFilters & {
   fullName: string;
 };
 
@@ -321,10 +321,12 @@ export class Person {
     await Person.updatePerson(personId, person);
   }
 
-  static async searchPersons(query: Partial<PersonSearchQuery>) {
+  static async searchPersonsByName(query: Partial<PersonSearchQuery>) {
     const { fullName, underGroupId, ...rest } = query;
     const filters: Partial<PersonTextSearchFilters> = rest;
+    // the query makes sense only if 'fullName' is requested
     if (!fullName) return [];
+    // get the group to search persons under it's hierarchy path
     if (!!underGroupId) {
       const group = await Person._organizationGroupRepository.findById(underGroupId);
       if (!!group) filters.hierarchyPath = [...group.hierarchy, group.name].join('/');
