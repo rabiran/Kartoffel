@@ -11,9 +11,12 @@ const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
-persons.get('/', ch(Person.getPersons, (req: Request) => [extractFilters(req.query)]));
+persons.get('/', ch(Person.getPersons, (req: Request) => {
+  const { underGroupId, ...filters } = extractFilters(req.query);
+  return [filters];
+}));
 
-persons.get('/search', ch(Person.searchPersons, 
+persons.get('/search', ch(Person.searchPersonsByName, 
   (req: Request) => [extractSearchQuery(req.query)])
 );
 
@@ -22,7 +25,8 @@ persons.get('/getUpdated/:from',
   ch(Person.getUpdatedFrom, (req: Request) => {
     let from = req.params.from;
     if (typeof(from) === 'number') from = new Date(from);
-    return [from, new Date(), extractFilters(req.query)];
+    const { underGroupId, ...filters } = extractFilters(req.query);
+    return [from, new Date(), filters];
   }
 ));
 
