@@ -8,7 +8,7 @@ import { Person } from '../../person/person.controller';
 import { IOrganizationGroup, ORGANIZATION_GROUP_BASIC_FIELDS } from './organizationGroup.interface';
 import { OGRouteValidate } from './organizationGroup.route.validator';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../../helpers/route.validator';
-import { extractGroupQuery } from './organizationGroup.extractQuery';
+import { extractSearchQuery } from './organizationGroup.extractQuery';
 
 // import { body, param, check, validationResult } from 'express-validator/check';
 
@@ -20,7 +20,7 @@ organizationGroups.get('/', ch(OrganizationGroup.getOrganizationGroups, (req: Re
 
 organizationGroups.get('/search', ch(
   OrganizationGroup.searchGroups,
-  (req: Request) => [extractGroupQuery(req.query)]
+  (req: Request) => [extractSearchQuery(req.query)]
 ));
 
 organizationGroups.get('/:id', 
@@ -32,10 +32,10 @@ organizationGroups.get('/:id',
 organizationGroups.get(
   '/:id/search',
   validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
-  ch(OrganizationGroup.searchGroups, (req: Request) => [
-    extractGroupQuery(req.query),
-    { underGroupId: req.params.id },
-  ])
+  ch(OrganizationGroup.searchGroups, (req: Request) => [{
+    ...extractSearchQuery(req.query),
+    underGroupId: req.params.id,
+  }])
 );
 
 organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
