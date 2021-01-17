@@ -9,11 +9,12 @@ import { ValidationError, ResourceNotFoundError } from '../../types/error';
 import { OrganizationGroupTextSearch } from './organizationGroup.textSearch';
 import organizationGroupElasticRepository from './organizationGroup.elasticSearchRepository';
 
-type GroupFilters = {
-  underGroupId: string
+export type GroupFilters = {
+  underGroupId: string,
+  isAlive: boolean,
 };
 
-export type GroupQuery = {
+export type GroupQuery = GroupFilters & {
   name: string,
   hierarchy: string;
 };
@@ -252,11 +253,12 @@ export class OrganizationGroup {
     return res;
   }
 
-  static async searchByNameAndHierarchy(
-    nameAndHierarchyQuery: Partial<GroupQuery>, 
-    filters?: Partial<GroupFilters>
-  ) {
-    return OrganizationGroup._organizationGroupTextSearch.searchByNameAndHierarchy(nameAndHierarchyQuery, filters);
+  static async searchGroups(query: Partial<GroupQuery>) {
+    const { hierarchy, name, ...filters } = query;
+    // the query makes sense only if any of these fields requested
+    if (!hierarchy && !name) return [];
+    return OrganizationGroup._organizationGroupTextSearch
+      .searchByNameAndHierarchy({ name, hierarchy }, filters);
   }
 
   /**
