@@ -7,6 +7,7 @@ export type GroupQuery = {
 
 export type GroupFilters = {
   underGroupId: string;
+  isAlive: boolean;
 };
 
 export interface OrganizationGroupTextSearch {
