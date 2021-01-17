@@ -31,8 +31,6 @@ implements PersonTextSearch {
         fuzzy: true,
       },
     });
-    console.log(JSON.stringify(query));
-    console.log(JSON.stringify(body));
     return (await this.search(
       QueryBuilder.buildBoolQuery(query, {
         fullName: {
