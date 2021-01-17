@@ -103,6 +103,9 @@ export const config = {
       persons: {
         status: STATUS.ACTIVE,
       },
+      organizationGroups: {
+        isAlive: 'true',
+      },
     },
   },
 };
