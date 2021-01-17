@@ -242,3 +242,26 @@ export function extract<T, K extends keyof T = keyof T>(obj: T, keys: K[]) {
   }
   return res as Pick<T,K>;
 }
+
+/**
+ * Returns whether a string represents a boolean Value 
+ * (it's lower case form is either "true" or "false")
+ * @param str 
+ */
+export function isBooleanString(str: string) {
+  return ['true', 'false'].includes(str.toLowerCase());
+}
+
+/**
+ * Returns the first element if `val` is array, otherwise
+ * returns `val`.
+
+ * Returns `undefined` upon empty array.
+ * @param val 
+ */
+export function pickSingleValue<T>(val: T | T[]): T {
+  if (Array.isArray(val)) {
+    return val.length > 0 ? val[0] : undefined;
+  }
+  return val;
+}
