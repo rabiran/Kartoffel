@@ -25,12 +25,6 @@ implements PersonTextSearch {
       fullName,
       ...filters,
     };
-    const body = QueryBuilder.buildBoolQuery(query, {
-      fullName: {
-        context: FieldContext.Query,
-        fuzzy: true,
-      },
-    });
     return (await this.search(
       QueryBuilder.buildBoolQuery(query, {
         fullName: {
