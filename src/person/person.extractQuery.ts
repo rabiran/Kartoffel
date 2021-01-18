@@ -7,7 +7,7 @@ const { aliases: { persons: personAliases }, defaults: { persons: personDefaults
 
 const extractFilterKeys: (keyof PersonFilters)[] = ['currentUnit', 'domainUsers.dataSource', 
   'entityType', 'job', 'rank', 'responsibility', 'serviceType', 'status', 'underGroupId'];
-const extractSearchKeys: (keyof PersonSearchQuery)[] = [...extractFilterKeys, 'fullName'];
+const extractSearchKeys: (keyof PersonSearchQuery)[] = ['fullName'];
 
 
 export const extractFilters = (query: Query<Partial<PersonFilters>>): Partial<PersonFilters> => {
@@ -21,10 +21,9 @@ export const extractFilters = (query: Query<Partial<PersonFilters>>): Partial<Pe
 };
 
 export const extractSearchQuery = (query: Query<Partial<PersonSearchQuery>>): Partial<PersonSearchQuery> => {
-  const { fullName, ...filters } = extract(query, extractSearchKeys);
-  const filtersWithAliases = extractFilters(filters);
+  const { fullName } = extract(query, extractSearchKeys);
   return {
-    ...filtersWithAliases,
+    ...extractFilters(query),
     fullName: pickSingleValue(fullName),
   };
 };
