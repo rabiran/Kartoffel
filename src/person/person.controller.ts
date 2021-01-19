@@ -10,14 +10,30 @@ import { userFromString, getAllPossibleDomains, createDomainUserObject } from '.
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
-import { search } from '../search/elasticsearch';
-import { config } from '../config/config';
-import esRepository from './person.elastic.repository';
+import { PersonTextSearch, PersonFilters as PersonTextSearchFilters } from './person.textSearch.interface';
+import personElasticRepo from './person.elasticSearchRepository';
+
+export type PersonFilters = {
+  currentUnit: string | string[];
+  'domainUsers.dataSource': string | string[];
+  rank: string | string[];
+  entityType: string | string[];
+  responsibility: string | string[];
+  serviceType: string | string[];
+  status: string | string[];
+  job: string | string[];
+  underGroupId: string;
+};
+
+export type PersonSearchQuery = PersonFilters & {
+  fullName: string;
+};
 
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
   _personService: PersonRepository;
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
+  static _personTextSearch: PersonTextSearch = personElasticRepo;
 
   constructor() {
     this._personService = new PersonRepository();
@@ -305,7 +321,17 @@ export class Person {
     await Person.updatePerson(personId, person);
   }
 
-  static async searchPersons(query: object) {
-    return esRepository.search(query);
+  static async searchPersonsByName(query: Partial<PersonSearchQuery>) {
+    const { fullName, underGroupId, ...rest } = query;
+    const filters: Partial<PersonTextSearchFilters> = rest;
+    // the query makes sense only if 'fullName' is requested
+    if (!fullName) return [];
+    // get the group to search persons under it's hierarchy path
+    if (!!underGroupId) {
+      // throws if group doesn't exist
+      const group = await OrganizationGroup.getOrganizationGroup(underGroupId);
+      if (!!group) filters.hierarchyPath = [...group.hierarchy, group.name].join('/');
+    }
+    return Person._personTextSearch.searchByFullName(fullName, filters);
   }
 }

@@ -45,6 +45,7 @@ export const config = {
     },
     indexNames: {
       persons: 'kartoffel.people',
+      organizationGroups: 'kartoffel.organizationgroups',
     },
     defaultResultLimit: 20,
     fullTextFieldName: 'autocomplete',
@@ -97,10 +98,18 @@ export const config = {
           nonExternals: DATA_SOURCE.slice(0, DATA_SOURCE.length - 1),
         },
       },
+      organizationGroups: {
+        isAlive: {
+          all: null as string,
+        },
+      },
     },
     defaults: {
       persons: {
         status: STATUS.ACTIVE,
+      },
+      organizationGroups: {
+        isAlive: 'true',
       },
     },
   },

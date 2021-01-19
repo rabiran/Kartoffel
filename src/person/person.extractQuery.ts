@@ -1,46 +1,34 @@
-import { STATUS } from '../config/db-enums';
-import { transformQueryFields } from '../helpers/queryTransform';
 import { config } from '../config/config';
+import { extract, replaceValues, pickSingleValue } from '../utils';
+import Query from '../types/Query';
+import { PersonFilters, PersonSearchQuery } from './person.controller';
 
-export const queryParamsRenameMap = {
-  domainusers: 'domainUsers',
-  'domainusers.datasource': 'domainUsers.dataSource',
-  'domainusers.uniqeid': 'domainUsers.uniqueID',
-  'domainusers.adfsuid': 'domainUsers.adfsUID',
-  identitycard: 'identityCard',
-  personalnumber: 'personalNumber',
-  entitytype: 'entityType',
-  servicetype: 'serviceType',
-  firtsname: 'firstName',
-  lastname: 'lastName',
-  currentunit: 'currentUnit',
-  dischargeday: 'dischargeDay',
-  directgroup: 'directGroup',
-  managedgroup: 'managedGroup',
-  responsibilitylocation: 'responsibilityLocation',
-  mobilephone: 'mobilePhone',
-  fullname: 'fullName',
+const { aliases: { persons: personAliases }, defaults: { persons: personDefaults } } = config.queries;
+
+const extractFilterKeys: (keyof PersonFilters)[] = ['currentUnit', 'domainUsers.dataSource', 
+  'entityType', 'job', 'rank', 'responsibility', 'serviceType', 'status', 'underGroupId'];
+const extractSearchKeys: (keyof PersonSearchQuery)[] = ['fullName'];
+
+
+export const extractFilters = (query: Query<Partial<PersonFilters>>): Partial<PersonFilters> => {
+  const { underGroupId, ...rest } = applyDefaultsAndAliases(extract(query, extractFilterKeys));
+  return {
+    ...!!underGroupId && {
+      underGroupId: pickSingleValue(underGroupId),
+    },
+    ...rest,
+  };
 };
 
-export const filterQueryAllowedFields = ['currentUnit', 'domainUsers.dataSource', 'entityType', 
-  'job', 'rank', 'responsibility', 'serviceType', 'status'];
+export const extractSearchQuery = (query: Query<Partial<PersonSearchQuery>>): Partial<PersonSearchQuery> => {
+  const { fullName } = extract(query, extractSearchKeys);
+  return {
+    ...extractFilters(query),
+    fullName: pickSingleValue(fullName),
+  };
+};
 
-export const searchQueryAllowedFields = filterQueryAllowedFields.concat(['fullName']);
-
-const { aliases, defaults } = config.queries;
-
-export const extractFilterQueryFields = (query: object) => 
-  transformQueryFields(query, {
-    selectFields: filterQueryAllowedFields,
-    renameMap: queryParamsRenameMap,
-    defaults: defaults.persons,
-    valuesAliases: aliases.persons,
-  });
-
-export const extractSearchQueryFields = (query: object) => 
-  transformQueryFields(query, {
-    selectFields: searchQueryAllowedFields,
-    renameMap: queryParamsRenameMap,
-    defaults: defaults.persons,
-    valuesAliases: aliases.persons,
-  });
+const applyDefaultsAndAliases = (query: Query<Partial<PersonFilters>>): Query<Partial<PersonFilters>> => {
+  const withDefaults = { ...personDefaults, ...query };
+  return replaceValues(withDefaults, personAliases);
+};
