@@ -320,6 +320,8 @@ describe('Strong Groups', () => {
 
       res.should.exist;
       res.should.have.property('name', organizationGroup.name);
+      expect(res.createdAt).to.exist;
+      expect(res.updatedAt).to.exist;
     });
     it('should get the group with it\'s member and without it after discharge', async () => {
       const organizationGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'myGroup' });
