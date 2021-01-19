@@ -255,8 +255,13 @@ export class OrganizationGroup {
 
   static async searchGroups(query: Partial<GroupQuery>) {
     const { hierarchy, name, ...filters } = query;
+    const { underGroupId } = filters;
     // the query makes sense only if any of these fields requested
     if (!hierarchy && !name) return [];
+    // check group's existance, throws if not
+    if (!!underGroupId) {
+      await OrganizationGroup.getOrganizationGroup(underGroupId);
+    }
     return OrganizationGroup._organizationGroupTextSearch
       .searchByNameAndHierarchy({ name, hierarchy }, filters);
   }

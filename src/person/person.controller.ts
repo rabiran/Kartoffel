@@ -328,7 +328,8 @@ export class Person {
     if (!fullName) return [];
     // get the group to search persons under it's hierarchy path
     if (!!underGroupId) {
-      const group = await Person._organizationGroupRepository.findById(underGroupId);
+      // throws if group doesn't exist
+      const group = await OrganizationGroup.getOrganizationGroup(underGroupId);
       if (!!group) filters.hierarchyPath = [...group.hierarchy, group.name].join('/');
     }
     return Person._personTextSearch.searchByFullName(fullName, filters);
