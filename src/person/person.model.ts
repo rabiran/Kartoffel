@@ -4,6 +4,7 @@ import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
 import { DomainSeperator, filterObjectByKeys, domainMap, allStatuses } from '../utils';
+import PictureSchema from './picture/picture.schema';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -170,6 +171,14 @@ export const PersonSchema = new mongoose.Schema(
       type: String,
       default: '0',
       validate: { validator: PersonValidate.clearance, message: '{VALUE} is an invalid clearance!' },
+    },
+    pictures: {
+      profile: {
+        url: { type: String },
+        meta: {
+          type: PictureSchema,
+        },
+      },
     },
   },
   schemaOptions
