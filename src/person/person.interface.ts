@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { PictureMetadata } from './picture/picture.schema';
 import Omit from '../types/Omit';
 
 export interface IPerson {
@@ -33,10 +32,7 @@ export interface IPerson {
   responsibilityLocation?: string | Types.ObjectId | IOrganizationGroup;
   clearance?: string;
   pictures?: {
-    profile?: {
-      url: string;
-      meta: PictureMetadata
-    }
+    profile?: ProfilePictureDTO | SetProfilePictureDTO
   };
 }
 
@@ -52,11 +48,21 @@ export interface IDomainUser extends IDomainUserIdentifier{
   adfsUID?: string;
 }
 
-export type PersonResponseDTO = Omit<IPerson, 'pictures'> & {
-  pictures: {
-    profile?: {
-      url: string;
-      updatedAt: Date;
-    }
-  }
+export interface PictureMeta {
+  format?: string;
+  updatedAt: Date;
+}
+
+export interface ProfilePictureMeta extends PictureMeta {
+  takenAt?: Date;
+}
+
+type SetProfilePictureDTO = Omit<ProfilePictureMeta, 'updatedAt'> & {
+  path?: string;
+  takenAt?: Date;
+};
+
+type ProfilePictureDTO = {
+  url: string;
+  meta: ProfilePictureMeta
 };
