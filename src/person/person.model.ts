@@ -4,7 +4,7 @@ import { PersonValidate } from './person.validate';
 import  * as consts  from '../config/db-enums';
 import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
 import { DomainSeperator, filterObjectByKeys, domainMap, allStatuses } from '../utils';
-import PictureSchema from './picture/picture.schema';
+import { schema as ProfilePictureSchema } from './picture/profile/';
 
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
@@ -176,7 +176,7 @@ export const PersonSchema = new mongoose.Schema(
       profile: {
         url: { type: String },
         meta: {
-          type: PictureSchema,
+          type: ProfilePictureSchema,
         },
       },
     },
