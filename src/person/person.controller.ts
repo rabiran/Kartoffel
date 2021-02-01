@@ -263,29 +263,45 @@ export class Person {
     return result.deletedCount > 0 ? result : Promise.reject(new ResourceNotFoundError('Cannot find person with ID: ' + personID));
   }
 
-  private static mergeProfilePictureUpdate(source: IPerson, change: Partial<IPerson>) {
+  /**
+   * merge the incoming profile picture metadata change with the current 
+   * profile picture metadata, also validates the incoming change.
+   * Returns the merged profile picture metadata object. 
+   * @param source source Person Object 
+   * @param change changes to apply on the person
+   */
+  private static getMergedProfilePicture(source: IPerson, change: Partial<IPerson>) {
     const currentPicture = source.pictures && source.pictures.profile ? 
       source.pictures.profile as ProfilePictureDTO : null;
-    
-    const pictureChange = change.pictures.profile as SetProfilePictureDTO;
-    if (!!change.pictures.profile) {
-      if (!pictureChange.path || !pictureChange.takenAt) {
+    const currentPictureMeta = currentPicture ? currentPicture.meta : {};
+    if (!!change.pictures.profile) { // if there is change to apply
+      const pictureMetaChange = change.pictures.profile as SetProfilePictureDTO;
+      if (!pictureMetaChange.path || !pictureMetaChange.takenAt) {
         throw new ValidationError('profile picture metadata change must include path and takenAt parameters');
       }
-      const merged = { ...(!!currentPicture ? currentPicture.meta : {}), ...pictureChange };
+      const { format, path, takenAt } = { ...currentPictureMeta, ...pictureMetaChange };
       const url = 'gdfgdfg'; // todo: generate url
-      
+      return {
+        url,
+        meta: {
+          format, path, takenAt
+        }
+      };
     }
+    return {};
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
     // find the person
     const person = await Person.getPersonById(id);
-    //
-    // this.mergePictureUpdate(person, change, PictureType.Profile)
+    // 
+    const profileChange = Person.getMergedProfilePicture(person, change);
+    const pictureChange = {
+      
+    }
     
     // merge with the changes
-    const mergedPerson = { ...person, ...change };
+    const mergedPerson = { ...person, ...change, { pictures: {profile: pri}} };
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
