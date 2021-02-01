@@ -16,13 +16,6 @@ const schema = new mongoose.Schema({
     createdAt: false,
   },
   versionKey: false,
-  toObject: {
-    // hides the 'path' field
-    transform: (doc, ret, options) => {
-      const { takenAt, format, updatedAt } = ret;
-      return { takenAt, format, updatedAt };
-    },
-  },
 });
 
 export default schema;

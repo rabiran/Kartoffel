@@ -98,4 +98,13 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     return Person.findOneAndUpdate({ _id: personId }, { $push: { domainUsers: domainUser } }, opts).exec()
       .then(res => res ? res.toObject() : res);
   }
+
+  async getPicturePath(perosnIdentifier: string, pictureType: PictureType): Promise<string> { 
+    const rawPerson = await this._model.findOne({ $or: [
+      { _id: perosnIdentifier }, 
+      { identityCard: perosnIdentifier }, 
+      { personalNumber: perosnIdentifier },
+    ]}).select(`picture.${pictureType}`).exec();
+    return rawPerson.pictures[pictureType].meta.path;
+  }
 }

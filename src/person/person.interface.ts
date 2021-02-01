@@ -2,6 +2,8 @@ import { Types } from 'mongoose';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import Omit from '../types/Omit';
 
+export type PictureType = 'profile';
+
 export interface IPerson {
 // Person's Basic information
   id?: string;
@@ -57,12 +59,12 @@ export interface ProfilePictureMeta extends PictureMeta {
   takenAt?: Date;
 }
 
-type SetProfilePictureDTO = Omit<ProfilePictureMeta, 'updatedAt'> & {
-  path?: string;
-  takenAt?: Date;
+export type SetProfilePictureDTO = Omit<ProfilePictureMeta, 'updatedAt'> & {
+  path: string;
+  takenAt: Date;
 };
 
-type ProfilePictureDTO = {
+export type ProfilePictureDTO = {
   url: string;
   meta: ProfilePictureMeta
 };

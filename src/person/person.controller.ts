@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as _ from 'lodash';
 import { ApplicationError, ValidationError, ResourceNotFoundError } from '../types/error';
 import { PersonRepository } from './person.repository';
-import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType, ProfilePictureDTO, SetProfilePictureDTO } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
@@ -263,9 +263,27 @@ export class Person {
     return result.deletedCount > 0 ? result : Promise.reject(new ResourceNotFoundError('Cannot find person with ID: ' + personID));
   }
 
+  private static mergeProfilePictureUpdate(source: IPerson, change: Partial<IPerson>) {
+    const currentPicture = source.pictures && source.pictures.profile ? 
+      source.pictures.profile as ProfilePictureDTO : null;
+    
+    const pictureChange = change.pictures.profile as SetProfilePictureDTO;
+    if (!!change.pictures.profile) {
+      if (!pictureChange.path || !pictureChange.takenAt) {
+        throw new ValidationError('profile picture metadata change must include path and takenAt parameters');
+      }
+      const merged = { ...(!!currentPicture ? currentPicture.meta : {}), ...pictureChange };
+      const url = 'gdfgdfg'; // todo: generate url
+      
+    }
+  }
+
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
     // find the person
     const person = await Person.getPersonById(id);
+    //
+    // this.mergePictureUpdate(person, change, PictureType.Profile)
+    
     // merge with the changes
     const mergedPerson = { ...person, ...change };
     // validate the merged object
