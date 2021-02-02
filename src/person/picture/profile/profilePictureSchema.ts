@@ -14,12 +14,12 @@ const schema = new mongoose.Schema({
 }, {
   _id: false,
   versionKey: false,
-  toObject: {
-    transform: (doc, ret, options) => {
-      const { path, ...rest } = ret;
-      return rest;
-    },
-  },
+  // toObject: {
+  //   transform: (doc, ret, options) => {
+  //     const { path, ...rest } = ret;
+  //     return rest;
+  //   },
+  // },
   // timestamps: { updatedAt: true }, not working :(
 });
 

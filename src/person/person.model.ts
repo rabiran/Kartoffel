@@ -22,7 +22,6 @@ const schemaOptions = {
     locale:'en',
     strength: 1,
   },
-  minimize: false,
 };
 
 
