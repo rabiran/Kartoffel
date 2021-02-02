@@ -22,6 +22,7 @@ const schemaOptions = {
     locale:'en',
     strength: 1,
   },
+  minimize: false,
 };
 
 
@@ -173,11 +174,10 @@ export const PersonSchema = new mongoose.Schema(
       validate: { validator: PersonValidate.clearance, message: '{VALUE} is an invalid clearance!' },
     },
     pictures: {
+      default: {},
       profile: {
-        url: { type: String },
-        meta: {
-          type: ProfilePictureSchema,
-        },
+        url: String,
+        meta: ProfilePictureSchema,
       },
     },
   },

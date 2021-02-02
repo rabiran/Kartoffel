@@ -6,7 +6,7 @@ import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType, ProfilePictur
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { userFromString, getAllPossibleDomains, createDomainUserObject } from './person.utils';
+import { userFromString, getAllPossibleDomains, createDomainUserObject, createProfilePictureMetadata } from './person.utils';
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
@@ -244,6 +244,16 @@ export class Person {
     if (person.domainUsers) {
       person.domainUsers = person.domainUsers.map(userString => createDomainUserObject(userString));
     } 
+    // create pictures objects
+    if (!!person.pictures) {
+      person.pictures = {
+        profile: person.pictures.profile ? 
+          createProfilePictureMetadata(
+            person.personalNumber || person.identityCard, 
+            person.pictures.profile as SetProfilePictureDTO
+          ) : undefined,
+      };
+    }
     const newPerson = await Person._personRepository.create(person);
     return newPerson;
   }
@@ -266,7 +276,7 @@ export class Person {
   /**
    * merge the incoming profile picture metadata change with the current 
    * profile picture metadata, also validates the incoming change.
-   * Returns the merged profile picture metadata object. 
+   * Returns the merged profile picture metadata object.
    * @param source source Person Object 
    * @param change changes to apply on the person
    */
@@ -274,34 +284,29 @@ export class Person {
     const currentPicture = source.pictures && source.pictures.profile ? 
       source.pictures.profile as ProfilePictureDTO : null;
     const currentPictureMeta = currentPicture ? currentPicture.meta : {};
-    if (!!change.pictures.profile) { // if there is change to apply
+    if (!!change.pictures && !!change.pictures.profile) { // if there is change to apply
       const pictureMetaChange = change.pictures.profile as SetProfilePictureDTO;
-      if (!pictureMetaChange.path || !pictureMetaChange.takenAt) {
-        throw new ValidationError('profile picture metadata change must include path and takenAt parameters');
-      }
-      const { format, path, takenAt } = { ...currentPictureMeta, ...pictureMetaChange };
-      const url = 'gdfgdfg'; // todo: generate url
-      return {
-        url,
-        meta: {
-          format, path, takenAt
-        }
-      };
+      return createProfilePictureMetadata(source.id, { ...currentPictureMeta, ...pictureMetaChange });
+    } else if (!!change.pictures && change.pictures.profile === null) { // delete operation
+      return {};
     }
-    return {};
+    // no changes - return current 
+    return currentPicture;
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
     // find the person
     const person = await Person.getPersonById(id);
-    // 
+    // hanlde picture field change
     const profileChange = Person.getMergedProfilePicture(person, change);
     const pictureChange = {
-      
-    }
+      pictures: {
+        profile: profileChange,
+      },
+    };
     
     // merge with the changes
-    const mergedPerson = { ...person, ...change, { pictures: {profile: pri}} };
+    const mergedPerson = { ...person, ...change, ...pictureChange };
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
@@ -310,7 +315,7 @@ export class Person {
     // remove domainUsers from the actual update - this field have separate update function
     delete mergedPerson.domainUsers;
     // perform the actual update
-    const updatedPerson = await Person._personRepository.update(id, mergedPerson);
+    const updatedPerson = await Person._personRepository.update(id, mergedPerson as Partial<IPerson>);
     return <IPerson>updatedPerson;
   }
 

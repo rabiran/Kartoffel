@@ -4,7 +4,7 @@ import { RouteParamsValidate as RPV } from '../helpers/route.validator';
 // fields in alphebetical order
 export const createAllowedFileds =  ['address', 'clearance', 'currentUnit', 'directGroup', 
   'dischargeDay', 'domainUsers','entityType', 'firstName', 'identityCard', 'job', 'lastName', 'mail', 
-  'managedGroup', 'mobilePhone', 'personalNumber', 'phone', 'rank', 'responsibility', 
+  'managedGroup', 'mobilePhone', 'personalNumber', 'phone', 'pictures', 'rank', 'responsibility', 
   'responsibilityLocation', 'serviceType', 'status'];
 
 export const updateAllowedFields = _.without(createAllowedFileds, 'directGroup', 'domainUsers');

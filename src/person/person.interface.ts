@@ -52,19 +52,22 @@ export interface IDomainUser extends IDomainUserIdentifier{
 
 export interface PictureMeta {
   format?: string;
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 export interface ProfilePictureMeta extends PictureMeta {
   takenAt?: Date;
 }
 
-export type SetProfilePictureDTO = Omit<ProfilePictureMeta, 'updatedAt'> & {
-  path: string;
-  takenAt: Date;
-};
-
 export type ProfilePictureDTO = {
   url: string;
   meta: ProfilePictureMeta
 };
+
+export type SetProfilePictureDTO = {
+  meta: Omit<ProfilePictureMeta, 'updatedAt'> & {
+    path: string;
+  }
+};
+
+

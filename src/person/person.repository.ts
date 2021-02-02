@@ -1,5 +1,5 @@
 import { PersonModel as Person } from './person.model';
-import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType } from './person.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
@@ -99,12 +99,13 @@ export class PersonRepository extends RepositoryBase<IPerson> {
       .then(res => res ? res.toObject() : res);
   }
 
-  async getPicturePath(perosnIdentifier: string, pictureType: PictureType): Promise<string> { 
-    const rawPerson = await this._model.findOne({ $or: [
-      { _id: perosnIdentifier }, 
-      { identityCard: perosnIdentifier }, 
-      { personalNumber: perosnIdentifier },
-    ]}).select(`picture.${pictureType}`).exec();
-    return rawPerson.pictures[pictureType].meta.path;
-  }
+  // async getPicturePath(perosnIdentifier: string, pictureType: PictureType): Promise<string> { 
+  //   const rawPerson = await this._model.findOne({ $or: [
+  //     { _id: perosnIdentifier }, 
+  //     { identityCard: perosnIdentifier }, 
+  //     { personalNumber: perosnIdentifier },
+  //   ]}).select(`picture.${pictureType}`).exec();
+  //   const pictureMetadata = rawPerson.pictures.profile
+  //   return rawPerson.pictures[pictureType].meta.path;
+  // }
 }
