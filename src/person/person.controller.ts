@@ -244,13 +244,13 @@ export class Person {
     if (person.domainUsers) {
       person.domainUsers = person.domainUsers.map(userString => createDomainUserObject(userString));
     } 
-    // create pictures objects
+    // create 'pictures' objects
     if (!!person.pictures) {
       person.pictures = {
         profile: person.pictures.profile ? 
           createProfilePictureMetadata(
             person.personalNumber || person.identityCard, 
-            person.pictures.profile as SetProfilePictureDTO
+            person.pictures.profile.meta
           ) : undefined,
       };
     }
@@ -280,33 +280,33 @@ export class Person {
    * @param source source Person Object 
    * @param change changes to apply on the person
    */
-  private static getMergedProfilePicture(source: IPerson, change: Partial<IPerson>) {
-    const currentPicture = source.pictures && source.pictures.profile ? 
-      source.pictures.profile as ProfilePictureDTO : null;
-    const currentPictureMeta = currentPicture ? currentPicture.meta : {};
-    if (!!change.pictures && !!change.pictures.profile) { // if there is change to apply
-      const pictureMetaChange = change.pictures.profile as SetProfilePictureDTO;
-      return createProfilePictureMetadata(source.id, { ...currentPictureMeta, ...pictureMetaChange });
-    } else if (!!change.pictures && change.pictures.profile === null) { // delete operation
-      return {};
-    }
-    // no changes - return current 
-    return currentPicture;
+  private static handleProfilePictureChange(source: IPerson, change: { profile?: SetProfilePictureDTO }) {
+    // get current picture metadata
+    const currentPictureMeta = source.pictures && source.pictures.profile ? 
+      (source.pictures.profile as ProfilePictureDTO).meta : {};
+    const hasChange = !!change && !!change.profile;
+    // const pictureMetaChange = hasChange ? change.pictures.profile.meta as SetProfilePictureDTO; 
+    if (!!hasChange) { // if there is change to apply
+      const pictureMetaChange = change.profile.meta;
+      if (pictureMetaChange === null) { // delete operation
+        source.pictures.profile = null;
+        return;  
+      }
+      // update operation
+      const mergedProfilePicture = createProfilePictureMetadata(source.id, { ...currentPictureMeta, 
+        ...pictureMetaChange });
+      source.pictures.profile = mergedProfilePicture;
+    } 
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
     // find the person
     const person = await Person.getPersonById(id);
     // hanlde picture field change
-    const profileChange = Person.getMergedProfilePicture(person, change);
-    const pictureChange = {
-      pictures: {
-        profile: profileChange,
-      },
-    };
-    
+    const { pictures, ...rest } = change;
+    Person.handleProfilePictureChange(person, pictures as {profile: SetProfilePictureDTO});
     // merge with the changes
-    const mergedPerson = { ...person, ...change, ...pictureChange };
+    const mergedPerson = { ...person, ...rest };
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
