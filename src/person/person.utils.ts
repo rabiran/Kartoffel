@@ -43,7 +43,13 @@ export function userFromString(uniqueID: string): IDomainUserIdentifier {
   return { name, domain };  
 }
 
-export function createProfilePictureMetadata(personIndentifier: string, metadata: SetProfilePictureDTO) {
+export function createProfilePictureMetadata(
+  personIndentifier: string, 
+  metadata: { 
+    format?: string 
+    path?: string
+    takenAt?: Date 
+  }) {
   if (!metadata.path || !metadata.takenAt) {
     throw new ValidationError('profile picture metadata change must include path and takenAt parameters');
   }
