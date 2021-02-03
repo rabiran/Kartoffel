@@ -99,13 +99,13 @@ export class PersonRepository extends RepositoryBase<IPerson> {
       .then(res => res ? res.toObject() : res);
   }
 
-  // async getPicturePath(perosnIdentifier: string, pictureType: PictureType): Promise<string> { 
-  //   const rawPerson = await this._model.findOne({ $or: [
-  //     { _id: perosnIdentifier }, 
-  //     { identityCard: perosnIdentifier }, 
-  //     { personalNumber: perosnIdentifier },
-  //   ]}).select(`picture.${pictureType}`).exec();
-  //   const pictureMetadata = rawPerson.pictures.profile
-  //   return rawPerson.pictures[pictureType].meta.path;
-  // }
+  async getPicturePath(perosnIdentifier: string, pictureType: PictureType): Promise<string> { 
+    const rawPerson = await this._model.findOne({ $or: [
+      { _id: perosnIdentifier }, 
+      { identityCard: perosnIdentifier }, 
+      { personalNumber: perosnIdentifier },
+    ]}).select(`picture.${pictureType}`).exec();
+    const pictureMetadata = rawPerson.pictures[pictureType] as any;
+    return pictureMetadata.path;
+  }
 }
