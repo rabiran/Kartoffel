@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import * as sinon from 'sinon';
 import { app } from '../server';
 import { Person } from './person.controller';
-import { IPerson, IDomainUser } from './person.interface';
+import { IPerson, IDomainUser, ProfilePictureDTO } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS } from '../config/db-enums';
@@ -413,6 +413,25 @@ describe('Person', () => {
       createdPerson.should.exist;
       createdPerson.should.have.property('status', STATUS.INCOMPLETE);
     });
+    it('should create a person with profile picture field', async () => {
+      const pictures = {
+        profile: {
+          path: 'yuuu',
+          takenAt: '2020-02-15',
+          format: 'jpg',
+        },
+      };
+      const person = { ...personExamples[0], pictures };
+      const result = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
+      expect(person.pictures).to.exist;
+      expect(person.pictures.profile).to.exist;
+      const profile = result.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta).to.exist;
+      expect(profile.meta.format).to.equal(pictures.profile.path);
+      expect(profile.meta.takenAt).to.equal(pictures.profile.takenAt);
+      expect(profile.meta.path).to.not.exist;
+    });
 
   });
 
@@ -577,6 +596,26 @@ describe('Person', () => {
             res.body.should.have.property('job', 'broken');
           }).catch((err) => { throw err; });
       });
+    });
+    it('should add the profile picture field to a person', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const pictures = {
+        profile: {
+          path: 'yuuu',
+          takenAt: '2020-02-15',
+          format: 'jpg',
+        },
+      };
+      const result = (await chai.request(app).put(`${BASE_URL}/${person.id}`)
+        .send({ pictures })).body;
+      expect(person.pictures).to.exist;
+      expect(person.pictures.profile).to.exist;
+      const profile = result.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta).to.exist;
+      expect(profile.meta.format).to.equal(pictures.profile.format);
+      expect(profile.meta.takenAt).to.equal(pictures.profile.takenAt);
+      expect(profile.meta.path).to.not.exist;
     });
     describe('/assign person', () => {
       it('Should return a person whose group and hierarchy has been changed', async () => {
