@@ -5,7 +5,7 @@ import * as personRouter from './person.route';
 import { Person } from './person.controller';
 import { PersonModel } from './person.model';
 import { OrganizationGroupModel } from '../group/organizationGroup/organizationGroup.model';
-import { IPerson, IDomainUser } from './person.interface';
+import { IPerson, IDomainUser, ProfilePictureDTO } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
@@ -321,7 +321,34 @@ describe('Persons', () => {
       person.should.have.property('clearance', newPerson.clearance);
       person.should.have.property('status', newPerson.status);
     });
-
+    it('should create a person with profile picture', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }
+      );
+      expect(person.pictures).to.exist;
+      expect(person.pictures.profile).to.exist;
+      const profile = person.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta.updatedAt).to.exist;
+      expect(profile.meta.takenAt).to.deep.equal(new Date('2020-02-13'));
+      expect(profile.meta.path).to.not.exist;
+    });
+    it('should throw an error when trying to create a person with profile picture and missing parameters', async () => {
+      await expectError(Person.createPerson, [{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }]);
+    });
+    
     describe('Person validation', () => {
       it('Should throw an error when Person is undefined', async () => {
         await expectError(Person.createPerson, [undefined]);
@@ -1045,6 +1072,91 @@ describe('Persons', () => {
       const createdPerson = await Person.createPerson({ ...personExamples[3] });
       await Person.addNewUser(createdPerson.id, newUserExample);
       await expectError(Person.getByDomainUser, ['other']);
+    });
+  });
+  describe('#updateProfilePicture', () => {
+    it('should set the person profile picture field', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        },
+      });
+      expect(updated.pictures).to.exist;
+      expect(updated.pictures.profile).to.exist;
+      const profile = updated.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta.updatedAt).to.exist;
+      expect(profile.meta.takenAt).to.deep.equal(new Date('2020-02-13'));
+      expect(profile.meta.path).to.not.exist;
+      expect(profile.meta.format).to.be.equal('jpeg');
+    });
+    it('should set the person profile picture field to null', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }
+      );      
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: null,
+        },
+      });
+      expect(updated.pictures).to.exist;
+      expect(updated.pictures.profile).to.be.null;
+    });
+    it('should not modify the pictures field', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: null,
+        },
+      });
+      expect(updated.pictures).to.not.exist;
+    });
+    it('should update the person profile picture field', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }
+      );
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: {
+            path: 'another',
+            takenAt: new Date('2020-02-14'),
+            format: 'png',
+          },
+        },
+      });
+      expect(updated.pictures).to.exist;
+      expect(updated.pictures.profile).to.exist;
+      const profile = updated.pictures.profile as ProfilePictureDTO;
+      expect(profile.url).to.exist;
+      expect(profile.meta.updatedAt).to.exist;
+      expect(profile.meta.takenAt).to.deep.equal(new Date('2020-02-14'));
+    });
+    it('should throw an error when trying to update profile picture without a required parameter', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await expectError(Person.updatePerson, [person.id, {
+        pictures: {
+          profile: {
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }]);
     });
   });
 });
