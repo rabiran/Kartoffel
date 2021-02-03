@@ -31,14 +31,8 @@ persons.get('/getUpdated/:from',
 ));
 
 persons.post('/', PermissionMiddleware.hasAdvancedPermission,
-          validatorMiddleware(atCreateFieldCheck),
-          ch(Person.createPerson, (req: Request) => {
-            const body = { ... req.body };
-            if ('pictures' in body && 'profile' in req.body.pictures) {
-              body.pictures.profile =  { meta: req.body.pictures.profile };
-            }
-            return [body];
-          }));
+           validatorMiddleware(atCreateFieldCheck),
+           ch(Person.createPerson, (req: Request) => [req.body]));
 
 persons.post('/:id/domainUsers', PermissionMiddleware.hasAdvancedPermission,
             validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
@@ -90,16 +84,7 @@ persons.put('/:id',
           PermissionMiddleware.hasAdvancedPermission,
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           validatorMiddleware(atUpdateFieldCheck),
-          ch(
-              Person.updatePerson, 
-              (req: Request) =>  {
-                const body = { ... req.body };
-                if ('pictures' in body && 'profile' in req.body.pictures) {
-                  body.pictures.profile = { meta: req.body.pictures.profile };
-                }
-                return [req.params.id, body];
-              }
-          ));
+          ch(Person.updatePerson, (req: Request) =>  [req.params.id, req.body]));
 
 persons.put('/:id/assign',
           PermissionMiddleware.hasAdvancedPermission,

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as _ from 'lodash';
 import { ApplicationError, ValidationError, ResourceNotFoundError } from '../types/error';
 import { PersonRepository } from './person.repository';
-import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType, ProfilePictureDTO, SetProfilePictureDTO } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType, ProfilePictureDTO, SetProfilePictureDTO, ProfilePictureMeta } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
@@ -250,7 +250,7 @@ export class Person {
         profile: person.pictures.profile ? 
           createProfilePictureMetadata(
             person.personalNumber || person.identityCard, 
-            person.pictures.profile.meta
+            person.pictures.profile as SetProfilePictureDTO
           ) : undefined,
       };
     }
@@ -280,21 +280,28 @@ export class Person {
    * @param source source Person Object 
    * @param change changes to apply on the person
    */
-  private static handleProfilePictureChange(source: IPerson, change: { profile?: SetProfilePictureDTO }) {
+  private static handleProfilePictureChange(source: IPerson, change: { profile?: ProfilePictureDTO | SetProfilePictureDTO }) {
     // get current picture metadata
     const currentPictureMeta = source.pictures && source.pictures.profile ? 
       (source.pictures.profile as ProfilePictureDTO).meta : {};
-    const hasChange = !!change && !!change.profile;
-    // const pictureMetaChange = hasChange ? change.pictures.profile.meta as SetProfilePictureDTO; 
+    // if 'change' is actually person pulled from DB it will have 'meta'
+    const hasChange = !!change && (!!change.profile && !(change.profile as ProfilePictureDTO).meta
+      || change.profile === null);
     if (!!hasChange) { // if there is change to apply
-      const pictureMetaChange = change.profile.meta;
+      const pictureMetaChange = change.profile as SetProfilePictureDTO;
       if (pictureMetaChange === null) { // delete operation
-        source.pictures.profile = null;
+        if (source.pictures) {
+          source.pictures.profile = null;
+        }
         return;  
       }
       // update operation
       const mergedProfilePicture = createProfilePictureMetadata(source.id, { ...currentPictureMeta, 
         ...pictureMetaChange });
+      // initialize 'pictures' field if doesn't exist
+      if (!source.pictures) {
+        source.pictures = {};
+      }
       source.pictures.profile = mergedProfilePicture;
     } 
   }
@@ -304,7 +311,7 @@ export class Person {
     const person = await Person.getPersonById(id);
     // hanlde picture field change
     const { pictures, ...rest } = change;
-    Person.handleProfilePictureChange(person, pictures as {profile: SetProfilePictureDTO});
+    Person.handleProfilePictureChange(person, pictures);
     // merge with the changes
     const mergedPerson = { ...person, ...rest };
     // validate the merged object

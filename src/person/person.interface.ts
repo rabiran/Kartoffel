@@ -56,7 +56,7 @@ export interface PictureMeta {
 }
 
 export interface ProfilePictureMeta extends PictureMeta {
-  takenAt?: Date;
+  takenAt: Date;
 }
 
 export type ProfilePictureDTO = {
@@ -64,10 +64,7 @@ export type ProfilePictureDTO = {
   meta: ProfilePictureMeta
 };
 
-export type SetProfilePictureDTO = {
-  meta: Omit<ProfilePictureMeta, 'updatedAt'> & {
-    path: string;
-  }
+export type SetProfilePictureDTO = Omit<ProfilePictureMeta, 'updatedAt'> & {
+  path: string;
 };
-
 
