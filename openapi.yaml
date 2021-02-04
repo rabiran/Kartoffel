@@ -67,17 +67,18 @@ paths:
     get:
       tags: 
         - Person
-      summary: 'Search for persons, with partial search support for some fields' 
+      summary: 'autocomplete search persons by name' 
       description: >
-        Fields that support partial (autocomplete) search: **fullName**
+        You must specify **fullName** for the search to return non-empty result
 
-        **For example**:  */persons/search?fullname=davi&domainUsers.dataSource=dataSource1* 
+        For example:  **/persons/search?fullname=davi&domainUsers.dataSource=dataSource1** 
       parameters:
         - $ref: '#/parameters/fullName'
         - $ref: '#/parameters/status'
         - $ref: '#/parameters/entityType'
         - $ref: '#/parameters/domainUsers.dataSource'
         - $ref: '#/parameters/rank'
+        - $ref: '#/parameters/underGroupId'
       responses:
         '200':
           description: Person array - max length: 20
@@ -447,6 +448,60 @@ paths:
           type: string
         -  $ref: '#/parameters/updateOG'
       x-oad-type: operation
+  '/organizationGroups/search':
+    get:
+      summary: Search organizationGroups by name or hierarchy
+      description: search autocomplete results for name and hierarchy fields
+      tags:
+        - Organization Group
+      parameters:
+        - $ref: '#/parameters/name'
+        - $ref: '#/parameters/hierarchy'
+        - $ref: '#/parameters/nameAndHierarchy'
+        - $ref: '#/parameters/isAlive'
+
+      responses: 
+        '200':
+          description: OrganizationGroup array - max length: 20
+          schema:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/OG'
+        '500':
+          description: server error
+
+  '/organizationGroups/{id}/search':
+    get:
+      summary: Search organizationGroups by name or hierarchy in subtree
+      description: >- 
+        search autocomplete results for name and hierarchy fields.
+        
+        search only in the subtree of the given group.
+      tags:
+        - Organization Group
+      parameters:
+        - name: id
+          in: path
+          description: id of the group to search under
+          required: true
+          type: string
+          x-oad-type: parameter
+        - $ref: '#/parameters/name'
+        - $ref: '#/parameters/hierarchy'
+        - $ref: '#/parameters/nameAndHierarchy'
+        - $ref: '#/parameters/isAlive'
+      responses: 
+        '200':
+          description: OrganizationGroup array - max length: 20
+          schema:
+            type: array
+            items:
+              type: object
+              $ref: '#/definitions/OG'
+        '500':
+          description: server error
+
   '/organizationGroups/getUpdated/{from}':
     get:
       summary: Get the groups that were updated from the given date
@@ -716,12 +771,49 @@ parameters:
     name: fullName
     description: 'partial fullname to search autocomplete for (min length: 2)'
     type: string
+    required: true
 
   rank: 
     in: query
     name: rank
     description: filter by rank
     type: string
+
+  underGroupId:
+    in: query
+    name: underGroupId
+    description: id of a group to search only under it's subtree
+    type: string
+  
+  name:
+    in: query
+    name: name
+    description: partial name to search autocomplete for
+    type: string
+  
+  hierarchy: 
+    in: query
+    name: hierarchy
+    description: partial hierarchy terms (separated by any non alphanumeric character) to search autocomplete for
+    type: string
+  
+  nameAndHierarchy:
+    in: query
+    name: nameAndHierarchy
+    description: >- 
+      terms to search in both name and hierarchy. (overrided by name or hierarchy parameters)
+      
+      use it when you are not sure whether the term is a name or hierarchy
+    type: string
+  
+  isAlive:
+    in: query
+    name: isAlive
+    description: >- 
+      filter by isAlive field. allowed values: true, false
+
+      default value: true
+    type: boolean
 
   createOG:
     name: Organization Group
@@ -1140,13 +1232,13 @@ definitions:
           x-oad-type: object
           type: object
           title: member
-      directManagers:
-        x-oad-type: array
-        type: array
-        title: directManagers
-        items:
-          x-oad-type: object
-          type: object
+      # directManagers:
+      #   x-oad-type: array
+      #   type: array
+      #   title: directManagers
+      #   items:
+      #     x-oad-type: object
+      #     type: object
       isAlive:
         x-oad-type: boolean
         type: boolean

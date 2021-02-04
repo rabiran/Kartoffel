@@ -1,21 +1,23 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import { filterObjectByKeys } from '../utils';
 import { controllerHandler as ch } from '../helpers/controller.helper';
 import { PermissionMiddleware } from '../middlewares/permission.middleware';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { Person } from './person.controller';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
 import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
-import { extractFilterQueryFields, extractSearchQueryFields } from './person.extractQuery';
+import { extractFilters, extractSearchQuery } from './person.extractQuery';
 
 const persons = Router();
 
 persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
 
-persons.get('/', ch(Person.getPersons, (req: Request) => [extractFilterQueryFields(req.query)]));
+persons.get('/', ch(Person.getPersons, (req: Request) => {
+  const { underGroupId, ...filters } = extractFilters(req.query);
+  return [filters];
+}));
 
-persons.get('/search', ch(Person.searchPersons, 
-  (req: Request) => [extractSearchQueryFields(req.query)])
+persons.get('/search', ch(Person.searchPersonsByName, 
+  (req: Request) => [extractSearchQuery(req.query)])
 );
 
 persons.get('/getUpdated/:from',  
@@ -23,7 +25,8 @@ persons.get('/getUpdated/:from',
   ch(Person.getUpdatedFrom, (req: Request) => {
     let from = req.params.from;
     if (typeof(from) === 'number') from = new Date(from);
-    return [from, new Date(), extractFilterQueryFields(req.query)];
+    const { underGroupId, ...filters } = extractFilters(req.query);
+    return [from, new Date(), filters];
   }
 ));
 

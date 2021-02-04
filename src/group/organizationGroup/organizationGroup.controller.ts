@@ -6,10 +6,23 @@ import { PersonRepository } from '../../person/person.repository';
 import * as _ from 'lodash';
 import { sortObjectsByIDArray, promiseAllWithFails, asyncForEach } from '../../utils';
 import { ValidationError, ResourceNotFoundError } from '../../types/error';
+import { OrganizationGroupTextSearch } from './organizationGroup.textSearch';
+import organizationGroupElasticRepository from './organizationGroup.elasticSearchRepository';
+
+export type GroupFilters = {
+  underGroupId: string,
+  isAlive: boolean,
+};
+
+export type GroupQuery = GroupFilters & {
+  name: string,
+  hierarchy: string;
+};
 
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
   static _personRepository: PersonRepository = new PersonRepository();
+  static _organizationGroupTextSearch: OrganizationGroupTextSearch = organizationGroupElasticRepository;
 
   static async getOrganizationGroups(query?: any): Promise<IOrganizationGroup[]> {
     const cond = {};
@@ -238,6 +251,19 @@ export class OrganizationGroup {
       await OrganizationGroup.disownChild(parentID, groupID);
     }
     return res;
+  }
+
+  static async searchGroups(query: Partial<GroupQuery>) {
+    const { hierarchy, name, ...filters } = query;
+    const { underGroupId } = filters;
+    // the query makes sense only if any of these fields requested
+    if (!hierarchy && !name) return [];
+    // check group's existance, throws if not
+    if (!!underGroupId) {
+      await OrganizationGroup.getOrganizationGroup(underGroupId);
+    }
+    return OrganizationGroup._organizationGroupTextSearch
+      .searchByNameAndHierarchy({ name, hierarchy }, filters);
   }
 
   /**

@@ -3,7 +3,7 @@ import { DOMAIN_MAP, STATUS } from './config/db-enums';
 
 export const domainMap : Map<string, string> = new Map<string, string>(JSON.parse(JSON.stringify(DOMAIN_MAP)));
 export const DomainSeperator = '@';
-export const allStatuses = Object.keys(STATUS).map(k => STATUS[k]);
+export const allStatuses: string[] = Object.keys(STATUS).map(k => STATUS[k]);
 
 export type BasicType = boolean | string | number;
 
@@ -18,6 +18,12 @@ export interface KeyMap {
 export interface ObjectValueMap {
   [key: string] : ValueMap;
 }
+
+type ValueReplaceMap<T> = {
+  [k in keyof T]?: {
+    [v: string]: T[k]
+  }
+};
 
 export function filterObjectByKeys(object: Object, allowedKeys: string[], caseInsensitive: boolean = false): Object {
   const allowed = caseInsensitive ? allowedKeys.map(k => k.toLowerCase()) : allowedKeys;
@@ -140,7 +146,15 @@ export function proxyCaseInsensitive(originalObj: Object) {
     get: (target, name: string) => target[Object.keys(target)
       .find(k => k.toLowerCase() === name.toLowerCase())],
     ownKeys: target => Object.keys(target).map(k => k.toLowerCase()),
-    getOwnPropertyDescriptor: k => ({ enumerable: true, configurable: true }),
+    getOwnPropertyDescriptor: (target, prop) => {
+      const originalProp = Object.getOwnPropertyNames(target).find(
+        p => p.toLowerCase() === prop.toString().toLowerCase()
+      );
+      return Object.getOwnPropertyDescriptor(target, originalProp);
+    },
+    has: (target, key) => !!Object.keys(target).find(
+      p => p.toLowerCase() === key.toString().toLowerCase()
+    ),
   });
 }
 
@@ -188,3 +202,66 @@ export function transformValues(obj: object, keyMap: ObjectValueMap): object {
   }, {});
 }
 
+/**
+ * Replace the values of an object, only for the specified keys, 
+ * according to the given `replaceMap` map - 
+ * unspecified keys or values will not be changed.
+ * returns a new object.
+ * 
+ * replaceMap example:
+
+ *`{'targetKey': {
+   'oldValue': 'newValue'
+ }}`
+ * @param target
+ * @param replaceMap
+ */
+export function replaceValues<T>(target: T, replaceMap: ValueReplaceMap<T>): T {
+  const copy = { ...target };
+  for (const [key, val] of Object.entries(target)) {
+    if (key in replaceMap && val in replaceMap[key]) {
+      copy[key] = replaceMap[key][val];
+    }
+  }
+  return copy;
+}
+
+
+/**
+ * Extract the specified keys from the given object.
+ * Returns a new object with key value pairs corresponding to 
+ * the given keys and object. a key will exist in the returned object 
+ * only if it exists in the original object
+ * @param obj 
+ * @param keys 
+ */
+export function extract<T, K extends keyof T = keyof T>(obj: T, keys: K[]) {
+  const res: any = {};
+  for (const k of keys) {
+    if (k in obj) res[k] = obj[k];
+  }
+  return res as Pick<T,K>;
+}
+
+/**
+ * Returns whether a string represents a boolean Value 
+ * (it's lower case form is either "true" or "false")
+ * @param str 
+ */
+export function isBooleanString(str: string) {
+  return ['true', 'false'].includes(str.toLowerCase());
+}
+
+/**
+ * Returns the first element if `val` is array, otherwise
+ * returns `val`.
+
+ * Returns `undefined` upon empty array.
+ * @param val 
+ */
+export function pickSingleValue<T>(val: T | T[]): T {
+  if (Array.isArray(val)) {
+    return val.length > 0 ? val[0] : undefined;
+  }
+  return val;
+}

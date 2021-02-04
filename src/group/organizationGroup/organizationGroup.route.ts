@@ -8,6 +8,7 @@ import { Person } from '../../person/person.controller';
 import { IOrganizationGroup, ORGANIZATION_GROUP_BASIC_FIELDS } from './organizationGroup.interface';
 import { OGRouteValidate } from './organizationGroup.route.validator';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../../helpers/route.validator';
+import { extractSearchQuery } from './organizationGroup.extractQuery';
 
 // import { body, param, check, validationResult } from 'express-validator/check';
 
@@ -17,12 +18,25 @@ organizationGroups.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.has
 
 organizationGroups.get('/', ch(OrganizationGroup.getOrganizationGroups, (req: Request) => [req.query]));
 
+organizationGroups.get('/search', ch(
+  OrganizationGroup.searchGroups,
+  (req: Request) => [extractSearchQuery(req.query)]
+));
+
 organizationGroups.get('/:id', 
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.getOrganizationGroup, (req: Request) => {
             const toPopulate = req.query.populate ? req.query.populate.split(',') : null;
             return [req.params.id, toPopulate];
           }));
+organizationGroups.get(
+  '/:id/search',
+  validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
+  ch(OrganizationGroup.searchGroups, (req: Request) => [{
+    ...extractSearchQuery(req.query),
+    underGroupId: req.params.id,
+  }])
+);
 
 organizationGroups.get('/getUpdated/:from', validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
 ch(OrganizationGroup.getUpdatedFrom, (req: Request) => {
@@ -62,6 +76,7 @@ organizationGroups.post('/',
 organizationGroups.get('/:id/members', 
           validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
           ch(OrganizationGroup.getAllMembers, (req: Request, res: Response) => [req.params.id]));
+
 
 organizationGroups.get('/:id/children', validatorMiddleware(Vld.validMongoId, ['id'], 'params'), 
   validatorMiddleware(OGRouteValidate.maxDepth, ['maxDepth'], 'query'),

@@ -14,4 +14,4 @@ export interface IOrganizationGroup extends IGroup {
 
 export const ORGANIZATION_GROUP_BASIC_FIELDS = ['name', 'clearance', 'type', 'isALeaf','akaUnit'];
 export const ORGANIZATION_GROUP_OBJECT_FIELDS = ['ancestors', 'children','directMembers', 'directManagers'];
-export const ORGANIZATION_GROUP_KEYS = ['id', 'updatedAt', 'name', 'clearance', 'type', 'hierarchy', 'ancestors', 'children', 'directMembers', 'directManagers', 'isALeaf','isAlive','akaUnit'];
+export const ORGANIZATION_GROUP_KEYS = ['id', 'updatedAt', 'name', 'clearance', 'type', 'hierarchy', 'ancestors', 'children', 'directMembers', 'directManagers', 'isALeaf','isAlive','akaUnit', 'createdAt'];

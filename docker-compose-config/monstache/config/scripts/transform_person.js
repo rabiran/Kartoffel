@@ -7,5 +7,9 @@ module.exports = function(doc) {
     lastName = '';
 
   doc.fullName = doc.firstName + lastName;
+  
+  var hierarchyPath = doc.hierarchy.join('/');
+  doc.hierarchyPath = hierarchyPath;
+
   return doc;
 }
