@@ -41,6 +41,23 @@ const mappings = {
         dataSource: { type: 'keyword' },
       },
     },
+    pictures: {
+      properties: {
+        profile: {
+          properties: {
+            url: { enabled: false },
+            meta: {
+              properties: {
+                takenAt: { enabled: false },
+                updatedAt: { enabled: false },
+                format: { enabled: false },
+                path: { enabled: false },
+              },
+            },
+          },
+        },
+      },
+    },
     identityCard: {
       type: 'keyword',
     },
