@@ -421,6 +421,7 @@ describe('Person', () => {
           format: 'jpg',
         },
       };
+      const takenAtIsoDateString = new Date(pictures.profile.takenAt).toISOString();
       const person = { ...personExamples[0], pictures };
       const result = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
       expect(person.pictures).to.exist;
@@ -428,8 +429,8 @@ describe('Person', () => {
       const profile = result.pictures.profile as any;
       expect(profile.url).to.exist;
       expect(profile.meta).to.exist;
-      expect(profile.meta.format).to.equal(pictures.profile.path);
-      expect(profile.meta.takenAt).to.equal(pictures.profile.takenAt);
+      expect(profile.meta.format).to.equal(pictures.profile.format);
+      expect(profile.meta.takenAt).to.equal(takenAtIsoDateString);
       expect(profile.meta.path).to.not.exist;
     });
 
@@ -606,15 +607,16 @@ describe('Person', () => {
           format: 'jpg',
         },
       };
+      const takenAtIsoDateString = new Date(pictures.profile.takenAt).toISOString();
       const result = (await chai.request(app).put(`${BASE_URL}/${person.id}`)
         .send({ pictures })).body;
-      expect(person.pictures).to.exist;
-      expect(person.pictures.profile).to.exist;
+      expect(result.pictures).to.exist;
+      expect(result.pictures.profile).to.exist;
       const profile = result.pictures.profile as any;
       expect(profile.url).to.exist;
       expect(profile.meta).to.exist;
       expect(profile.meta.format).to.equal(pictures.profile.format);
-      expect(profile.meta.takenAt).to.equal(pictures.profile.takenAt);
+      expect(profile.meta.takenAt).to.equal(takenAtIsoDateString);
       expect(profile.meta.path).to.not.exist;
     });
     describe('/assign person', () => {
