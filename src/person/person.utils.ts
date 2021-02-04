@@ -2,6 +2,7 @@ import { filterObjectByKeys, DomainSeperator, domainMap, allIndexesOf } from '..
 import { IPerson, IDomainUser, IDomainUserIdentifier, SetProfilePictureDTO } from './person.interface';
 import { PersonValidate } from './person.validate';
 import { ValidationError } from '../types/error';
+import { config } from '../config/config';
 
 /**
  * get all possible domains for the given domain 
@@ -54,7 +55,7 @@ export function createProfilePictureMetadata(
     throw new ValidationError('profile picture metadata change must include path and takenAt parameters');
   }
   const { format, path, takenAt } = metadata;
-  const url = `/api/persons/${personIndentifier}/pictures/profile`; // todo: generate url
+  const url = `${config.serviceBaseUrl}/api/persons/${personIndentifier}/pictures/profile`;
   return {
     url,
     meta: {

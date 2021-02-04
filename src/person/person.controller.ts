@@ -296,8 +296,8 @@ export class Person {
         return;  
       }
       // update operation
-      const mergedProfilePicture = createProfilePictureMetadata(source.id, { ...currentPictureMeta, 
-        ...pictureMetaChange });
+      const mergedProfilePicture = createProfilePictureMetadata(source.personalNumber || source.identityCard, 
+        { ...currentPictureMeta, ...pictureMetaChange });
       // initialize 'pictures' field if doesn't exist
       if (!source.pictures) {
         source.pictures = {};
