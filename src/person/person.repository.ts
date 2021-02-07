@@ -99,13 +99,21 @@ export class PersonRepository extends RepositoryBase<IPerson> {
       .then(res => res ? res.toObject() : res);
   }
 
-  async getPicturePath(perosnIdentifier: string, pictureType: PictureType): Promise<string> { 
+  async getRawPictures(perosnIdentifier: string): Promise<{
+    profile?: { 
+      url: string;
+      meta: {
+        path: string;
+        takenAt: Date;
+        format?: string;
+      }
+    }
+  }> { 
     const rawPerson = await this._model.findOne({ $or: [
       { _id: perosnIdentifier }, 
       { identityCard: perosnIdentifier }, 
       { personalNumber: perosnIdentifier },
-    ]}).select(`picture.${pictureType}`).exec();
-    const pictureMetadata = rawPerson.pictures[pictureType] as any;
-    return pictureMetadata.path;
+    ]}).select('pictures').exec() as any;
+    return rawPerson.pictures || {};
   }
 }
