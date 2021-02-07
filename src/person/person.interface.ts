@@ -36,6 +36,8 @@ export interface IPerson {
   pictures?: {
     profile?: ProfilePictureDTO | SetProfilePictureDTO
   };
+  sex?: string;
+  birthDate?: Date;
 }
 
 export interface IDomainUserIdentifier {

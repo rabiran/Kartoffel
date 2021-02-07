@@ -6,6 +6,8 @@ import { registerErrorHandlingHooks } from '../helpers/mongooseErrorConvert';
 import { DomainSeperator, filterObjectByKeys, domainMap, allStatuses } from '../utils';
 import { schema as ProfilePictureSchema } from './picture/profile/';
 
+const SEX_VALUES = [consts.SEX.Male, consts.SEX.Female];
+
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
@@ -178,6 +180,13 @@ export const PersonSchema = new mongoose.Schema(
         url: String,
         meta: ProfilePictureSchema,
       },
+    },
+    sex: {
+      type: String,
+      enum: SEX_VALUES,
+    },
+    birthDate: {
+      type: Date,
     },
   },
   schemaOptions
