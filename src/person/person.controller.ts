@@ -334,4 +334,8 @@ export class Person {
     }
     return Person._personTextSearch.searchByFullName(fullName, filters);
   }
+
+  static async getPictureStream(personIdentifier: string) :  {
+
+  }
 }

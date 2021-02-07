@@ -13,3 +13,10 @@ export const controllerHandler = (promise: Function, params: Function) => wa(asy
   const result = await promise(...boundParams);
   return res.json(result || { message: 'OK' });
 });
+
+export const streamHandler = (promise: Function, params: Function) => wa(async (req: Request, res: Response) => {
+  const boundParams = params ? params(req, res) : [];
+  const result = await promise(...boundParams);
+  res.contentType(result.contentType);
+  return result.stream.pipe(res)
+})
