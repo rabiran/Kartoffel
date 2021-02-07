@@ -274,17 +274,17 @@ export class Person {
   }
 
   /**
-   * merge the incoming profile picture metadata change with the current 
-   * profile picture metadata, also validates the incoming change.
-   * Returns the merged profile picture metadata object.
+   * Handle profile picture metadata change (create, updatem delete).
+
+   * May throw validation error if the incoming change is invalid
    * @param source source Person Object 
-   * @param change changes to apply on the person
+   * @param change changes to apply to the 'pictures' field
    */
   private static handleProfilePictureChange(source: IPerson, change: { profile?: ProfilePictureDTO | SetProfilePictureDTO }) {
     // get current picture metadata
     const currentPictureMeta = source.pictures && source.pictures.profile ? 
       (source.pictures.profile as ProfilePictureDTO).meta : {};
-    // if 'change' is actually person pulled from DB it will have 'meta'
+    // if 'change' came from an object that was pulled from DB - it will have 'meta'
     const hasChange = !!change && (!!change.profile && !(change.profile as ProfilePictureDTO).meta
       || change.profile === null);
     if (!!hasChange) { // if there is change to apply
@@ -295,7 +295,7 @@ export class Person {
         }
         return;  
       }
-      // update operation
+      // update or create operation
       const mergedProfilePicture = createProfilePictureMetadata(source.personalNumber || source.identityCard, 
         { ...currentPictureMeta, ...pictureMetaChange });
       // initialize 'pictures' field if doesn't exist
