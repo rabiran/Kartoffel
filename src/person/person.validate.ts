@@ -117,6 +117,7 @@ export class PersonValidate extends ModelValidate {
     return person.entityType === ENTITY_TYPE[2] || !!person.lastName;
   }
 
+
   public static multiFieldValidators: ValidatorObj[] = [
     {
       validator: PersonValidate.identityCardMultiValidator,

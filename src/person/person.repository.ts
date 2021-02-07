@@ -1,5 +1,5 @@
 import { PersonModel as Person } from './person.model';
-import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType } from './person.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
 import * as mongoose from 'mongoose';
@@ -97,5 +97,23 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     const opts = { new: true, runValidators: true, context: 'query' };    
     return Person.findOneAndUpdate({ _id: personId }, { $push: { domainUsers: domainUser } }, opts).exec()
       .then(res => res ? res.toObject() : res);
+  }
+
+  async getRawPictures(perosnIdentifier: string): Promise<{
+    profile?: { 
+      url: string;
+      meta: {
+        path: string;
+        takenAt: Date;
+        format?: string;
+      }
+    }
+  }> { 
+    const rawPerson = await this._model.findOne({ $or: [
+      { _id: perosnIdentifier }, 
+      { identityCard: perosnIdentifier }, 
+      { personalNumber: perosnIdentifier },
+    ]}).select('pictures').exec() as any;
+    return rawPerson.pictures || {};
   }
 }

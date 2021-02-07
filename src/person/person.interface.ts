@@ -1,5 +1,8 @@
 import { Types } from 'mongoose';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
+import Omit from '../types/Omit';
+
+export type PictureType = 'profile';
 
 export interface IPerson {
 // Person's Basic information
@@ -30,6 +33,11 @@ export interface IPerson {
   responsibility?: string;
   responsibilityLocation?: string | Types.ObjectId | IOrganizationGroup;
   clearance?: string;
+  pictures?: {
+    profile?: ProfilePictureDTO | SetProfilePictureDTO
+  };
+  sex?: string;
+  birthDate?: Date;
 }
 
 export interface IDomainUserIdentifier {
@@ -43,3 +51,22 @@ export interface IDomainUser extends IDomainUserIdentifier{
   uniqueID?: string;
   adfsUID?: string;
 }
+
+export interface PictureMeta {
+  format?: string;
+  updatedAt?: Date;
+}
+
+export interface ProfilePictureMeta extends PictureMeta {
+  takenAt: Date;
+}
+
+export type ProfilePictureDTO = {
+  url: string;
+  meta: ProfilePictureMeta
+};
+
+export type SetProfilePictureDTO = Omit<ProfilePictureMeta, 'updatedAt'> & {
+  path: string;
+};
+

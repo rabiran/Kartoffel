@@ -15,8 +15,10 @@ function envAsBool(envVariable: string): boolean {
 
 dotenv.config({ path: '.env' });
 const serviceName = process.env.SERVICE_NAME || 'kartoffel';
+const serviceBaseUrl = process.env.SERVICE_BASE_URL || 'http://localhost';
 export const config = {
   serviceName,
+  serviceBaseUrl,
   elasticSearch: {
     indexInitRetries: 3,
     nodes: process.env.ELASTICSEARCH_HOSTS ? process.env.ELASTICSEARCH_HOSTS.split(',') : null,

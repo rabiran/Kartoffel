@@ -2,10 +2,10 @@ import * as chai from 'chai';
 import * as sinon from 'sinon';
 import { app } from '../server';
 import { Person } from './person.controller';
-import { IPerson, IDomainUser } from './person.interface';
+import { IPerson, IDomainUser, ProfilePictureDTO } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS, SEX } from '../config/db-enums';
 import { config } from '../config/config';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
@@ -58,6 +58,8 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[1],
     currentUnit: CURRENT_UNIT[0],
     serviceType: SERVICE_TYPE[0],
+    sex: SEX.Female,
+    birthDate: new Date(1994, 4),
   },
   <IPerson>{
     identityCard: '567891239',
@@ -395,6 +397,8 @@ describe('Person', () => {
           person.should.have.property('firstName', personExamples[0].firstName);
           person.should.have.property('lastName', personExamples[0].lastName);
           person.should.have.property('status', STATUS.ACTIVE);
+          expect(person).to.have.property('sex', personExamples[0].sex);
+          expect(person).to.have.property('birthDate', personExamples[0].birthDate.toISOString());
           done();
         });
     });
@@ -412,6 +416,26 @@ describe('Person', () => {
       const createdPerson = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
       createdPerson.should.exist;
       createdPerson.should.have.property('status', STATUS.INCOMPLETE);
+    });
+    it('should create a person with profile picture field', async () => {
+      const pictures = {
+        profile: {
+          path: 'yuuu',
+          takenAt: '2020-02-15',
+          format: 'jpg',
+        },
+      };
+      const takenAtIsoDateString = new Date(pictures.profile.takenAt).toISOString();
+      const person = { ...personExamples[0], pictures };
+      const result = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
+      expect(person.pictures).to.exist;
+      expect(person.pictures.profile).to.exist;
+      const profile = result.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta).to.exist;
+      expect(profile.meta.format).to.equal(pictures.profile.format);
+      expect(profile.meta.takenAt).to.equal(takenAtIsoDateString);
+      expect(profile.meta.path).to.not.exist;
     });
 
   });
@@ -577,6 +601,27 @@ describe('Person', () => {
             res.body.should.have.property('job', 'broken');
           }).catch((err) => { throw err; });
       });
+    });
+    it('should add the profile picture field to a person', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const pictures = {
+        profile: {
+          path: 'yuuu',
+          takenAt: '2020-02-15',
+          format: 'jpg',
+        },
+      };
+      const takenAtIsoDateString = new Date(pictures.profile.takenAt).toISOString();
+      const result = (await chai.request(app).put(`${BASE_URL}/${person.id}`)
+        .send({ pictures })).body;
+      expect(result.pictures).to.exist;
+      expect(result.pictures.profile).to.exist;
+      const profile = result.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta).to.exist;
+      expect(profile.meta.format).to.equal(pictures.profile.format);
+      expect(profile.meta.takenAt).to.equal(takenAtIsoDateString);
+      expect(profile.meta.path).to.not.exist;
     });
     describe('/assign person', () => {
       it('Should return a person whose group and hierarchy has been changed', async () => {
