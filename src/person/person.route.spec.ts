@@ -5,7 +5,7 @@ import { Person } from './person.controller';
 import { IPerson, IDomainUser, ProfilePictureDTO } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
-import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS, SEX } from '../config/db-enums';
 import { config } from '../config/config';
 import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
@@ -58,6 +58,8 @@ const personExamples: IPerson[] = [
     entityType: ENTITY_TYPE[1],
     currentUnit: CURRENT_UNIT[0],
     serviceType: SERVICE_TYPE[0],
+    sex: SEX.Female,
+    birthDate: new Date(1994, 4),
   },
   <IPerson>{
     identityCard: '567891239',
@@ -395,6 +397,8 @@ describe('Person', () => {
           person.should.have.property('firstName', personExamples[0].firstName);
           person.should.have.property('lastName', personExamples[0].lastName);
           person.should.have.property('status', STATUS.ACTIVE);
+          expect(person).to.have.property('sex', personExamples[0].sex);
+          expect(person).to.have.property('birthDate', personExamples[0].birthDate.toISOString());
           done();
         });
     });
