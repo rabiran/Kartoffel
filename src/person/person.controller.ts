@@ -12,6 +12,9 @@ import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
 import { PersonTextSearch, PersonFilters as PersonTextSearchFilters } from './person.textSearch.interface';
 import personElasticRepo from './person.elasticSearchRepository';
+import { PictureStreamService } from '../picture/pictureStreamService.interface';
+import MinioStreamService from '../minio/MinioStreamService';
+import { StreamResponse } from '../helpers/controller.helper';
 
 export type PersonFilters = {
   currentUnit: string | string[];
@@ -34,6 +37,7 @@ export class Person {
   _personService: PersonRepository;
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
   static _personTextSearch: PersonTextSearch = personElasticRepo;
+  static _pictureStreamService : PictureStreamService = MinioStreamService;
 
   constructor() {
     this._personService = new PersonRepository();
@@ -381,7 +385,15 @@ export class Person {
     return Person._personTextSearch.searchByFullName(fullName, filters);
   }
 
-  static async getPictureStream(personIdentifier: string) :  {
+  static async getPictureStream(personIdentifier: string) : Promise<StreamResponse> {
+    const { profile } = await Person._personRepository.getRawPictures(personIdentifier);
+    if (!profile) {
+      throw new ResourceNotFoundError(`There is no picture for the pesron with identifier: ${personIdentifier}`);
+    }
 
+    return { 
+      stream: await Person._pictureStreamService.getPicture(profile.meta.path),
+      metaData: { contentType: profile.meta.format },
+    };
   }
 }
