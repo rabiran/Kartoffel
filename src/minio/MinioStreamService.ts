@@ -4,9 +4,7 @@ import { PictureStreamService } from '../picture/pictureStreamService.interface'
 import { Readable } from 'stream';
 
 export class MinioStreamService implements PictureStreamService {
-  constructor(private client : Minio.Client, private config: { bucket: string }) {
-    console.log('hi');
-  }
+  constructor(private client : Minio.Client, private config: { bucket: string }) {}
 
   getPicture(path : string) : Promise<Readable> {
     return this.client.getObject(this.config.bucket, path);

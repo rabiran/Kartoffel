@@ -2,7 +2,6 @@ import { PersonModel as Person } from './person.model';
 import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType } from './person.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
-import {} from './person.validate';
 import { Types } from 'mongoose';
 import  * as consts  from '../config/db-enums';
 import { config } from '../config/config';
