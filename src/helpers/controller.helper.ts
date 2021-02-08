@@ -15,7 +15,7 @@ export const controllerHandler = (promise: Function, params: Function) => wa(asy
   return res.json(result || { message: 'OK' });
 });
 
-type StreamResponse = {
+export type StreamResponse = {
   stream: Readable;
   metaData?: {
     contentType?: string;
