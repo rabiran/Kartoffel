@@ -59,3 +59,9 @@ services:
     volumes:
       - ./docker-compose-config/monstache/config/config.toml:/app/config.toml
       - ./docker-compose-config/monstache/config/scripts:/app/scripts
+  
+  minio: 
+    image: minio/minio
+    command: server /data
+    ports: 
+      - 9000:9000
