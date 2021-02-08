@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import { controllerHandler as ch } from '../helpers/controller.helper';
+import { controllerHandler as ch, streamHandler as sh } from '../helpers/controller.helper';
 import { PermissionMiddleware } from '../middlewares/permission.middleware';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { Person } from './person.controller';
@@ -64,6 +64,9 @@ persons.get('/personalNumber/:personalNumber', ch(Person.getPerson, (req: Reques
 persons.get('/identityCard/:identityCard', ch(Person.getPerson, (req: Request) => 
   ['identityCard', req.params.identityCard]
 ));
+
+persons.get('/:identifier/pictures/profile',
+  sh(Person.getPictureStream, (req: Request) => [req.params.identifier]));
 
 persons.get('/domainUser/:domainUser', 
   ch(Person.getByDomainUser, (req: Request) => [req.params.domainUser]));
