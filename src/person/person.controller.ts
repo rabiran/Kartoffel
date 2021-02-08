@@ -326,7 +326,7 @@ export class Person {
     // remove domainUsers from the actual update - this field have separate update function
     delete mergedPerson.domainUsers;
     // perform the actual update
-    const updatedPerson = await Person._personRepository.update(id, mergedPerson as Partial<IPerson>);
+    const updatedPerson = await Person._personRepository.update(id, mergedPerson);
     return <IPerson>updatedPerson;
   }
 
