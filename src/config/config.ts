@@ -90,6 +90,14 @@ export const config = {
     sessionSecret: process.env.SESSION_SECRET,
     nodeEnv: process.env.NODE_ENV,
   },
+  minio: {
+    bucket: process.env.MINIO_BUCKET,
+    endPoint: process.env.MINIO_END_POINT,
+    port: +(process.env.MINIO_PORT || 9000),
+    accessKey: process.env.MINIO_ACCESS_KEY,
+    secretKey: process.env.MINIO_SECRET_KEY,
+    useSSL: envAsBool(process.env.MINIO_USE_SSL),
+  },
   queries: {
     aliases: {
       persons: {
