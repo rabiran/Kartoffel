@@ -5,13 +5,13 @@ import * as personRouter from './person.route';
 import { Person } from './person.controller';
 import { PersonModel } from './person.model';
 import { OrganizationGroupModel } from '../group/organizationGroup/organizationGroup.model';
-import { IPerson, IDomainUser } from './person.interface';
+import { IPerson, IDomainUser, ProfilePictureDTO } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap, allStatuses } from '../utils';
 import * as mongoose from 'mongoose';
-import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS } from '../config/db-enums';
+import { RESPONSIBILITY, RANK, ENTITY_TYPE, DOMAIN_MAP, SERVICE_TYPE, CURRENT_UNIT, DATA_SOURCE, STATUS, SEX } from '../config/db-enums';
 import { config } from '../config/config';
 
 const Types = mongoose.Types;
@@ -296,6 +296,8 @@ describe('Persons', () => {
         clearance: '5',
         status: STATUS.ACTIVE,
         currentUnit: CURRENT_UNIT[0],
+        sex: SEX.Male,
+        birthDate: new Date(1994, 3),
       };
 
       const person = await Person.createPerson(newPerson);
@@ -307,7 +309,8 @@ describe('Persons', () => {
       person.should.have.property('firstName', newPerson.firstName);
       person.should.have.property('lastName', newPerson.lastName);
       person.should.have.property('currentUnit', newPerson.currentUnit);
-      expect(person.dischargeDay.getTime() === newPerson.dischargeDay.getTime());
+      expect(person.dischargeDay.getTime()).to.equal(newPerson.dischargeDay.getTime());
+      expect(person.birthDate.getTime()).to.equal(newPerson.birthDate.getTime());
       person.should.have.property('hierarchy');
       person.hierarchy.should.have.ordered.members([dummyGroup.name]);
       person.should.have.property('job', newPerson.job);
@@ -320,8 +323,36 @@ describe('Persons', () => {
       person.should.have.property('responsibility', newPerson.responsibility);
       person.should.have.property('clearance', newPerson.clearance);
       person.should.have.property('status', newPerson.status);
+      expect(person.sex).to.equal(newPerson.sex);
     });
-
+    it('should create a person with profile picture', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }
+      );
+      expect(person.pictures).to.exist;
+      expect(person.pictures.profile).to.exist;
+      const profile = person.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta.updatedAt).to.exist;
+      expect(profile.meta.takenAt).to.deep.equal(new Date('2020-02-13'));
+      expect(profile.meta.path).to.not.exist;
+    });
+    it('should throw an error when trying to create a person with profile picture and missing parameters', async () => {
+      await expectError(Person.createPerson, [{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }]);
+    });
+    
     describe('Person validation', () => {
       it('Should throw an error when Person is undefined', async () => {
         await expectError(Person.createPerson, [undefined]);
@@ -1047,16 +1078,89 @@ describe('Persons', () => {
       await expectError(Person.getByDomainUser, ['other']);
     });
   });
+  describe('#updateProfilePicture', () => {
+    it('should set the person profile picture field', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        },
+      });
+      expect(updated.pictures).to.exist;
+      expect(updated.pictures.profile).to.exist;
+      const profile = updated.pictures.profile as any;
+      expect(profile.url).to.exist;
+      expect(profile.meta.updatedAt).to.exist;
+      expect(profile.meta.takenAt).to.deep.equal(new Date('2020-02-13'));
+      expect(profile.meta.path).to.not.exist;
+      expect(profile.meta.format).to.be.equal('jpeg');
+    });
+    it('should set the person profile picture field to null', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }
+      );      
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: null,
+        },
+      });
+      expect(updated.pictures).to.exist;
+      expect(updated.pictures.profile).to.be.null;
+    });
+    it('should not modify the pictures field', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: null,
+        },
+      });
+      expect(updated.pictures).to.not.exist;
+    });
+    it('should update the person profile picture field', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }
+      );
+      const updated = await Person.updatePerson(person.id, { 
+        pictures: {
+          profile: {
+            path: 'another',
+            takenAt: new Date('2020-02-14'),
+            format: 'png',
+          },
+        },
+      });
+      expect(updated.pictures).to.exist;
+      expect(updated.pictures.profile).to.exist;
+      const profile = updated.pictures.profile as ProfilePictureDTO;
+      expect(profile.url).to.exist;
+      expect(profile.meta.updatedAt).to.exist;
+      expect(profile.meta.takenAt).to.deep.equal(new Date('2020-02-14'));
+    });
+    it('should throw an error when trying to update profile picture without a required parameter', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await expectError(Person.updatePerson, [person.id, {
+        pictures: {
+          profile: {
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }]);
+    });
+  });
 });
-
-async function printTreeHeavy(sourceID: string, deep = 0) {
-  const source = await OrganizationGroup.getOrganizationGroup(sourceID);
-  let pre = '';
-  for (let i = 0; i < deep; i++) {
-    pre += '  ';
-  }
-  console.log(pre + source.name);
-  const children = source.children;
-  if (children.length === 0) return;
-  for (const child of children) await printTreeHeavy(<string>child, deep + 1);
-}

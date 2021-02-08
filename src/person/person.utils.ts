@@ -1,7 +1,8 @@
 import { filterObjectByKeys, DomainSeperator, domainMap, allIndexesOf } from '../utils';
-import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier, SetProfilePictureDTO } from './person.interface';
 import { PersonValidate } from './person.validate';
 import { ValidationError } from '../types/error';
+import { config } from '../config/config';
 
 /**
  * get all possible domains for the given domain 
@@ -42,3 +43,26 @@ export function userFromString(uniqueID: string): IDomainUserIdentifier {
   const [name, domain] = uniqueID.split(DomainSeperator);
   return { name, domain };  
 }
+
+export function createProfilePictureMetadata(
+  personIndentifier: string, 
+  metadata: { 
+    format?: string 
+    path?: string
+    takenAt?: Date 
+  }) {
+  if (!metadata.path || !metadata.takenAt) {
+    throw new ValidationError('profile picture metadata change must include path and takenAt parameters');
+  }
+  const { format, path, takenAt } = metadata;
+  const url = `${config.serviceBaseUrl}/api/persons/${personIndentifier}/pictures/profile`;
+  return {
+    url,
+    meta: {
+      ...!!format && { format }, // 😈
+      path, 
+      takenAt,
+    },
+  };
+}
+

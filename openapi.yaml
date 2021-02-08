@@ -403,6 +403,28 @@ paths:
           description: illegal domain user or personId doesn't match the domain user    
         '404':
           description: person or domain user don't exist
+  
+  '/persons/{identifier}/pictures/profile':
+    get:
+      summary: Get a person's profile picture by identifier
+      tags:
+        - Person
+      produces: 
+        - image/*
+      parameters:
+        - name: identifier
+          in: path
+          description: person identifier - id or personalNumber or identityCard
+          required: true
+          type: string
+      responses:
+        '200':
+          description: a picture as a stream
+          schema:
+            type: file
+        '404':
+          description: The person is not found or does not have a profile picture
+
   '/organizationGroups/{id}':
     get:
       summary: Get organization Group by id
@@ -951,6 +973,12 @@ parameters:
         address:
           type: string
           example: 'Alexander 2, Jerusalem, Israel'
+        sex: 
+          type: string
+        birthDate:
+          type: string
+          format: date
+          example: '2022-11-30T22:00:00.000Z'
         responsibility:
           type: string
           enum:
@@ -964,11 +992,30 @@ parameters:
         clearance:
           type: string
           example: 3
+        pictures:
+          type: object
+          properties:
+            profile:
+              type: object
+              properties:
+                takenAt: 
+                  type: string
+                  format: date
+                path:
+                  type: string
+                format:
+                  type: string
+          example:
+            profile:
+              takenAt: '2020-11-30T22:00:00.000Z'
+              path: 'pic-6786787.jpg'
+              format: 'jpeg'
   updatePerson:
     name: body
     in: body
     required: true
     schema:
+      # $ref: '#/definitions/UpdatePersonBody'
       type: object
       properties:
         firstName:
@@ -1035,6 +1082,25 @@ parameters:
         clearance:
           type: string
           example: 3
+        pictures:
+          type: object
+          properties:
+            profile:
+              type: object
+              description: 'set **profile: null** to delete'
+              properties:
+                takenAt: 
+                  type: string
+                  format: date
+                path:
+                  type: string
+                format:
+                  type: string
+          example:
+            profile:
+              takenAt: '2020-11-30T22:00:00.000Z'
+              path: 'pic-6786787.jpg'
+              format: 'jpeg'
 
 responses:
   hierarchyExistenceCheckingOG:
@@ -1090,6 +1156,32 @@ definitions:
           - uniqueID: nitro@somedomain
             adfsUID: nitro@somedomainuid
             dataSource: dataSource2
+      pictures:
+        type: object
+        properties:
+          profile:
+            type: object
+            properties:
+              url:
+                type: string
+              meta:
+                type: object
+                properties:
+                  takenAt: 
+                    type: string
+                    format: date
+                  updatedAt:
+                    type: string
+                    format: date
+                  format:
+                    type: string
+        example:
+          profile:
+            url: 'https://kartoffel/api/persons/1231231/pictures/profile'
+            meta:
+              takenAt: '2020-11-30T22:00:00.000Z'
+              updatedAt: '2021-01-23T22:00:00.000Z'
+              format: 'jpeg'
       entityType:
         type: string
         enum:
@@ -1163,6 +1255,12 @@ definitions:
       address:
         type: string
         example: 'Alexander 2, Jerusalem, Israel'
+      sex: 
+        type: string
+      birthDate:
+        type: string
+        format: date
+        example: '2022-11-30T22:00:00.000Z'
       responsibility:
         type: string
         enum:

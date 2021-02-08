@@ -2,16 +2,19 @@ import { Request, Response, NextFunction } from 'express';
 import * as _ from 'lodash';
 import { ApplicationError, ValidationError, ResourceNotFoundError } from '../types/error';
 import { PersonRepository } from './person.repository';
-import { IPerson, IDomainUser, IDomainUserIdentifier } from './person.interface';
+import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType, ProfilePictureDTO, SetProfilePictureDTO, ProfilePictureMeta } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { OrganizationGroupRepository } from '../group/organizationGroup/organizationGroup.repository';
-import { userFromString, getAllPossibleDomains, createDomainUserObject } from './person.utils';
+import { userFromString, getAllPossibleDomains, createDomainUserObject, createProfilePictureMetadata } from './person.utils';
 import * as utils from '../utils.js';
 import * as consts  from '../config/db-enums';
 import { PersonValidate } from './person.validate';
 import { PersonTextSearch, PersonFilters as PersonTextSearchFilters } from './person.textSearch.interface';
 import personElasticRepo from './person.elasticSearchRepository';
+import { PictureStreamService } from '../picture/pictureStreamService.interface';
+import MinioStreamService from '../minio/MinioStreamService';
+import { StreamResponse } from '../helpers/controller.helper';
 
 export type PersonFilters = {
   currentUnit: string | string[];
@@ -34,6 +37,7 @@ export class Person {
   _personService: PersonRepository;
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
   static _personTextSearch: PersonTextSearch = personElasticRepo;
+  static _pictureStreamService : PictureStreamService = MinioStreamService;
 
   constructor() {
     this._personService = new PersonRepository();
@@ -244,6 +248,16 @@ export class Person {
     if (person.domainUsers) {
       person.domainUsers = person.domainUsers.map(userString => createDomainUserObject(userString));
     } 
+    // create 'pictures' objects
+    if (!!person.pictures) {
+      person.pictures = {
+        profile: person.pictures.profile ? 
+          createProfilePictureMetadata(
+            person.personalNumber || person.identityCard, 
+            person.pictures.profile as SetProfilePictureDTO
+          ) : undefined,
+      };
+    }
     const newPerson = await Person._personRepository.create(person);
     return newPerson;
   }
@@ -263,11 +277,47 @@ export class Person {
     return result.deletedCount > 0 ? result : Promise.reject(new ResourceNotFoundError('Cannot find person with ID: ' + personID));
   }
 
+  /**
+   * Handle profile picture metadata change (create, updatem delete).
+
+   * May throw validation error if the incoming change is invalid
+   * @param source source Person Object 
+   * @param change changes to apply to the 'pictures' field
+   */
+  private static handleProfilePictureChange(source: IPerson, change: { profile?: ProfilePictureDTO | SetProfilePictureDTO }) {
+    // get current picture metadata
+    const currentPictureMeta = source.pictures && source.pictures.profile ? 
+      (source.pictures.profile as ProfilePictureDTO).meta : {};
+    // if 'change' came from an object that was pulled from DB - it will have 'meta'
+    const hasChange = !!change && (!!change.profile && !(change.profile as ProfilePictureDTO).meta
+      || change.profile === null);
+    if (!!hasChange) { // if there is change to apply
+      const pictureMetaChange = change.profile as SetProfilePictureDTO;
+      if (pictureMetaChange === null) { // delete operation
+        if (source.pictures) {
+          source.pictures.profile = null;
+        }
+        return;  
+      }
+      // update or create operation
+      const mergedProfilePicture = createProfilePictureMetadata(source.personalNumber || source.identityCard, 
+        { ...currentPictureMeta, ...pictureMetaChange });
+      // initialize 'pictures' field if doesn't exist
+      if (!source.pictures) {
+        source.pictures = {};
+      }
+      source.pictures.profile = mergedProfilePicture;
+    } 
+  }
+
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
     // find the person
     const person = await Person.getPersonById(id);
+    // hanlde picture field change
+    const { pictures, ...rest } = change;
+    Person.handleProfilePictureChange(person, pictures);
     // merge with the changes
-    const mergedPerson = { ...person, ...change };
+    const mergedPerson = { ...person, ...rest };
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
@@ -333,5 +383,17 @@ export class Person {
       if (!!group) filters.hierarchyPath = [...group.hierarchy, group.name].join('/');
     }
     return Person._personTextSearch.searchByFullName(fullName, filters);
+  }
+
+  static async getPictureStream(personIdentifier: string) : Promise<StreamResponse> {
+    const { profile } = await Person._personRepository.getRawPictures(personIdentifier);
+    if (!profile) {
+      throw new ResourceNotFoundError(`There is no picture for the pesron with identifier: ${personIdentifier}`);
+    }
+
+    return { 
+      stream: await Person._pictureStreamService.getPicture(profile.meta.path),
+      metaData: { contentType: profile.meta.format },
+    };
   }
 }

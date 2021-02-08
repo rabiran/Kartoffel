@@ -15,8 +15,10 @@ function envAsBool(envVariable: string): boolean {
 
 dotenv.config({ path: '.env' });
 const serviceName = process.env.SERVICE_NAME || 'kartoffel';
+const serviceBaseUrl = process.env.SERVICE_BASE_URL || 'http://localhost';
 export const config = {
   serviceName,
+  serviceBaseUrl,
   elasticSearch: {
     indexInitRetries: 3,
     nodes: process.env.ELASTICSEARCH_HOSTS ? process.env.ELASTICSEARCH_HOSTS.split(',') : null,
@@ -87,6 +89,14 @@ export const config = {
     port: +(process.env.PORT || 3000),
     sessionSecret: process.env.SESSION_SECRET,
     nodeEnv: process.env.NODE_ENV,
+  },
+  minio: {
+    bucket: process.env.MINIO_BUCKET,
+    endPoint: process.env.MINIO_END_POINT,
+    port: +(process.env.MINIO_PORT || 9000),
+    accessKey: process.env.MINIO_ACCESS_KEY,
+    secretKey: process.env.MINIO_SECRET_KEY,
+    useSSL: envAsBool(process.env.MINIO_USE_SSL),
   },
   queries: {
     aliases: {

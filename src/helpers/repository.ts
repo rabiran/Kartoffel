@@ -35,7 +35,7 @@ function queryParser(queryObj: object): any {
 
 export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
 
-  private _model: mongoose.Model<T & mongoose.Document>;
+  protected _model: mongoose.Model<T & mongoose.Document>;
 
   constructor(schemaModel: mongoose.Model<T & mongoose.Document>) {
     this._model = schemaModel;

@@ -24,4 +24,6 @@ export const SERVICE_TYPE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const DATA_SOURCE = ['dataSource1', 'dataSource2','aka', 'es_name', 'ads_name', 'adNN_name', 'nvSQL_name', 'lmn_name', 'mdn_name', 'mm_name', 'city_name'];
 
+export enum SEX {Male = 'm', Female = 'f'}
+
 export enum STATUS { ACTIVE = 'active', INACTIVE = 'inactive', INCOMPLETE = 'incomplete' }
