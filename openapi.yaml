@@ -951,6 +951,12 @@ parameters:
         address:
           type: string
           example: 'Alexander 2, Jerusalem, Israel'
+        sex: 
+          type: string
+        birthDate:
+          type: string
+          format: date
+          example: '2022-11-30T22:00:00.000Z'
         responsibility:
           type: string
           enum:
@@ -1095,92 +1101,6 @@ responses:
     x-oad-type: response
 
 definitions:
-  # UpdatePersonBody:
-  #   type: object
-  #   properties:
-  #     firstName:
-  #       type: string
-  #       example: Avi
-  #     lastName:
-  #       type: string
-  #       example: Ron
-  #     currentUnit:
-  #       type: string
-  #       example: Pilots Guild
-  #     dischargeDay:
-  #       type: string
-  #       format: date
-  #       example: '2022-11-30T22:00:00.000Z'
-  #     entityType:
-  #       type: string
-  #       enum:
-  #         - a
-  #         - b
-  #       example: a
-  #     rank:
-  #       type: string
-  #       enum:
-  #         - a
-  #         - b
-  #         - c
-  #       example: b
-  #     job:
-  #       type: string
-  #       example: Pilot 2
-  #     mail:
-  #       type: string
-  #       format: email
-  #     phone:
-  #       type: array
-  #       items:
-  #         type: string
-  #         pattern: '^\d{1,2}-?\d{6,7}$'
-  #       example:
-  #         - 02-123456
-  #         - 03456789
-  #     mobilePhone:
-  #       type: array
-  #       items:
-  #         type: string
-  #         pattern: '^\d{2,3}-?\d{7}$'
-  #       example:
-  #         - 052-1234567
-  #         - 048456789
-  #     address:
-  #       type: string
-  #       example: 'Alexander 2, Jerusalem, Israel'
-  #     responsibility:
-  #       type: string
-  #       enum:
-  #         - a
-  #         - b
-  #         - c
-  #       example: c
-  #     responsibilityLocation:
-  #       type: string
-  #       example: 5b50a76713ddf90af494dabc
-  #     clearance:
-  #       type: string
-  #       example: 3
-  #     pictures:
-  #       type: object
-  #       properties:
-  #         profile:
-  #           type: object
-  #           description: 'set **profile: null** to delete'
-  #           properties:
-  #             takenAt: 
-  #               type: string
-  #               format: date
-  #             path:
-  #               type: string
-  #             format:
-  #               type: string
-  #       example:
-  #         profile:
-  #           takenAt: '2020-11-30T22:00:00.000Z'
-  #           path: 'pic-6786787.jpg'
-  #           format: 'jpeg'
   Person:
     type: object
     required:
@@ -1313,6 +1233,12 @@ definitions:
       address:
         type: string
         example: 'Alexander 2, Jerusalem, Israel'
+      sex: 
+        type: string
+      birthDate:
+        type: string
+        format: date
+        example: '2022-11-30T22:00:00.000Z'
       responsibility:
         type: string
         enum:
