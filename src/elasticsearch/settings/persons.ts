@@ -39,6 +39,7 @@ const mappings = {
         name: { type: 'keyword' },
         domain: { type: 'keyword' },
         dataSource: { type: 'keyword' },
+        hierarchy: { type: 'keyword' },
       },
     },
     pictures: {

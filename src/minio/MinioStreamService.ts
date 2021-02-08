@@ -2,6 +2,9 @@ import * as Minio from 'minio';
 import client from './client';
 import { PictureStreamService } from '../picture/pictureStreamService.interface';
 import { Readable } from 'stream';
+import { config } from '../config/config';
+
+const { bucket } = config.minio;
 
 export class MinioStreamService implements PictureStreamService {
   constructor(private client : Minio.Client, private config: { bucket: string }) {}
@@ -11,4 +14,4 @@ export class MinioStreamService implements PictureStreamService {
   }
 }
 
-export default new MinioStreamService(client, { bucket: 'aka' });
+export default new MinioStreamService(client, { bucket });
