@@ -2,7 +2,8 @@ import { PersonModel as Person } from './person.model';
 import { IPerson, IDomainUser, IDomainUserIdentifier, PictureType } from './person.interface';
 import { RepositoryBase, ICollection } from '../helpers/repository';
 import * as _ from 'lodash';
-import * as mongoose from 'mongoose';
+import {} from './person.validate';
+import { Types } from 'mongoose';
 import  * as consts  from '../config/db-enums';
 import { config } from '../config/config';
 
@@ -99,7 +100,11 @@ export class PersonRepository extends RepositoryBase<IPerson> {
       .then(res => res ? res.toObject() : res);
   }
 
-  async getRawPictures(perosnIdentifier: string): Promise<{
+  /**
+   * Returns the raw (unfiltered) 'pictures' field of a person.
+   * @param personIdentifier personalNumber or identityCard or id
+   */
+  async getRawPictures(personIdentifier: string): Promise<{
     profile?: { 
       url: string;
       meta: {
@@ -108,12 +113,14 @@ export class PersonRepository extends RepositoryBase<IPerson> {
         format?: string;
       }
     }
-  }> { 
-    const rawPerson = await this._model.findOne({ $or: [
-      { _id: perosnIdentifier }, 
-      { identityCard: perosnIdentifier }, 
-      { personalNumber: perosnIdentifier },
-    ]}).select('pictures').exec() as any;
+  }> {
+    const query = Types.ObjectId.isValid(personIdentifier) ? 
+      this._model.findById(personIdentifier) : 
+      this._model.findOne({ $or: [
+        { identityCard: personIdentifier }, 
+        { personalNumber: personIdentifier },
+      ]});
+    const rawPerson = await query.select('pictures').exec() as any;
     return rawPerson.pictures || {};
   }
 }
