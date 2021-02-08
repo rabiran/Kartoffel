@@ -428,8 +428,8 @@ describe('Person', () => {
       const takenAtIsoDateString = new Date(pictures.profile.takenAt).toISOString();
       const person = { ...personExamples[0], pictures };
       const result = (await chai.request(app).post(BASE_URL).send(person)).body as IPerson;
-      expect(person.pictures).to.exist;
-      expect(person.pictures.profile).to.exist;
+      expect(result.pictures).to.exist;
+      expect(result.pictures.profile).to.exist;
       const profile = result.pictures.profile as any;
       expect(profile.url).to.exist;
       expect(profile.meta).to.exist;
