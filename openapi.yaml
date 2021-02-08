@@ -403,6 +403,28 @@ paths:
           description: illegal domain user or personId doesn't match the domain user    
         '404':
           description: person or domain user don't exist
+  
+  '/persons/{identifier}/pictures/profile':
+    get:
+      summary: Get a person's profile picture by identifier
+      tags:
+        - Person
+      produces: 
+        - image/*
+      parameters:
+        - name: identifier
+          in: path
+          description: person identifier - id or personalNumber or identityCard
+          required: true
+          type: string
+      responses:
+        '200':
+          description: a picture as a stream
+          schema:
+            type: file
+        '404':
+          description: The person is not found or does not have a profile picture
+
   '/organizationGroups/{id}':
     get:
       summary: Get organization Group by id
