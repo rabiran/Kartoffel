@@ -8,6 +8,7 @@ import { OrganizationGroupModel } from '../group/organizationGroup/organizationG
 import { IPerson, IDomainUser, ProfilePictureDTO } from './person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
+import { PersonRepository } from './person.repository';
 import { expectError, createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
 import { domainMap, allStatuses } from '../utils';
 import * as mongoose from 'mongoose';
@@ -20,6 +21,8 @@ const RESPONSIBILITY_DEFAULT = RESPONSIBILITY[0];
 const should = chai.should();
 const expect = chai.expect;
 chai.use(require('chai-http'));
+
+const _personRepository = new PersonRepository();
 
 const dbIdExample = ['5b50a76713ddf90af494de32', '5b56e5ca07f0de0f38110b9c', '5b50a76713ddf90af494de33', '5b50a76713ddf90af494de34', '5b50a76713ddf90af494de35', '5b50a76713ddf90af494de36', '5b50a76713ddf90af494de37'];
 
@@ -696,6 +699,24 @@ describe('Persons', () => {
       };
       const updatedPerson = await Person.updatePerson(person.id, updateObject);
       expect(updatedPerson.rank === null || updatedPerson.rank === undefined);
+    });
+    // we test it because the 'path' field is hidden, and can be accidentally deleted silently while updating other fields
+    it('should upadte the person while keeping the picture.profile.meta.path untouched', async () => {
+      const personWithPicture = await Person.createPerson(<IPerson>{ ...personExamples[0], 
+        pictures: {
+          profile: {
+            path: 'somepath',
+            takenAt: new Date('2020-02-13'),
+            format: 'jpeg',
+          },
+        } }
+      );
+      const updated = await Person.updatePerson(personWithPicture.id, { rank: 'rookie' });
+      const pictures = await _personRepository.getRawPictures(personWithPicture.id);
+      expect(updated.rank).to.equal('rookie');
+      expect(pictures.profile).exist;
+      expect(pictures.profile.meta).exist;
+      expect(pictures.profile.meta.path).to.equal('somepath');
     });
   });
   describe('Person Staffing', () => {
