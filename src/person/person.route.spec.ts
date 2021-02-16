@@ -303,6 +303,19 @@ describe('Person', () => {
         });
     });    
   });
+  describe('/GET profile picture', () => {
+    it('should return error 404 when the person doesnt have profile picture', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      await chai.request(app).get(`${BASE_URL}/${person.id}/pictures/profile`)
+      .then(
+        () => expect.fail(undefined, undefined, 'request should not succeed'),
+        (err) => {
+          expect(err).to.exist;
+          expect(err).to.have.status(404);
+        }
+      );
+    });
+  });
   describe('/GET updated persons', () => {
     it('Should return an 400 when given a wrong param', (done) => {
       chai.request(app)
