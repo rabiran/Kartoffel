@@ -387,7 +387,7 @@ export class Person {
 
   static async getPictureStream(personIdentifier: string) : Promise<StreamResponse> {
     const { profile } = await Person._personRepository.getRawPictures(personIdentifier);
-    if (!profile) {
+    if (!profile || !profile.meta) {
       throw new ResourceNotFoundError(`There is no picture for the pesron with identifier: ${personIdentifier}`);
     }
 
