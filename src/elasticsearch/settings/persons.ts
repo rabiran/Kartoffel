@@ -40,6 +40,7 @@ const mappings = {
         domain: { type: 'keyword' },
         dataSource: { type: 'keyword' },
         hierarchy: { type: 'keyword' },
+        mail: { type: 'keyword' },
       },
     },
     pictures: {
