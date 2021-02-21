@@ -19,7 +19,7 @@ const domains = [...domainMap.keys()];
 const userStringEx = `nitro@${[...domainMap.keys()][2]}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
 const dataSourceExample = DATA_SOURCE[0];
-const newUserExample = { uniqueID: userStringEx, dataSource: dataSourceExample };
+const newUserExample = { uniqueID: userStringEx, dataSource: dataSourceExample, mail: 'asda@ffff.cob', hierarchy: ['a', 'b'] };
 
 const DomainUserExamples: Partial<IDomainUser>[] = [
   {
@@ -410,6 +410,8 @@ describe('Person', () => {
       createdPerson.domainUsers.should.have.lengthOf(1);
       const user = createdPerson.domainUsers[0] as IDomainUser;
       user.uniqueID.should.be.equal(userStringEx);
+      expect(user.mail).to.equal(newUserExample.mail);
+      expect(user.hierarchy).to.be.an('array').with.ordered.members(newUserExample.hierarchy);
     });
     it('should create a person with incomplete status', async () => {
       const person = { ...personExamples[5] };
@@ -457,6 +459,28 @@ describe('Person', () => {
           const updatedPerson = res.body;
           updatedPerson.should.have.property('domainUsers');
           updatedPerson.domainUsers.should.have.lengthOf(1);
+        });
+    });
+
+    it('should return the person with the newly created domainUser with mail and hierarchy', async () => {
+      await chai.request(app).post(BASE_URL).send({ ...personExamples[0] })
+        .then((res) => {
+          const person = res.body;
+          return chai.request(app).post(`${BASE_URL}/${person.id}/domainUsers`)
+            .send({              
+              uniqueID: userStringEx,
+              dataSource: dataSourceExample,
+              mail: newUserExample.mail,
+              hierarchy: newUserExample.hierarchy,
+            });
+        })
+        .then((res) => {
+          res.should.exist;
+          res.should.have.status(200);
+          const updatedPerson = res.body;
+          updatedPerson.should.have.property('domainUsers');
+          updatedPerson.domainUsers.should.have.lengthOf(1);
+          expect(updatedPerson.domainUsers[0].mail).to.equal(newUserExample.mail);
         });
     });
 
@@ -547,6 +571,23 @@ describe('Person', () => {
           const updatedUser = updatedPerson.domainUsers[1];
           updatedUser.should.have.property('uniqueID', `newDavid@${domains[0]}`);
         }));
+    });
+    it('should add mail and hierarchy to domain user', async () => {
+      const person = await Person.createPerson(<IPerson>{ 
+        ...personExamples[0],
+        domainUsers: [{ ...DomainUserExamples[0] }],
+      });
+      const updatedPerson = (await chai.request(app)
+        .put(`${BASE_URL}/${person.id}/domainUsers/${DomainUserExamples[0].uniqueID}`)
+        .send({
+          mail: 'aaa@ggg.gg',
+          hierarchy: ['ff', 'e'],
+        })).body;
+     
+      expect(updatedPerson.domainUsers).to.be.an('array').with.lengthOf(1);
+      expect(updatedPerson.domainUsers[0].mail).to.equal('aaa@ggg.gg');
+      expect(updatedPerson.domainUsers[0].hierarchy).to.be.an('array').with.lengthOf(2);
+      expect(updatedPerson.domainUsers[0].hierarchy).to.be.an('array').with.ordered.members(['ff', 'e']);
     });
   });
 
