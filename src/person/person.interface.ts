@@ -48,6 +48,8 @@ export interface IDomainUserIdentifier {
 export interface IDomainUser extends IDomainUserIdentifier{
   id?: string;
   dataSource: string;
+  mail?: string;
+  hierarchy?: string[];
   uniqueID?: string;
   adfsUID?: string;
 }
