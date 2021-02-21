@@ -180,7 +180,7 @@ export class Person {
    * Update domainUser name
    * @param personId 
    * @param uniqueId the uniqueId string of the domain user to be updated
-   * @param updateObj object of shape { uniqueID?, dataSource? } with the values to update
+   * @param updateObj object of shape { uniqueID?, dataSource?, mail?, hierarchy? } with the values to update
    */
   static async updateDomainUser(personId: string, uniqueId: string, updateObj: Partial<IDomainUser>) : Promise<IPerson> {
     // Checks if domainUser belongs to this person
@@ -201,7 +201,7 @@ export class Person {
         throw new ValidationError(`Can't change domain of user`);
       }
     }
-    const domainUserUpdatableFields = ['dataSource'];
+    const domainUserUpdatableFields = ['dataSource', 'mail', 'hierarchy'];
     const domains = getAllPossibleDomains(currentDomain);
     // updated domain user identifier fields (name, domain)
     const identifierUpdate = newUserIdentifier ? newUserIdentifier : {};
@@ -246,7 +246,7 @@ export class Person {
     person.hierarchy = directGroup.hierarchy.concat(directGroup.name);
     // create domainUser Objects
     if (person.domainUsers) {
-      person.domainUsers = person.domainUsers.map(userString => createDomainUserObject(userString));
+      person.domainUsers = person.domainUsers.map(createUserDTO => createDomainUserObject(createUserDTO));
     } 
     // create 'pictures' objects
     if (!!person.pictures) {
