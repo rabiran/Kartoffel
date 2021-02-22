@@ -27,7 +27,13 @@ export function getAllPossibleDomains(domain: string): string[] {
  * @returns new Domain User object
  */
 export function createDomainUserObject(user: Partial<IDomainUser>): IDomainUser {
-  return { ...userFromString(user.uniqueID), dataSource: user.dataSource };
+  const { dataSource, mail, hierarchy } = user;
+  return { 
+    ...userFromString(user.uniqueID), 
+    dataSource,
+    mail,
+    hierarchy,
+  };
 }
 
 /**

@@ -48,9 +48,12 @@ implements PersonTextSearch {
     if (tPerson.domainUsers) {
       tPerson.domainUsers = (tPerson.domainUsers as IDomainUser[]).map((u) => {
         const user: Partial<IDomainUser> = {};
+        const { dataSource, mail, hierarchy } = u;
         user.uniqueID = `${u.name}${DomainSeperator}${u.domain}`;
         domainMap.get(u.domain) && (user.adfsUID = `${u.name}${DomainSeperator}${domainMap.get(u.domain)}`);
         user.dataSource = u.dataSource;
+        if (!!hierarchy) user.hierarchy = hierarchy;
+        if (!!mail) user.mail = mail;
         return user as IDomainUser;    
       });
     }

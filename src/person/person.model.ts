@@ -46,13 +46,21 @@ const DomainUserSchema = new mongoose.Schema(
       enum: { values: consts.DATA_SOURCE , message: '"{VALUE}" is not a valid dataSource' },
       index: true,
     },
+    mail: {
+      type: String,
+      validate: { validator: PersonValidate.email, message: '{VALUE} is not a valid email address!' },
+    },
+    hierarchy: {
+      type: [String],
+      default: undefined,
+    },
   },
   {
     toObject: {
       virtuals: true,
       versionKey: false,
       transform:  (doc, ret, options) => {
-        const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID', 'dataSource']);
+        const filtered = filterObjectByKeys(ret, ['uniqueID', 'adfsUID', 'dataSource', 'hierarchy', 'mail']);
         !PersonValidate.isLegalUserString((<IDomainUser>filtered).adfsUID) && delete (<IDomainUser>filtered).adfsUID;
         return filtered;
       },

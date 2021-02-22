@@ -30,7 +30,7 @@ const domains = [...domainMap.keys()];
 const domain = [...domainMap.keys()][2];
 const userStringEx = `nitro@${domain}`;
 const adfsUIDEx = `nitro@${[...domainMap.values()][2]}`;
-const newUserExample = { uniqueID: userStringEx, dataSource: DATA_SOURCE[0] };
+const newUserExample = { uniqueID: userStringEx, dataSource: DATA_SOURCE[0], mail: 'asda@ffff.com', hierarchy: ['a', 'b'] };
 
 const DomainUserExamples: Partial<IDomainUser>[] = [
   {
@@ -281,7 +281,9 @@ describe('Persons', () => {
       expect(user.domain).to.be.undefined;
       expect(user.name).to.be.undefined;      
       user.should.have.property('uniqueID', userStringEx);
-      user.should.have.property('adfsUID', adfsUIDEx);     
+      user.should.have.property('adfsUID', adfsUIDEx);   
+      expect(user.mail).to.equal(personExamples[5].domainUsers[0].mail);
+      expect(user.hierarchy).to.be.an('array').that.have.ordered.members(personExamples[5].domainUsers[0].hierarchy);
     });
     it('Should create a person with more info', async () => {
       const newPerson = <IPerson>{
@@ -833,6 +835,8 @@ describe('Persons', () => {
       user.should.have.property('uniqueID', userStringEx);
       user.should.have.property('adfsUID', adfsUIDEx);
       user.should.have.property('dataSource', newUserExample.dataSource);
+      expect(user.mail).to.equal(newUserExample.mail);
+      expect(user.hierarchy).to.be.an('array').that.have.ordered.members(newUserExample.hierarchy);
     });
     it('should add new domain user, without adfsUId in enums, to the person', async () => {
       const person = await Person.createPerson(personExamples[3]);
@@ -993,6 +997,45 @@ describe('Persons', () => {
       const user = updatePerson.domainUsers[0];
       user.should.have.property('uniqueID', newUserExample.uniqueID);
       user.should.have.property('dataSource', DATA_SOURCE[1]);
+    });
+    it('should add mail to an existing domain user', async () => {
+      const person = await Person.createPerson({ ...personExamples[3] });  
+      await Person.addNewUser(person.id, DomainUserExamples[0]);
+      const updatePerson = await Person.updateDomainUser(person.id, DomainUserExamples[0].uniqueID, 
+        { mail: 'asda@ggg.gg' });
+      const user = updatePerson.domainUsers[0];
+      expect(user.uniqueID).to.equal(DomainUserExamples[0].uniqueID);
+      expect(user.mail).to.equal('asda@ggg.gg');
+    });
+    it('should throw error when adding invalid mail to an existing domain user', async () => {
+      const person = await Person.createPerson({ ...personExamples[3] });  
+      await Person.addNewUser(person.id, DomainUserExamples[0]);
+      await expectError(
+        Person.updateDomainUser, 
+        [person.id, newUserExample.uniqueID, { mail: 'asda@' }]
+      );
+    });
+    it('should update mail and hierarchy of domain user', async () => {
+      const person = await Person.createPerson({ ...personExamples[3] });  
+      await Person.addNewUser(person.id, newUserExample);
+      const updatePerson = await Person.updateDomainUser(person.id, newUserExample.uniqueID, 
+        { 
+          mail: 'other@mail.gg',
+          hierarchy: ['eli', 'kopter'],
+        });
+      const user = updatePerson.domainUsers[0];
+      expect(user.uniqueID).to.equal(newUserExample.uniqueID);
+      expect(user.mail).to.equal('other@mail.gg');
+      expect(user.hierarchy).to.be.an('array').with.ordered.members(['eli', 'kopter']);
+    });
+    it('should add hierarchy to an existing domain user', async () => {
+      const person = await Person.createPerson({ ...personExamples[3] });  
+      await Person.addNewUser(person.id, DomainUserExamples[0]);
+      const updatePerson = await Person.updateDomainUser(person.id, DomainUserExamples[0].uniqueID, 
+        { hierarchy: ['gg','rf'] });
+      const user = updatePerson.domainUsers[0];
+      user.should.have.property('uniqueID', DomainUserExamples[0].uniqueID);
+      expect(user.hierarchy).to.be.an('array').with.ordered.members(['gg','rf']);
     });
   });
   describe(`#deleteDomainUser`, async () => {
