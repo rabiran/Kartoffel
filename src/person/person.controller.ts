@@ -285,6 +285,7 @@ export class Person {
    * @param change changes to apply to the 'pictures' field
    */
   private static handleProfilePictureChange(source: IPerson, change: { profile?: ProfilePictureDTO | SetProfilePictureDTO }) {
+    const copy = { ...source };
     // get current picture metadata
     const currentPictureMeta = source.pictures && source.pictures.profile ? 
       (source.pictures.profile as ProfilePictureDTO).meta : {};
@@ -294,20 +295,24 @@ export class Person {
     if (!!hasChange) { // if there is change to apply
       const pictureMetaChange = change.profile as SetProfilePictureDTO;
       if (pictureMetaChange === null) { // delete operation
-        if (source.pictures) {
-          source.pictures.profile = null;
+        if (copy.pictures) {
+          copy.pictures.profile = null;
         }
-        return;  
+      } else {
+        // update or create operation
+        const mergedProfilePicture = createProfilePictureMetadata(source.personalNumber || source.identityCard, 
+          { ...currentPictureMeta, ...pictureMetaChange });
+        // initialize 'pictures' field if doesn't exist
+        if (!source.pictures) {
+          copy.pictures = {};
+        }
+        copy.pictures.profile = mergedProfilePicture;
       }
-      // update or create operation
-      const mergedProfilePicture = createProfilePictureMetadata(source.personalNumber || source.identityCard, 
-        { ...currentPictureMeta, ...pictureMetaChange });
-      // initialize 'pictures' field if doesn't exist
-      if (!source.pictures) {
-        source.pictures = {};
-      }
-      source.pictures.profile = mergedProfilePicture;
+    } else {
+      const { pictures, ...rest } = source;
+      return rest;
     } 
+    return copy;
   }
 
   static async updatePerson(id: string, change: Partial<IPerson>): Promise<IPerson> {
@@ -315,9 +320,9 @@ export class Person {
     const person = await Person.getPersonById(id);
     // hanlde picture field change
     const { pictures, ...rest } = change;
-    Person.handleProfilePictureChange(person, pictures);
+    const changedPerson = Person.handleProfilePictureChange(person, pictures);
     // merge with the changes
-    const mergedPerson = { ...person, ...rest };
+    const mergedPerson = { ...changedPerson, ...rest };
     // validate the merged object
     const validatorsResult = utils.validatorRunner(PersonValidate.multiFieldValidators, mergedPerson);
     if (!validatorsResult.isValid) {
