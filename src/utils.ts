@@ -265,3 +265,7 @@ export function pickSingleValue<T>(val: T | T[]): T {
   }
   return val;
 }
+
+export function getByPath(obj: any, path: string[]) {
+  return obj && path.reduce((res: any, prop) => prop in res ? res[prop] : undefined);
+}
