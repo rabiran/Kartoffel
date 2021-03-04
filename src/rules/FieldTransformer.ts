@@ -1,4 +1,4 @@
-import { getByPath } from '../utils';
+import { getByPath, setByPath, deleteByPath } from '../utils';
 
 abstract class Condition<T= any> {
   abstract check(val: T): boolean;
@@ -51,14 +51,34 @@ implements ConditionalTransform<T> {
   }
 }
 
-export class ArrayMapper<T, U>
-implements ConditionalTransform<T> {
+export class ArrayMapper<T, U> implements ConditionalTransform<T> {
   constructor(
     private arrayPath: string[],
     private transformer: ConditionalTransform<U>
   ) {}
 
   apply(source: T) {
-   
+    const transformed = getByPath(source, this.arrayPath)
+      .map(this.transformer.apply);
+    const copy = { ...source };
+    setByPath(copy, this.arrayPath, transformed);
+    return copy;
   }
 }
+
+export class FieldExclude<T> implements ConditionalTransform<T> {
+  constructor(
+    private fieldPath: string[],
+    private conditions: Condition<T>[] = []
+  ) {}
+
+  apply(source: T) {
+    if (Condition.and(source, ...this.conditions)) {
+      const copy = { ...source };
+      deleteByPath(copy, this.fieldPath);
+      return copy;
+    }
+    return source;
+  }
+}
+

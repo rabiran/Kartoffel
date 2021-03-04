@@ -267,5 +267,28 @@ export function pickSingleValue<T>(val: T | T[]): T {
 }
 
 export function getByPath(obj: any, path: string[]) {
-  return obj && path.reduce((res: any, prop) => prop in res ? res[prop] : undefined);
+  return obj && path.reduce((res: any, prop) => prop in res ? res[prop] : undefined, obj);
 }
+
+export function setByPath(obj: any, path: string[], value: any) {
+  path.reduce((cur, prop, index) => {
+    if (index < path.length - 1) {
+      return cur[prop];
+    } else {
+      cur[prop] = value;
+    }
+  }, obj);
+}
+
+export function deleteByPath(obj: any, path: string[]) {
+  let cur = obj;
+  for (let i = 0; i < path.length - 1; i++) {
+    cur = cur[path[i]];
+    if (typeof cur === 'undefined') {
+      return;
+    }
+  }
+  delete cur[path[path.length - 1]];
+}
+
+
