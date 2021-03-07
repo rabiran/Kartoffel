@@ -1,28 +1,5 @@
-import { getByPath, setByPath, deleteByPath } from '../utils';
-
-abstract class Condition<T= any> {
-  abstract check(val: T): boolean;
-
-  static and<T>(val: T, ...conditions: Condition<T>[]) {
-    for (const c of conditions) {
-      if (!c.check(val)) return false;
-    }
-    return true;
-  }
-}
-
-
-// export class Condition<T> {
-//   constructor(
-//     private path: string[],
-//     private value: any
-//   ) {}
-
-//   check(obj: T) {
-//     return getByPath(obj, this.path) === this.value;
-//   }
-
-// }
+import { getByPath, setByPath, deleteByPath } from '../../../utils';
+import { Condition } from './condition/Condition';
 
 export interface ConditionalTransform<T> {
   apply(source: T): Partial<T>;

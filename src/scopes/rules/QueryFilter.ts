@@ -18,7 +18,11 @@ export class QueryFilter<F extends Filter, K extends keyof F = keyof F> {
   static combine<F extends Filter>(...filters: QueryFilter<F>[]): Partial<F> {
     const combined: Partial<F> = {};
     for (const qf of filters) {
-      combined[qf.TargetField] = qf.Values;
+      if (!combined[qf.TargetField]) {
+        combined[qf.TargetField] = qf.Values;
+      } else {
+        combined[qf.TargetField].push(...qf.Values);
+      }
     }
     return combined;
   }
