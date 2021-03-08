@@ -1,11 +1,12 @@
-export class ClassFactory<T> {
+export class ClassFactory<T, 
+  TCTOR extends new (...args: unknown[]) => T = new (...args: any[]) => T> {
   protected classStore: {
-    [k: string]: new (...args: any[]) => T;
+    [k: string]: TCTOR;
   } = {};
-  registerClass(name: string, conditionClass: new (...args: any[]) => T) {
+  registerClass(name: string, conditionClass: TCTOR) {
     this.classStore[name] = conditionClass;
   }
-  create(className: string, ...params: any[]) {
+  create(className: string, ...params: unknown[]): T {
     return new this.classStore[className](...params);
   }
 }

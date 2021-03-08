@@ -4,12 +4,12 @@ type Filter = {
 
 export class QueryFilter<F extends Filter, K extends keyof F = keyof F> { 
   constructor (
-    private targetField: K,
+    private field: K,
     private values: F[K]
   ) {}
 
-  get TargetField() {
-    return this.targetField;
+  get Field() {
+    return this.field;
   }
   get Values() {
     return this.values;
@@ -18,10 +18,10 @@ export class QueryFilter<F extends Filter, K extends keyof F = keyof F> {
   static combine<F extends Filter>(...filters: QueryFilter<F>[]): Partial<F> {
     const combined: Partial<F> = {};
     for (const qf of filters) {
-      if (!combined[qf.TargetField]) {
-        combined[qf.TargetField] = qf.Values;
+      if (!combined[qf.Field]) {
+        combined[qf.Field] = qf.Values;
       } else {
-        combined[qf.TargetField].push(...qf.Values);
+        combined[qf.Field].push(...qf.Values);
       }
     }
     return combined;

@@ -1,5 +1,5 @@
 import { Condition } from './Condition';
-import { getByPath } from '../../../../utils';
+import { getByPath } from '../../../utils';
 
 export class HierarchyCondition extends Condition {
   private fieldPath: string[];

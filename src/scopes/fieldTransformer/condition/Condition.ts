@@ -8,3 +8,7 @@ export abstract class Condition<T= any> {
     return true;
   }
 }
+
+export interface ConditionConstructor<T = any> {
+  new (path: string[], value: unknown): Condition<T>;
+}
