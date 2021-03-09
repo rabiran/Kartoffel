@@ -1,4 +1,4 @@
-type Filter = {
+export type Filter = {
   [k: string]: any[]
 };
 

@@ -9,6 +9,8 @@ export function registerToFactory() {
   ConditionalTransformerFactory.registerClass(ArrayMapper.name, ArrayMapper);
 }
 
-export function createTransformer(name: string, opts: ConditionalTransformerOpts) {
-  return ConditionalTransformerFactory.create(name, opts);
+export function createTransformer(transformerType: string, opts: ConditionalTransformerOpts) {
+  return ConditionalTransformerFactory.create(transformerType, opts);
 }
+
+export type TransformerOpts = ConditionalTransformerOpts;
