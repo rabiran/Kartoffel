@@ -7,12 +7,12 @@ export type FilterConfig = {
   values: any | any[]
 };
 
-export abstract class QueryFilterStore<T extends Filter> {
+export class QueryFilterStore<T extends Filter> {
   private filterMap: Map<string, QueryFilter<T, keyof T>>;
 
-  constructor() {
+  constructor(initialFilters: FilterConfig[] = []) {
     this.filterMap = new Map<string, QueryFilter<T, keyof T>>();
-    this.initialize();
+    this.initialize(initialFilters);
   }
 
   addFilter(config: FilterConfig) {
@@ -25,6 +25,10 @@ export abstract class QueryFilterStore<T extends Filter> {
     return this.filterMap.get(name);
   }
 
-  protected abstract initialize(): void;
+  private initialize(filters: FilterConfig[]) {
+    for (const config of filters) {
+      this.addFilter(config);
+    }
+  }
   
 }

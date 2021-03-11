@@ -5,12 +5,13 @@ export type TransformerConfig = TransformerOpts & {
   name: string;
 };
 
-export abstract class TransformerStore<T> {
+export class TransformerStore<T> {
   private transformerMap: Map<string, ConditionalTransform<T>>;
 
-  constructor() {
+  constructor(initialTransformers: TransformerConfig[] = []) {
     this.transformerMap = new Map<string, ConditionalTransform<T>>();
     registerToFactory();
+    this.initialize(initialTransformers);
   }
 
   addTransformer(config: TransformerConfig) {
@@ -22,6 +23,10 @@ export abstract class TransformerStore<T> {
     return this.transformerMap.get(name);
   }
 
-  protected abstract initialize(): void;
+  protected initialize(transformers: TransformerConfig[]) {
+    for (const config of transformers) {
+      this.addTransformer(config);
+    }
+  }
   
 }
