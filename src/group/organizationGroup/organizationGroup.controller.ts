@@ -19,6 +19,11 @@ export type GroupQuery = GroupFilters & {
   hierarchy: string;
 };
 
+export type GroupExcluders = {
+  hierarchy: string[];
+  akaUnit: string[];
+}
+
 export class OrganizationGroup {
   static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
   static _personRepository: PersonRepository = new PersonRepository();

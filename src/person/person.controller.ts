@@ -28,6 +28,12 @@ export type PersonFilters = {
   underGroupId: string;
 };
 
+export type PersonExcluders = {
+  hierarchy: string[];
+  rank: string[];
+  currentUnit: string[];
+};
+
 export type PersonSearchQuery = PersonFilters & {
   fullName: string;
 };
