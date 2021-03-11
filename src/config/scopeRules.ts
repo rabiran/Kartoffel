@@ -1,5 +1,5 @@
-export default {
-  persons: {
+const rules = {
+  person: {
     transformers: [
       {
         name: 'filter8sockshierarchy',
@@ -22,4 +22,14 @@ export default {
       },
     ],
   },
+  organizationGroup: {},
+};
+
+const scopes = {
+  scope1: ['filter8sockshierarchy'],
+};
+
+export default {
+  rules,
+  scopes,
 };
