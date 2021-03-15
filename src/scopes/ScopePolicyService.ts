@@ -7,7 +7,7 @@ import { PersonExcluders } from '../person/person.controller';
 import { GroupExcluders } from '../group/organizationGroup/organizationGroup.controller';
 import scopeRulesConfig from '../config/scopeRules';
 
-type RulesConfig = {
+export type PolicyConfig = {
   person?: {
     transformers?: TransformerConfig[],
     filters?: FilterConfig[]
@@ -18,59 +18,59 @@ type RulesConfig = {
   },
 };
 
-type ScopeRuleMap = {
+export type ScopePolicyMap = {
   [k: string]: string[]
 };
 
-export class ScopeRulesService {
+export class ScopePolicyService {
   private personTransformers: TransformerStore<IPerson>;
   private personFilters: QueryFilterStore<PersonExcluders>;
   private groupTransformers: TransformerStore<IOrganizationGroup>;
   private groupFilters: QueryFilterStore<GroupExcluders>;
-  private scopeRuleMap: ScopeRuleMap;
+  private scopePolicyMap: ScopePolicyMap;
 
-  constructor(rules: RulesConfig, scopeRuleMap: ScopeRuleMap) {
-    const { transformers: gTransformers = [], filters: gFilters = [] } = rules.organizationGroup;
-    const { transformers: pTransformers = [], filters: pFilters = [] } = rules.person;
+  constructor(policies: PolicyConfig, scopePolicyMap: ScopePolicyMap) {
+    const { transformers: gTransformers = [], filters: gFilters = [] } = (policies.organizationGroup || {});
+    const { transformers: pTransformers = [], filters: pFilters = [] } = (policies.person || {});
 
     this.groupFilters = new QueryFilterStore(gFilters);
     this.groupTransformers = new TransformerStore(gTransformers);
     this.personFilters = new QueryFilterStore(pFilters);
     this.personTransformers = new TransformerStore(pTransformers);
-    this.scopeRuleMap = scopeRuleMap;
+    this.scopePolicyMap = scopePolicyMap;
   }
 
-  applyPersonTransform(person: IPerson, scope: string) {
+  applyPersonTransform = (person: IPerson, scope: string) => {
     return this.applyTransform(person, 'person', scope) as Partial<IPerson>;
   }
 
-  applyGroupTransform(group: IPerson, scope: string) {
+  applyGroupTransform = (group: IPerson, scope: string) => {
     return this.applyTransform(group, 'organizationGroup', scope) as Partial<IOrganizationGroup>;
   }
 
-  getPersonFilter(scope: string) {
+  getPersonFilter = (scope: string) => {
     return QueryFilter.combine(
-      ...(this.scopeRuleMap[scope] || [])
+      ...(this.scopePolicyMap[scope] || [])
       .map(this.personFilters.getFilter)
       .filter(_ => !!_)
     );
   }
 
-  getGroupFilter(scope: string) {
+  getGroupFilter = (scope: string) => {
     return QueryFilter.combine(
-      ...(this.scopeRuleMap[scope] || [])
+      ...(this.scopePolicyMap[scope] || [])
       .map(this.groupFilters.getFilter)
       .filter(_ => !!_)
     );
   }
 
-  private applyTransform(
+  private applyTransform = (
     entity: IPerson | IOrganizationGroup, 
     entityName: 'person' | 'organizationGroup',
     scope: string
-  ) {
+  ) => {
     const tStore = entityName === 'person' ? this.personTransformers : this.groupTransformers;
-    const transformers = (this.scopeRuleMap[scope] || [])
+    const transformers = (this.scopePolicyMap[scope] || [])
       .map(name => tStore.getTransformer(name))
       .filter(transformer => !!transformer);
     let copy: Partial<IPerson> | Partial<IOrganizationGroup> = { ...entity };
@@ -81,4 +81,4 @@ export class ScopeRulesService {
   }
 }
 
-export default new ScopeRulesService(scopeRulesConfig.rules, scopeRulesConfig.scopes);
+export default new ScopePolicyService(scopeRulesConfig.rules, scopeRulesConfig.scopes);
