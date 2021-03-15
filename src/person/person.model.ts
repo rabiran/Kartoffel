@@ -12,10 +12,6 @@ const SEX_VALUES = [consts.SEX.Male, consts.SEX.Female];
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const schemaOptions = {
-  toObject: {
-    virtuals: true,
-    versionKey: false,
-  },
   toJSON: {
     virtuals: true,
     versionKey:false,
@@ -196,14 +192,41 @@ export const PersonSchema = new mongoose.Schema(
     birthDate: {
       type: Date,
     },
+    hierarchyPath: {
+      type: [String],
+      default: undefined,
+    },
   },
-  schemaOptions
+  {
+    ...schemaOptions,
+    toObject: {
+      virtuals: true,
+      versionKey: false,
+      transform:  (doc, ret, options) => {
+        const { hierarchyPath, ...rest } = ret;
+        return rest;
+      },
+    },
+  }
 );
 
 PersonSchema.set('timestamps', true);
 
 PersonSchema.virtual('fullName').get(function () {
   return [this.firstName, this.lastName].filter(s => s).join(' ');
+});
+
+PersonSchema.pre('findOneAndUpdate', function () {
+  const hierarchy : string[] = (this as any).get('hierarchy');
+  const hierarchyPath : string[] = [];
+
+  if (hierarchy) {
+    hierarchy.forEach((elem: string, index: number) => {
+      hierarchyPath[index] = hierarchy.slice(index).join('/');
+    });
+  }
+
+  (this as any).set('hierarchyPath', hierarchyPath);
 });
 
 registerErrorHandlingHooks(PersonSchema);
