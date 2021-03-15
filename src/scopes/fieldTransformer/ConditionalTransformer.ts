@@ -23,7 +23,7 @@ implements ConditionalTransform<T> {
     private conditions: Condition[]
   ) {}
 
-  apply(source: T) {
+  apply = (source: T) => {
     const filtered = getByPath(source, this.arrayPath)
       .filter((item: any) => !Condition.and(item, ...this.conditions));
     const copy = { ...source };
@@ -39,7 +39,7 @@ export class ArrayMapper<T, U> implements ConditionalTransform<T> {
     private transformer: ConditionalTransform<U>
   ) {}
 
-  apply(source: T) {
+  apply = (source: T) => {
     if (Condition.and(source, ...this.conditions)) {
       const copy = { ...source };
       const transformed = getByPath(source, this.arrayPath)
@@ -57,7 +57,7 @@ export class FieldExclude<T> implements ConditionalTransform<T> {
     private conditions: Condition<T>[] = []
   ) {}
 
-  apply(source: T) {
+  apply = (source: T) => {
     if (Condition.and(source, ...this.conditions)) {
       const copy = { ...source };
       deleteByPath(copy, this.fieldPath);

@@ -15,17 +15,17 @@ export class QueryFilterStore<T extends Filter> {
     this.initialize(initialFilters);
   }
 
-  addFilter(config: FilterConfig) {
+  addFilter = (config: FilterConfig) => {
     const { name, field } = config;
     const values = (Array.isArray(config.values) ? config.values : [config.values]) as T[keyof T];
     this.filterMap.set(name, new QueryFilter<T, keyof T>(field, values));
   }
 
-  getFilter(name: string) {
+  getFilter = (name: string) =>  {
     return this.filterMap.get(name);
   }
 
-  private initialize(filters: FilterConfig[]) {
+  private initialize = (filters: FilterConfig[]) => {
     for (const config of filters) {
       this.addFilter(config);
     }

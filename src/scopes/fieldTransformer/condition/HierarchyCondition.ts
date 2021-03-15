@@ -11,7 +11,7 @@ export class HierarchyCondition extends Condition {
     this.hierarchiesToCheck = hierarchiesToCheck;
   }
 
-  check(source: any) {
+  check = (source: any) => {
     const hierarchyField = getByPath(source, this.fieldPath);
     let hierarchyString = '';
     if (Array.isArray(hierarchyField)) {

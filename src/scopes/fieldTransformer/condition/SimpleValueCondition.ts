@@ -11,7 +11,7 @@ export class SimpleValueCondition extends Condition {
     this.value = value;
   }
 
-  check(source: any) {
+  check = (source: any) => {
     return getByPath(source, this.fieldPath) === this.value;
   }
 }
