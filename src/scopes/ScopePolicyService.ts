@@ -44,7 +44,7 @@ export class ScopePolicyService {
     return this.applyTransform(person, 'person', scope) as Partial<IPerson>;
   }
 
-  applyGroupTransform = (group: IPerson, scope: string) => {
+  applyGroupTransform = (group: IOrganizationGroup, scope: string) => {
     return this.applyTransform(group, 'organizationGroup', scope) as Partial<IOrganizationGroup>;
   }
 
