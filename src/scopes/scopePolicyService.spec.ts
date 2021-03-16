@@ -1,6 +1,7 @@
 import * as chai from 'chai';
 import { ScopePolicyService, PolicyConfig, ScopePolicyMap } from './ScopePolicyService';
 import { IPerson } from '../person/person.interface';
+import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 
 const expect = chai.expect;
 
@@ -66,12 +67,35 @@ const policyConfig: PolicyConfig = {
       },
     ],
   },
+  organizationGroup: {
+    transformers: [
+      {
+        name: 'remove_AB_exact_hierarchy',
+        className: 'FieldExclude',
+        targetField: 'hierarchy',
+        conditions: [
+          {
+            className: 'HierarchyCondition',
+            field: 'hierarchy',
+            value: ['a'],
+          },
+          {
+            className: 'SimpleValueCondition',
+            field: 'name',
+            value: 'b',
+          },
+        ],
+
+      },
+    ],
+  },
 };
 
 const scopePolicyMap: ScopePolicyMap = {
   scope1: ['remove_AB_hierarchy', 'filter_CT_users'],
   scope2: ['remove_ES_users_adfsUID'],
   scope3: ['exclude_AB_hierarchy', 'exclude_high_rank', 'exclude_AD_hierarchy'],
+  scope4: ['remove_AB_exact_hierarchy'],
 };
 
 const person_with_AB_hierarchy_and_CT_user: IPerson = {
@@ -118,16 +142,28 @@ const person_with_AC_hierarchy = {
   ],
 };
 
+const group_AB: IOrganizationGroup = {
+  name: 'b',
+  hierarchy: ['a'],
+  createdAt: new Date(),
+};
+
+const group_AC: IOrganizationGroup = {
+  name: 'c',
+  hierarchy: ['a'],
+  createdAt: new Date(),
+};
+
 const scopePolicyService = new ScopePolicyService(policyConfig, scopePolicyMap);
 
 describe.only('ScopeRulesService class',() => {
-  it('should perform person transformation correctly (1)', () => {
+  it('should perform person transformation correctly (exclude field and filter array)', () => {
     const result = scopePolicyService.applyPersonTransform(person_with_AB_hierarchy_and_CT_user, 'scope1');
     expect(result.hierarchy).to.not.exist;
     expect(result.domainUsers).to.be.an('array').with.lengthOf(2);
   });
 
-  it('should perform person transformation correctly (2)', () => {
+  it('should perform person transformation correctly (array mapper)', () => {
     const result = scopePolicyService.applyPersonTransform(person_with_AB_hierarchy_and_CT_user, 'scope2');
     expect(result.domainUsers).to.be.an('array').with.lengthOf(3);
     for (const user of result.domainUsers) {
@@ -138,10 +174,20 @@ describe.only('ScopeRulesService class',() => {
       }
     }
   });
+  it('should perform group transformation correctly (exclude field with multiple conditions)', () => {
+    const result = scopePolicyService.applyGroupTransform(group_AB, 'scope4');
+    expect(result).to.exist;
+    expect(result.hierarchy).to.not.exist;
+  });
   it('should not change the person', () => {
     const result = scopePolicyService.applyPersonTransform(person_with_AC_hierarchy, 'scope1');
     expect(result.hierarchy).to.exist;
     expect(result.domainUsers).to.be.an('array').with.lengthOf(1);
+  });
+  it('should not change the group (multiple conditions)', () => {
+    const result = scopePolicyService.applyGroupTransform(group_AC, 'scope4');
+    expect(result).to.exist;
+    expect(result.hierarchy).to.exist;
   });
   it('should return the correct combined filter', () => {
     const combinedFilter = scopePolicyService.getPersonFilter('scope3');
