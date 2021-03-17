@@ -11,17 +11,18 @@ const SEX_VALUES = [consts.SEX.Male, consts.SEX.Female];
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const schemaOptions = {
-  toJSON: {
-    virtuals: true,
-    versionKey:false,
-  },
-  collation: {
-    locale:'en',
-    strength: 1,
-  },
-};
+const addHierarchyPath = function () {
+  const hierarchy : string[] = (this as any).get('hierarchy');
+  const hierarchyPath : string[] = [];
 
+  if (hierarchy) {
+    hierarchy.forEach((elem: string, index: number) => {
+      hierarchyPath[index] = hierarchy.slice(0, index + 1).join('/');
+    });
+  }
+
+  (this as any).set('hierarchyPath', hierarchyPath);
+};
 
 const DomainUserSchema = new mongoose.Schema(
   {
@@ -198,7 +199,14 @@ export const PersonSchema = new mongoose.Schema(
     },
   },
   {
-    ...schemaOptions,
+    toJSON: {
+      virtuals: true,
+      versionKey:false,
+    },
+    collation: {
+      locale:'en',
+      strength: 1,
+    },
     toObject: {
       virtuals: true,
       versionKey: false,
@@ -216,18 +224,8 @@ PersonSchema.virtual('fullName').get(function () {
   return [this.firstName, this.lastName].filter(s => s).join(' ');
 });
 
-PersonSchema.pre('findOneAndUpdate', function () {
-  const hierarchy : string[] = (this as any).get('hierarchy');
-  const hierarchyPath : string[] = [];
-
-  if (hierarchy) {
-    hierarchy.forEach((elem: string, index: number) => {
-      hierarchyPath[index] = hierarchy.slice(0, index + 1).join('/');
-    });
-  }
-
-  (this as any).set('hierarchyPath', hierarchyPath);
-});
+PersonSchema.pre('findOneAndUpdate', addHierarchyPath);
+PersonSchema.pre('save', addHierarchyPath);
 
 registerErrorHandlingHooks(PersonSchema);
 
