@@ -203,8 +203,9 @@ export const PersonSchema = new mongoose.Schema(
       virtuals: true,
       versionKey: false,
       transform:  (doc, ret, options) => {
-        const { hierarchyPath, ...rest } = ret;
-        return rest;
+        // const { hierarchyPath, ...rest } = ret;
+        // return rest;
+        return ret;
       },
     },
   }
@@ -222,7 +223,7 @@ PersonSchema.pre('findOneAndUpdate', function () {
 
   if (hierarchy) {
     hierarchy.forEach((elem: string, index: number) => {
-      hierarchyPath[index] = hierarchy.slice(index).join('/');
+      hierarchyPath[index] = hierarchy.slice(0, index + 1).join('/');
     });
   }
 
