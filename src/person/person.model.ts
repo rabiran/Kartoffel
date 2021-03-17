@@ -203,9 +203,8 @@ export const PersonSchema = new mongoose.Schema(
       virtuals: true,
       versionKey: false,
       transform:  (doc, ret, options) => {
-        // const { hierarchyPath, ...rest } = ret;
-        // return rest;
-        return ret;
+        const { hierarchyPath, ...rest } = ret;
+        return rest;
       },
     },
   }
