@@ -2,93 +2,94 @@ import * as chai from 'chai';
 import { ScopePolicyService, PolicyConfig, ScopePolicyMap } from './ScopePolicyService';
 import { IPerson } from '../person/person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
+import { PersonExcluderQuery } from '../person/person.excluder.query';
+import { GroupExcluderQuery } from '../group/organizationGroup/organizationGroup.excluder.query';
 
 const expect = chai.expect;
 
-const policyConfig: PolicyConfig = {
-  person: {
-    transformers: [
-      {
-        name: 'remove_AB_hierarchy',
+const personPolicy: PolicyConfig = {
+  transformers: [
+    {
+      name: 'remove_AB_hierarchy',
+      className: 'FieldExclude',
+      targetField: 'hierarchy',
+      conditions: [
+        {
+          className: 'HierarchyCondition',
+          field: 'hierarchy',
+          value: ['a/b'],
+        },
+      ],
+    },
+    {
+      name: 'filter_CT_users',
+      className: 'ArrayFilter',
+      targetField: 'domainUsers',
+      conditions: [
+        {
+          className: 'SimpleValueCondition',
+          field: 'dataSource',
+          value: 'ct',
+        },
+      ],
+    },
+    {
+      name: 'remove_ES_users_adfsUID',
+      className: 'ArrayMapper',
+      targetField: 'domainUsers',
+      transformer: {
         className: 'FieldExclude',
-        targetField: 'hierarchy',
-        conditions: [
-          {
-            className: 'HierarchyCondition',
-            field: 'hierarchy',
-            value: ['a/b'],
-          },
-        ],
-      },
-      {
-        name: 'filter_CT_users',
-        className: 'ArrayFilter',
-        targetField: 'domainUsers',
+        targetField: 'adfsUID',
         conditions: [
           {
             className: 'SimpleValueCondition',
             field: 'dataSource',
-            value: 'ct',
+            value: 'es',
           },
         ],
       },
-      {
-        name: 'remove_ES_users_adfsUID',
-        className: 'ArrayMapper',
-        targetField: 'domainUsers',
-        transformer: {
-          className: 'FieldExclude',
-          targetField: 'adfsUID',
-          conditions: [
-            {
-              className: 'SimpleValueCondition',
-              field: 'dataSource',
-              value: 'es',
-            },
-          ],
-        },
-      },
-    ],
-    filters: [
-      {
-        name: 'exclude_AB_hierarchy',
-        field: 'hierarchy',
-        values: ['a/b'],
-      },
-      {
-        name: 'exclude_AD_hierarchy',
-        field: 'hierarchy',
-        values: ['a/d'],
-      },
-      {
-        name: 'exclude_high_rank',
-        field: 'rank',
-        values: ['mega', 'ultimate'],
-      },
-    ],
-  },
-  organizationGroup: {
-    transformers: [
-      {
-        name: 'remove_AB_exact_hierarchy',
-        className: 'FieldExclude',
-        targetField: 'hierarchy',
-        conditions: [
-          {
-            className: 'HierarchyCondition',
-            field: 'hierarchy',
-            value: ['a'],
-          },
-          {
-            className: 'SimpleValueCondition',
-            field: 'name',
-            value: 'b',
-          },
-        ],
+    },
+  ],
+  filters: [
+    {
+      name: 'exclude_AB_hierarchy',
+      field: 'hierarchy',
+      values: ['a/b'],
+    },
+    {
+      name: 'exclude_AD_hierarchy',
+      field: 'hierarchy',
+      values: ['a/d'],
+    },
+    {
+      name: 'exclude_high_rank',
+      field: 'rank',
+      values: ['mega', 'ultimate'],
+    },
+  ],
+};
 
-      },
-    ],
-  },
+const groupPolicy: PolicyConfig = {
+  transformers: [
+    {
+      name: 'remove_AB_exact_hierarchy',
+      className: 'FieldExclude',
+      targetField: 'hierarchy',
+      conditions: [
+        {
+          className: 'HierarchyCondition',
+          field: 'hierarchy',
+          value: ['a'],
+        },
+        {
+          className: 'SimpleValueCondition',
+          field: 'name',
+          value: 'b',
+        },
+      ],
+
+    },
+  ],
 };
 
 const scopePolicyMap: ScopePolicyMap = {
@@ -154,17 +155,19 @@ const group_AC: IOrganizationGroup = {
   createdAt: new Date(),
 };
 
-const scopePolicyService = new ScopePolicyService(policyConfig, scopePolicyMap);
+const personScopePolicyService = new ScopePolicyService<IPerson, PersonExcluderQuery>(personPolicy, scopePolicyMap);
+const groupScopePolicyService = new ScopePolicyService<IOrganizationGroup, GroupExcluderQuery>(groupPolicy, scopePolicyMap);
 
-describe.only('ScopeRulesService class',() => {
+
+describe.only('ScopePolicyService class',() => {
   it('should perform person transformation correctly (exclude field and filter array)', () => {
-    const result = scopePolicyService.applyPersonTransform(person_with_AB_hierarchy_and_CT_user, 'scope1');
+    const result = personScopePolicyService.applyTransform(person_with_AB_hierarchy_and_CT_user, 'scope1');
     expect(result.hierarchy).to.not.exist;
     expect(result.domainUsers).to.be.an('array').with.lengthOf(2);
   });
 
   it('should perform person transformation correctly (array mapper)', () => {
-    const result = scopePolicyService.applyPersonTransform(person_with_AB_hierarchy_and_CT_user, 'scope2');
+    const result = personScopePolicyService.applyTransform(person_with_AB_hierarchy_and_CT_user, 'scope2');
     expect(result.domainUsers).to.be.an('array').with.lengthOf(3);
     for (const user of result.domainUsers) {
       if (user.dataSource === 'es') {
@@ -175,22 +178,22 @@ describe.only('ScopeRulesService class',() => {
     }
   });
   it('should perform group transformation correctly (exclude field with multiple conditions)', () => {
-    const result = scopePolicyService.applyGroupTransform(group_AB, 'scope4');
+    const result = groupScopePolicyService.applyTransform(group_AB, 'scope4');
     expect(result).to.exist;
     expect(result.hierarchy).to.not.exist;
   });
   it('should not change the person', () => {
-    const result = scopePolicyService.applyPersonTransform(person_with_AC_hierarchy, 'scope1');
+    const result = personScopePolicyService.applyTransform(person_with_AC_hierarchy, 'scope1');
     expect(result.hierarchy).to.exist;
     expect(result.domainUsers).to.be.an('array').with.lengthOf(1);
   });
   it('should not change the group (multiple conditions)', () => {
-    const result = scopePolicyService.applyGroupTransform(group_AC, 'scope4');
+    const result = groupScopePolicyService.applyTransform(group_AC, 'scope4');
     expect(result).to.exist;
     expect(result.hierarchy).to.exist;
   });
   it('should return the correct combined filter', () => {
-    const combinedFilter = scopePolicyService.getPersonFilter('scope3');
+    const combinedFilter = personScopePolicyService.getQueryFilter('scope3');
     expect(combinedFilter.rank).to.be.an('array').with.lengthOf(2);
     expect(combinedFilter.hierarchy).to.be.an('array').with.lengthOf(2);
     expect(combinedFilter.currentUnit).to.not.exist;
