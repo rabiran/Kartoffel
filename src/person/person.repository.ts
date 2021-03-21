@@ -5,14 +5,33 @@ import * as _ from 'lodash';
 import { Types } from 'mongoose';
 import  * as consts  from '../config/db-enums';
 import { config } from '../config/config';
+import { PersonExcluderQuery } from './person.excluder.query';
+import { query } from 'winston';
 
 export class PersonRepository extends RepositoryBase<IPerson> {
   constructor() {
     super(Person);
   }
 
-  getMembersOfGroups(organizationGroupsIDS: string[]): Promise<IPerson[]> {
-    return this.find({ directGroup: { $in: organizationGroupsIDS } });
+  private buildExcluderQuery(excluderQuery: Partial<PersonExcluderQuery>) {
+    const { hierarchy: hierarchyPath = null, ...rest } = excluderQuery || {};
+    return {
+      ...!!hierarchyPath && { hierarchyPath },
+      ...rest,
+    };
+  }
+
+  getMembersOfGroups(
+    organizationGroupsIDS: string[], 
+    excluderQuery: Partial<PersonExcluderQuery> = {}
+  ): Promise<IPerson[]> {
+    const fullExcluderQuery = this.queryParser(this.buildExcluderQuery(excluderQuery));
+    return this.find({
+      $and: [
+        { directGroup: { $in: organizationGroupsIDS } },
+        { ...fullExcluderQuery },
+      ]}
+    );
   }
 
   findByDomainUser(domainUser: IDomainUserIdentifier, populate?: any, select?: any): Promise<IPerson> {
@@ -99,6 +118,39 @@ export class PersonRepository extends RepositoryBase<IPerson> {
       .then(res => res ? res.toObject() : res);
   }
 
+  
+
+  async findByFilter(
+    queryObj: any, 
+    excluderQuery?: Partial<PersonExcluderQuery>, 
+    populate?: string | Object, 
+    select?: string
+  ): Promise<IPerson[]> {
+    const notInQuery = this.buildExcluderQuery(excluderQuery);
+    return this.find({
+      $and:[
+        { ...this.queryParser(queryObj) },
+        { ...this.queryParser(notInQuery, true) },
+      ]}, populate, select);
+  }
+
+  async getUpdatedFrom(
+    from: Date,
+    to: Date,
+    queryObj: any = {},
+    excluderQuery: Partial<PersonExcluderQuery> = {}
+  ) {
+    const fullExcluderQuery = this.queryParser(this.buildExcluderQuery(excluderQuery));
+    return this.find({
+      $and: [
+        { 
+          ...this.updatedFromQuery(from, to), 
+          ...this.queryParser(queryObj),
+        },
+        { ...fullExcluderQuery },
+      ]});
+  }
+
   /**
    * Returns the raw (unfiltered) 'pictures' field of a person.
    * @param personIdentifier personalNumber or identityCard or id
@@ -122,4 +174,6 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     const rawPerson = await query.select('pictures').exec() as any;
     return rawPerson.pictures || {};
   }
+
 }
+
