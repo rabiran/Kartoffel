@@ -6,29 +6,44 @@ import { Person } from './person.controller';
 import { validatorMiddleware, RouteParamsValidate as Vld } from '../helpers/route.validator';
 import { atCreateFieldCheck, atUpdateFieldCheck } from './person.route.validator';
 import { extractFilters, extractSearchQuery } from './person.extractQuery';
+import { 
+  extractor as scopePolicyExtractor, 
+  postTransformer as scopePolicyResultTransformer 
+} from './scopePolicy';
 
 const persons = Router();
 
-persons.use('/', AuthMiddleware.verifyToken, PermissionMiddleware.hasBasicPermission);
-
-persons.get('/', ch(Person.getPersons, (req: Request) => {
-  const { underGroupId, ...filters } = extractFilters(req.query);
-  return [filters];
-}));
-
-persons.get('/search', ch(Person.searchPersonsByName, 
-  (req: Request) => [extractSearchQuery(req.query)])
-);
-
-persons.get('/getUpdated/:from',  
-  validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
-  ch(Person.getUpdatedFrom, (req: Request) => {
-    let from = req.params.from;
-    if (typeof(from) === 'number') from = new Date(from);
+persons.get('/', ch(
+  Person.getPersons, 
+  (req: Request) => {
     const { underGroupId, ...filters } = extractFilters(req.query);
-    return [from, new Date(), filters];
-  }
+    return [filters];
+  },
+  scopePolicyExtractor,
+  scopePolicyResultTransformer
 ));
+
+persons.get('/search', ch(
+  Person.searchPersonsByName, 
+  (req: Request) => [extractSearchQuery(req.query)],
+  scopePolicyExtractor,
+  scopePolicyResultTransformer
+));
+
+persons.get('/getUpdated/:from', 
+  validatorMiddleware(Vld.dateOrInt, ['from'], 'params'), 
+  ch(
+    Person.getUpdatedFrom, 
+    (req: Request) => {
+      let from = req.params.from;
+      if (typeof(from) === 'number') from = new Date(from);
+      const { underGroupId, ...filters } = extractFilters(req.query);
+      return [from, new Date(), filters];
+    },
+    scopePolicyExtractor,
+    scopePolicyResultTransformer
+  )
+);
 
 persons.post('/', PermissionMiddleware.hasAdvancedPermission,
            validatorMiddleware(atCreateFieldCheck),
@@ -50,26 +65,42 @@ persons.delete('/:id/domainUsers/:uniqueID', PermissionMiddleware.hasAdvancedPer
               [req.params.id, req.params.uniqueID]));
 
 persons.get('/:id', 
-            validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
-            ch(Person.getPersonByIdWithFilter, (req: Request) => [req.params.id]));
+  validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
+  ch(Person.getPersonByIdWithFilter, (req: Request) => [req.params.id], null, scopePolicyResultTransformer)
+);
 
-persons.get('/identifier/:identityValue', ch(Person.getPersonByIdentifier, (req: Request) => 
-  [['personalNumber', 'identityCard'], req.params.identityValue]
+persons.get('/identifier/:identityValue', ch(
+  Person.getPersonByIdentifier, 
+  (req: Request) => [['personalNumber', 'identityCard'], req.params.identityValue],
+  null,
+  scopePolicyResultTransformer
 ));
 
-persons.get('/personalNumber/:personalNumber', ch(Person.getPerson, (req: Request) => 
-  ['personalNumber', req.params.personalNumber]
+persons.get('/personalNumber/:personalNumber', ch(
+  Person.getPerson, 
+  (req: Request) => ['personalNumber', req.params.personalNumber],
+  null,
+  scopePolicyResultTransformer
 ));
 
-persons.get('/identityCard/:identityCard', ch(Person.getPerson, (req: Request) => 
-  ['identityCard', req.params.identityCard]
+persons.get('/identityCard/:identityCard', ch(
+  Person.getPerson, (req: Request) => ['identityCard', req.params.identityCard],
+  null,
+  scopePolicyResultTransformer
 ));
 
-persons.get('/:identifier/pictures/profile',
-  sh(Person.getPictureStream, (req: Request) => [req.params.identifier]));
+persons.get('/:identifier/pictures/profile', sh(
+  Person.getPictureStream, 
+  (req: Request) => [req.params.identifier],
+  scopePolicyExtractor
+));
 
-persons.get('/domainUser/:domainUser', 
-  ch(Person.getByDomainUser, (req: Request) => [req.params.domainUser]));
+persons.get('/domainUser/:domainUser', ch(
+  Person.getByDomainUser, 
+  (req: Request) => [req.params.domainUser],
+  scopePolicyExtractor,
+  scopePolicyResultTransformer
+));
 
 persons.delete('/:id', PermissionMiddleware.hasAdvancedPermission, 
   validatorMiddleware(Vld.validMongoId, ['id'], 'params'),
