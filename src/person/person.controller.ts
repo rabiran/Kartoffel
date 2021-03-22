@@ -15,6 +15,7 @@ import personElasticRepo from './person.elasticSearchRepository';
 import { PictureStreamService } from '../picture/pictureStreamService.interface';
 import MinioStreamService from '../minio/MinioStreamService';
 import { StreamResponse } from '../helpers/controller.helper';
+import PersonExcluderQuery from './person.excluder.query';
 
 export type PersonFilters = {
   currentUnit: string | string[];
@@ -35,7 +36,7 @@ export type PersonSearchQuery = PersonFilters & {
 export class Person {
   static _personRepository: PersonRepository = new PersonRepository();
   _personService: PersonRepository;
-  static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
+  // static _organizationGroupRepository: OrganizationGroupRepository = new OrganizationGroupRepository();
   static _personTextSearch: PersonTextSearch = personElasticRepo;
   static _pictureStreamService : PictureStreamService = MinioStreamService;
 
@@ -43,8 +44,9 @@ export class Person {
     this._personService = new PersonRepository();
   }
 
-  static async getPersons(query?: any): Promise<IPerson[]> {
-    const persons: IPerson[] = await Person._personRepository.findByQuery(query || {});
+  // todo: many
+  static async getPersons(query?: any, excluderQuery?: PersonExcluderQuery): Promise<IPerson[]> {
+    const persons: IPerson[] = await Person._personRepository.findByFilter(query || {}, excluderQuery);
     if (!persons) throw new ResourceNotFoundError('An unexpected error occurred while fetching people');
     return persons;
   }
@@ -87,7 +89,14 @@ export class Person {
     if (!person) throw new ResourceNotFoundError(`Cannot find person with identityValue: '${identityValue}'`);
     return person;
   }
-  static async getUpdatedFrom(from: Date, to: Date, query: object = {}) {
+
+  // todo: many
+  static async getUpdatedFrom(
+    from: Date, 
+    to: Date, 
+    query: object = {},
+    excluderQuery?: PersonExcluderQuery
+  ) {
     const persons = await Person._personRepository.getUpdatedFrom(from, to, query);
     return <IPerson[]>persons;
   }

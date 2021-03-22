@@ -8,6 +8,8 @@ import { sortObjectsByIDArray, promiseAllWithFails, asyncForEach } from '../../u
 import { ValidationError, ResourceNotFoundError } from '../../types/error';
 import { OrganizationGroupTextSearch } from './organizationGroup.textSearch';
 import organizationGroupElasticRepository from './organizationGroup.elasticSearchRepository';
+import { GroupExcluderQuery } from './organizationGroup.excluder.query';
+import { PersonExcluderQuery } from '../../person/person.excluder.query';
 
 export type GroupFilters = {
   underGroupId: string,
@@ -24,10 +26,11 @@ export class OrganizationGroup {
   static _personRepository: PersonRepository = new PersonRepository();
   static _organizationGroupTextSearch: OrganizationGroupTextSearch = organizationGroupElasticRepository;
 
-  static async getOrganizationGroups(query?: any): Promise<IOrganizationGroup[]> {
+  // todo: many
+  static async getOrganizationGroups(query?: any, excluderQuery?: Partial<GroupExcluderQuery>): Promise<IOrganizationGroup[]> {
     const cond = {};
     if (!(query && query.alsoDead && query.alsoDead === 'true')) cond['isAlive'] = 'true'; 
-    const organizationGroups = await OrganizationGroup._organizationGroupRepository.find(cond);
+    const organizationGroups = await OrganizationGroup._organizationGroupRepository.findByFilter(cond, excluderQuery);
     return _.flatMap(<IOrganizationGroup[]>organizationGroups, group => <IOrganizationGroup>modifyOrganizationGroupBeforeSend(group, []));
   }
 
@@ -157,8 +160,9 @@ export class OrganizationGroup {
     return <IOrganizationGroup>modifyOrganizationGroupBeforeSend(organizationGroup, toPopulate);
   }
 
-  static async getUpdatedFrom(from: Date, to: Date) {
-    const groups = await OrganizationGroup._organizationGroupRepository.getUpdatedFrom(from, to);
+  // todo: many
+  static async getUpdatedFrom(from: Date, to: Date, excluderQuery?: Partial<GroupExcluderQuery>) {
+    const groups = await OrganizationGroup._organizationGroupRepository.getUpdatedFrom(from, to, null, excluderQuery);
     return <IOrganizationGroup[]>groups;
   }
 
@@ -332,6 +336,7 @@ export class OrganizationGroup {
    * @param organizationGroupID ID of group
    * @param cond Condition of query
    */
+  // todo: many. used only in create
   private static async getAncestors(organizationGroupID: string, cond: Object = {}): Promise<IOrganizationGroup[]> {
     const organizationGroup = await OrganizationGroup.getOrganizationGroup(organizationGroupID);
     if (!organizationGroup.ancestors) return [];
@@ -350,13 +355,14 @@ export class OrganizationGroup {
     return parent.hierarchy;
   }
 
-  static async getAllMembers(groupID: string): Promise<IPerson[]> {
+  // todo: many
+  static async getAllMembers(groupID: string, excluderQuery?: Partial<PersonExcluderQuery>): Promise<IPerson[]> {
     // check that this group exists
     await OrganizationGroup.getOrganizationGroup(groupID);
     const offsprings = await OrganizationGroup._organizationGroupRepository.getOffspringsIds(groupID);
     const offspringIDs = offsprings.map(offspring => offspring.id);
     offspringIDs.push(groupID);
-    const members = <IPerson[]>await OrganizationGroup._personRepository.getMembersOfGroups(offspringIDs);
+    const members = <IPerson[]>await OrganizationGroup._personRepository.getMembersOfGroups(offspringIDs, excluderQuery);
     return members;
   }
 
@@ -367,8 +373,9 @@ export class OrganizationGroup {
    * @param id 
    * @param maxDepth 
    */
-  static async getOffsprings(id: string, maxDepth?: number) {
-    return OrganizationGroup._organizationGroupRepository.getOffsprings(id, maxDepth);
+  // todo: many
+  static async getOffsprings(id: string, maxDepth?: number, excluderQuery?: Partial<GroupExcluderQuery>) {
+    return OrganizationGroup._organizationGroupRepository.getOffsprings(id, maxDepth, excluderQuery);
   }
 }
 
