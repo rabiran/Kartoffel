@@ -1,6 +1,7 @@
 import { TransformerStore, TransformerConfig } from './fieldTransformer/TransformerStore';
 import { FilterConfig, QueryFilterStore } from './queryFilter/QueryFilterStore';
 import { QueryFilter, Filter } from './queryFilter/QueryFilter';
+import * as _ from 'lodash';
 
 export type PolicyConfig = {
   transformers?: TransformerConfig[];
@@ -24,16 +25,19 @@ export class ScopePolicyService<TEntity, TFilter extends Filter> {
     this.scopePolicyMap = scopePolicyMap;
   }
 
-  getQueryFilter = (scope: string) => {
+  getQueryFilter = (scopes: string | string[]) => {
+    const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
     return QueryFilter.combine(
-      ...(this.scopePolicyMap[scope] || [])
+      ..._.uniq(_.flatMap(scopesArr, (scope:string) => this.scopePolicyMap[scope] || []))
       .map(this.filters.getFilter)
       .filter(_ => !!_)
     );
   }
 
-  applyTransform = (entity: TEntity, scope: string) => {
-    const transformers = (this.scopePolicyMap[scope] || [])
+  applyTransform = (entity: TEntity, scopes: string | string[]) => {
+    const scopesArr = Array.isArray(scopes) ? scopes : [scopes];
+    const transformers = 
+      _.uniq(_.flatMap(scopesArr, (scope: string) => this.scopePolicyMap[scope] || []))
       .map(name => this.transformers.getTransformer(name))
       .filter(transformer => !!transformer);
     let copy: Partial<TEntity> = { ...entity };
