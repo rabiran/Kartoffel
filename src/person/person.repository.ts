@@ -122,7 +122,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
 
   async findByFilter(
     queryObj: any, 
-    excluderQuery?: Partial<PersonExcluderQuery>, 
+    excluderQuery: Partial<PersonExcluderQuery> = {}, 
     populate?: string | Object, 
     select?: string
   ): Promise<IPerson[]> {

@@ -33,7 +33,7 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
 
   async findByFilter(
     queryObj: any, 
-    excluderQuery?: Partial<GroupExcluderQuery>, 
+    excluderQuery: Partial<GroupExcluderQuery> = {}, 
     populate?: string | Object, 
     select?: string
   ): Promise<IOrganizationGroup[]> {
@@ -52,12 +52,11 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
     excluderQuery: Partial<GroupExcluderQuery> = {}
   ) {
     const fullExcluderQuery = this.queryParser(await this.buildExcluderQuery(excluderQuery));
+    const dateQuery = this.updatedFromQuery(from, to);
+    const query = queryObj ? this.queryParser(queryObj) : {};
     return this.find({
       $and: [
-        { 
-          ...this.updatedFromQuery(from, to), 
-          ...this.queryParser(queryObj),
-        },
+        { ...dateQuery, ...query },
         { ...fullExcluderQuery },
       ]});
   }
