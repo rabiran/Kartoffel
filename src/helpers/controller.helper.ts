@@ -7,12 +7,24 @@ import { Readable } from 'stream';
  * Web socket has a similar handler implementation.
  * @param promise Controller Promise. I.e. getPerson.
  * @param params A function (req, res, next), all of which are optional
+ * @param scopePolicyExtractor
+ * @param postTransformer
  * that maps our desired controller parameters. I.e. (req) => [req.params.personname, ...].
  */
-export const controllerHandler = (promise: Function, params: Function) => wa(async (req: Request, res: Response) => {
+export const controllerHandler = (
+  promise: Function, 
+  params: Function,
+  scopePolicyExtractor?: (scopes: string[]) => any,
+  scopePolicyResultTransformer?: (scopes: string[], result: any) => any
+) => wa(async (req: Request, res: Response) => {
   const boundParams = params ? params(req, res) : [];
-  const result = await promise(...boundParams);
-  return res.json(result || { message: 'OK' });
+  const requestScopes = req.user ? req.user.scopes : undefined;
+  const policyParams = scopePolicyExtractor && requestScopes ? 
+    scopePolicyExtractor(req.user.scopes) : undefined;
+  const result = await promise(...boundParams, policyParams);
+  const transformedResult = scopePolicyResultTransformer && requestScopes ? 
+    scopePolicyResultTransformer(requestScopes, result) : result;
+  return res.json(transformedResult || { message: 'OK' });
 });
 
 export type StreamResponse = {
@@ -22,14 +34,18 @@ export type StreamResponse = {
   }
 };
 
-export const streamHandler = (streamProvider: (...args: any[]) => Promise<StreamResponse>, paramsExtractor: Function) => 
+export const streamHandler = (
+  streamProvider: (...args: any[]) => Promise<StreamResponse>, 
+  paramsExtractor: Function,
+  scopePolicyExtractor?: (scopes: string[]) => any
+) => 
   wa(async (req: Request, res: Response) => {
     const boundParams = paramsExtractor ? paramsExtractor(req) : [];
-    const { stream, metaData } = await streamProvider(...boundParams);
+    const policyParams = scopePolicyExtractor && req.user && req.user.scopes ? 
+    scopePolicyExtractor(req.user.scopes) : undefined;
+    const { stream, metaData } = await streamProvider(...boundParams, policyParams);
     if (!!metaData && !!metaData.contentType) {
       res.contentType(metaData.contentType);
     }
     return stream.pipe(res);
   });
-
-
