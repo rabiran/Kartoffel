@@ -159,7 +159,7 @@ const personScopePolicyService = new ScopePolicyService<IPerson, PersonExcluderQ
 const groupScopePolicyService = new ScopePolicyService<IOrganizationGroup, GroupExcluderQuery>(groupPolicy, scopePolicyMap);
 
 
-describe.only('ScopePolicyService class',() => {
+describe('ScopePolicyService class',() => {
   it('should perform person transformation correctly (exclude field and filter array)', () => {
     const result = personScopePolicyService.applyTransform(person_with_AB_hierarchy_and_CT_user, 'scope1');
     expect(result.hierarchy).to.not.exist;
