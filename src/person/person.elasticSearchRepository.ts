@@ -6,6 +6,7 @@ import { Client } from '@elastic/elasticsearch';
 import { config } from '../config/config';
 import { DomainSeperator, domainMap } from '../utils';
 import Omit from 'Omit';
+import { PersonExcluderQuery } from './person.excluder.query';
 
 type PersonSource = Omit<IPerson, 'pictures'> & {
   hierarchyPath: string;
@@ -27,20 +28,31 @@ implements PersonTextSearch {
     super(indexName, elasticClient, queryConfig);
   }
 
-  async searchByFullName(fullName: string, filters?: Partial<PersonFilters>) {
-    const query = {
-      fullName,
-      ...filters,
+  async searchByFullName(
+    fullName: string, 
+    filters?: Partial<PersonFilters>,
+    excluderQuery?: Partial<PersonExcluderQuery>
+  ) {
+    const query = { fullName, ...filters };
+    const fieldMapping = {
+      fullName: {
+        context: FieldContext.Query,
+        fuzzy: true,
+      },
     };
+    const mustNotQuery = this.buildMustNotQuery(excluderQuery || {});
     return (await this.search(
-      QueryBuilder.buildBoolQuery(query, {
-        fullName: {
-          context: FieldContext.Query,
-          fuzzy: true,
-        },
-      })
+      QueryBuilder.buildBoolQuery(query, fieldMapping ,mustNotQuery)
     ))
     .map(this.transformPersonResult);
+  }
+
+  private buildMustNotQuery(excluderQuery: Partial<PersonExcluderQuery>) {
+    const { hierarchy: hierarchyPath = null, ...rest } = excluderQuery;
+    return {
+      ...!!hierarchyPath && { hierarchyPath },
+      ...rest,
+    };
   }
 
   private transformPersonResult(person: PersonSource): IPerson {

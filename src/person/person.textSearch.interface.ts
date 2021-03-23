@@ -1,4 +1,5 @@
 import { IPerson } from './person.interface';
+import { PersonExcluderQuery } from './person.excluder.query';
 
 export type PersonFilters = Partial<{
   status: string | string[];
@@ -10,5 +11,6 @@ export type PersonFilters = Partial<{
 }>;
 
 export interface PersonTextSearch {
-  searchByFullName(fullName: string, filters?: Partial<PersonFilters>): Promise<IPerson[]>;
+  searchByFullName(fullName: string, filters?: Partial<PersonFilters>, 
+    queryExcluder?: Partial<PersonExcluderQuery>): Promise<IPerson[]>;
 }
