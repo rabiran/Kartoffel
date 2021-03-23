@@ -1,4 +1,5 @@
 import { IOrganizationGroup } from './organizationGroup.interface';
+import { GroupExcluderQuery } from './organizationGroup.excluder.query';
 
 export type GroupQuery = {
   name: string,
@@ -11,6 +12,6 @@ export type GroupFilters = {
 };
 
 export interface OrganizationGroupTextSearch {
-  searchByNameAndHierarchy(nameAndHierarchyQuery: Partial<GroupQuery>, filters?: Partial<GroupFilters>)
-    : Promise<IOrganizationGroup[]>;
+  searchByNameAndHierarchy(nameAndHierarchyQuery: Partial<GroupQuery>, filters?: Partial<GroupFilters>, 
+    excluderQuery?: Partial<GroupExcluderQuery>) : Promise<IOrganizationGroup[]>;
 }
