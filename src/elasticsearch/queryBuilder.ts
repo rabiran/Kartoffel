@@ -23,10 +23,11 @@ export class QueryBuilder {
    
    Fields that are not specified in `fieldMapping` will be run in Filter context by default.
    */
-  public static buildBoolQuery(query: object, fieldMapping: FieldContextMap) {
+  public static buildBoolQuery(query: object, fieldMapping: FieldContextMap, mustNotQuery: object = {}) {
     const must: esb.Query[] = [];
     const should: esb.Query[] = [];
     const filter: esb.Query[] = [];
+    const mustNot: esb.Query[] = [];
     for (const [field, val] of Object.entries(query)) {
       const fieldMap = fieldMapping[field];
       if (!!fieldMap && fieldMap.context === FieldContext.Query) {
@@ -49,9 +50,17 @@ export class QueryBuilder {
         filter.push(termQuery);
       }
     }
+    // build must not query
+    for (const [field, val] of Object.entries(mustNotQuery)) {
+      mustNot.push(Array.isArray(val) ? 
+        esb.termsQuery(field, val) : 
+        esb.termQuery(field, val)
+      );
+    }
     return esb.requestBodySearch().query(
       esb.boolQuery()
         .must(must)
+        .mustNot(mustNot)
         .should(should)
         .filter(filter)
     ).toJSON();
