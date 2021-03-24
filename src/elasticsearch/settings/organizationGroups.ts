@@ -3,17 +3,19 @@ import { config } from '../../config/config';
 import { analyzers, tokenizers, prefix_autocomplete_field_settings } from './commonSettings';
 const { indexNames: { organizationGroups: indexName }, fullTextFieldName } = config.elasticSearch;
 
-const { autocomplete, autocomplete_search } = analyzers;
-const { edge_ngram_tokenizer } = tokenizers;
+const { autocomplete, autocomplete_search, path_hierarchy } = analyzers;
+const { edge_ngram_tokenizer, custom_path_hierarchy } = tokenizers;
 
 const settings = {
   analysis: {
     analyzer: {
       autocomplete,
       autocomplete_search,
+      path_hierarchy,
     },
     tokenizer: {
       edge_ngram_tokenizer,
+      custom_path_hierarchy,
     },
   },
 };
@@ -31,6 +33,10 @@ const mappings = {
       fields: {
         [fullTextFieldName]: prefix_autocomplete_field_settings,
       },
+    },
+    hierarchyPath: {
+      type: 'text',
+      analyzer: 'path_hierarchy',
     },
     akaUnit: {
       type: 'keyword',
