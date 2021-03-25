@@ -45,7 +45,7 @@ export class Person {
   }
 
   // todo: many
-  static async getPersons(query?: any, excluderQuery?: PersonExcluderQuery): Promise<IPerson[]> {
+  static async getPersons(query?: any, excluderQuery?: Partial<PersonExcluderQuery>): Promise<IPerson[]> {
     const persons: IPerson[] = await Person._personRepository.findByFilter(query || {}, excluderQuery);
     if (!persons) throw new ResourceNotFoundError('An unexpected error occurred while fetching people');
     return persons;
@@ -95,7 +95,7 @@ export class Person {
     from: Date, 
     to: Date, 
     query: object = {},
-    excluderQuery?: PersonExcluderQuery
+    excluderQuery?: Partial<PersonExcluderQuery>
   ) {
     const persons = await Person._personRepository.getUpdatedFrom(from, to, query);
     return <IPerson[]>persons;

@@ -208,6 +208,24 @@ describe('Persons', () => {
       persons.should.have.lengthOf(1);
       persons[0].should.to.have.property('identityCard',  person1.identityCard);      
     });
+    it('should return all persons except under specific hierarchy', async () => {
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const result = await Person.getPersons(null, { hierarchy: [person.hierarchy.join('/')] });
+      expect(result).to.be.an('array').with.lengthOf(0);
+    });
+    it('should return all persons except with specific current unit', async () => {
+      const excludedPerson = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const includedPerson = await Person.createPerson(<IPerson>{ ...personExamples[1] });
+      const result = await Person.getPersons(null, { currentUnit: [excludedPerson.currentUnit] });
+      expect(result).to.be.an('array').with.lengthOf(1);
+      expect(result[0]).to.haveOwnProperty('id', includedPerson.id);
+    });
+    it('should return all persons except with specific ranks', async () => {
+      const p1 = await Person.createPerson(<IPerson>{ ...personExamples[0] });
+      const p2 = await Person.createPerson(<IPerson>{ ...personExamples[1], entityType: ENTITY_TYPE[1], rank: RANK[2] });
+      const result = await Person.getPersons(null, { rank: [RANK[2], RANK[1]] });
+      expect(result).to.be.an('array').with.lengthOf(0);
+    });
   });
   describe('#get updated persons a from given date', () => {
     it('Should get the current persons', async () => {
