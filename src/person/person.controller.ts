@@ -385,7 +385,7 @@ export class Person {
     await Person.updatePerson(personId, person);
   }
 
-  static async searchPersonsByName(query: Partial<PersonSearchQuery>) {
+  static async searchPersonsByName(query: Partial<PersonSearchQuery>, excluderQuery?: Partial<PersonExcluderQuery>) {
     const { fullName, underGroupId, ...rest } = query;
     const filters: Partial<PersonTextSearchFilters> = rest;
     // the query makes sense only if 'fullName' is requested
@@ -396,7 +396,7 @@ export class Person {
       const group = await OrganizationGroup.getOrganizationGroup(underGroupId);
       if (!!group) filters.hierarchyPath = [...group.hierarchy, group.name].join('/');
     }
-    return Person._personTextSearch.searchByFullName(fullName, filters);
+    return Person._personTextSearch.searchByFullName(fullName, filters, excluderQuery);
   }
 
   static async getPictureStream(personIdentifier: string) : Promise<StreamResponse> {
