@@ -16,9 +16,9 @@ const addHierarchyPath = function () {
   const hierarchyPath : string[] = [];
 
   if (hierarchy) {
-    hierarchy.forEach((elem: string, index: number) => {
-      hierarchyPath[index] = hierarchy.slice(0, index + 1).join('/');
-    });
+    for (let i = 0; i < hierarchy.length; i++) {
+      hierarchyPath[i] = hierarchy.slice(0, i + 1).join('/');
+    }
   }
 
   (this as any).set('hierarchyPath', hierarchyPath);
