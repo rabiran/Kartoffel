@@ -11,21 +11,18 @@ const SEX_VALUES = [consts.SEX.Male, consts.SEX.Female];
 (<any>mongoose).Promise = Promise;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const schemaOptions = {
-  toObject: {
-    virtuals: true,
-    versionKey: false,
-  },
-  toJSON: {
-    virtuals: true,
-    versionKey:false,
-  },
-  collation: {
-    locale:'en',
-    strength: 1,
-  },
-};
+const addHierarchyPath = function () {
+  const hierarchy : string[] = (this as any).get('hierarchy');
+  const hierarchyPath : string[] = [];
 
+  if (hierarchy) {
+    for (let i = 0; i < hierarchy.length; i++) {
+      hierarchyPath[i] = hierarchy.slice(0, i + 1).join('/');
+    }
+  }
+
+  (this as any).set('hierarchyPath', hierarchyPath);
+};
 
 const DomainUserSchema = new mongoose.Schema(
   {
@@ -196,8 +193,29 @@ export const PersonSchema = new mongoose.Schema(
     birthDate: {
       type: Date,
     },
+    hierarchyPath: {
+      type: [String],
+      default: undefined,
+    },
   },
-  schemaOptions
+  {
+    toJSON: {
+      virtuals: true,
+      versionKey:false,
+    },
+    collation: {
+      locale:'en',
+      strength: 1,
+    },
+    toObject: {
+      virtuals: true,
+      versionKey: false,
+      transform:  (doc, ret, options) => {
+        const { hierarchyPath, ...rest } = ret;
+        return rest;
+      },
+    },
+  }
 );
 
 PersonSchema.set('timestamps', true);
@@ -205,6 +223,9 @@ PersonSchema.set('timestamps', true);
 PersonSchema.virtual('fullName').get(function () {
   return [this.firstName, this.lastName].filter(s => s).join(' ');
 });
+
+PersonSchema.pre('findOneAndUpdate', addHierarchyPath);
+PersonSchema.pre('save', addHierarchyPath);
 
 registerErrorHandlingHooks(PersonSchema);
 
