@@ -37,8 +37,9 @@ export abstract class RepositoryBase<T> implements IRead<T>, IWrite<T> {
     for (const [field, value] of Object.entries(queryObj)) {
       if (Array.isArray(value)) {
         cond[field] = negate ? { $nin: value } : { $in: value };
+      } else {
+        cond[field] = negate ? { $ne: value } : value;
       }
-      cond[field] = negate ? { $ne: value } : value;
     }
     return cond;
   }
