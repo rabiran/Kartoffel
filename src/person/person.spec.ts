@@ -226,6 +226,26 @@ describe('Persons', () => {
       const result = await Person.getPersons(null, { rank: [RANK[2], RANK[1]] });
       expect(result).to.be.an('array').with.lengthOf(0);
     });
+    it('should return all persons except with specific ranks or with specific current unit (multiple condition excluder)', async () => {
+      await Person.createPerson(<IPerson>{ 
+        ...personExamples[0], 
+        currentUnit: CURRENT_UNIT[0], 
+        rank: RANK[3],
+      });
+      await Person.createPerson(<IPerson>{ 
+        ...personExamples[1], 
+        entityType: ENTITY_TYPE[1], 
+        rank: RANK[2], 
+        currentUnit: CURRENT_UNIT[0],
+      });
+      const person = await Person.createPerson(<IPerson>{ ...personExamples[2], currentUnit: CURRENT_UNIT[1] });
+      const result = await Person.getPersons(null, { 
+        rank: [RANK[2], RANK[1]],
+        currentUnit: [CURRENT_UNIT[0]],
+      });
+      expect(result).to.be.an('array').with.lengthOf(1);
+      expect(result[0]).to.haveOwnProperty('id', person.id);
+    });
   });
   describe('#get updated persons a from given date', () => {
     it('Should get the current persons', async () => {
