@@ -39,9 +39,10 @@ const authenticate = function (req: Request, res: Response, next: NextFunction) 
 const authorize = wa(async (req: Request, res: Response, next: NextFunction) => {
   if (
     !req.user || !req.user.scope || !Array.isArray(req.user.scope) || 
-    req.user.scope.length === 0 ||
+    req.user.scope.length === 0
     // the scope contains only allowed values 
-    _.without(req.user.scope, Scope.READ, Scope.WRITE).length !== 0) {
+    // _.without(req.user.scope, Scope.READ, Scope.WRITE).length !== 0
+  ) {
     throw new UnauthorizedError();
   }
   // get all the allowed methods for this user's request

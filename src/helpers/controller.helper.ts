@@ -18,9 +18,9 @@ export const controllerHandler = (
   scopePolicyResultTransformer?: (scopes: string[], result: any) => any
 ) => wa(async (req: Request, res: Response) => {
   const boundParams = params ? params(req, res) : [];
-  const requestScopes = req.user ? req.user.scopes : undefined;
+  const requestScopes = req.user ? req.user.scope : undefined;
   const policyParams = scopePolicyExtractor && requestScopes ? 
-    scopePolicyExtractor(req.user.scopes) : undefined;
+    scopePolicyExtractor(requestScopes) : undefined;
   const result = await promise(...boundParams, policyParams);
   const transformedResult = scopePolicyResultTransformer && requestScopes ? 
     scopePolicyResultTransformer(requestScopes, result) : result;
