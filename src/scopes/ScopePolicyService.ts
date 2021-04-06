@@ -42,7 +42,7 @@ export class ScopePolicyService<TEntity, TFilter extends Filter> {
       .filter(transformer => !!transformer);
     let copy: Partial<TEntity> = { ...entity };
     for (const transformer of transformers) {
-      copy = transformer.apply(copy as any);
+      copy = transformer.apply(copy as any, entity);
     }
     return copy;
   }
