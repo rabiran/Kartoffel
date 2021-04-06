@@ -291,4 +291,8 @@ export function deleteByPath(obj: any, path: string[]) {
   delete cur[path[path.length - 1]];
 }
 
-
+export function isHierarchyUnderPath(hierarchyPath: string, path: string) {
+  const pathWithDelimeter = path.endsWith('/') ? path : path + '/';
+  const pathWithoutDelimeter = path.endsWith('/') ? path.slice(0, path.length - 1) : path;
+  return hierarchyPath.startsWith(pathWithDelimeter) || hierarchyPath === pathWithoutDelimeter;
+}

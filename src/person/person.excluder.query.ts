@@ -1,4 +1,5 @@
 import { IPerson } from './person.interface';
+import { isHierarchyUnderPath } from '../utils';
 
 export type PersonExcluderQuery = {
   hierarchy: string[]; // array of hierarchy strings. e.g: ['a/b/c', 'a/g']
@@ -16,7 +17,7 @@ export function statisfyExcluder(person: IPerson, excluder: Partial<PersonExclud
   }
   const hierarchyPath = person.hierarchy.join('/');
   for (const h of hierarchy) {
-    if (hierarchyPath.startsWith(h)) {
+    if (isHierarchyUnderPath(hierarchyPath, h)) {
       return true;
     }
   }
