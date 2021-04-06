@@ -25,7 +25,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     organizationGroupsIDS: string[], 
     excluderQuery: Partial<PersonExcluderQuery> = {}
   ): Promise<IPerson[]> {
-    const fullExcluderQuery = this.queryParser(this.buildExcluderQuery(excluderQuery));
+    const fullExcluderQuery = this.queryParser(this.buildExcluderQuery(excluderQuery), true);
     return this.find({
       $and: [
         { directGroup: { $in: organizationGroupsIDS } },
@@ -140,7 +140,7 @@ export class PersonRepository extends RepositoryBase<IPerson> {
     queryObj: any = {},
     excluderQuery: Partial<PersonExcluderQuery> = {}
   ) {
-    const fullExcluderQuery = this.queryParser(this.buildExcluderQuery(excluderQuery));
+    const fullExcluderQuery = this.queryParser(this.buildExcluderQuery(excluderQuery), true);
     return this.find({
       $and: [
         { 

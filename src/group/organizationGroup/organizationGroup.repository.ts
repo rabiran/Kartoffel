@@ -51,7 +51,7 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
     queryObj: any = {},
     excluderQuery: Partial<GroupExcluderQuery> = {}
   ) {
-    const fullExcluderQuery = this.queryParser(await this.buildExcluderQuery(excluderQuery));
+    const fullExcluderQuery = this.queryParser(await this.buildExcluderQuery(excluderQuery), true);
     const dateQuery = this.updatedFromQuery(from, to);
     const query = queryObj ? this.queryParser(queryObj) : {};
     return this.find({
