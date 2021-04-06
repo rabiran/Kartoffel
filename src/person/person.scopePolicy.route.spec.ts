@@ -1,4 +1,3 @@
-import * as mockery from 'mockery';
 import { rewiremock } from '../helpers/rewiremock';
 import * as chai from 'chai';
 import { Express } from 'express';
@@ -166,21 +165,17 @@ const mockGetKey = {
   },
 };
 
-
-
 describe('Person route with scope policy', () => {
   before(() => {
-    mockery.registerMock('./personScopePolicyService', mockPersonPolicyService);
-    mockery.registerMock('./getKey', mockGetKey);
-    // enable the mock
-    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
-
+    // configure the mock
+    rewiremock<typeof mockGetKey>(() => require('../auth/jwt/getKey')).with(mockGetKey);
+    rewiremock(() => require('./scopePolicy/personScopePolicyService')).withDefault(mockPersonPolicyService);
+    // enable the interceptor
+    rewiremock.enable();
     // important to import after enabling the mock
     app = require('../server').app;
   });
   after(() => {
-    // mockery.deregisterAll();
-    // mockery.disable();
     rewiremock.disable();
   });
   beforeEach(async () => {
@@ -189,8 +184,8 @@ describe('Person route with scope policy', () => {
     sensitive2Group = await OrganizationGroup.createOrganizationGroup(createSensitive2Group, rootGroup.id);
     nonSensitiveGroup = await OrganizationGroup.createOrganizationGroup(createNonSensitiveGroup, rootGroup.id);
   });
-  describe('/GET all', () => {
-    it.only('should get all except under sensitive hierarchy', async () => {
+  describe.only('/GET all', () => {
+    it('should get all except under sensitive hierarchy', async () => {
       const nonSenPerson = await Person.createPerson({ ...createPersonDetails[0], directGroup: nonSensitiveGroup.id });
       await Person.createPerson({ ...createPersonDetails[1], directGroup: sensitiveGroup.id });
       const result = (await chai.request(app).get(BASE_URL).set(AUTH_HEADER, externalScope)).body as IPerson[];
@@ -202,8 +197,8 @@ describe('Person route with scope policy', () => {
         ...createPersonDetails[0], 
         directGroup: nonSensitiveGroup.id,
         domainUsers: [
-          { uniqueID: `aaa${legalDomain}`, dataSource: sensitiveDataSource },
-          { uniqueID: `bbb${legalDomain}`, dataSource: nonSensitiveDataSource },
+          { uniqueID: `aaa@${legalDomain}`, dataSource: sensitiveDataSource },
+          { uniqueID: `bbb@${legalDomain}`, dataSource: nonSensitiveDataSource },
         ],
       });
       const result = (await chai.request(app).get(BASE_URL).set(AUTH_HEADER, externalScope)).body as IPerson[];
@@ -212,8 +207,16 @@ describe('Person route with scope policy', () => {
       expect(result[0].domainUsers[0]).to.haveOwnProperty('dataSource', nonSensitiveDataSource);
 
     });
-    it('should get all but without job');
-    it('should get all but without some fields for sensitive2 persons');
+    it('should get all but without job', async () => {
+      const person = await Person.createPerson({ ...createPersonDetails[0], directGroup: nonSensitiveGroup.id });
+      expect(person).to.haveOwnProperty('job');
+      const result = (await chai.request(app).get(BASE_URL).set(AUTH_HEADER, externalScope)).body as IPerson[];
+      expect(result).to.be.an('array').with.lengthOf(1);
+      expect(result[0]).to.not.haveOwnProperty('job');
+    });
+    it('should get all but without some fields for sensitive2 persons', async () => {
+      
+    });
     it('should get all but without hierarchy of domainUsers for sensitive2 domainUsers');
   });
   describe('/GET by id', () => {

@@ -67,7 +67,7 @@ const rules = {
 
 const scopes = {
   externalScope: [
-    'hideSensitivePersons', 'removeSensitiveDomainUsers', 'removeJob', 'removeSensitive2DomainUsersHierarchy',
+    // 'hideSensitivePersons', 'removeSensitiveDomainUsers', 'removeJob', 'removeSensitive2DomainUsersHierarchy',
     'removeSensitive2Hierarchy', 'removeSensitive2DirectGroup',
   ],
 };
