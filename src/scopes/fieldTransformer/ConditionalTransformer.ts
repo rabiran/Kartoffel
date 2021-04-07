@@ -2,7 +2,7 @@ import { getByPath, setByPath, deleteByPath } from '../../utils';
 import { Condition } from './condition/Condition';
 
 export interface ConditionalTransform<T> {
-  apply(source: T): Partial<T>;
+  apply(source: T, conditionSource?: T): Partial<T>;
 }
 
 export interface ConditionalTransformConstructor<T> {
@@ -43,7 +43,7 @@ export class ArrayMapper<T, U> implements ConditionalTransform<T> {
     if (Condition.and(source, ...this.conditions)) {
       const copy = { ...source };
       const transformed = getByPath(source, this.arrayPath)
-        .map(this.transformer.apply);
+        .map((item: any) => this.transformer.apply(item));
       setByPath(copy, this.arrayPath, transformed);
       return copy;
     }
@@ -57,8 +57,8 @@ export class FieldExclude<T> implements ConditionalTransform<T> {
     private conditions: Condition<T>[] = []
   ) {}
 
-  apply = (source: T) => {
-    if (Condition.and(source, ...this.conditions)) {
+  apply = (source: T, conditionSource?: T) => {
+    if (Condition.and(conditionSource || source, ...this.conditions)) {
       const copy = { ...source };
       deleteByPath(copy, this.fieldPath);
       return copy;

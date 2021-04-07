@@ -1,4 +1,5 @@
 import { IOrganizationGroup } from './organizationGroup.interface';
+import { isHierarchyUnderPath } from '../../utils';
 
 export type GroupExcluderQuery = {
   hierarchy: string[]; // array of hierarchy strings. e.g: ['a/b/c', 'a/g']
@@ -10,7 +11,7 @@ export function statisfyExcluder(group: IOrganizationGroup, excluder: Partial<Gr
   // check if group is under one of the excluded hierarchies
   for (const hierarchyPath of hierarchy) {
     const groupFullPath = [...group.hierarchy, group.name].join('/');
-    if (groupFullPath.startsWith(hierarchyPath)) {
+    if (isHierarchyUnderPath(groupFullPath, hierarchyPath)) {
       return true;
     }
   }

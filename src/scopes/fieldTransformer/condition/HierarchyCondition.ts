@@ -1,14 +1,15 @@
 import { Condition } from './Condition';
-import { getByPath } from '../../../utils';
+import { getByPath, isHierarchyUnderPath } from '../../../utils';
 
 export class HierarchyCondition extends Condition {
   private fieldPath: string[];
   private hierarchiesToCheck: string[];
 
-  constructor(fieldPath: string[], hierarchiesToCheck: string[]) {
+  constructor(fieldPath: string[], hierarchiesToCheck: string | string[]) {
     super();
     this.fieldPath = fieldPath;
-    this.hierarchiesToCheck = hierarchiesToCheck;
+    this.hierarchiesToCheck = Array.isArray(hierarchiesToCheck) ? 
+      hierarchiesToCheck : [hierarchiesToCheck];
   }
 
   check = (source: any) => {
@@ -20,7 +21,7 @@ export class HierarchyCondition extends Condition {
       hierarchyString = hierarchyField;
     }
     for (const hierarchy of this.hierarchiesToCheck) {
-      if (hierarchyString.startsWith(hierarchy)) {
+      if (isHierarchyUnderPath(hierarchyString, hierarchy)) {
         return true;
       }
     }
