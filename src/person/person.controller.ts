@@ -97,7 +97,7 @@ export class Person {
     query: object = {},
     excluderQuery?: Partial<PersonExcluderQuery>
   ) {
-    const persons = await Person._personRepository.getUpdatedFrom(from, to, query);
+    const persons = await Person._personRepository.getUpdatedFrom(from, to, query, excluderQuery);
     return <IPerson[]>persons;
   }
 

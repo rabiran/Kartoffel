@@ -1,5 +1,6 @@
 import { rewiremock } from '../helpers/rewiremock';
 import * as chai from 'chai';
+import * as sinon from 'sinon';
 import { Express } from 'express';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
@@ -11,7 +12,6 @@ import { ScopePolicyService } from '../scopes/ScopePolicyService';
 import { PersonExcluderQuery } from './person.excluder.query';
 import { Scope } from '../auth/auth';
 import { AUTH_HEADER } from '../auth/jwt/jwtStrategy';
-
 
 chai.use(require('chai-http'));
 const expect = chai.expect;
@@ -417,12 +417,60 @@ describe('Person route with scope policy', () => {
     });
     it('should get person without hierarchy field for sensitive2 domain users');
   });
-  describe('GET updated from', () => {
-    it('should get the non sensitive person');
-    it('should get the sensitive2 person without some fields');
-    it('should return 403 forbidden when trying to get sensitive person');
-    it('should get a person without its sensitive domain users');
-    it('should get person without hierarchy field for sensitive2 domain users');
+  describe('GET /getUpdated/:from', () => {
+    let clock: sinon.SinonFakeTimers, from: string;
+    beforeEach(() => {
+      clock = sinon.useFakeTimers();
+      from = clock.Date().toISOString();
+    });
+    afterEach(() => clock.restore());
+    it('should get all except under sensitive hierarchy', async () => {
+      clock.tick(1000);
+      const nonSenPerson = await Person.createPerson({ ...createPersonDetails[0], directGroup: nonSensitiveGroup.id });
+      await Person.createPerson({ ...createPersonDetails[1], directGroup: sensitiveGroup.id });
+      const result = (await chai.request(app).get(`${BASE_URL}/getUpdated/${from}`)
+        .set(AUTH_HEADER, externalScope)).body as IPerson[];
+      expect(result).to.be.an('array').with.lengthOf(1);
+      expect(result[0]).to.haveOwnProperty('id', nonSenPerson.id);
+    });
+    it('should get all but without sensitive domainUsers', async () => {
+      await Person.createPerson({ 
+        ...createPersonDetails[0], 
+        directGroup: nonSensitiveGroup.id,
+        domainUsers: [
+          { uniqueID: `aaa@${legalDomain}`, dataSource: sensitiveDataSource },
+          { uniqueID: `bbb@${legalDomain}`, dataSource: nonSensitiveDataSource },
+        ],
+      });
+      clock.tick(1000);
+      const result = (await chai.request(app).get(`${BASE_URL}/getUpdated/${from}`)
+        .set(AUTH_HEADER, externalScope)).body as IPerson[];
+      expect(result).to.be.an('array').with.lengthOf(1);
+      expect(result[0].domainUsers).to.be.an('array').with.lengthOf(1);
+      expect(result[0].domainUsers[0]).to.haveOwnProperty('dataSource', nonSensitiveDataSource);
+    });
+    it('should get also under sensitive hierarchy (privileged scope)', async () => {
+      await Person.createPerson({ ...createPersonDetails[1], directGroup: sensitiveGroup.id });
+      clock.tick(1000);
+      const result = (await chai.request(app).get(`${BASE_URL}/getUpdated/${from}`)
+        .set(AUTH_HEADER, privilegedScope)).body as IPerson[];
+      expect(result).to.be.an('array').with.lengthOf(1);
+    });
+    it('should get all with sensitive domainUsers (privileged scope)', async () => {
+      await Person.createPerson({ 
+        ...createPersonDetails[0], 
+        directGroup: nonSensitiveGroup.id,
+        domainUsers: [
+          { uniqueID: `aaa@${legalDomain}`, dataSource: sensitiveDataSource },
+          { uniqueID: `bbb@${legalDomain}`, dataSource: nonSensitiveDataSource },
+        ],
+      });
+      clock.tick(1000);
+      const result = (await chai.request(app).get(`${BASE_URL}/getUpdated/${from}`)
+        .set(AUTH_HEADER, privilegedScope)).body as IPerson[];      
+      expect(result).to.be.an('array').with.lengthOf(1);
+      expect(result[0].domainUsers).to.be.an('array').with.lengthOf(2);
+    });
   });
   describe('GET /organizationGroups/:id/members', () => {
     it('should return all members except of sensitive group', async () => {
