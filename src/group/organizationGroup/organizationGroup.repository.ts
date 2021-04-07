@@ -21,6 +21,7 @@ export class OrganizationGroupRepository extends RepositoryBase<IOrganizationGro
       const name = hierarchyPathArray[hierarchyPathArray.length - 1];
       return this.findOne({ name, hierarchy: hierarchyArray }, null, 'id');
     })))
+    .filter(g => !!g)
     .map(group => ObjectId(group.id)); // convert to ObjectId array
     return {
       ...ancestors.length > 0 && {
