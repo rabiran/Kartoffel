@@ -55,9 +55,10 @@ describe('Strong Groups', () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
 
       const groups = await OrganizationGroup.getOrganizationGroups(null, { hierarchy: [[...groupToExclude.hierarchy, groupToExclude.name].join('/')] });
+
       groups.should.be.a('array');
       groups.should.have.lengthOf(2);
-      chai.assert(!groups.find(group => group.name === groupToExclude.name));
+      expect(!!groups.find(group => group.name === groupToExclude.name)).to.be.false;
     });
     it('Should get all the groups except group under specific hierarchy', async () => {
       const parentGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'papa', akaUnit: 'samba' });
@@ -65,16 +66,21 @@ describe('Strong Groups', () => {
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
 
       const groups = await OrganizationGroup.getOrganizationGroups(null, { hierarchy: [[...childGroup.hierarchy, childGroup.name].join('/')] });
+
       groups.should.be.a('array');
       groups.should.have.lengthOf(2);
-      chai.assert(!groups.find(group => group.name === childGroup.name));
+      expect(!!groups.find(group => group.name === childGroup.name)).to.be.false;
     });
-    it('Should get all the groups except a group under specific hierarchy', async () => {
-      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1', akaUnit: 'samba' });
+    it('Should get all the groups except a group with specific akaUnit', async () => {
+      const groupToExclude = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1', akaUnit: 'samba' });
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
 
-      const groups = OrganizationGroup.getOrganizationGroups(null, { hierarchy: [''] });
+      const groups = await OrganizationGroup.getOrganizationGroups(null, { akaUnit: ['samba'] });
+
+      groups.should.be.a('array');
+      groups.should.have.lengthOf(2);
+      expect(!!groups.find(group => group.name === groupToExclude.name)).to.be.false;
     });
     it('Should get all the groups without group that delete', async () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
@@ -211,6 +217,43 @@ describe('Strong Groups', () => {
       expect(depthOffsprings).to.have.lengthOf(2);
       const ids = depthOffsprings.map(group => group.id);
       expect(ids).to.have.members([child.id, offspring.id]);
+    });
+
+    it('should return all the offsprings of a group except springs under specific hierarchy and down, case 1', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
+      const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, child.id);
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
+
+      const depthOffsprings = await OrganizationGroup.getOffsprings(parent.id, 2, { hierarchy: [[...child.hierarchy, child.name].join('/')] });
+      
+      expect(depthOffsprings).to.have.lengthOf(0);
+    });
+
+    it('should return all the offsprings of a group except springs under specific hierarchy and down, case 2', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child' }, parent.id);
+      const grandson = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'grandson' }, child.id);
+      const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring' }, grandson.id);
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
+
+      const depthOffsprings = await OrganizationGroup.getOffsprings(parent.id, null, { hierarchy: [[...grandson.hierarchy, grandson.name].join('/')] });
+      
+      expect(depthOffsprings).to.have.lengthOf(1);
+      const ids = depthOffsprings.map(group => group.id);
+      expect(ids).to.have.members([child.id]);
+    });
+
+    it('should return all the offsprings of a group except groups with specific akaUnit', async () => {
+      const parent = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'parent' });
+      const child = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'child', akaUnit: 'kid' }, parent.id);
+      const offspring = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'offspring', akaUnit: 'endSummer' }, child.id);
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'tooDeep' }, offspring.id);
+
+      const depthOffsprings = await OrganizationGroup.getOffsprings(parent.id, 2, { akaUnit: ['kid'] });
+      expect(depthOffsprings).to.have.lengthOf(1);
+      const ids = depthOffsprings.map(group => group.id);
+      expect(ids).to.have.members([offspring.id]);
     });
   });
 

@@ -166,7 +166,7 @@ const mockGetKey = {
   },
 };
 
-describe.only('Person route with scope policy', () => {
+describe('Person route with scope policy', () => {
   before(() => {
     // configure the mock
     rewiremock<typeof mockGetKey>(() => require('../auth/jwt/getKey')).with(mockGetKey);

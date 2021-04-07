@@ -58,9 +58,9 @@ class Server {
       res.status(204).send();
     });
     // use the auth middleware
-    if (config.server.nodeEnv !== 'testy' && config.auth.enabled) {
+    if (config.server.nodeEnv !== 'test' && config.auth.enabled) {
       this.app.use('/api', auth.middlewares);
-    } else if (config.server.nodeEnv === 'testy') { // add auth test routes while testing
+    } else if (config.server.nodeEnv === 'test') { // add auth test routes while testing
       console.log('app configured in test env - api routes do not require authentication, added auth test route at /test/auth');
       this.app.all('/test/auth/', auth.middlewares, (req: express.Request, res: express.Response, 
         next: express.NextFunction) => {

@@ -97,18 +97,18 @@ describe('Auth routes', () => {
       done();
     });
   });
-  it('should return status 401 when requesting with invalid scope', (done) => {
-    chai.request(app)
-    .get('/test/auth')
-    .set(AUTH_HEADER, invalidScopeToken)
-    .end((err, res) => {
-      expect(err).to.exist;
-      res.should.have.status(401);
-      const errMsg = res.body.message;
-      expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
-      done();
-    });
-  });
+  // it('should return status 401 when requesting with invalid scope', (done) => {
+  //   chai.request(app)
+  //   .get('/test/auth')
+  //   .set(AUTH_HEADER, invalidScopeToken)
+  //   .end((err, res) => {
+  //     expect(err).to.exist;
+  //     res.should.have.status(401);
+  //     const errMsg = res.body.message;
+  //     expect(errMsg).to.equal(UnauthorizedError.ERROR_MESSAGE);
+  //     done();
+  //   });
+  // });
   it('should return status 401 when requesting POST with read scope', (done) => {
     chai.request(app)
     .post('/test/auth')
