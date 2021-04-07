@@ -1,7 +1,7 @@
 import { IOrganizationGroup } from './organizationGroup.interface';
 
 export type GroupExcluderQuery = {
-  hierarchy: string[];
+  hierarchy: string[]; // array of hierarchy strings. e.g: ['a/b/c', 'a/g']
   akaUnit: string[];
 };
 

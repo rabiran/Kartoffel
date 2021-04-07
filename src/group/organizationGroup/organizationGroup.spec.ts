@@ -49,6 +49,33 @@ describe('Strong Groups', () => {
       groups.should.be.a('array');
       groups.should.have.lengthOf(3);
     });
+    it('Should get all the groups except specific group with no hierarchy', async () => {
+      const groupToExclude = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      const groups = await OrganizationGroup.getOrganizationGroups(null, { hierarchy: [[...groupToExclude.hierarchy, groupToExclude.name].join('/')] });
+      groups.should.be.a('array');
+      groups.should.have.lengthOf(2);
+      chai.assert(!groups.find(group => group.name === groupToExclude.name));
+    });
+    it('Should get all the groups except group under specific hierarchy', async () => {
+      const parentGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'papa', akaUnit: 'samba' });
+      const childGroup = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'chiko' }, parentGroup.id);
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      const groups = await OrganizationGroup.getOrganizationGroups(null, { hierarchy: [[...childGroup.hierarchy, childGroup.name].join('/')] });
+      groups.should.be.a('array');
+      groups.should.have.lengthOf(2);
+      chai.assert(!groups.find(group => group.name === childGroup.name));
+    });
+    it('Should get all the groups except a group under specific hierarchy', async () => {
+      const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1', akaUnit: 'samba' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
+      await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group3' });
+
+      const groups = OrganizationGroup.getOrganizationGroups(null, { hierarchy: [''] });
+    });
     it('Should get all the groups without group that delete', async () => {
       const group = await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group1' });
       await OrganizationGroup.createOrganizationGroup(<IOrganizationGroup>{ name: 'group2' });
