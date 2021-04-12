@@ -1,7 +1,8 @@
 // The first element is the default value of who need rank
 export const RANK = ['unknown', 'rookie', 'champion', 'ultimate', 'mega'];
 
-export const CURRENT_UNIT = ['nitro unit', 'jelly unit'];
+export const CURRENT_UNIT = ['nitro unit', 'jelly unit','ads1', 'ads2', 'ads3', 'ads4', 'ads5', 'ads6','gondor', 'mordor'
+, 'wallmart', 'valhalla','es1', 'es2', 'es3', 'es4', 'es5', 'es6','city1', 'city2', 'city3', 'city4', 'city5', 'city6'];
 
 // the last element makes the 'domainUsers' field required (at least 1 value in the array)
 // the second to last element makes the 'rank' field required
