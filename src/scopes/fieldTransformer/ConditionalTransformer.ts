@@ -24,8 +24,11 @@ implements ConditionalTransform<T> {
   ) {}
 
   apply = (source: T) => {
-    const filtered = getByPath(source, this.arrayPath)
-      .filter((item: any) => !Condition.and(item, ...this.conditions));
+    const arrProp = getByPath(source, this.arrayPath);
+    if (!arrProp) {
+      return source;
+    }
+    const filtered = arrProp.filter((item: any) => !Condition.and(item, ...this.conditions));
     const copy = { ...source };
     setByPath(copy, this.arrayPath, filtered);
     return copy;
@@ -41,9 +44,12 @@ export class ArrayMapper<T, U> implements ConditionalTransform<T> {
 
   apply = (source: T) => {
     if (Condition.and(source, ...this.conditions)) {
+      const arrProp = getByPath(source, this.arrayPath);
+      if (!arrProp) {
+        return source;
+      }
       const copy = { ...source };
-      const transformed = getByPath(source, this.arrayPath)
-        .map((item: any) => this.transformer.apply(item));
+      const transformed = arrProp.map((item: any) => this.transformer.apply(item));
       setByPath(copy, this.arrayPath, transformed);
       return copy;
     }
