@@ -1,4 +1,5 @@
 process.env.NODE_ENV = 'test';
+import { Request, Response, NextFunction } from 'express';
 import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as forge from 'node-forge';
@@ -7,6 +8,8 @@ import { config } from '../config/config';
 import { IPerson } from '../person/person.interface';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
+import { AUTH_HEADER } from '../auth/jwt/jwtStrategy';
+
 // import * as mocha from 'mocha';
 
 dotenv.config({ path: '.env' });
@@ -80,6 +83,12 @@ export function generateToken(payload: any, privateKey: string) {
     expiresIn: '600000000', // take your time...
     algorithm: 'RS256',
   });
+}
+
+export function extractTokenMiddleware(req: Request, res: Response, next: NextFunction) {
+  const token = jwt.decode(req.headers[AUTH_HEADER]);
+  req.user = token;
+  next();
 }
 
 const mochaAsync = (func: Function) => {
