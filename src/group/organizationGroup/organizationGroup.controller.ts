@@ -257,7 +257,7 @@ export class OrganizationGroup {
     return res;
   }
 
-  static async searchGroups(query: Partial<GroupQuery>) {
+  static async searchGroups(query: Partial<GroupQuery>, excluderQuery?: Partial<GroupExcluderQuery>) {
     const { hierarchy, name, ...filters } = query;
     const { underGroupId } = filters;
     // the query makes sense only if any of these fields requested
@@ -267,7 +267,7 @@ export class OrganizationGroup {
       await OrganizationGroup.getOrganizationGroup(underGroupId);
     }
     return OrganizationGroup._organizationGroupTextSearch
-      .searchByNameAndHierarchy({ name, hierarchy }, filters);
+      .searchByNameAndHierarchy({ name, hierarchy }, filters, excluderQuery);
   }
 
   /**
