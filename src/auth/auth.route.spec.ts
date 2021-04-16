@@ -1,8 +1,8 @@
+import { rewiremock } from '../helpers/rewiremock';
 import { generateCertificates, generateToken } from '../helpers/spec.helper';
 import * as sinon from 'sinon';
 import * as chai from 'chai';
 import * as httpMocks from 'node-mocks-http';
-import * as mockery from 'mockery';
 import * as dotenv from 'dotenv';
 import { Request, Response, NextFunction, Express } from 'express';
 import { Scope } from './auth';
@@ -31,16 +31,14 @@ let app: Express = null;
 describe('Auth routes', () => {
   before(() => {
     // enable the mock
-    mockery.enable({ useCleanCache: true, warnOnUnregistered: false });
-    mockery.registerMock('./getKey', mockGetKey);
-
+    rewiremock<typeof mockGetKey>(() => require('./jwt/getKey')).with(mockGetKey);
+    rewiremock.enable();
     // important to import after enabling the mock
     app = require('../server').app;
   });
 
   after(() => {
-    mockery.deregisterAll();
-    mockery.disable();
+    rewiremock.disable();
   });
 
   it('should return status 200 when requesting GET with read scope', (done) => {
