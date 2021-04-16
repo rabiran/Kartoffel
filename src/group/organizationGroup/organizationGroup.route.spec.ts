@@ -1,14 +1,15 @@
+import { rewiremock } from '../../helpers/rewiremock';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
-import { app } from '../../server';
 import * as organizationGroupRouter from './organizationGroup.route';
 import { OrganizationGroup } from './organizationGroup.controller';
 import { OrganizationGroupModel } from './organizationGroup.model';
 import { IOrganizationGroup } from './organizationGroup.interface';
-import { expectError } from '../../helpers/spec.helper';
+import { mockAuthModule } from '../../helpers/spec.helper';
 import { Person } from '../../person/person.controller';
 import { IPerson } from '../../person/person.interface';
 import { ENTITY_TYPE } from '../../config/db-enums';
+import { Express } from 'express';
 
 const should = chai.should();
 chai.use(require('chai-http'));
@@ -19,7 +20,17 @@ const ID_EXAMPLE_2 = '59a56d577bedba18504298de';
 const BASE_URL = '/api/organizationGroups';
 const CHILDREN_ROUTE = 'children';
 
+let app: Express = null;
+
 describe('OrganizationGroup API', () => {
+  before(() => {
+    rewiremock<typeof mockAuthModule>(() => require('../../auth/auth')).with(mockAuthModule);
+    rewiremock.enable();
+    app = require('../../server').app;
+  });
+  after(() => {
+    rewiremock.disable();
+  });
   describe('/GET all groups', () => {
     it('Should get all the groups', (done) => {
       chai.request(app)

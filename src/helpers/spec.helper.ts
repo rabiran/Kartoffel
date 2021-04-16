@@ -1,4 +1,5 @@
 process.env.NODE_ENV = 'test';
+process.env.ENABLE_AUTH = 'true';
 import { Request, Response, NextFunction } from 'express';
 import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
@@ -90,6 +91,11 @@ export function extractTokenMiddleware(req: Request, res: Response, next: NextFu
   req.user = token;
   next();
 }
+
+export const mockAuthModule = {
+  initialize: () => (req: Request, res: Response, next: NextFunction) => next(),
+  middlewares: (req: Request, res: Response, next: NextFunction) => next(),
+};
 
 const mochaAsync = (func: Function) => {
   return async (done: Function) => {

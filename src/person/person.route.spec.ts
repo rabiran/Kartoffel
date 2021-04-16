@@ -1,13 +1,14 @@
+import { rewiremock } from '../helpers/rewiremock';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
-import { app } from '../server';
+import { Express } from 'express';
 import { Person } from './person.controller';
 import { IPerson, IDomainUser, ProfilePictureDTO } from './person.interface';
 import { OrganizationGroup } from '../group/organizationGroup/organizationGroup.controller';
 import { IOrganizationGroup } from '../group/organizationGroup/organizationGroup.interface';
 import { RESPONSIBILITY, ENTITY_TYPE, RANK, CURRENT_UNIT, SERVICE_TYPE, DATA_SOURCE, STATUS, SEX } from '../config/db-enums';
 import { config } from '../config/config';
-import { createGroupForPersons, dummyGroup } from '../helpers/spec.helper';
+import { createGroupForPersons, mockAuthModule } from '../helpers/spec.helper';
 import { domainMap } from '../utils';
 
 const should = chai.should();
@@ -116,8 +117,19 @@ const personExamples: IPerson[] = [
 ];
 
 const BASE_URL = '/api/persons';
+// server to perform request on - imported later
+let app: Express = null;
+
 
 describe('Person', () => {
+  before(() => {
+    rewiremock<typeof mockAuthModule>(() => require('../auth/auth')).with(mockAuthModule);
+    rewiremock.enable();
+    app = require('../server').app;
+  });
+  after(() => {
+    rewiremock.disable();
+  });
   // create OG to link with each person.
   beforeEach(async () => await createGroupForPersons(personExamples));
 
