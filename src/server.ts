@@ -1,15 +1,16 @@
 import { config } from './config/config';
-import * as express       from 'express';
-import * as session       from 'express-session';
-import * as bodyParser    from 'body-parser';
-import * as cors          from 'cors';
-import * as dotenv        from 'dotenv';
-import * as errorHandler  from 'errorhandler';
-import * as logger        from 'morgan';
-import * as mongoose      from 'mongoose';
-import * as _             from 'lodash';
-import * as swaggerTools  from 'swagger-tools';
-import * as YAML          from 'yamljs';
+import * as express from 'express';
+import * as compression from 'compression';
+import * as session from 'express-session';
+import * as bodyParser from 'body-parser';
+import * as cors from 'cors';
+import * as dotenv from 'dotenv';
+import * as errorHandler from 'errorhandler';
+import * as logger from 'morgan';
+import * as mongoose from 'mongoose';
+import * as _ from 'lodash';
+import * as swaggerTools from 'swagger-tools';
+import * as YAML from 'yamljs';
 import * as auth from './auth/auth';
 import * as personRouter from './person/person.route';
 import * as organizationGroupRouter from './group/organizationGroup/organizationGroup.route';
@@ -48,6 +49,7 @@ class Server {
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
     this.app.use(auth.initialize()); // todo: maybe check env
+    this.app.use(compression());
     // make query case insensitive 
     this.app.use((req, res, next) => {
       req.query = proxyCaseInsensitive(req.query);
@@ -60,10 +62,10 @@ class Server {
     // use the auth middleware
     if (config.auth.enabled) {
       this.app.use('/api', auth.middlewares);
-    } 
+    }
     if (config.server.nodeEnv === 'test') { // add auth test routes while testing
       console.log('app configured in test env - api routes do not require authentication, added auth test route at /test/auth');
-      this.app.all('/test/auth/', auth.middlewares, (req: express.Request, res: express.Response, 
+      this.app.all('/test/auth/', auth.middlewares, (req: express.Request, res: express.Response,
         next: express.NextFunction) => {
         res.sendStatus(200);
       });
