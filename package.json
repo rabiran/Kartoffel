@@ -46,7 +46,7 @@
     "promise-retry": "^1.1.1",
     "request": "^2.88.0",
     "rimraf": "^2.6.2",
-    "shelljs": "^0.7.8",
+    "shelljs": "^0.8.5",
     "swagger-tools": "^0.10.4",
     "swagger-ui": "^3.24.0",
     "tslint-config-airbnb": "^5.3.1",
