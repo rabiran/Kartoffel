@@ -87,7 +87,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-http": "^3.0.0",
     "concurrently": "^3.6.1",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^9.0.0",
     "mocha": "^3.5.0",
     "mochawesome": "^3.0.3",
     "mockery": "^2.1.0",
